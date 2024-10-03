@@ -1,0 +1,93 @@
+.wvc-container {
+    padding: 24px;
+    margin: 24px 0;
+    background-color: #ffffff;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+/* Tab styling */
+.wvc-tabs {
+    display: flex;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.wvc-tabs button {
+    background-color: #f1f1f1;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border-radius: 8px;
+    margin: 0 8px 8px 0;
+}
+
+.wvc-tabs button.active {
+    background-color: #dbe9f4;
+    border-bottom: 1px solid #ffffff;
+}
+
+.wvc-tab-content {
+    display: none;
+    padding: 10px 0;
+}
+
+.wvc-tab-content.active {
+    display: block;
+}
+
+.wvc-container p {
+    font-size: 14px;
+}
+
+.wvc-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.wvc-table th,
+.wvc-table td {
+    padding: 8px;
+    border: 1px solid #e1e1e1;
+}
+
+.wvc-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.wvc-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.wvc-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Compatibility Note Colors */
+.wvc-table td.compatible {
+    color: green;
+}
+
+.wvc-table td.not-compatible {
+    color: red;
+}
+
+/* Rounded Corners */
+.wvc-table th:first-child,
+.wvc-table td:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.wvc-table th:last-child,
+.wvc-table td:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
