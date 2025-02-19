@@ -23,6 +23,7 @@ if ( ! defined( 'WP_VIP_COMPATIBILITY_URL' ) ) {
 }
 
 require_once WP_VIP_COMPATIBILITY_DIR . '/includes/helpers/class-autoloader.php';
+require_once WP_VIP_COMPATIBILITY_DIR . '/functions.php';
 
 use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
 use WP_VIP_COMPATIBILITY\Includes\Classes\Plugin;
