@@ -61,57 +61,19 @@ class Plugins_Settings {
 		);
 
 		$known_plugins = array(
-			'aryo-activity-log'                  => array(
-				'2.10.1' => 'Yes',
-			),
-			'memberpress-importer'               => array(
-				'1.6.18' => 'Yes',
-			),
-			'memberpress-pdf-invoice'            => array(
-				'1.1.23' => 'Yes',
-			),
-			'memberpress'                        => array(
-				'1.11.28' => 'Yes',
-			),
-			'miniorange-2-factor-authentication' => array(
-				'5.8.3' => 'Yes',
-			),
-			'miniorange-saml-20-single-sign-on'  => array(
-				'5.1.4' => 'Yes',
-			),
-			'post-smtp'                          => array(
-				'2.9.1' => 'Yes',
-			),
-			'cc-post-to-pdf'                     => array(
-				'2.0' => 'Yes',
-			),
-			'tiny-compress-images'               => array(
-				'3.4.3' => 'Yes',
-			),
-			'wpdatatables'                       => array(
-				'3.4.2.11' => 'Yes',
-			),
-			'wp-file-manager'                    => array(
-				'7.2.6' => 'Yes',
-			),
-			'wpforms'                            => array(
-				'1.8.7.2' => 'Yes',
-			),
-			'zoom-meeting'                       => array(
-				'1.0' => 'Yes',
-			),
-		);
-
-		$wp_engine_mu_plugins = array(
-			'force-strong-passwords'         => 'No',
-			'mu-plugin.php'                  => 'No',
-			'slt-force-strong-passwords.php' => 'No',
-			'wpe-cache-plugin'               => 'No',
-			'wpe-cache-plugin.php'           => 'No',
-			'wpe-wp-sign-on-plugin'          => 'No',
-			'wpe-wp-sign-on-plugin.php'      => 'No',
-			'wpengine-common'                => 'No',
-			'wpengine-security-auditor.php'  => 'No',
+			'aryo-activity-log'                  => array( '2.10.1' => 'Yes' ),
+			'memberpress-importer'               => array( '1.6.18' => 'Yes' ),
+			'memberpress-pdf-invoice'            => array( '1.1.23' => 'Yes' ),
+			'memberpress'                        => array( '1.11.28' => 'Yes' ),
+			'miniorange-2-factor-authentication' => array( '5.8.3' => 'Yes' ),
+			'miniorange-saml-20-single-sign-on'  => array( '5.1.4' => 'Yes' ),
+			'post-smtp'                          => array( '2.9.1' => 'Yes' ),
+			'cc-post-to-pdf'                     => array( '2.0' => 'Yes' ),
+			'tiny-compress-images'               => array( '3.4.3' => 'Yes' ),
+			'wpdatatables'                       => array( '3.4.2.11' => 'Yes' ),
+			'wp-file-manager'                    => array( '7.2.6' => 'Yes' ),
+			'wpforms'                            => array( '1.8.7.2' => 'Yes' ),
+			'zoom-meeting'                       => array( '1.0' => 'Yes' ),
 		);
 
 		$already_tested_plugins = array(
@@ -119,20 +81,20 @@ class Plugins_Settings {
 			'advanced-custom-fields',
 		);
 
-		// Load the necessary WordPress functions.
+		// Load necessary WordPress functions
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		// Get the list of all installed plugins.
+		// Get all installed plugins
 		$all_plugins = get_plugins();
 
-		// Get information about plugin updates (must be done in the admin area)
+		// Get plugin update information (only works in admin area)
 		wp_update_plugins();
-
-		// Get the list of available plugin updates
 		$plugin_updates = get_site_transient( 'update_plugins' );
+
 		?>
+
 		<table class="wvc-table">
 			<thead>
 				<tr>
@@ -141,18 +103,45 @@ class Plugins_Settings {
 					<th><?php esc_html_e( 'Author', 'wp-vip-compatibility' ); ?></th>
 					<th><?php esc_html_e( 'Plugin File Path', 'wp-vip-compatibility' ); ?></th>
 					<th><?php esc_html_e( 'New Version Available', 'wp-vip-compatibility' ); ?></th>
+					<th><?php esc_html_e( 'VIP Compatibility', 'wp-vip-compatibility' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php foreach ( $all_plugins as $plugin_file => $plugin_data ) : ?>
+					<?php
+					$plugin_slug = dirname( $plugin_file );
+					$plugin_version = $plugin_data['Version'];
+					$plugin_path = WP_PLUGIN_DIR . '/' . $plugin_slug;
+
+					// 1️⃣ Check if plugin is in known plugins list with specific VIP status
+					if ( isset( $known_plugins[ $plugin_slug ] ) && isset( $known_plugins[ $plugin_slug ][ $plugin_version ] ) ) {
+						$vip_status = $known_plugins[ $plugin_slug ][ $plugin_version ];
+					}
+					// 2️⃣ Check if plugin is VIP-recommended
+					elseif ( in_array( $plugin_slug, $vip_mu_plugins, true ) ) {
+						$vip_status = 'Recommended';
+					}
+					// 3️⃣ Check if plugin is disallowed on VIP
+					elseif ( in_array( $plugin_slug, $vip_disallowed_plugins, true ) ) {
+						$vip_status = 'Disallowed on VIP';
+					}
+					// 4️⃣ Check if plugin is already tested
+					elseif ( in_array( $plugin_slug, $already_tested_plugins, true ) ) {
+						$vip_status = 'Already Tested';
+					}
+					// 5️⃣ Run PHPCS scan for filesystem writes
+					else {
+						$vip_status = check_vip_compatibility( $plugin_path );
+					}
+
+					?>
 					<tr>
 						<td><?php echo esc_html( $plugin_data['Name'] ); ?></td>
-						<td><?php echo esc_html( $plugin_data['Version'] ); ?></td>
+						<td><?php echo esc_html( $plugin_version ); ?></td>
 						<td><?php echo esc_html( $plugin_data['Author'] ); ?></td>
 						<td><?php echo esc_html( $plugin_file ); ?></td>
 						<td>
 							<?php
-							// Check if an update is available for this plugin
 							if ( isset( $plugin_updates->response[ $plugin_file ] ) ) {
 								$new_version = $plugin_updates->response[ $plugin_file ]->new_version;
 								echo esc_html( $new_version );
@@ -161,10 +150,12 @@ class Plugins_Settings {
 							}
 							?>
 						</td>
+						<td><?php echo esc_html( $vip_status ); ?></td>
 					</tr>
 				<?php endforeach; ?>
 			</tbody>
 		</table>
 		<?php
 	}
+
 }
