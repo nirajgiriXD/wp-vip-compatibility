@@ -12,16 +12,20 @@
  * @package wp-vip-compatibility
  */
 
-defined( 'ABSPATH' ) || wp_die();
+defined( 'ABSPATH' ) || exit;
 
+/**
+ * Define plugin constants.
+ */
 if ( ! defined( 'WP_VIP_COMPATIBILITY_DIR' ) ) {
-    define( 'WP_VIP_COMPATIBILITY_DIR', __DIR__ );
+	define( 'WP_VIP_COMPATIBILITY_DIR', __DIR__ );
 }
 
 if ( ! defined( 'WP_VIP_COMPATIBILITY_URL' ) ) {
-    define( 'WP_VIP_COMPATIBILITY_URL', plugin_dir_url( __FILE__ ) );
+	define( 'WP_VIP_COMPATIBILITY_URL', plugin_dir_url( __FILE__ ) );
 }
 
+// Require necessary files.
 require_once WP_VIP_COMPATIBILITY_DIR . '/includes/helpers/class-autoloader.php';
 require_once WP_VIP_COMPATIBILITY_DIR . '/functions.php';
 
@@ -29,59 +33,60 @@ use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
 use WP_VIP_COMPATIBILITY\Includes\Classes\Plugin;
 
 /**
-* Main Class for WordPress VIP Compatibility
-*/
-class WP_VIP_COMPATIBILITY {
+ * Main class for WordPress VIP Compatibility.
+ */
+class WP_VIP_Compatibility {
 
-   use Singleton;
+	use Singleton;
 
-   /**
-    * Constructor.
-    */
-   public function __construct() {
-       $this->plugin_loader();
-       $this->setup_hooks();
-   }
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
 
-   /**
-    * Creates object of class from files loaded by autoloader.
-    *
-    * @return void
-    */
-   public function plugin_loader() {
-       Plugin::get_instance();
-   }
+		$this->plugin_loader();
+		$this->setup_hooks();
+	}
 
+	/**
+	 * Creates an instance of the plugin class.
+	 *
+	 * @return void
+	 */
+	public function plugin_loader() {
 
-   /**
-    * Sets up common hooks.
-    *
-    * @return void
-    */
-   public function setup_hooks() {
-       register_activation_hook( __FILE__, array( $this, 'handle_plugin_activation' ) );
-       register_deactivation_hook( __FILE__, array( $this, 'handle_plugin_deactivation' ) );
-   }
+		Plugin::get_instance();
+	}
 
-   /**
-    * Handles plugin activation.
-    *
-    * @return void
-    */
-   public function handle_plugin_activation() {
-       // Actions to perform on plugin activation.
-   }
+	/**
+	 * Sets up hooks for activation and deactivation.
+	 *
+	 * @return void
+	 */
+	public function setup_hooks() {
 
-   /**
-    * Handles plugin deactivation.
-    *
-    * @return void
-    */
-   public function handle_plugin_deactivation() {
-       // Actions to perform on plugin deactivation.
-   }
-   
+		register_activation_hook( __FILE__, array( $this, 'handle_plugin_activation' ) );
+		register_deactivation_hook( __FILE__, array( $this, 'handle_plugin_deactivation' ) );
+	}
+
+	/**
+	 * Handles plugin activation.
+	 *
+	 * @return void
+	 */
+	public function handle_plugin_activation() {
+		// Actions to perform on plugin activation.
+	}
+
+	/**
+	 * Handles plugin deactivation.
+	 *
+	 * @return void
+	 */
+	public function handle_plugin_deactivation() {
+		// Actions to perform on plugin deactivation.
+	}
 }
 
 // Initialize the main plugin class.
-WP_VIP_COMPATIBILITY::get_instance();
+WP_VIP_Compatibility::get_instance();

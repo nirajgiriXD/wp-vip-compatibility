@@ -8,6 +8,7 @@
 namespace WP_VIP_COMPATIBILITY\Includes\Classes;
 
 use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
+use WP_VIP_COMPATIBILITY\Includes\Classes\Plugin;
 
 /**
  * This class handles the directories submenu settings.
@@ -17,9 +18,18 @@ class Directories_Settings {
 	use Singleton;
 
 	/**
+	 * Stores plugin data from JSON file.
+	 * @var array
+	 */
+	private $json_data = [];
+
+	/**
 	 * Constructor method is used to initialize the fields.
 	 */
-	public function __construct() {}
+	public function __construct() {
+
+		$this->json_data = Plugin::get_instance()->get_json_data();
+	}
 
 	/**
 	 * Render the settings page html.
@@ -28,92 +38,20 @@ class Directories_Settings {
 	 */
 	public function render_settings_page() {
 
-		// Path to the wp-content directory
+		// Path to the wp-content directory.
 		$wp_content_dir = WP_CONTENT_DIR;
 
-		// List of supported directories and files as associative array
-		$supported_items = array(
-			'client-mu-plugins' => array(
-				'description' => 'Client-specific must-use plugins.',
-				'is_supported' => true
-			),
-			'docs' => array(
-				'description' => 'Documentation related to the site.',
-				'is_supported' => true
-			),
-			'images' => array(
-				'description' => 'Images and media files.',
-				'is_supported' => true
-			),
-			'languages' => array(
-				'description' => 'Language files for translations.',
-				'is_supported' => true
-			),
-			'plugins' => array(
-				'description' => 'Installed plugins directory.',
-				'is_supported' => true
-			),
-			'private' => array(
-				'description' => 'Private files, restricted access.',
-				'is_supported' => true
-			),
-			'themes' => array(
-				'description' => 'Installed themes directory.',
-				'is_supported' => true
-			),
-			'uploads' => array(
-				'description' => 'WordPress uploads directory.',
-				'is_supported' => false
-			),
-			'vip-config' => array(
-				'description' => 'VIP platform configuration files.',
-				'is_supported' => true
-			),
-			'.' => array(
-				'description' => 'Current directory placeholder.',
-				'is_supported' => false
-			),
-			'..' => array(
-				'description' => 'Parent directory placeholder.',
-				'is_supported' => false
-			),
-			'.editorconfig' => array(
-				'description' => 'Code style configuration file.',
-				'is_supported' => true
-			),
-			'.gitignore' => array(
-				'description' => 'Git ignore file, lists files to ignore in version control.',
-				'is_supported' => true
-			),
-			'.phpcs.xml.dist' => array(
-				'description' => 'PHP CodeSniffer configuration file.',
-				'is_supported' => true
-			),
-			'README.md' => array(
-				'description' => 'Readme file, documentation overview.',
-				'is_supported' => true
-			),
-			'composer.json' => array(
-				'description' => 'Composer file for PHP dependencies.',
-				'is_supported' => true
-			),
-			'composer.lock' => array(
-				'description' => 'Composer lock file for dependency versions.',
-				'is_supported' => true
-			),
-			'index.php' => array(
-				'description' => 'Directory index file to prevent directory listing.',
-				'is_supported' => false
-			),
-		);
+		// List of supported directories and files as associative array.
+		$directories = $this->json_data['directories'];
 
-		// Scan the wp-content directory
+		// Scan the wp-content directory.
 		$files_and_dirs = scandir($wp_content_dir);
 
 		// Start table
 		echo '<table class="wvc-table">';
 		echo '<thead>';
 		echo '<tr>';
+		echo '<th>SN</th>';
 		echo '<th>Files and Folders</th>';
 		echo '<th>Description</th>';
 		echo '<th>Compatibility</th>';
@@ -121,28 +59,30 @@ class Directories_Settings {
 		echo '</thead>';
 		echo '<tbody>';
 
-		// Loop through the files and directories
+		// Loop through the files and directories.
+		$counter = 1;
 		foreach ( $files_and_dirs as $item ) {
-			// Check if the current item is in the supported items array
-			if ( isset( $supported_items[ $item ] ) ) {
-				$description = $supported_items[ $item ]['description'];
-				$is_supported = $supported_items[ $item ]['is_supported'];
+			// Check if the current item is in the supported items array.
+			if ( isset( $directories[ $item ] ) ) {
+				$description = $directories[ $item ]['description'];
+				$is_supported = $directories[ $item ]['is_supported'];
 				
-				$additional_notes = $is_supported ? '<span style="color:green;">Compatible</span>' : '<span style="color:red;">Not Compatible</span>';
+				$additional_notes = $is_supported ? '<span class="compatible">Compatible</span>' : '<span class="not-compatible">Not Compatible</span>';
 			} else {
 				$description = 'Not Supported';
-				$additional_notes = '<span style="color:red;">Not Compatible</span>';
+				$additional_notes = '<span class="not-compatible">Not Compatible</span>';
 			}
 		
-			// Output row
+			// Output row.
 			echo '<tr>';
+			echo '<td>' . esc_html( $counter++ ) . '</td>';
 			echo '<td>' . esc_html( $item ) . '</td>';
 			echo '<td>' . esc_html( $description ) . '</td>';
 			echo '<td>' . $additional_notes . '</td>';
 			echo '</tr>';
 		}
 
-		// End table
+		// End table.
 		echo '</tbody>';
 		echo '</table>';
 	}

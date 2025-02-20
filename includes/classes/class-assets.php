@@ -20,6 +20,7 @@ class Assets {
 	 * Constructor method is used to initialize the fields.
 	 */
 	public function __construct() {
+
 		$this->setup_hooks();
 	}
 
@@ -30,9 +31,6 @@ class Assets {
 	 */
 	private function setup_hooks() {
 
-		/**
-		 * Actions
-		 */
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 	}
 

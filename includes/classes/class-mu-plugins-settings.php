@@ -22,7 +22,7 @@ class MU_Plugins_Settings {
 	public function __construct() {}
 
 	/**
-	 * Render the settings page html.
+	 * Render the settings page HTML.
 	 *
 	 * @return void
 	 */
@@ -37,32 +37,38 @@ class MU_Plugins_Settings {
 		<table class="wvc-table">
 			<thead>
 				<tr>
-					<th>Plugin Name</th>
-					<th>Path</th>
-					<th>Plugin File Path</th>
-					<th>Plugin Version</th>
-					<th>Author</th>
-					<th>VIP Compatibility</th>
+					<th><?php esc_html_e( 'Plugin Name', 'wp-vip-compatibility' ); ?></th>
+					<th><?php esc_html_e( 'Path', 'wp-vip-compatibility' ); ?></th>
+					<th><?php esc_html_e( 'Plugin Directory', 'wp-vip-compatibility' ); ?></th>
+					<th><?php esc_html_e( 'Version', 'wp-vip-compatibility' ); ?></th>
+					<th><?php esc_html_e( 'Author', 'wp-vip-compatibility' ); ?></th>
+					<th><?php esc_html_e( 'Compatibility', 'wp-vip-compatibility' ); ?></th>
+					<th><?php esc_html_e( 'Notes', 'wp-vip-compatibility' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php if ( empty( $mu_plugins ) ) : ?>
 					<tr>
-						<td colspan="6" style="text-align: center;">No MU plugins are present.</td>
+						<td colspan="7" style="text-align: center;"><?php esc_html_e( 'No MU plugins are present.', 'wp-vip-compatibility' ); ?></td>
 					</tr>
 				<?php else : ?>
+					<?php $counter = 1; ?>
 					<?php foreach ( $mu_plugins as $plugin_file => $plugin_data ) : ?>
 						<?php 
 							$plugin_path = WP_CONTENT_DIR . '/mu-plugins/' . $plugin_file;
-							$vip_compatibility = check_vip_compatibility( $plugin_path );
+							$vip_status = wvc_check_vip_compatibility( $plugin_path );
+							$compatibility_class = 'Compatible' === $vip_status ? 'compatible' : 'not-compatible';
 						?>
 						<tr>
+							<td><?php echo esc_html( $counter++ ); ?></td>
 							<td><?php echo esc_html( $plugin_data['Name'] ); ?></td>
 							<td><?php echo esc_html( $plugin_data['PluginURI'] ); ?></td>
 							<td><?php echo esc_html( $plugin_file ); ?></td>
 							<td><?php echo isset( $plugin_data['Version'] ) ? esc_html( $plugin_data['Version'] ) : 'N/A'; ?></td>
 							<td><?php echo esc_html( $plugin_data['Author'] ); ?></td>
-							<td><?php echo esc_html( $vip_compatibility ); ?></td>
+							<td class="<?php echo esc_attr( $compatibility_class ); ?>">
+								<?php echo esc_html( $vip_status ); ?>
+							</td>
 						</tr>
 					<?php endforeach; ?>
 				<?php endif; ?>
@@ -70,5 +76,4 @@ class MU_Plugins_Settings {
 		</table>
 		<?php
 	}
-
 }

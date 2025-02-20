@@ -8,6 +8,7 @@
 namespace WP_VIP_COMPATIBILITY\Includes\Classes;
 
 use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
+use WP_VIP_COMPATIBILITY\Includes\Classes\Plugin;
 
 /**
  * This class handles the plugins submenu settings.
@@ -17,79 +18,35 @@ class Plugins_Settings {
 	use Singleton;
 
 	/**
-	 * Constructor method is used to initialize the fields.
+	 * Stores plugin data from JSON file.
+	 * @var array
 	 */
-	public function __construct() {}
+	private $json_data = [];
 
 	/**
-	 * Render the settings page html.
+	 * Constructor method is used to initialize the fields.
+	 */
+	public function __construct() {
+
+		$this->json_data = Plugin::get_instance()->get_json_data();
+	}
+
+	/**
+	 * Render the settings page HTML.
 	 *
 	 * @return void
 	 */
 	public function render_settings_page() {
-		$vip_mu_plugins = array(
-			'advanced-post-cache',
-			'akismet',
-			'block-api-data',
-			'cron-control',
-			'elasticpress',
-			'elasticpress-next',
-			'es-wp-query',
-			'debug-bar-elasticpress',
-			'jetpack',
-			'lightweight-term-count-update',
-			'nginx-http-concat',
-			'query-monitor',
-			'rewrite-rules-inspector',
-			'two-factor',
-			'wp-parsely',
-		);
 
-		$vip_disallowed_plugins = array(
-			'all-in-one-wp-migration',
-			'wp-all-import',
-			'wp-all-import-pro',
-			'wp-all-export',
-			'wp-all-export-pro',
-			'w3-total-cache',
-			'wp-fastest-cache',
-			'wp-rocket',
-			'wp-super-cache',
-			'wp-smushit',
-			'sucuri-scanner',
-			'wordfence',
-		);
-
-		$known_plugins = array(
-			'aryo-activity-log'                  => array( '2.10.1' => 'Yes' ),
-			'memberpress-importer'               => array( '1.6.18' => 'Yes' ),
-			'memberpress-pdf-invoice'            => array( '1.1.23' => 'Yes' ),
-			'memberpress'                        => array( '1.11.28' => 'Yes' ),
-			'miniorange-2-factor-authentication' => array( '5.8.3' => 'Yes' ),
-			'miniorange-saml-20-single-sign-on'  => array( '5.1.4' => 'Yes' ),
-			'post-smtp'                          => array( '2.9.1' => 'Yes' ),
-			'cc-post-to-pdf'                     => array( '2.0' => 'Yes' ),
-			'tiny-compress-images'               => array( '3.4.3' => 'Yes' ),
-			'wpdatatables'                       => array( '3.4.2.11' => 'Yes' ),
-			'wp-file-manager'                    => array( '7.2.6' => 'Yes' ),
-			'wpforms'                            => array( '1.8.7.2' => 'Yes' ),
-			'zoom-meeting'                       => array( '1.0' => 'Yes' ),
-		);
-
-		$already_tested_plugins = array(
-			'advanced-custom-fields-pro',
-			'advanced-custom-fields',
-		);
-
-		// Load necessary WordPress functions
+		// Load necessary WordPress functions.
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		// Get all installed plugins
+		// Get all installed plugins.
 		$all_plugins = get_plugins();
 
-		// Get plugin update information (only works in admin area)
+		// Get plugin update information (only works in admin area).
 		wp_update_plugins();
 		$plugin_updates = get_site_transient( 'update_plugins' );
 
@@ -98,64 +55,60 @@ class Plugins_Settings {
 		<table class="wvc-table">
 			<thead>
 				<tr>
+					<th><?php esc_html_e( 'SN', 'wp-vip-compatibility' ); ?></th>
 					<th><?php esc_html_e( 'Plugin Name', 'wp-vip-compatibility' ); ?></th>
-					<th><?php esc_html_e( 'Version', 'wp-vip-compatibility' ); ?></th>
+					<th><?php esc_html_e( 'Plugin Directory', 'wp-vip-compatibility' ); ?></th>
 					<th><?php esc_html_e( 'Author', 'wp-vip-compatibility' ); ?></th>
-					<th><?php esc_html_e( 'Plugin File Path', 'wp-vip-compatibility' ); ?></th>
-					<th><?php esc_html_e( 'New Version Available', 'wp-vip-compatibility' ); ?></th>
+					<th><?php esc_html_e( 'Current Version', 'wp-vip-compatibility' ); ?></th>
+					<th><?php esc_html_e( 'Available Version', 'wp-vip-compatibility' ); ?></th>
 					<th><?php esc_html_e( 'VIP Compatibility', 'wp-vip-compatibility' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
+				<?php $counter = 1; ?>
 				<?php foreach ( $all_plugins as $plugin_file => $plugin_data ) : ?>
 					<?php
-					$plugin_slug = dirname( $plugin_file );
-					$plugin_version = $plugin_data['Version'];
-					$plugin_path = WP_PLUGIN_DIR . '/' . $plugin_slug;
+					$plugin_slug         = dirname( $plugin_file );
+					$plugin_version      = $plugin_data['Version'];
+					$plugin_path         = WP_PLUGIN_DIR . '/' . $plugin_slug;
+					$compatibility_class = 'compatible';
 
-					// 1️⃣ Check if plugin is in known plugins list with specific VIP status
-					if ( isset( $known_plugins[ $plugin_slug ] ) && isset( $known_plugins[ $plugin_slug ][ $plugin_version ] ) ) {
-						$vip_status = $known_plugins[ $plugin_slug ][ $plugin_version ];
+					// Determine VIP compatibility status.
+					if ( isset( $this->json_data['known_plugins'][ $plugin_slug ] ) && isset( $this->json_data['known_plugins'][ $plugin_slug ][ $plugin_version ] ) ) {
+						$vip_status = __( 'Compatible: Plugin has a predefined VIP compatibility status.', 'wp-vip-compatibility' );
+					} elseif ( in_array( $plugin_slug, $this->json_data['vip_mu_plugins'], true ) ) {
+						$vip_status = __( 'Already Present: Plugin is already present on WP VIP.', 'wp-vip-compatibility' );
+						$compatibility_class = 'not-compatible';
+					} elseif ( in_array( $plugin_slug, $this->json_data['vip_disallowed_plugins'], true ) ) {
+						$vip_status = __( 'Incompatible: Plugin is not allowed on WP VIP.', 'wp-vip-compatibility' );
+						$compatibility_class = 'not-compatible';
+					} elseif ( in_array( $plugin_slug, $this->json_data['already_tested_plugins'], true ) ) {
+						$vip_status = __( 'Compatible: Plugin already tested for WP VIP.', 'wp-vip-compatibility' );
+					} else {
+						$vip_status = wvc_check_vip_compatibility( $plugin_path );
+						$compatibility_class = 'Compatible' === $vip_status ? 'compatible' : 'not-compatible';
 					}
-					// 2️⃣ Check if plugin is VIP-recommended
-					elseif ( in_array( $plugin_slug, $vip_mu_plugins, true ) ) {
-						$vip_status = 'Recommended';
-					}
-					// 3️⃣ Check if plugin is disallowed on VIP
-					elseif ( in_array( $plugin_slug, $vip_disallowed_plugins, true ) ) {
-						$vip_status = 'Disallowed on VIP';
-					}
-					// 4️⃣ Check if plugin is already tested
-					elseif ( in_array( $plugin_slug, $already_tested_plugins, true ) ) {
-						$vip_status = 'Already Tested';
-					}
-					// 5️⃣ Run PHPCS scan for filesystem writes
-					else {
-						$vip_status = check_vip_compatibility( $plugin_path );
-					}
+
+					// Check if an update is available for this plugin.
+					$new_version = isset( $plugin_updates->response[ $plugin_file ] ) 
+						? $plugin_updates->response[ $plugin_file ]->new_version 
+						: 'Up to date';
 
 					?>
 					<tr>
+						<td><?php echo esc_html( $counter++ ); ?></td>
 						<td><?php echo esc_html( $plugin_data['Name'] ); ?></td>
-						<td><?php echo esc_html( $plugin_version ); ?></td>
-						<td><?php echo esc_html( $plugin_data['Author'] ); ?></td>
 						<td><?php echo esc_html( $plugin_file ); ?></td>
-						<td>
-							<?php
-							if ( isset( $plugin_updates->response[ $plugin_file ] ) ) {
-								$new_version = $plugin_updates->response[ $plugin_file ]->new_version;
-								echo esc_html( $new_version );
-							} else {
-								echo 'Up to date';
-							}
-							?>
+						<td><?php echo esc_html( $plugin_data['Author'] ); ?></td>
+						<td><?php echo esc_html( $plugin_version ); ?></td>
+						<td><?php echo esc_html( $new_version ); ?></td>
+						<td class="<?php echo esc_attr( $compatibility_class ); ?>">
+							<?php echo esc_html( $vip_status ); ?>
 						</td>
-						<td><?php echo esc_html( $vip_status ); ?></td>
 					</tr>
 				<?php endforeach; ?>
 			</tbody>
 		</table>
 		<?php
 	}
-
 }
