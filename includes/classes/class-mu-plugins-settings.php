@@ -74,6 +74,21 @@ class MU_Plugins_Settings {
 				<?php endif; ?>
 			</tbody>
 		</table>
+
+		<?php
+		$log_file_path = WP_CONTENT_DIR . '/uploads/wvc-logs/mu-plugins.txt';
+
+		if ( file_exists( $log_file_path ) ) : ?>
+			<p>
+				<strong><?php esc_html_e( 'Note:', 'wp-vip-compatibility' ); ?></strong> <?php esc_html_e( 'The log file containing all the details is available for download at ', 'wp-vip-compatibility' ); ?>
+				<a href="<?php echo esc_url( WP_CONTENT_URL . '/uploads/wvc-logs/mu-plugins.txt' ); ?>" download>
+					<?php esc_html_e( 'wp-content/uploads/wvc-logs/mu-plugins.txt', 'wp-vip-compatibility' ); ?>
+				</a>
+			</p>
+		<?php else : ?>
+			<p><strong><?php esc_html_e( 'Note:', 'wp-vip-compatibility' ); ?></strong> <?php esc_html_e( 'No incompatibility logs were generated.', 'wp-vip-compatibility' ); ?></p>
+		<?php endif; ?>
+
 		<?php
 	}
 }
