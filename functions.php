@@ -1,41 +1,90 @@
 <?php
+/**
+ * File that contains functions for the WordPress VIP Compatibility.
+ *
+ * @package wp-vip-compatibility
+ */
 
 /**
- * Check if the given directory is compatible with VIP Go.
+ * Check the compatibility of a directory with VIP Go and store logs for incompatible files.
  *
  * @param string $directory_path The directory path to check.
- *
- * @return string 'Yes' if compatible, otherwise an error message.
+ * @return string The compatibility status: 'Compatible' or 'Incompatible'.
  */
-function check_vip_compatibility( $directory_path ) {
-    if ( ! is_dir( $directory_path ) || ! is_readable( $directory_path ) ) {
-        return 'Error: Directory not found or unreadable';
-    }
+function wvc_check_vip_compatibility( $directory_path ) {
+	// Ensure the directory exists and is readable.
+	if ( ! is_dir( $directory_path ) || ! is_readable( $directory_path ) ) {
+		return esc_html__( 'Error: Directory not found or unreadable', 'wp-vip-compatibility' );
+	}
 
-    // Get all PHP files in the directory recursively
-    $php_files = glob( $directory_path . '/**/*.php', GLOB_BRACE );
+	// Initialize the iterator to recursively get all PHP files.
+	$php_files = [];
+	$directory_iterator = new RecursiveDirectoryIterator( $directory_path, RecursiveDirectoryIterator::SKIP_DOTS );
+	$iterator = new RecursiveIteratorIterator( $directory_iterator );
 
-    if ( empty( $php_files ) ) {
-        return 'No PHP files found';
-    }
+	foreach ( $iterator as $file ) {
+		if ( $file->getExtension() === 'php' ) {
+			$php_files[] = $file->getRealPath();
+		}
+	}
 
-    foreach ( $php_files as $file_path ) {
-        // Run PHPCS to check for file write operations
-        $phpcs_output = shell_exec( "vendor/bin/phpcs --standard=WordPress-VIP-Go --sniffs=WordPress.Filesystem $file_path" );
+	if ( empty( $php_files ) ) {
+		return esc_html__( 'No PHP files found', 'wp-vip-compatibility' );
+	}
 
-        // If PHPCS detects violations related to filesystem writes, analyze further
-        if ( strpos( $phpcs_output, 'WordPress.Filesystem' ) !== false ) {
-            $file_contents = file_get_contents( $file_path );
+	// Determine the log file name based on the path.
+	$directory_path = str_replace( "/", "\\", $directory_path );
+	$mu_plugin_dir  = str_replace( '/', '\\', WPMU_PLUGIN_DIR );
+	$plugin_dir     = str_replace( '/', '\\', WP_CONTENT_DIR . '/plugins' );
+	$theme_dir      = str_replace( '/', '\\', WP_CONTENT_DIR . '/themes' );
+	$log_base_dir   = WP_VIP_COMPATIBILITY_DIR . '/logs';
 
-            // Check for write operations
-            if ( preg_match( '/fopen\(|file_put_contents\(|fwrite\(|rename\(|unlink\(/', $file_contents ) ) {
-                // Ensure it's not inside 'wp-content/uploads'
-                if ( strpos( $file_contents, 'wp-content/uploads' ) === false ) {
-                    return 'Write Operation for directory other than uploads detected';
-                }
-            }
-        }
-    }
+	if ( strpos( $directory_path, $plugin_dir ) !== false ) {
+		$log_file_path = $log_base_dir . '/plugins.txt';
+	} elseif ( strpos( $directory_path, $theme_dir ) !== false ) {
+		$log_file_path = $log_base_dir . '/themes.txt';
+	} elseif ( strpos( $directory_path, $mu_plugin_dir ) !== false ) {
+		$log_file_path = $log_base_dir . '/mu-plugins.txt';
+	} else {
+		$log_file_path = $log_base_dir . '/general.txt';
+	}
 
-    return 'Compatible';
+	// Initialize the array to store issues.
+	$issues = [];
+
+	// Scan each PHP file for violations.
+	foreach ( $php_files as $file_path ) {
+		// Skip files inside the vendor directory.
+		if ( strpos( $file_path, '/vendor/' ) !== false || strpos( $file_path, '\vendor\\' ) !== false ) {
+			continue;
+		}
+
+		// Run PHPCS to check for filesystem writes.
+		$phpcs_output = shell_exec( escapeshellcmd( "vendor/bin/phpcs --standard=WordPress-VIP-Go --sniffs=WordPress.Filesystem " . escapeshellarg( $file_path ) ) );
+
+		if ( null === $phpcs_output || false === $phpcs_output || strpos( $phpcs_output, 'WordPress.Filesystem' ) !== false ) {
+			// Read file contents.
+			$file_contents = file_get_contents( $file_path );
+
+			// Detect write operations in directories other than wp-content/uploads.
+			if ( preg_match( '/\b(fopen|file_put_contents|fwrite|rename|unlink)\(/', $file_contents ) ) {
+				if ( strpos( $file_contents, 'wp-content/uploads' ) === false ) {
+					$issues[] = "Write operation outside uploads detected in: $file_path";
+				}
+			}
+
+			// Detect shell execution functions.
+			if ( preg_match( '/\b(exec|shell_exec|system|passthru|popen)\(/', $file_contents ) ) {
+				$issues[] = "Command execution function detected in: $file_path";
+			}
+		}
+	}
+
+	// Write to log file if there are any issues.
+	if ( ! empty( $issues ) ) {
+		file_put_contents( $log_file_path, implode( PHP_EOL, $issues ) );
+		return esc_html__( 'Incompatible', 'wp-vip-compatibility' );
+	}
+
+	return esc_html__( 'Compatible', 'wp-vip-compatibility' );
 }
