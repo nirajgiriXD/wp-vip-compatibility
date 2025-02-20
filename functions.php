@@ -32,12 +32,19 @@ function wvc_check_vip_compatibility( $directory_path ) {
 		return esc_html__( 'No PHP files found', 'wp-vip-compatibility' );
 	}
 
+	// Define the log directory inside wp-content/uploads
+	$upload_dir   = wp_upload_dir();
+	$log_base_dir = $upload_dir['basedir'] . '/wvc-logs';
+
+	if ( ! file_exists( $log_base_dir ) ) {
+		wp_mkdir_p( $log_base_dir );
+	}
+
 	// Determine the log file name based on the path.
 	$directory_path = str_replace( "/", "\\", $directory_path );
 	$mu_plugin_dir  = str_replace( '/', '\\', WPMU_PLUGIN_DIR );
 	$plugin_dir     = str_replace( '/', '\\', WP_CONTENT_DIR . '/plugins' );
 	$theme_dir      = str_replace( '/', '\\', WP_CONTENT_DIR . '/themes' );
-	$log_base_dir   = WP_VIP_COMPATIBILITY_DIR . '/logs';
 
 	if ( strpos( $directory_path, $plugin_dir ) !== false ) {
 		$log_file_path = $log_base_dir . '/plugins.txt';
@@ -55,7 +62,7 @@ function wvc_check_vip_compatibility( $directory_path ) {
 	// Scan each PHP file for violations.
 	foreach ( $php_files as $file_path ) {
 		// Skip files inside the vendor directory.
-		if ( strpos( $file_path, '/vendor/' ) !== false || strpos( $file_path, '\vendor\\' ) !== false ) {
+		if ( strpos( $file_path, '/vendor/' ) !== false || strpos( $file_path, '\\vendor\\' ) !== false ) {
 			continue;
 		}
 
@@ -82,7 +89,10 @@ function wvc_check_vip_compatibility( $directory_path ) {
 
 	// Write to log file if there are any issues.
 	if ( ! empty( $issues ) ) {
-		file_put_contents( $log_file_path, implode( PHP_EOL, $issues ) );
+		$timestamp = date( 'Y-m-d H:i:s' );
+		$log_content = "###### Log Generated: $timestamp ######" . PHP_EOL;
+		$log_content .= implode( PHP_EOL, $issues );
+		file_put_contents( $log_file_path, $log_content );
 		return esc_html__( 'Incompatible', 'wp-vip-compatibility' );
 	}
 
