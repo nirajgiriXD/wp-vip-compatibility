@@ -12,3 +12,6 @@
 
 # Windows junk
 Thumbs.db
+
+# Logs
+/logs/*.txt
