@@ -61,14 +61,13 @@ class Settings {
 	 */
 	public function render_settings_page( $settings, $id ) {
 
-		printf(
-			'<div class="wrap"><div class="wvc-container" id="%s">',
-			esc_attr( $id )
-		);
-
-		$settings->render_settings_page();
-
-		echo '</div></div>';
+		?>
+		<div class="wrap">
+			<div class="wvc-container" id="<?php echo esc_attr( $id ); ?>">
+				<?php $settings->render_settings_page(); ?>
+			</div>
+		</div>
+		<?php
 	}
 
 	/**
@@ -89,7 +88,7 @@ class Settings {
 
 		// Add main menu.
 		add_menu_page(
-			__( 'WordPress VIP Compatibility', 'wp-vip-compatibility' ),
+			__( 'WVC - Overview', 'wp-vip-compatibility' ),
 			__( 'WVC', 'wp-vip-compatibility' ),
 			'manage_options',
 			'wp-vip-compatibility',
@@ -102,21 +101,21 @@ class Settings {
 		// Define submenus.
 		$submenus = array(
 			'database'    => __( 'Database', 'wp-vip-compatibility' ),
+			'directories' => __( 'Directories', 'wp-vip-compatibility' ),
 			'mu-plugins'  => __( 'MU Plugins', 'wp-vip-compatibility' ),
 			'plugins'     => __( 'Plugins', 'wp-vip-compatibility' ),
 			'themes'      => __( 'Themes', 'wp-vip-compatibility' ),
-			'directories' => __( 'Directories', 'wp-vip-compatibility' ),
 		);
 
 		// Add submenus dynamically.
 		foreach ( $submenus as $key => $title ) {
 			add_submenu_page(
 				'wp-vip-compatibility',
-				sprintf( __( '%s - WVC', 'wp-vip-compatibility' ), $title ),
+				sprintf( __( 'WVC - %s', 'wp-vip-compatibility' ), $title ),
 				$title,
 				'manage_options',
 				'wvc-' . $key,
-				function() use ( $settings_classes, $key ) {
+				function() use ( $settings_classes, $title, $key ) {
 					$this->render_settings_page( $settings_classes[ $key ], $key );
 				}
 			);
