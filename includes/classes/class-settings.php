@@ -93,7 +93,7 @@ class Settings {
 			'manage_options',
 			'wp-vip-compatibility',
 			fn() => $this->render_settings_page( 'overview' ),
-			'dashicons-admin-generic'
+			'dashicons-feedback'
 		);
 
 		// Add submenus.
