@@ -45,7 +45,7 @@ function wvc_check_vip_compatibility( $directory_path ) {
 
 	// Determine the log file path based on type.
 	if ( is_file( $directory_path ) ) {
-		$log_file_path = $log_base_dir . '/mu-plugins.txt'; // MU plugins are single files
+		$log_file_path = $log_base_dir . '/mu-plugins.txt';
 	} elseif ( strpos( $directory_path, WP_CONTENT_DIR . '/plugins' ) !== false ) {
 		$log_file_path = $log_base_dir . '/plugins.txt';
 	} elseif ( strpos( $directory_path, WP_CONTENT_DIR . '/themes' ) !== false ) {
@@ -54,39 +54,47 @@ function wvc_check_vip_compatibility( $directory_path ) {
 		$log_file_path = $log_base_dir . '/general.txt';
 	}
 
-	// Scan for violations
+	// Scan for violations.
 	$issues = [];
 	foreach ( $php_files as $file_path ) {
-		// Skip vendor directory
+		// Skip vendor directory.
 		if ( strpos( $file_path, '/vendor/' ) !== false || strpos( $file_path, '\\vendor\\' ) !== false ) {
 			continue;
 		}
 
-		// Run PHPCS check
+		// Run PHPCS check.
 		$phpcs_output = shell_exec( escapeshellcmd( "vendor/bin/phpcs --standard=WordPress-VIP-Go --sniffs=WordPress.Filesystem " . escapeshellarg( $file_path ) ) );
 
 		if ( null === $phpcs_output || false === $phpcs_output || strpos( $phpcs_output, 'WordPress.Filesystem' ) !== false ) {
-			// Read file contents
-			$file_contents = file_get_contents( $file_path );
-
-			// Detect filesystem writes
-			if ( preg_match( '/\b(fopen|file_put_contents|fwrite|rename|unlink)\(/', $file_contents ) ) {
-				if ( strpos( $file_contents, 'wp-content/uploads' ) === false ) {
-					$issues[] = "Write operation outside uploads detected in: $file_path";
+			// Open file and scan line by line.
+			$file_handle = fopen( $file_path, 'r' );
+			if ( $file_handle ) {
+				$line_number = 0;
+				
+				while ( ( $line = fgets( $file_handle ) ) !== false ) {
+					$line_number++;
+		
+					// Detect filesystem operations outside uploads directory.
+					if ( preg_match( '/\b(fopen|file_put_contents|fwrite|rename|unlink)\(/', $line ) ) {
+						if ( strpos( $line, 'wp-content/uploads' ) === false ) {
+							$issues[] = "> File operation outside uploads directory detected in: $file_path on line $line_number";
+						}
+					}
+		
+					// Detect shell execution functions.
+					if ( preg_match( '/\b(exec|shell_exec|system|passthru|popen)\(/', $line ) ) {
+						$issues[] = "> Command execution function detected in: $file_path on line $line_number";
+					}
 				}
-			}
-
-			// Detect shell execution functions
-			if ( preg_match( '/\b(exec|shell_exec|system|passthru|popen)\(/', $file_contents ) ) {
-				$issues[] = "Command execution function detected in: $file_path";
+				fclose( $file_handle );
 			}
 		}
 	}
 
-	// Write issues to log file
+	// Write issues to log file.
 	if ( ! empty( $issues ) ) {
 		$timestamp = date( 'Y-m-d H:i:s' );
-		file_put_contents( $log_file_path, "###### Log Generated: $timestamp ######" . PHP_EOL . implode( PHP_EOL, $issues ) );
+		file_put_contents( $log_file_path, "###### Log Generated: $timestamp ######" . PHP_EOL . PHP_EOL . implode( PHP_EOL, $issues ) );
 		return esc_html__( 'Incompatible', 'wp-vip-compatibility' );
 	}
 
