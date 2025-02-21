@@ -1,6 +1,4 @@
 .idea
-vendor
-assets
 node_modules
 .distignore
 .gitignore
@@ -15,4 +13,4 @@ README.md
 .github
 .DS_Store
 postcss.config.js
-Terms
+.editorconfig
