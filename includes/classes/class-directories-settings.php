@@ -57,7 +57,7 @@ class Directories_Settings {
 				<th>' . esc_html__('SN', 'wp-vip-compatibility') . '</th>
 				<th>' . esc_html__('Files and Folders', 'wp-vip-compatibility') . '</th>
 				<th>' . esc_html__('Description', 'wp-vip-compatibility') . '</th>
-				<th>' . esc_html__('Compatibility', 'wp-vip-compatibility') . '</th>
+				<th>' . esc_html__('WP VIP Compatibility', 'wp-vip-compatibility') . '</th>
 			</tr></thead>';
 		echo '<tbody>';
 

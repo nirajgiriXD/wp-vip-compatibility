@@ -66,7 +66,7 @@ class Database_Settings {
 				<th>' . esc_html__( 'Engine', 'wp-vip-compatibility' ) . '</th>
 				<th>' . esc_html__( 'Collation', 'wp-vip-compatibility' ) . '</th>
 				<th>' . esc_html__( 'Source', 'wp-vip-compatibility' ) . '</th>
-				<th>' . esc_html__( 'VIP Compatibility', 'wp-vip-compatibility' ) . '</th>
+				<th>' . esc_html__( 'WP VIP Compatibility', 'wp-vip-compatibility' ) . '</th>
 				<th>' . esc_html__( 'Notes', 'wp-vip-compatibility' ) . '</th>
 			</tr></thead>';
 		echo '<tbody>';

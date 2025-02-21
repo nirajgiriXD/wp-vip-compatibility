@@ -40,7 +40,7 @@ class MU_Plugins_Settings {
 				<th>' . esc_html__( 'Plugin Directory', 'wp-vip-compatibility' ) . '</th>
 				<th>' . esc_html__( 'Author', 'wp-vip-compatibility' ) . '</th>
 				<th>' . esc_html__( 'Version', 'wp-vip-compatibility' ) . '</th>
-				<th>' . esc_html__( 'Compatibility', 'wp-vip-compatibility' ) . '</th>
+				<th>' . esc_html__( 'WP VIP Compatibility', 'wp-vip-compatibility' ) . '</th>
 			</tr></thead>';
 		echo '<tbody>';
 

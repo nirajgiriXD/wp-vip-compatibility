@@ -65,7 +65,7 @@ class Themes_Settings {
 					<th><?php esc_html_e( 'Author', 'wp-vip-compatibility' ); ?></th>
 					<th><?php esc_html_e( 'Current Version', 'wp-vip-compatibility' ); ?></th>
 					<th><?php esc_html_e( 'Available Version', 'wp-vip-compatibility' ); ?></th>
-					<th><?php esc_html_e( 'VIP Compatibility', 'wp-vip-compatibility' ); ?></th>
+					<th><?php esc_html_e( 'WP VIP Compatibility', 'wp-vip-compatibility' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>

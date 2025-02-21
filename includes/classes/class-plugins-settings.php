@@ -83,7 +83,7 @@ class Plugins_Settings {
 	 */
 	private function render_table_header() {
 		$headers = [
-			'SN', 'Plugin Name', 'Plugin Directory', 'Author', 'Current Version', 'Available Version', 'VIP Compatibility'
+			'SN', 'Plugin Name', 'Plugin Directory', 'Author', 'Current Version', 'Available Version', 'WP VIP Compatibility'
 		];
 		echo '<thead><tr>';
 		foreach ( $headers as $header ) {
