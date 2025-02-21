@@ -91,7 +91,7 @@ class Themes_Settings {
 		</table>
 
 		<!-- Placeholder for log file information (will be updated via AJAX) -->
-		<div id="wvc-log-note-container" data-filename="mu-plugins"></div>
+		<div id="wvc-log-note-container" data-filename="themes"></div>
 
 		<?php
 	}
