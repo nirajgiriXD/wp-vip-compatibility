@@ -175,6 +175,6 @@ class Database_Settings {
 				return $vip_collation;
 			}
 		}
-		return 'Not Supported';
+		return __( 'Not Supported', 'wp-vip-compatibility' );
 	}
 }
