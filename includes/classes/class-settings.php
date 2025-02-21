@@ -79,7 +79,6 @@ class Settings {
 	public function add_plugin_menus() {
 		// Define menu structure.
 		$menus = [
-			'overview'    => __( 'Overview', 'wp-vip-compatibility' ),
 			'database'    => __( 'Database', 'wp-vip-compatibility' ),
 			'directories' => __( 'Directories', 'wp-vip-compatibility' ),
 			'mu-plugins'  => __( 'MU Plugins', 'wp-vip-compatibility' ),
