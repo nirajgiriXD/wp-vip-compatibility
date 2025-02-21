@@ -11,7 +11,7 @@ use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
 use WP_VIP_COMPATIBILITY\Includes\Classes\Plugin;
 
 /**
- * This class handles the directories submenu settings.
+ * Handles the directories submenu settings.
  */
 class Directories_Settings {
 
@@ -19,72 +19,72 @@ class Directories_Settings {
 
 	/**
 	 * Stores plugin data from JSON file.
+	 *
 	 * @var array
 	 */
 	private $json_data = [];
 
 	/**
-	 * Constructor method is used to initialize the fields.
+	 * Constructor.
 	 */
 	public function __construct() {
-
 		$this->json_data = Plugin::get_instance()->get_json_data();
 	}
 
 	/**
-	 * Render the settings page html.
+	 * Renders the directories settings page.
 	 *
 	 * @return void
 	 */
 	public function render_settings_page() {
-
 		// Path to the wp-content directory.
 		$wp_content_dir = WP_CONTENT_DIR;
 
-		// List of supported directories and files as associative array.
-		$directories = $this->json_data['directories'];
+		// List of supported directories and files as an associative array.
+		$supported_items = $this->json_data['directories'] ?? [];
 
-		// Scan the wp-content directory.
-		$files_and_dirs = scandir($wp_content_dir);
+		// Scan the wp-content directory, excluding "." and ".."
+		$items = array_diff(scandir($wp_content_dir), ['.', '..']);
 
-		// Start table
+		if (empty($items)) {
+			echo '<p>' . esc_html__('No files or directories found in wp-content.', 'wp-vip-compatibility') . '</p>';
+			return;
+		}
+
+		// Output settings table.
 		echo '<table class="wvc-table">';
-		echo '<thead>';
-		echo '<tr>';
-		echo '<th>SN</th>';
-		echo '<th>Files and Folders</th>';
-		echo '<th>Description</th>';
-		echo '<th>Compatibility</th>';
-		echo '</tr>';
-		echo '</thead>';
+		echo '<thead><tr>
+				<th>' . esc_html__('SN', 'wp-vip-compatibility') . '</th>
+				<th>' . esc_html__('Files and Folders', 'wp-vip-compatibility') . '</th>
+				<th>' . esc_html__('Description', 'wp-vip-compatibility') . '</th>
+				<th>' . esc_html__('Compatibility', 'wp-vip-compatibility') . '</th>
+			</tr></thead>';
 		echo '<tbody>';
 
-		// Loop through the files and directories.
 		$counter = 1;
-		foreach ( $files_and_dirs as $item ) {
-			// Check if the current item is in the supported items array.
-			if ( isset( $directories[ $item ] ) ) {
-				$description = $directories[ $item ]['description'];
-				$is_supported = $directories[ $item ]['is_supported'];
-				
-				$additional_notes = $is_supported ? '<span class="compatible">Compatible</span>' : '<span class="not-compatible">Not Compatible</span>';
-			} else {
-				$description = 'Not Supported';
-				$additional_notes = '<span class="not-compatible">Not Compatible</span>';
+		foreach ($items as $item) {
+			$description   = esc_html__('Not Supported', 'wp-vip-compatibility');
+			$compatibility = '<span class="not-compatible">' . esc_html__('Not Compatible', 'wp-vip-compatibility') . '</span>';
+
+			// Check if the item is listed in supported items.
+			if (array_key_exists($item, $supported_items)) {
+				$description   = esc_html($supported_items[$item]['description'] ?? '');
+				$is_supported  = !empty($supported_items[$item]['is_supported']);
+
+				$compatibility = $is_supported 
+					? '<span class="compatible">' . esc_html__('Compatible', 'wp-vip-compatibility') . '</span>' 
+					: '<span class="not-compatible">' . esc_html__('Not Compatible', 'wp-vip-compatibility') . '</span>';
 			}
-		
-			// Output row.
+
+			// Output table row.
 			echo '<tr>';
-			echo '<td>' . esc_html( $counter++ ) . '</td>';
-			echo '<td>' . esc_html( $item ) . '</td>';
-			echo '<td>' . esc_html( $description ) . '</td>';
-			echo '<td>' . $additional_notes . '</td>';
+			echo '<td>' . esc_html($counter++) . '</td>';
+			echo '<td>' . esc_html($item) . '</td>';
+			echo '<td>' . esc_html($description) . '</td>';
+			echo '<td>' . $compatibility . '</td>';
 			echo '</tr>';
 		}
 
-		// End table.
-		echo '</tbody>';
-		echo '</table>';
+		echo '</tbody></table>';
 	}
-
 }

@@ -11,7 +11,7 @@ use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
 use WP_VIP_COMPATIBILITY\Includes\Classes\Plugin;
 
 /**
- * This class handles the plugins submenu settings.
+ * Handles the plugins submenu settings.
  */
 class Plugins_Settings {
 
@@ -24,106 +24,161 @@ class Plugins_Settings {
 	private $json_data = [];
 
 	/**
-	 * Constructor method is used to initialize the fields.
+	 * Constructor.
 	 */
 	public function __construct() {
-
 		$this->json_data = Plugin::get_instance()->get_json_data();
 	}
 
 	/**
-	 * Render the settings page HTML.
+	 * Renders the settings page HTML.
 	 *
 	 * @return void
 	 */
 	public function render_settings_page() {
+		$all_plugins = $this->get_installed_plugins();
+		$plugin_updates = $this->get_plugin_updates();
 
-		// Load necessary WordPress functions.
+		echo '<table class="wvc-table">';
+		$this->render_table_header();
+		echo '<tbody>';
+
+		$counter = 1;
+		foreach ( $all_plugins as $plugin_file => $plugin_data ) {
+			$this->render_plugin_row( $counter++, $plugin_file, $plugin_data, $plugin_updates );
+		}
+
+		echo '</tbody></table>';
+
+		$this->render_log_file_section();
+	}
+
+	/**
+	 * Retrieves installed plugins.
+	 *
+	 * @return array List of installed plugins.
+	 */
+	private function get_installed_plugins() {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
+		return get_plugins();
+	}
 
-		// Get all installed plugins.
-		$all_plugins = get_plugins();
+	/**
+	 * Retrieves plugin update information.
+	 *
+	 * @return object|null Plugin update transient data.
+	 */
+	private function get_plugin_updates() {
+		if ( is_admin() ) {
+			wp_update_plugins();
+		}
+		return get_site_transient( 'update_plugins' );
+	}
 
-		// Get plugin update information (only works in admin area).
-		wp_update_plugins();
-		$plugin_updates = get_site_transient( 'update_plugins' );
+	/**
+	 * Renders the table header.
+	 */
+	private function render_table_header() {
+		$headers = [
+			'SN', 'Plugin Name', 'Plugin Directory', 'Author', 'Current Version', 'Available Version', 'VIP Compatibility'
+		];
+		echo '<thead><tr>';
+		foreach ( $headers as $header ) {
+			echo '<th>' . esc_html__( $header, 'wp-vip-compatibility' ) . '</th>';
+		}
+		echo '</tr></thead>';
+	}
 
-		?>
+	/**
+	 * Renders a plugin row.
+	 *
+	 * @param int    $counter Plugin serial number.
+	 * @param string $plugin_file Plugin file path.
+	 * @param array  $plugin_data Plugin metadata.
+	 * @param object $plugin_updates Plugin update transient data.
+	 */
+	private function render_plugin_row( $counter, $plugin_file, $plugin_data, $plugin_updates ) {
+		$plugin_slug = dirname( $plugin_file );
+		$plugin_version = $plugin_data['Version'];
+		$plugin_path = WP_PLUGIN_DIR . '/' . $plugin_slug;
 
-		<table class="wvc-table">
-			<thead>
-				<tr>
-					<th><?php esc_html_e( 'SN', 'wp-vip-compatibility' ); ?></th>
-					<th><?php esc_html_e( 'Plugin Name', 'wp-vip-compatibility' ); ?></th>
-					<th><?php esc_html_e( 'Plugin Directory', 'wp-vip-compatibility' ); ?></th>
-					<th><?php esc_html_e( 'Author', 'wp-vip-compatibility' ); ?></th>
-					<th><?php esc_html_e( 'Current Version', 'wp-vip-compatibility' ); ?></th>
-					<th><?php esc_html_e( 'Available Version', 'wp-vip-compatibility' ); ?></th>
-					<th><?php esc_html_e( 'VIP Compatibility', 'wp-vip-compatibility' ); ?></th>
-				</tr>
-			</thead>
-			<tbody>
-				<?php $counter = 1; ?>
-				<?php foreach ( $all_plugins as $plugin_file => $plugin_data ) : ?>
-					<?php
-					$plugin_slug         = dirname( $plugin_file );
-					$plugin_version      = $plugin_data['Version'];
-					$plugin_path         = WP_PLUGIN_DIR . '/' . $plugin_slug;
-					$compatibility_class = 'compatible';
+		$vip_status_info = $this->get_vip_compatibility_status( $plugin_slug, $plugin_version, $plugin_path );
+		$new_version = isset( $plugin_updates->response[ $plugin_file ] ) ? $plugin_updates->response[ $plugin_file ]->new_version : esc_html__( 'Up to date', 'wp-vip-compatibility' );
 
-					// Determine VIP compatibility status.
-					if ( isset( $this->json_data['known_plugins'][ $plugin_slug ] ) && isset( $this->json_data['known_plugins'][ $plugin_slug ][ $plugin_version ] ) ) {
-						$vip_status = __( 'Compatible: Plugin has a predefined VIP compatibility status.', 'wp-vip-compatibility' );
-					} elseif ( in_array( $plugin_slug, $this->json_data['vip_mu_plugins'], true ) ) {
-						$vip_status = __( 'Already Present: Plugin is already present on WP VIP.', 'wp-vip-compatibility' );
-						$compatibility_class = 'not-compatible';
-					} elseif ( in_array( $plugin_slug, $this->json_data['vip_disallowed_plugins'], true ) ) {
-						$vip_status = __( 'Incompatible: Plugin is not allowed on WP VIP.', 'wp-vip-compatibility' );
-						$compatibility_class = 'not-compatible';
-					} elseif ( in_array( $plugin_slug, $this->json_data['already_tested_plugins'], true ) ) {
-						$vip_status = __( 'Compatible: Plugin already tested for WP VIP.', 'wp-vip-compatibility' );
-					} else {
-						$vip_status = wvc_check_vip_compatibility( $plugin_path );
-						$compatibility_class = 'Compatible' === $vip_status ? 'compatible' : 'not-compatible';
-					}
+		echo '<tr>';
+		echo '<td>' . esc_html( $counter ) . '</td>';
+		echo '<td>' . esc_html( $plugin_data['Name'] ) . '</td>';
+		echo '<td>' . esc_html( $plugin_file ) . '</td>';
+		echo '<td>' . esc_html( $plugin_data['Author'] ) . '</td>';
+		echo '<td>' . esc_html( $plugin_version ) . '</td>';
+		echo '<td>' . esc_html( $new_version ) . '</td>';
+		echo '<td class="' . esc_attr( $vip_status_info['class'] ) . '">' . esc_html( $vip_status_info['message'] ) . '</td>';
+		echo '</tr>';
+	}
 
-					// Check if an update is available for this plugin.
-					$new_version = isset( $plugin_updates->response[ $plugin_file ] ) 
-						? $plugin_updates->response[ $plugin_file ]->new_version 
-						: 'Up to date';
+	/**
+	 * Determines VIP compatibility status.
+	 *
+	 * @param string $plugin_slug Plugin slug.
+	 * @param string $plugin_version Plugin version.
+	 * @param string $plugin_path Plugin full path.
+	 * @return array Compatibility status message and class.
+	 */
+	private function get_vip_compatibility_status( $plugin_slug, $plugin_version, $plugin_path ) {
+		if ( isset( $this->json_data['known_plugins'][ $plugin_slug ][ $plugin_version ] ) ) {
+			return [
+				'message' => __( 'Compatible: Plugin has a predefined VIP compatibility status.', 'wp-vip-compatibility' ),
+				'class'   => 'compatible'
+			];
+		}
 
-					?>
-					<tr>
-						<td><?php echo esc_html( $counter++ ); ?></td>
-						<td><?php echo esc_html( $plugin_data['Name'] ); ?></td>
-						<td><?php echo esc_html( $plugin_file ); ?></td>
-						<td><?php echo esc_html( $plugin_data['Author'] ); ?></td>
-						<td><?php echo esc_html( $plugin_version ); ?></td>
-						<td><?php echo esc_html( $new_version ); ?></td>
-						<td class="<?php echo esc_attr( $compatibility_class ); ?>">
-							<?php echo esc_html( $vip_status ); ?>
-						</td>
-					</tr>
-				<?php endforeach; ?>
-			</tbody>
-		</table>
+		if ( in_array( $plugin_slug, $this->json_data['vip_mu_plugins'], true ) ) {
+			return [
+				'message' => __( 'Already Present: Plugin is already present on WP VIP.', 'wp-vip-compatibility' ),
+				'class'   => 'not-compatible'
+			];
+		}
 
-		<?php
+		if ( in_array( $plugin_slug, $this->json_data['vip_disallowed_plugins'], true ) ) {
+			return [
+				'message' => __( 'Incompatible: Plugin is not allowed on WP VIP.', 'wp-vip-compatibility' ),
+				'class'   => 'not-compatible'
+			];
+		}
+
+		if ( in_array( $plugin_slug, $this->json_data['already_tested_plugins'], true ) ) {
+			return [
+				'message' => __( 'Compatible: Plugin already tested for WP VIP.', 'wp-vip-compatibility' ),
+				'class'   => 'compatible'
+			];
+		}
+
+		$status = wvc_check_vip_compatibility( $plugin_path );
+		return [
+			'message' => $status,
+			'class'   => 'Compatible' === $status ? 'compatible' : 'not-compatible'
+		];
+	}
+
+	/**
+	 * Renders the log file download section.
+	 */
+	private function render_log_file_section() {
 		$log_file_path = WP_CONTENT_DIR . '/uploads/wvc-logs/plugins.txt';
 
-		if ( file_exists( $log_file_path ) ) : ?>
-			<p>
-				<strong><?php esc_html_e( 'Note:', 'wp-vip-compatibility' ); ?></strong> <?php esc_html_e( 'The log file containing all the details is available for download at ', 'wp-vip-compatibility' ); ?>
-				<a href="<?php echo esc_url( WP_CONTENT_URL . '/uploads/wvc-logs/plugins.txt' ); ?>" download>
-					<?php esc_html_e( 'wp-content/uploads/wvc-logs/plugins.txt', 'wp-vip-compatibility' ); ?>
-				</a>
-			</p>
-		<?php else : ?>
-			<p><strong><?php esc_html_e( 'Note:', 'wp-vip-compatibility' ); ?></strong> <?php esc_html_e( 'No incompatibility logs were generated.', 'wp-vip-compatibility' ); ?></p>
-		<?php endif; ?>
-
-		<?php
+		if ( file_exists( $log_file_path ) ) {
+			echo '<p><strong>' . esc_html__( 'Note:', 'wp-vip-compatibility' ) . '</strong> ';
+			printf(
+				esc_html__( 'The log file containing all the details is available for download at %s.', 'wp-vip-compatibility' ),
+				'<a href="' . esc_url( WP_CONTENT_URL . '/uploads/wvc-logs/plugins.txt' ) . '" download>' .
+				esc_html__( 'wp-content/uploads/wvc-logs/plugins.txt', 'wp-vip-compatibility' ) . '</a>'
+			);
+			echo '</p>';
+		} else {
+			echo '<p><strong>' . esc_html__( 'Note:', 'wp-vip-compatibility' ) . '</strong> ' .
+				esc_html__( 'No incompatibility logs were generated.', 'wp-vip-compatibility' ) . '</p>';
+		}
 	}
 }

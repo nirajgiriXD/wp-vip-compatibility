@@ -8,37 +8,26 @@
 namespace WP_VIP_COMPATIBILITY\Includes\Classes;
 
 use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
-use WP_VIP_COMPATIBILITY\Includes\Classes\Overview_Settings;
-use WP_VIP_COMPATIBILITY\Includes\Classes\Database_Settings;
-use WP_VIP_COMPATIBILITY\Includes\Classes\MU_Plugins_Settings;
-use WP_VIP_COMPATIBILITY\Includes\Classes\Plugins_Settings;
-use WP_VIP_COMPATIBILITY\Includes\Classes\Themes_Settings;
-use WP_VIP_COMPATIBILITY\Includes\Classes\Directories_Settings;
 
 /**
- * Class to handle plugin settings.
+ * Class to manage all settings pages dynamically.
  */
 class Settings {
 
 	use Singleton;
 
 	/**
-	 * Constructor.
+	 * Holds registered settings classes.
+	 *
+	 * @var array
 	 */
-	public function __construct() {
-
-		$this->load_classes();
-		$this->setup_hooks();
-	}
+	private $settings_classes = [];
 
 	/**
-	 * Loads and instantiates all required classes.
-	 *
-	 * @return void
+	 * Constructor.
 	 */
-	private function load_classes() {
-
-		Overview_Settings::get_instance();
+	private function __construct() {
+		$this->setup_hooks();
 	}
 
 	/**
@@ -47,27 +36,39 @@ class Settings {
 	 * @return void
 	 */
 	private function setup_hooks() {
+		add_action( 'admin_menu', [ $this, 'add_plugin_menus' ] );
+	}
 
-		add_action( 'admin_menu', array( $this, 'add_plugin_menus' ) );
+	/**
+	 * Registers and loads the settings classes on demand.
+	 *
+	 * @param string $key The settings key.
+	 * @return object The settings class instance.
+	 */
+	private function get_settings_class( $key ) {
+		if ( ! isset( $this->settings_classes[ $key ] ) ) {
+			$class_name = __NAMESPACE__ . '\\' . ucfirst( str_replace( '-', '_', $key ) ) . '_Settings';
+
+			if ( class_exists( $class_name ) ) {
+				$this->settings_classes[ $key ] = $class_name::get_instance();
+			}
+		}
+		return $this->settings_classes[ $key ] ?? null;
 	}
 
 	/**
 	 * Renders the settings page HTML.
 	 *
-	 * @param object $settings The settings object.
-	 * @param string $id       The div container ID.
-	 *
+	 * @param string $key The settings key.
 	 * @return void
 	 */
-	public function render_settings_page( $settings, $id ) {
-
-		?>
-		<div class="wrap">
-			<div class="wvc-container" id="<?php echo esc_attr( $id ); ?>">
-				<?php $settings->render_settings_page(); ?>
-			</div>
-		</div>
-		<?php
+	public function render_settings_page( $key ) {
+		$settings = $this->get_settings_class( $key );
+		if ( $settings ) {
+			echo '<div class="wrap"><div class="wvc-container" id="' . esc_attr( $key ) . '">';
+			$settings->render_settings_page();
+			echo '</div></div>';
+		}
 	}
 
 	/**
@@ -76,15 +77,15 @@ class Settings {
 	 * @return void
 	 */
 	public function add_plugin_menus() {
-
-		$settings_classes = array(
-			'overview'    => Overview_Settings::get_instance(),
-			'database'    => Database_Settings::get_instance(),
-			'mu-plugins'  => MU_Plugins_Settings::get_instance(),
-			'plugins'     => Plugins_Settings::get_instance(),
-			'themes'      => Themes_Settings::get_instance(),
-			'directories' => Directories_Settings::get_instance(),
-		);
+		// Define menu structure.
+		$menus = [
+			'overview'    => __( 'Overview', 'wp-vip-compatibility' ),
+			'database'    => __( 'Database', 'wp-vip-compatibility' ),
+			'directories' => __( 'Directories', 'wp-vip-compatibility' ),
+			'mu-plugins'  => __( 'MU Plugins', 'wp-vip-compatibility' ),
+			'plugins'     => __( 'Plugins', 'wp-vip-compatibility' ),
+			'themes'      => __( 'Themes', 'wp-vip-compatibility' ),
+		];
 
 		// Add main menu.
 		add_menu_page(
@@ -92,32 +93,19 @@ class Settings {
 			__( 'WVC', 'wp-vip-compatibility' ),
 			'manage_options',
 			'wp-vip-compatibility',
-			function() use ( $settings_classes ) {
-				$this->render_settings_page( $settings_classes['overview'], 'overview' );
-			},
+			fn() => $this->render_settings_page( 'overview' ),
 			'dashicons-admin-generic'
 		);
 
-		// Define submenus.
-		$submenus = array(
-			'database'    => __( 'Database', 'wp-vip-compatibility' ),
-			'directories' => __( 'Directories', 'wp-vip-compatibility' ),
-			'mu-plugins'  => __( 'MU Plugins', 'wp-vip-compatibility' ),
-			'plugins'     => __( 'Plugins', 'wp-vip-compatibility' ),
-			'themes'      => __( 'Themes', 'wp-vip-compatibility' ),
-		);
-
-		// Add submenus dynamically.
-		foreach ( $submenus as $key => $title ) {
+		// Add submenus.
+		foreach ( $menus as $key => $title ) {
 			add_submenu_page(
 				'wp-vip-compatibility',
 				sprintf( __( 'WVC - %s', 'wp-vip-compatibility' ), $title ),
 				$title,
 				'manage_options',
 				'wvc-' . $key,
-				function() use ( $settings_classes, $title, $key ) {
-					$this->render_settings_page( $settings_classes[ $key ], $key );
-				}
+				fn() => $this->render_settings_page( $key )
 			);
 		}
 	}
