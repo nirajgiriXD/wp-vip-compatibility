@@ -48,23 +48,6 @@ class Themes_Settings {
 	}
 
 	/**
-	 * Checks the VIP compatibility of a theme.
-	 *
-	 * @param string $theme_slug Theme slug.
-	 * @return array Compatibility status and class.
-	 */
-	private function get_theme_vip_status( $theme_slug ) {
-		$theme_path = get_theme_root() . '/' . $theme_slug;
-		$vip_status = wvc_check_vip_compatibility( $theme_path );
-		$compatibility_class = ( 'Compatible' === $vip_status ) ? 'compatible' : 'not-compatible';
-
-		return [
-			'status' => esc_html( $vip_status ),
-			'class'  => esc_attr( $compatibility_class ),
-		];
-	}
-
-	/**
 	 * Renders the settings page HTML.
 	 *
 	 * @return void
@@ -90,7 +73,7 @@ class Themes_Settings {
 				$counter = 1;
 				foreach ( $all_themes as $theme_slug => $theme_data ) :
 					$update_version = $this->get_theme_update_version( $theme_slug );
-					$vip_info = $this->get_theme_vip_status( $theme_slug );
+					$theme_path     = get_theme_root() . '/' . $theme_slug;
 				?>
 					<tr>
 						<td><?php echo esc_html( $counter++ ); ?></td>
@@ -99,27 +82,17 @@ class Themes_Settings {
 						<td><?php echo esc_html( $theme_data->get( 'Author' ) ); ?></td>
 						<td><?php echo esc_html( $theme_data->get( 'Version' ) ); ?></td>
 						<td><?php echo esc_html( $update_version ); ?></td>
-						<td class="<?php echo $vip_info['class']; ?>">
-							<?php echo $vip_info['status']; ?>
+						<td class="vip-compatibility-status" data-directory-path="<?php echo esc_attr( $theme_path ); ?>">
+							<?php esc_html_e( 'Loading...', 'wp-vip-compatibility' ); ?>
 						</td>
 					</tr>
 				<?php endforeach; ?>
 			</tbody>
 		</table>
 
-		<?php if ( file_exists( $log_file_path ) ) : ?>
-			<p>
-				<strong><?php esc_html_e( 'Note:', 'wp-vip-compatibility' ); ?></strong> 
-				<?php esc_html_e( 'The log file is available at ', 'wp-vip-compatibility' ); ?>
-				<a href="<?php echo esc_url( WP_CONTENT_URL . '/uploads/wvc-logs/themes.txt' ); ?>" download>
-					<?php esc_html_e( 'wp-content/uploads/wvc-logs/themes.txt', 'wp-vip-compatibility' ); ?>
-				</a>
-			</p>
-		<?php else : ?>
-			<p><strong><?php esc_html_e( 'Note:', 'wp-vip-compatibility' ); ?></strong> 
-				<?php esc_html_e( 'No incompatibility logs were generated.', 'wp-vip-compatibility' ); ?>
-			</p>
-		<?php endif; ?>
+		<!-- Placeholder for log file information (will be updated via AJAX) -->
+		<div id="wvc-log-note-container" data-filename="mu-plugins"></div>
+
 		<?php
 	}
 }

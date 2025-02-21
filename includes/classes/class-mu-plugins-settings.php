@@ -49,9 +49,7 @@ class MU_Plugins_Settings {
 		} else {
 			$counter = 1;
 			foreach ( $mu_plugins as $plugin_file => $plugin_data ) {
-				$plugin_path = WP_CONTENT_DIR . '/mu-plugins/' . $plugin_file;
-				$vip_status = wvc_check_vip_compatibility( $plugin_path );
-				$compatibility_class = ( 'Compatible' === $vip_status ) ? 'compatible' : 'not-compatible';
+				$plugin_path = WPMU_PLUGIN_DIR . '/' . $plugin_file;
 
 				echo '<tr>';
 				echo '<td>' . esc_html( $counter++ ) . '</td>';
@@ -59,33 +57,14 @@ class MU_Plugins_Settings {
 				echo '<td>' . esc_html( $plugin_file ) . '</td>';
 				echo '<td>' . esc_html( $plugin_data['Author'] ) . '</td>';
 				echo '<td>' . ( ! empty( $plugin_data['Version'] ) ? esc_html( $plugin_data['Version'] ) : '-' ) . '</td>';
-				echo '<td class="' . esc_attr( $compatibility_class ) . '">' . esc_html( $vip_status ) . '</td>';
+				echo '<td class="vip-compatibility-status" data-directory-path="' . esc_attr( $plugin_path ) . '">' . esc_html__( 'Loading...', 'wp-vip-compatibility' ) . '</td>';
 				echo '</tr>';
 			}
 		}
 
 		echo '</tbody></table>';
 
-		// Display log file information
-		$this->render_log_file_info();
-	}
-
-	/**
-	 * Renders the log file information section.
-	 *
-	 * @return void
-	 */
-	private function render_log_file_info() {
-		$log_file_path = WP_CONTENT_DIR . '/uploads/wvc-logs/mu-plugins.txt';
-
-		if ( file_exists( $log_file_path ) ) {
-			echo '<p><strong>' . esc_html__( 'Note:', 'wp-vip-compatibility' ) . '</strong> ';
-			echo esc_html__( 'The log file containing all the details is available for download at ', 'wp-vip-compatibility' );
-			echo '<a href="' . esc_url( WP_CONTENT_URL . '/uploads/wvc-logs/mu-plugins.txt' ) . '" download>';
-			echo esc_html__( 'wp-content/uploads/wvc-logs/mu-plugins.txt', 'wp-vip-compatibility' ) . '</a></p>';
-		} else {
-			echo '<p><strong>' . esc_html__( 'Note:', 'wp-vip-compatibility' ) . '</strong> ';
-			echo esc_html__( 'No incompatibility logs were generated.', 'wp-vip-compatibility' ) . '</p>';
-		}
+		// Placeholder for log file information (will be updated via AJAX)
+		echo '<div id="wvc-log-note-container" data-filename="mu-plugins"></div>';
 	}
 }

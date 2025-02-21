@@ -50,7 +50,8 @@ class Plugins_Settings {
 
 		echo '</tbody></table>';
 
-		$this->render_log_file_section();
+		// Placeholder for log file information (will be updated via AJAX)
+		echo '<div id="wvc-log-note-container" data-filename="plugins"></div>';
 	}
 
 	/**
@@ -104,7 +105,7 @@ class Plugins_Settings {
 		$plugin_version = $plugin_data['Version'];
 		$plugin_path = WP_PLUGIN_DIR . '/' . $plugin_slug;
 
-		$vip_status_info = $this->get_vip_compatibility_status( $plugin_slug, $plugin_version, $plugin_path );
+		// Get the new version if available.
 		$new_version = isset( $plugin_updates->response[ $plugin_file ] ) ? $plugin_updates->response[ $plugin_file ]->new_version : esc_html__( 'Up to date', 'wp-vip-compatibility' );
 
 		echo '<tr>';
@@ -114,7 +115,7 @@ class Plugins_Settings {
 		echo '<td>' . esc_html( $plugin_data['Author'] ) . '</td>';
 		echo '<td>' . esc_html( $plugin_version ) . '</td>';
 		echo '<td>' . esc_html( $new_version ) . '</td>';
-		echo '<td class="' . esc_attr( $vip_status_info['class'] ) . '">' . esc_html( $vip_status_info['message'] ) . '</td>';
+		echo '<td class="vip-compatibility-status" data-directory-path="' . esc_attr( $plugin_path ) . '">' . esc_html__( 'Loading...', 'wp-vip-compatibility' ) . '</td>';
 		echo '</tr>';
 	}
 
@@ -160,25 +161,5 @@ class Plugins_Settings {
 			'message' => $status,
 			'class'   => 'Compatible' === $status ? 'compatible' : 'not-compatible'
 		];
-	}
-
-	/**
-	 * Renders the log file download section.
-	 */
-	private function render_log_file_section() {
-		$log_file_path = WP_CONTENT_DIR . '/uploads/wvc-logs/plugins.txt';
-
-		if ( file_exists( $log_file_path ) ) {
-			echo '<p><strong>' . esc_html__( 'Note:', 'wp-vip-compatibility' ) . '</strong> ';
-			printf(
-				esc_html__( 'The log file containing all the details is available for download at %s.', 'wp-vip-compatibility' ),
-				'<a href="' . esc_url( WP_CONTENT_URL . '/uploads/wvc-logs/plugins.txt' ) . '" download>' .
-				esc_html__( 'wp-content/uploads/wvc-logs/plugins.txt', 'wp-vip-compatibility' ) . '</a>'
-			);
-			echo '</p>';
-		} else {
-			echo '<p><strong>' . esc_html__( 'Note:', 'wp-vip-compatibility' ) . '</strong> ' .
-				esc_html__( 'No incompatibility logs were generated.', 'wp-vip-compatibility' ) . '</p>';
-		}
 	}
 }

@@ -50,6 +50,11 @@ class Assets {
 				true
 			);
 			wp_enqueue_script( 'wp-vip-compatibility-admin-script' );
+
+			wp_localize_script( 'wp-vip-compatibility-admin-script', 'wvcAjax', [
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'wvc_ajax_nonce' ),
+			] );
 		}
 
 		if ( file_exists( WP_VIP_COMPATIBILITY_DIR . '/assets/css/admin.css' ) ) {
