@@ -4,11 +4,13 @@ node_modules
 .gitignore
 composer.json
 composer.lock
-LICENSE
 package-lock.json
 package.json
 phpcs.xml
+LICENSE
 README.md
+WORKFLOW.md
+CODE_OF_CONDUCT.md
 .git
 .github
 .DS_Store
