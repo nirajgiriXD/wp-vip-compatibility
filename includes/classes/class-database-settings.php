@@ -11,7 +11,7 @@ use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
 use WP_VIP_COMPATIBILITY\Includes\Classes\Plugin;
 
 /**
- * This class handles the database submenu settings.
+ * Handles the database settings submenu.
  */
 class Database_Settings {
 
@@ -25,34 +25,40 @@ class Database_Settings {
 	private $json_data = [];
 
 	/**
-	 * Constructor method is used to initialize the fields.
+	 * Constructor.
 	 */
 	public function __construct() {
 		$this->json_data = Plugin::get_instance()->get_json_data();
 	}
 
 	/**
-	 * Retrieve the core tables and VIP supported collations from the JSON file.
+	 * Renders the database settings page.
 	 *
 	 * @return void
 	 */
 	public function render_settings_page() {
 		global $wpdb;
 
-		// Extract core tables and VIP supported collations from the JSON data.
 		$core_tables              = $this->json_data['core_tables'] ?? [];
 		$vendor_tables            = $this->json_data['vendor_tables'] ?? [];
 		$vip_supported_collations = $this->json_data['vip_supported_collations'] ?? [];
 
-		// Query to get tables with their collation and engine.
-		$tables = $wpdb->get_results("SELECT TABLE_NAME, TABLE_COLLATION, ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = '" . DB_NAME . "'");
+		// Fetch database tables with collation and engine.
+		$tables = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT TABLE_NAME, TABLE_COLLATION, ENGINE 
+				FROM information_schema.TABLES 
+				WHERE TABLE_SCHEMA = %s",
+				DB_NAME
+			)
+		);
 
 		if ( empty( $tables ) ) {
 			echo '<p>' . esc_html__( 'No tables found in the database.', 'wp-vip-compatibility' ) . '</p>';
 			return;
 		}
 
-		// Start HTML table.
+		// Output the settings table.
 		echo '<table class="wvc-table">';
 		echo '<thead><tr>
 				<th>' . esc_html__( 'SN', 'wp-vip-compatibility' ) . '</th>
@@ -62,7 +68,7 @@ class Database_Settings {
 				<th>' . esc_html__( 'Source', 'wp-vip-compatibility' ) . '</th>
 				<th>' . esc_html__( 'VIP Compatibility', 'wp-vip-compatibility' ) . '</th>
 				<th>' . esc_html__( 'Notes', 'wp-vip-compatibility' ) . '</th>
-			  </tr></thead>';
+			</tr></thead>';
 		echo '<tbody>';
 
 		$counter = 1;
@@ -70,7 +76,7 @@ class Database_Settings {
 			$table_name           = $table->TABLE_NAME;
 			$engine               = $table->ENGINE;
 			$collation            = $table->TABLE_COLLATION;
-			$vip_supported        = in_array( $collation, $vip_supported_collations );
+			$vip_supported        = in_array( $collation, $vip_supported_collations, true );
 			$has_supported_prefix = strpos( $table_name, 'wp_' ) === 0;
 
 			// Determine table source.
@@ -83,31 +89,40 @@ class Database_Settings {
 
 			// Check collation compatibility.
 			if ( ! $vip_supported ) {
+				$charset             = explode( '_', $collation, 2 )[0] ?? '';
 				$suggested_collation = $this->get_suggested_collation( $collation, $vip_supported_collations );
-				$notes[] = esc_html__( 'The collation is unsupported, consider using', 'wp-vip-compatibility' ) . 
-					' <code>' . esc_html( $suggested_collation ) . '</code> ' . esc_html__( 'for VIP compatibility', 'wp-vip-compatibility' );
+
+				if ( $suggested_collation !== 'Not Supported' ) {
+					$notes[] = esc_html__( 'Unsupported collation. Recommended fix:', 'wp-vip-compatibility' ) .
+						'<br><code>ALTER TABLE ' . esc_html( $table_name ) . ' CONVERT TO CHARACTER SET ' . esc_html( $charset ) . ' COLLATE ' . esc_html( $suggested_collation ) . ';</code>';
+				} else {
+					$notes[] = esc_html__( 'The collation is unsupported.', 'wp-vip-compatibility' );
+				}
+
 				$compatibility_class = 'not-compatible';
 				$compatibility       = esc_html__( 'Not Compatible', 'wp-vip-compatibility' );
 			}
 
 			// Check engine compatibility.
-			if ( $engine !== 'InnoDB' ) {
-				$notes[] = esc_html__( 'The engine is unsupported, consider using', 'wp-vip-compatibility' ) . 
-					' <code>InnoDB</code> ' . esc_html__( 'for VIP compatibility', 'wp-vip-compatibility' );
+			if ( 'InnoDB' !== $engine ) {
+				$notes[] = esc_html__( 'Unsupported storage engine. Recommended fix:', 'wp-vip-compatibility' ) .
+					'<br><code>ALTER TABLE ' . esc_html( $table_name ) . ' ENGINE = InnoDB;</code>';
+
 				$compatibility_class = 'not-compatible';
 				$compatibility       = esc_html__( 'Not Compatible', 'wp-vip-compatibility' );
 			}
 
 			// Check prefix compatibility.
 			if ( ! $has_supported_prefix ) {
-				$notes[] = esc_html__( 'The table prefix is unsupported, consider using', 'wp-vip-compatibility' ) . 
-					' <code>wp_</code> ' . esc_html__( 'prefix for VIP compatibility', 'wp-vip-compatibility' );
+				$notes[] = esc_html__( 'Non-standard table prefix. Recommended fix:', 'wp-vip-compatibility' ) .
+					'<br><code>ALTER TABLE ' . esc_html( $table_name ) . ' RENAME TO ' . esc_html( 'wp_' . $table_name ) . ';</code>';
+
 				$compatibility_class = 'not-compatible';
 				$compatibility       = esc_html__( 'Not Compatible', 'wp-vip-compatibility' );
 			}
 
-			// If no issues, set the notes to '-'.
-			$notes = empty( $notes ) ? ['-'] : $notes;
+			// Display notes.
+			$notes_display = empty( $notes ) ? '-' : '<ul><li>' . implode( '</li><li>', $notes ) . '</li></ul>';
 
 			// Output table row.
 			echo '<tr>';
@@ -117,7 +132,7 @@ class Database_Settings {
 			echo '<td>' . esc_html( $collation ) . '</td>';
 			echo '<td>' . esc_html( $source ) . '</td>';
 			echo '<td class="' . esc_attr( $compatibility_class ) . '">' . esc_html( $compatibility ) . '</td>';
-			echo '<td><ul><li>' . implode( '</li><li>', $notes ) . '</li></ul></td>';
+			echo '<td>' . $notes_display . '</td>';
 			echo '</tr>';
 		}
 
@@ -125,53 +140,38 @@ class Database_Settings {
 	}
 
 	/**
-	 * Get table source from core tables or vendor tables.
+	 * Determine the source of a given database table.
 	 *
-	 * @param string $table_name          The database table name.
-	 * @param array  $core_tables         List of core tables.
-	 * @param array  $vendor_tables       List of vendor tables.
-	 * @param bool   $has_supported_prefix Whether the table has a supported prefix.
+	 * @param string $table_name The table name.
+	 * @param array  $core_tables List of core WordPress tables.
+	 * @param array  $vendor_tables List of vendor/plugin tables.
+	 * @param bool   $has_supported_prefix Whether the table has a "wp_" prefix.
 	 *
-	 * @return string
+	 * @return string Table source (Core, Plugin, Custom, Unknown).
 	 */
 	private function get_table_source( $table_name, $core_tables, $vendor_tables, $has_supported_prefix ) {
-		// Check core tables.
-		if ( isset( $core_tables[ $table_name ] ) ) {
-			return implode( ', ', $core_tables[ $table_name ] );
+		if ( in_array( $table_name, $core_tables, true ) ) {
+			return esc_html__( 'Core WordPress', 'wp-vip-compatibility' );
 		}
 
-		// Check vendor tables.
-		if ( isset( $vendor_tables[ $table_name ] ) ) {
-			return implode( ', ', $vendor_tables[ $table_name ] );
+		if ( in_array( $table_name, $vendor_tables, true ) ) {
+			return esc_html__( 'Plugin/Vendor', 'wp-vip-compatibility' );
 		}
 
-		// If the table starts with "wp_", try checking without the prefix.
-		if ( $has_supported_prefix ) {
-			$trimmed_table_name = preg_replace( '/^wp_/', '', $table_name );
-
-			if ( isset( $core_tables[ $trimmed_table_name ] ) ) {
-				return implode( ', ', $core_tables[ $trimmed_table_name ] );
-			}
-
-			if ( isset( $vendor_tables[ $trimmed_table_name ] ) ) {
-				return implode( ', ', $vendor_tables[ $trimmed_table_name ] );
-			}
-		}
-
-		return '-';
+		return $has_supported_prefix ? esc_html__( 'Custom', 'wp-vip-compatibility' ) : esc_html__( 'Unknown (Non-standard Prefix)', 'wp-vip-compatibility' );
 	}
 
 	/**
-	 * Get the closest VIP-supported collation suggestion.
+	 * Suggests the closest VIP-supported collation.
 	 *
-	 * @param string $current_collation   The table's current collation.
-	 * @param array  $vip_collations      List of VIP-supported collations.
+	 * @param string $current_collation The current collation.
+	 * @param array  $vip_collations List of VIP-supported collations.
 	 *
-	 * @return string
+	 * @return string Suggested collation or 'Not Supported'.
 	 */
 	private function get_suggested_collation( $current_collation, $vip_collations ) {
 		foreach ( $vip_collations as $vip_collation ) {
-			if ( strpos( $vip_collation, explode('_', $current_collation)[0] ) === 0 ) {
+			if ( str_contains( $vip_collation, explode( '_', $current_collation, 2 )[1] ?? '' ) ) {
 				return $vip_collation;
 			}
 		}
