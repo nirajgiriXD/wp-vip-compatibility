@@ -100,6 +100,7 @@ class Settings {
 		foreach ( $menus as $key => $title ) {
 			add_submenu_page(
 				'wp-vip-compatibility',
+				/* translators: %s: Submenu title */
 				sprintf( __( 'WVC - %s', 'wp-vip-compatibility' ), $title ),
 				$title,
 				'manage_options',
