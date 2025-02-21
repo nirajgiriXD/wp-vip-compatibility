@@ -54,7 +54,6 @@ class Themes_Settings {
 	 */
 	public function render_settings_page() {
 		$all_themes = $this->get_all_themes();
-		$log_file_path = WP_CONTENT_DIR . '/uploads/wvc-logs/themes.txt';
 		?>
 		<table class="wvc-table">
 			<thead>
