@@ -45,49 +45,47 @@ function wvc_check_vip_compatibility( $directory_path ) {
 
 	// Determine the log file path based on type.
 	if ( is_file( $directory_path ) ) {
-		$log_file_path = $log_base_dir . '/mu-plugins.txt';
-	} elseif ( strpos( $directory_path, WP_CONTENT_DIR . '/plugins' ) !== false ) {
-		$log_file_path = $log_base_dir . '/plugins.txt';
-	} elseif ( strpos( $directory_path, WP_CONTENT_DIR . '/themes' ) !== false ) {
-		$log_file_path = $log_base_dir . '/themes.txt';
+		$directory_type = 'mu-plugins';
+	} elseif ( false !== strpos( $directory_path, WP_CONTENT_DIR . '/plugins' ) ) {
+		$directory_type = 'plugins';
+	} elseif ( false !== strpos( $directory_path, WP_CONTENT_DIR . '/themes' ) ) {
+		$directory_type = 'themes';
 	} else {
-		$log_file_path = $log_base_dir . '/general.txt';
+		$directory_type = 'general';
 	}
+
+	// Define the log file path.
+	$log_file_path = $log_base_dir . '/' . $directory_type . '.txt';
 
 	// Scan for violations.
 	$issues = [];
 	foreach ( $php_files as $file_path ) {
 		// Skip vendor directory.
-		if ( strpos( $file_path, '/vendor/' ) !== false || strpos( $file_path, '\\vendor\\' ) !== false ) {
+		if ( false !== strpos( $file_path, '/vendor/' ) || false !== strpos( $file_path, '\\vendor\\' ) ) {
 			continue;
 		}
 
-		// Run PHPCS check.
-		$phpcs_output = shell_exec( escapeshellcmd( "vendor/bin/phpcs --standard=WordPress-VIP-Go --sniffs=WordPress.Filesystem " . escapeshellarg( $file_path ) ) );
-
-		if ( null === $phpcs_output || false === $phpcs_output || strpos( $phpcs_output, 'WordPress.Filesystem' ) !== false ) {
-			// Open file and scan line by line.
-			$file_handle = fopen( $file_path, 'r' );
-			if ( $file_handle ) {
-				$line_number = 0;
-				
-				while ( ( $line = fgets( $file_handle ) ) !== false ) {
-					$line_number++;
-		
-					// Detect filesystem operations outside uploads directory.
-					if ( preg_match( '/\b(fopen|file_put_contents|fwrite|rename|unlink)\(/', $line ) ) {
-						if ( strpos( $line, 'wp-content/uploads' ) === false ) {
-							$issues[] = "> File operation outside uploads directory detected in: $file_path on line $line_number";
-						}
-					}
-		
-					// Detect shell execution functions.
-					if ( preg_match( '/\b(exec|shell_exec|system|passthru|popen)\(/', $line ) ) {
-						$issues[] = "> Command execution function detected in: $file_path on line $line_number";
+		// Open file and scan line by line.
+		$file_handle = fopen( $file_path, 'r' );
+		if ( $file_handle ) {
+			$line_number = 0;
+			
+			while ( ( $line = fgets( $file_handle ) ) !== false ) {
+				$line_number++;
+	
+				// Detect filesystem operations outside uploads directory.
+				if ( preg_match( '/\b(fopen|file_put_contents|fwrite|rename|unlink)\(/', $line ) ) {
+					if ( strpos( $line, 'wp-content/uploads' ) === false ) {
+						$issues[] = "> File operation outside uploads directory detected in: $file_path on line $line_number";
 					}
 				}
-				fclose( $file_handle );
+	
+				// Detect shell execution functions.
+				if ( preg_match( '/\b(exec|shell_exec|system|passthru|popen)\(/', $line ) ) {
+					$issues[] = "> Command execution function detected in: $file_path on line $line_number";
+				}
 			}
+			fclose( $file_handle );
 		}
 	}
 

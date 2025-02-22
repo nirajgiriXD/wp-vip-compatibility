@@ -39,8 +39,8 @@ class Database_Settings {
 	public function render_settings_page() {
 		global $wpdb;
 
-		$core_tables              = $this->json_data['core_tables'] ?? [];
-		$vendor_tables            = $this->json_data['vendor_tables'] ?? [];
+		$core_tables              = $this->json_data['tables']['core_tables'] ?? [];
+		$vendor_tables            = $this->json_data['tables']['vendor_tables'] ?? [];
 		$vip_supported_collations = $this->json_data['vip_supported_collations'] ?? [];
 
 		// Fetch database tables with collation and engine.
@@ -150,12 +150,17 @@ class Database_Settings {
 	 * @return string Table source (Core, Plugin, Custom, Unknown).
 	 */
 	private function get_table_source( $table_name, $core_tables, $vendor_tables, $has_supported_prefix ) {
-		if ( in_array( $table_name, $core_tables, true ) ) {
-			return esc_html__( 'Core WordPress', 'wp-vip-compatibility' );
+		global $wpdb;
+
+		// Remove the prefix.
+		$table_name = substr( $table_name, strlen( $wpdb->prefix ) );
+
+		if ( isset( $core_tables[ $table_name ] ) ) {
+			return implode( ', ', $core_tables[ $table_name ] );
 		}
 
-		if ( in_array( $table_name, $vendor_tables, true ) ) {
-			return esc_html__( 'Plugin/Vendor', 'wp-vip-compatibility' );
+		if ( isset( $vendor_tables[ $table_name ] ) ) {
+			return implode( ', ', $vendor_tables[ $table_name ] );
 		}
 
 		return $has_supported_prefix ? esc_html__( 'Custom', 'wp-vip-compatibility' ) : esc_html__( 'Unknown (Non-standard Prefix)', 'wp-vip-compatibility' );
