@@ -36,8 +36,8 @@ The plugin provides individual submenus for analyzing different sections of the 
 
 ## Additional Features
 
-✅ **Real-time Compatibility Checks** – Dynamically fetches data and displays results.
-✅ **Log Reports** – Generate detailed exportable reports for further review.
-✅ **Fix Recommendation** – Detects known VIP-incompatible patterns and suggests fixes.
+- **Real-time Compatibility Checks** – Dynamically fetches data and displays results.
+- **Log Reports** – Generate detailed exportable reports for further review.
+- **Fix Recommendation** – Detects known VIP-incompatible patterns and suggests fixes.
 
 This plugin serves as an essential tool for developers and site owners planning a migration to WordPress VIP. It helps streamline the migration process by ensuring that the database, files, plugins, and themes meet VIP’s coding standards.
