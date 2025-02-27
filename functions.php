@@ -72,14 +72,14 @@ function wvc_check_vip_compatibility( $directory_path ) {
 			
 			while ( ( $line = fgets( $file_handle ) ) !== false ) {
 				$line_number++;
-	
+
 				// Detect filesystem operations outside uploads directory.
 				if ( preg_match( '/\b(fopen|file_put_contents|fwrite|rename|unlink)\(/', $line ) ) {
 					if ( strpos( $line, 'wp-content/uploads' ) === false ) {
 						$issues[] = "> File operation outside uploads directory detected in: $file_path on line $line_number";
 					}
 				}
-	
+
 				// Detect shell execution functions.
 				if ( preg_match( '/\b(exec|shell_exec|system|passthru|popen)\(/', $line ) ) {
 					$issues[] = "> Command execution function detected in: $file_path on line $line_number";
@@ -92,7 +92,8 @@ function wvc_check_vip_compatibility( $directory_path ) {
 	// Write issues to log file.
 	if ( ! empty( $issues ) ) {
 		$timestamp = date( 'Y-m-d H:i:s' );
-		file_put_contents( $log_file_path, "###### Log Generated: $timestamp ######" . PHP_EOL . PHP_EOL . implode( PHP_EOL, $issues ) );
+		$file_content = "###### Log Generated: $timestamp ######" . PHP_EOL . PHP_EOL . implode( PHP_EOL, $issues ) . PHP_EOL . PHP_EOL;
+		file_put_contents( $log_file_path, $file_content, FILE_APPEND );
 		return esc_html__( 'Incompatible', 'wp-vip-compatibility' );
 	}
 

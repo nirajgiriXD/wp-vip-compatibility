@@ -50,7 +50,7 @@ class Ajax {
 
 		$directory_path = sanitize_text_field( wp_unslash( $_POST['directory_path'] ) );
 
-		// Check compatibility using your function.
+		// Check compatibility using vip compatibility checking function.
 		$status = wvc_check_vip_compatibility( $directory_path );
 
 		// Determine CSS class for styling.
@@ -71,17 +71,17 @@ class Ajax {
 		if ( empty( $_POST['_ajax_nonce'] ) || ! wp_verify_nonce( $_POST['_ajax_nonce'], 'wvc_ajax_nonce' ) ) {
 			wp_send_json_error( [ 'message' => __( 'Security check failed.', 'wp-vip-compatibility' ) ] );
 		}
-	
+
 		// Validate input.
 		$filename = isset( $_POST['filename'] ) ? sanitize_text_field( $_POST['filename'] ) : '';
 		if ( empty( $filename ) ) {
 			wp_send_json_error( [ 'message' => __( 'Invalid request.', 'wp-vip-compatibility' ) ] );
 		}
-	
+
 		// Construct log file path.
 		$log_file_path = WP_CONTENT_DIR . "/uploads/wvc-logs/{$filename}.txt";
 		$log_file_url  = WP_CONTENT_URL . "/uploads/wvc-logs/{$filename}.txt";
-	
+
 		// Check if log file exists.
 		if ( file_exists( $log_file_path ) ) {
 			wp_send_json_success( [
