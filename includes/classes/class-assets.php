@@ -51,10 +51,19 @@ class Assets {
 			);
 			wp_enqueue_script( 'wp-vip-compatibility-admin-script' );
 
-			wp_localize_script( 'wp-vip-compatibility-admin-script', 'wvcAjax', [
-				'ajax_url' => admin_url( 'admin-ajax.php' ),
-				'nonce'    => wp_create_nonce( 'wvc_ajax_nonce' ),
-			] );
+			wp_localize_script(
+				'wp-vip-compatibility-admin-script',
+				'_WPVC_',
+				[
+					'ajax_url' => admin_url( 'admin-ajax.php' ),
+					'nonce'    => wp_create_nonce( 'wvc_ajax_nonce' ),
+					'i18n'     => [
+						'checking'                => esc_html__( 'Checking...', 'wp-vip-compatibility' ),
+						'error'                   => esc_html__( 'Error', 'wp-vip-compatibility' ),
+						'unableToFetchLogDetails' => esc_html__( 'Unable to fetch log details.', 'wp-vip-compatibility' ),
+					],
+				]
+			);
 		}
 
 		if ( file_exists( WP_VIP_COMPATIBILITY_DIR . '/assets/css/admin.css' ) ) {
