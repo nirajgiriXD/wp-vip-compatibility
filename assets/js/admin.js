@@ -6,15 +6,15 @@ jQuery(document).ready(function ($) {
 
     // Send AJAX request
     const request = $.ajax({
-      url: wvcAjax.ajax_url,
+      url: _WPVC_.ajax_url,
       type: "POST",
       data: {
-        _ajax_nonce: wvcAjax.nonce,
+        _ajax_nonce: _WPVC_.nonce,
         action: "wvc_check_vip_compatibility",
         directory_path: directoryPath,
       },
       beforeSend: function () {
-        $statusCell.text("Checking...");
+        $statusCell.text(_WPVC_.i18n.checking);
       },
       success: function (response) {
         if (response.success) {
@@ -22,11 +22,11 @@ jQuery(document).ready(function ($) {
             .text(response.data.message)
             .addClass(response.data.class);
         } else {
-          $statusCell.text("Error").addClass("not-compatible");
+          $statusCell.text(_WPVC_.i18n.error).addClass("not-compatible");
         }
       },
       error: function () {
-        $statusCell.text("Error").addClass("not-compatible");
+        $statusCell.text(_WPVC_.i18n.error).addClass("not-compatible");
       },
     });
 
@@ -40,10 +40,10 @@ jQuery(document).ready(function ($) {
     const filename = container.data("filename");
 
     $.ajax({
-        url: wvcAjax.ajax_url,
+        url: _WPVC_.ajax_url,
         type: "POST",
         data: {
-            _ajax_nonce: wvcAjax.nonce,
+            _ajax_nonce: _WPVC_.nonce,
             action: "wvc_render_log_note",
             filename: filename
         },
@@ -56,7 +56,7 @@ jQuery(document).ready(function ($) {
             }
         },
         error: function () {
-            container.html('<p><strong>Error:</strong> Unable to fetch log details.</p>');
+            container.html('<p><strong>' + _WPVC_.i18n.error + ':</strong> ' + _WPVC_.i18n.unableToFetchLogDetails + '</p>');
         }
     });
   });
