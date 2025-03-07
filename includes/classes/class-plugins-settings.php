@@ -40,7 +40,11 @@ class Plugins_Settings {
 		$all_plugins   = $this->get_installed_plugins();
 		$plugin_updates = $this->get_plugin_updates();
 
-		echo '<table class="wvc-table">';
+		// Render the filter tabs.
+		$this->render_filter_tabs();
+
+		// Render the table.
+		echo '<table class="wvc-table" data-target-entity="plugins">';
 		$this->render_table_header();
 		echo '<tbody>';
 
@@ -77,6 +81,27 @@ class Plugins_Settings {
 			wp_update_plugins();
 		}
 		return get_site_transient( 'update_plugins' );
+	}
+
+	/**
+	 * Renders the tabs for filtering the compatible and incompatible plugins.
+	 *
+	 * @return void
+	 */
+	private function render_filter_tabs() {
+		?>
+		<div id="wvc-filter-tabs">
+			<button data-filter="all" class="active">
+				<?php esc_html_e( 'All', 'wp-vip-compatibility' ); ?>
+			</button>
+			<button data-filter="compatible">
+				<?php esc_html_e( 'Compatible', 'wp-vip-compatibility' ); ?>
+			</button>
+			<button data-filter="incompatible">
+				<?php esc_html_e( 'Incompatible', 'wp-vip-compatibility' ); ?>
+			</button>
+		</div>
+		<?php
 	}
 
 	/**

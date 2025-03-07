@@ -55,7 +55,21 @@ class Themes_Settings {
 	public function render_settings_page() {
 		$all_themes = $this->get_all_themes();
 		?>
-		<table class="wvc-table">
+		<!-- Filter Tabs -->
+		<div id="wvc-filter-tabs">
+			<button data-filter="all" class="active">
+				<?php esc_html_e( 'All', 'wp-vip-compatibility' ); ?>
+			</button>
+			<button data-filter="compatible">
+				<?php esc_html_e( 'Compatible', 'wp-vip-compatibility' ); ?>
+			</button>
+			<button data-filter="incompatible">
+				<?php esc_html_e( 'Incompatible', 'wp-vip-compatibility' ); ?>
+			</button>
+		</div>
+
+		<!-- Compatibility Table -->
+		<table class="wvc-table" data-target-entity="themes">
 			<thead>
 				<tr>
 					<th><?php esc_html_e( 'SN', 'wp-vip-compatibility' ); ?></th>

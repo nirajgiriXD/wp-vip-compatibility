@@ -66,3 +66,29 @@
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
 }
+
+/* Table Filter Tabs */
+#wvc-filter-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+#wvc-filter-tabs button {
+  padding: 6px 12px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  background-color: #f0f0f0;
+}
+
+#wvc-filter-tabs button.active {
+  color: #fff;
+  background-color: #0073aa;
+}
+
+#wvc-filter-tabs button:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
+}

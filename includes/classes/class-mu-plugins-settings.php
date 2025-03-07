@@ -31,13 +31,20 @@ class MU_Plugins_Settings {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$mu_plugins = get_mu_plugins();
+		$mu_plugins          = get_mu_plugins();
+		$is_mu_plugins_empty = empty( $mu_plugins );
 
-		echo '<table class="wvc-table">';
+		// Render the filter tabs if there are mu-plugins.
+		if ( ! $is_mu_plugins_empty ) {
+			$this->render_filter_tabs();
+		}
+
+		// Render the table.
+		echo '<table class="wvc-table" data-target-entity="mu-plugins">';
 		$this->render_table_header();
 		echo '<tbody>';
 
-		if ( empty( $mu_plugins ) ) {
+		if ( $is_mu_plugins_empty ) {
 			echo '<tr><td colspan="7" style="text-align: center;">' . esc_html__( 'No MU plugins are present.', 'wp-vip-compatibility' ) . '</td></tr>';
 		} else {
 			$counter = 1;
@@ -50,6 +57,27 @@ class MU_Plugins_Settings {
 
 		// Placeholder for log file information (will be updated via AJAX)
 		echo '<div id="wvc-log-note-container" data-filename="mu-plugins"></div>';
+	}
+
+	/**
+	 * Renders the tabs for filtering the compatible and incompatible mu-plugins.
+	 *
+	 * @return void
+	 */
+	private function render_filter_tabs() {
+		?>
+		<div id="wvc-filter-tabs">
+			<button data-filter="all" class="active">
+				<?php esc_html_e( 'All', 'wp-vip-compatibility' ); ?>
+			</button>
+			<button data-filter="compatible">
+				<?php esc_html_e( 'Compatible', 'wp-vip-compatibility' ); ?>
+			</button>
+			<button data-filter="incompatible">
+				<?php esc_html_e( 'Incompatible', 'wp-vip-compatibility' ); ?>
+			</button>
+		</div>
+		<?php
 	}
 
 	/**
