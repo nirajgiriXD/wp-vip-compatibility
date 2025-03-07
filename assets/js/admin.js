@@ -55,9 +55,8 @@ jQuery(document).ready(function ($) {
     ajaxRequests.push(request);
   });
 
-  // Once all AJAX requests are done, load the log note
+  // Once all AJAX requests are done, enable filter tabs and load the log note
   $.when.apply($, ajaxRequests).done(function () {
-    // Enable the filter tabs
     tabs.prop("disabled", false);
 
     $.ajax({
