@@ -58,8 +58,11 @@ class Database_Settings {
 			return;
 		}
 
+		// Render the tabs.
+		$this->render_tabs();
+
 		// Output the settings table.
-		echo '<table class="wvc-table">';
+		echo '<table class="wvc-table" data-target-entity="database">';
 		echo '<thead><tr>
 				<th>' . esc_html__( 'SN', 'wp-vip-compatibility' ) . '</th>
 				<th>' . esc_html__( 'Table Name', 'wp-vip-compatibility' ) . '</th>
@@ -137,6 +140,27 @@ class Database_Settings {
 		}
 
 		echo '</tbody></table>';
+	}
+
+	/**
+	 * Renders the tabs for filtering the compatible and incompatible plugins.
+	 *
+	 * @return void
+	 */
+	private function render_tabs() {
+		?>
+		<div id="wvc-filter-tabs">
+			<button data-filter="all" class="active">
+				<?php esc_html_e( 'All', 'wp-vip-compatibility' ); ?>
+			</button>
+			<button data-filter="compatible">
+				<?php esc_html_e( 'Compatible', 'wp-vip-compatibility' ); ?>
+			</button>
+			<button data-filter="incompatible">
+				<?php esc_html_e( 'Incompatible', 'wp-vip-compatibility' ); ?>
+			</button>
+		</div>
+		<?php
 	}
 
 	/**
