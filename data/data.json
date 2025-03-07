@@ -206,6 +206,7 @@
       "wordfence"
     ],
     "tested_compatible_plugins": [
+      "wp-vip-compatibility",
       "advanced-custom-fields-pro",
       "advanced-custom-fields",
       "aryo-activity-log",
