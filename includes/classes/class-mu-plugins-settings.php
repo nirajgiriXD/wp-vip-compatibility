@@ -34,9 +34,9 @@ class MU_Plugins_Settings {
 		$mu_plugins          = get_mu_plugins();
 		$is_mu_plugins_empty = empty( $mu_plugins );
 
-		// Render the tabs if there are mu-plugins.
+		// Render the filter tabs if there are mu-plugins.
 		if ( ! $is_mu_plugins_empty ) {
-			$this->render_tabs();
+			$this->render_filter_tabs();
 		}
 
 		// Render the table.
@@ -64,7 +64,7 @@ class MU_Plugins_Settings {
 	 *
 	 * @return void
 	 */
-	private function render_tabs() {
+	private function render_filter_tabs() {
 		?>
 		<div id="wvc-filter-tabs">
 			<button data-filter="all" class="active">

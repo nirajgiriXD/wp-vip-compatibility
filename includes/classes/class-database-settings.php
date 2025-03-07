@@ -58,8 +58,8 @@ class Database_Settings {
 			return;
 		}
 
-		// Render the tabs.
-		$this->render_tabs();
+		// Render the filter tabs.
+		$this->render_filter_tabs();
 
 		// Output the settings table.
 		echo '<table class="wvc-table" data-target-entity="database">';
@@ -147,7 +147,7 @@ class Database_Settings {
 	 *
 	 * @return void
 	 */
-	private function render_tabs() {
+	private function render_filter_tabs() {
 		?>
 		<div id="wvc-filter-tabs">
 			<button data-filter="all" class="active">

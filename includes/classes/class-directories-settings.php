@@ -51,8 +51,8 @@ class Directories_Settings {
 			return;
 		}
 
-		// Render the tabs.
-		$this->render_tabs();
+		// Render the filter tabs.
+		$this->render_filter_tabs();
 
 		// Output settings table.
 		echo '<table class="wvc-table" data-target-entity="directories">';
@@ -96,7 +96,7 @@ class Directories_Settings {
 	 *
 	 * @return void
 	 */
-	private function render_tabs() {
+	private function render_filter_tabs() {
 		?>
 		<div id="wvc-filter-tabs">
 			<button data-filter="all" class="active">

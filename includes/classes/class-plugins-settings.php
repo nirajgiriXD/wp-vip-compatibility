@@ -40,8 +40,8 @@ class Plugins_Settings {
 		$all_plugins   = $this->get_installed_plugins();
 		$plugin_updates = $this->get_plugin_updates();
 
-		// Render the tabs.
-		$this->render_tabs();
+		// Render the filter tabs.
+		$this->render_filter_tabs();
 
 		// Render the table.
 		echo '<table class="wvc-table" data-target-entity="plugins">';
@@ -88,7 +88,7 @@ class Plugins_Settings {
 	 *
 	 * @return void
 	 */
-	private function render_tabs() {
+	private function render_filter_tabs() {
 		?>
 		<div id="wvc-filter-tabs">
 			<button data-filter="all" class="active">
