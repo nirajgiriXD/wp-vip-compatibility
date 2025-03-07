@@ -79,8 +79,8 @@ class Ajax {
 		}
 
 		// Construct log file path.
-		$log_file_path = WP_CONTENT_DIR . "/uploads/wvc-logs/{$filename}.txt";
-		$log_file_url  = WP_CONTENT_URL . "/uploads/wvc-logs/{$filename}.txt";
+		$log_file_path = WP_CONTENT_DIR . "/uploads/wvc-logs/{$filename}.json";
+		$log_file_url  = WP_CONTENT_URL . "/uploads/wvc-logs/{$filename}.json";
 
 		// Check if log file exists.
 		if ( file_exists( $log_file_path ) ) {
@@ -90,7 +90,7 @@ class Ajax {
 					esc_html__( 'Note:', 'wp-vip-compatibility' ),
 					esc_html__( 'The log file containing all the details is available for download at ', 'wp-vip-compatibility' ),
 					esc_url( $log_file_url ),
-					esc_html( "wp-content/uploads/wvc-logs/{$filename}.txt" )
+					esc_html( "wp-content/uploads/wvc-logs/{$filename}.json" )
 				)
 			] );
 		} else {
