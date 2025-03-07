@@ -43,19 +43,30 @@ function wvc_check_vip_compatibility( $directory_path ) {
 		wp_mkdir_p( $log_base_dir );
 	}
 
-	// Determine the log file path based on type.
+	// Determine the directory type and extract the slug.
 	if ( is_file( $directory_path ) ) {
 		$directory_type = 'mu-plugins';
+		$slug           = basename( dirname( $directory_path ) );
 	} elseif ( false !== strpos( $directory_path, WP_CONTENT_DIR . '/plugins' ) ) {
 		$directory_type = 'plugins';
+		$slug           = basename( $directory_path );
 	} elseif ( false !== strpos( $directory_path, WP_CONTENT_DIR . '/themes' ) ) {
 		$directory_type = 'themes';
+		$slug           = basename( $directory_path );
 	} else {
 		$directory_type = 'general';
+		$slug           = basename( $directory_path );
 	}
 
 	// Define the log file path.
-	$log_file_path = $log_base_dir . '/' . $directory_type . '.txt';
+	$log_file_path = $log_base_dir . '/' . $directory_type . '.json';
+
+	// Read existing JSON data if file exists.
+	$log_data = [];
+	if ( file_exists( $log_file_path ) ) {
+		$existing_data = file_get_contents( $log_file_path );
+		$log_data      = json_decode( $existing_data, true ) ?: array();
+	}
 
 	// Scan for violations.
 	$issues = [];
@@ -76,24 +87,31 @@ function wvc_check_vip_compatibility( $directory_path ) {
 				// Detect filesystem operations outside uploads directory.
 				if ( preg_match( '/\b(fopen|file_put_contents|fwrite|rename|unlink)\(/', $line ) ) {
 					if ( strpos( $line, 'wp-content/uploads' ) === false ) {
-						$issues[] = "> File operation outside uploads directory detected in: $file_path on line $line_number";
+						$issues[] = array(
+							'file'  => $file_path,
+							'line'  => $line_number,
+							'issue' => esc_html__( 'Filesystem operation outside uploads directory', 'wp-vip-compatibility' ),
+						);
 					}
 				}
 
 				// Detect shell execution functions.
 				if ( preg_match( '/\b(exec|shell_exec|system|passthru|popen)\(/', $line ) ) {
-					$issues[] = "> Command execution function detected in: $file_path on line $line_number";
+					$issues[] = array(
+						'file'  => $file_path,
+						'line'  => $line_number,
+						'issue' => esc_html__( 'Command execution function detected', 'wp-vip-compatibility' ),
+					);
 				}
 			}
 			fclose( $file_handle );
 		}
 	}
 
-	// Write issues to log file.
+	// Update JSON data with new issues.
 	if ( ! empty( $issues ) ) {
-		$timestamp = date( 'Y-m-d H:i:s' );
-		$file_content = "###### Log Generated: $timestamp ######" . PHP_EOL . PHP_EOL . implode( PHP_EOL, $issues ) . PHP_EOL . PHP_EOL;
-		file_put_contents( $log_file_path, $file_content, FILE_APPEND );
+		$log_data[ $slug ] = $issues;
+		file_put_contents( $log_file_path, json_encode( $log_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
 		return esc_html__( 'Incompatible', 'wp-vip-compatibility' );
 	}
 
