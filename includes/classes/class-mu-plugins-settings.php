@@ -17,9 +17,18 @@ class MU_Plugins_Settings {
 	use Singleton;
 
 	/**
+	 * Stores plugin data from JSON file.
+	 *
+	 * @var array
+	 */
+	private $json_data = [];
+
+	/**
 	 * Constructor.
 	 */
-	public function __construct() {}
+	public function __construct() {
+		$this->json_data = Plugin::get_instance()->get_json_data();
+	}
 
 	/**
 	 * Renders the MU-Plugins settings page.
@@ -55,7 +64,7 @@ class MU_Plugins_Settings {
 
 		echo '</tbody></table>';
 
-		// Placeholder for log file information (will be updated via AJAX)
+		// Placeholder for log file information (will be updated via AJAX).
 		echo '<div id="wvc-log-note-container" data-filename="mu-plugins"></div>';
 	}
 
