@@ -92,3 +92,48 @@
   opacity: 0.8;
   cursor: not-allowed;
 }
+
+/* Navigation Tabs */
+#wvc-navigation-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+#wvc-navigation-tabs button {
+  padding: 6px 12px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  background-color: #f0f0f0;
+}
+
+#wvc-navigation-tabs button.active {
+  color: #fff;
+  background-color: #0073aa;
+}
+
+.wvc-navigation-tab-content {
+  display: none;
+}
+
+.wvc-navigation-tab-content.active {
+  display: block;
+}
+
+/* Chart */
+#wvc-chart-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+}
+
+/* WVC Menu Page */
+#plugin-details,
+#compatibility-status {
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #fafaff;
+}

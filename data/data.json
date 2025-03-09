@@ -71,6 +71,10 @@
     "index.php": {
       "description": "Directory index file to prevent directory listing.",
       "is_supported": false
+    },
+    "debug.log": {
+      "description": "WordPress debug log file.",
+      "is_supported": false
     }
   },
   "vip_supported_collations": [
@@ -206,6 +210,7 @@
       "wordfence"
     ],
     "tested_compatible_plugins": [
+      "wp-vip-compatibility",
       "advanced-custom-fields-pro",
       "advanced-custom-fields",
       "aryo-activity-log",

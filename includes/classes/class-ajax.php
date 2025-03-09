@@ -32,6 +32,7 @@ class Ajax {
 
 		add_action( 'wp_ajax_wvc_check_vip_compatibility', array( $this, 'wvc_ajax_check_vip_compatibility' ) );
 		add_action( 'wp_ajax_wvc_render_log_note', array( $this, 'wvc_ajax_render_log_note' ) );
+		add_action( 'wp_ajax_wvc_get_chart_data', array( $this, 'wvc_ajax_get_chart_data' ) );
 	}
 
 	/**
@@ -102,5 +103,44 @@ class Ajax {
 				) 
 			] );
 		}
+	}
+
+	/**
+	 * Handle the AJAX request to get chart data.
+	 */
+	public function wvc_ajax_get_chart_data() {
+		// Verify nonce for security.
+		if ( empty( $_POST['_ajax_nonce'] ) || ! wp_verify_nonce( $_POST['_ajax_nonce'], 'wvc_ajax_nonce' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Security check failed.', 'wp-vip-compatibility' ) ] );
+		}
+
+		// Validate input.
+		$category = isset( $_POST['category'] ) ? sanitize_text_field( $_POST['category'] ) : '';
+		if ( empty( $category ) ) {
+			wp_send_json_error( [ 'message' => __( 'Invalid request.', 'wp-vip-compatibility' ) ] );
+		}
+
+		// Get chart data based on category.
+		switch ( $category ) {
+			case 'plugins':
+				$data = wvc_get_plugins_chart_data();
+				break;
+			case 'themes':
+				$data = wvc_get_themes_chart_data();
+				break;
+			case 'mu-plugins':
+				$data = wvc_get_mu_plugins_chart_data();
+				break;
+			case 'database':
+				$data = wvc_get_database_chart_data();
+				break;
+			case 'directories':
+				$data = wvc_get_directories_chart_data();
+				break;
+			default:
+				wp_send_json_error( [ 'message' => __( 'Invalid request.', 'wp-vip-compatibility' ) ] );
+		}
+
+		wp_send_json_success( $data );
 	}
 }

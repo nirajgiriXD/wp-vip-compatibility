@@ -102,4 +102,92 @@ jQuery(document).ready(function ($) {
       table.find("td.not-compatible").closest("tr").show();
     }
   });
+
+  // Tabs navigation functionality
+  const navigationTabs = $("#wvc-navigation-tabs button");
+  const contents = $(".wvc-navigation-tab-content");
+
+  navigationTabs.on("click", function () {
+    navigationTabs.removeClass("active");
+    contents.removeClass("active");
+
+    $(this).addClass("active");
+    $("#" + $(this).data("tab")).addClass("active");
+  });
+
+  // Chart functionality
+  const chartInstances = {};
+  const chartContainer = $("#wvc-chart-container");
+  const categories = chartContainer.data("categories");
+
+  // Update the chart with the new data
+  const updateChart = (category, data) => {
+    const canvasId = "chart-" + category;
+    const ctx = document.getElementById(canvasId).getContext("2d");
+
+    // Destroy the existing chart instance if it exists
+    if (chartInstances[canvasId]) {
+      chartInstances[canvasId].destroy();
+    }
+
+    // Create a new chart and store it
+    chartInstances[canvasId] = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: ["Compatible", "Not-Compatible"],
+        datasets: [
+          {
+            data: [data.compatible, data.not_compatible],
+            backgroundColor: ["#4CAF50", "#FF5733"],
+            hoverOffset: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "bottom",
+          },
+          title: {
+            display: true,
+            text: category.toUpperCase(),
+            font: {
+              size: 12,
+            },
+            padding: 10,
+          },
+        },
+      },
+    });
+  };
+
+  // Fetch data for each category and update the chart
+  categories.forEach((category) => {
+    $.ajax({
+      url: _WPVC_.ajax_url,
+      type: "POST",
+      data: {
+        _ajax_nonce: _WPVC_.nonce,
+        action: "wvc_get_chart_data",
+        category: category,
+      },
+      beforeSend: function () {
+        updateChart(category, {
+          compatible: 0,
+          not_compatible: 0,
+        });
+      },
+      success: function (response) {
+        if (response.success) {
+          updateChart(category, response.data);
+        } else {
+          alert(_WPVC_.i18n.unableToFetchData);
+        }
+      },
+      error: function () {
+        alert(_WPVC_.i18n.unableToFetchData);
+      },
+    });
+  });
 });
