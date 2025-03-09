@@ -145,15 +145,15 @@ function wvc_get_json_data() {
  * @return array The chart data.
  */
 function wvc_get_plugins_chart_data() {
-	// Ensure the get_plugins function is available
+	// Ensure the get_plugins function is available.
 	if ( ! function_exists( 'get_plugins' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	}
 
-	// Retrieve known plugin compatibility data from JSON
+	// Retrieve known plugin compatibility data from JSON.
 	$json_data = wvc_get_json_data();
 
-	// Fetch all installed plugins
+	// Fetch all installed plugins.
 	$all_plugins = get_plugins();
 
 	$compatible_count = 0;
@@ -163,25 +163,25 @@ function wvc_get_plugins_chart_data() {
 		$plugin_slug = dirname( $plugin_file );
 		$plugin_path = WP_PLUGIN_DIR . '/' . $plugin_slug;
 
-		// Check if the plugin is in the known disallowed list
+		// Check if the plugin is in the known disallowed list.
 		$is_vip_disallowed = ! empty( $json_data['known_plugins']['vip_disallowed_plugins'] ) && 
 							in_array( $plugin_slug, $json_data['known_plugins']['vip_disallowed_plugins'], true );
 
-		// Check if the plugin is in the tested compatible list
+		// Check if the plugin is in the tested compatible list.
 		$is_tested_compatible = ! empty( $json_data['known_plugins']['tested_compatible_plugins'] ) && 
 								in_array( $plugin_slug, $json_data['known_plugins']['tested_compatible_plugins'], true );
 
-		// Check if the plugin is a VIP MU plugin from Automattic
+		// Check if the plugin is a VIP MU plugin from Automattic.
 		$is_vip_mu_plugin = ! empty( $json_data['known_mu_plugins'][ $plugin_slug ] ) && 
 							'automattic' === $json_data['known_mu_plugins'][ $plugin_slug ]['source'];
 
-		// Determine compatibility status
+		// Determine compatibility status.
 		if ( $is_vip_disallowed || $is_vip_mu_plugin ) {
 			$not_compatible_count++;
 		} elseif ( $is_tested_compatible ) {
 			$compatible_count++;
 		} else {
-			// Perform a compatibility check for unlisted plugins
+			// Perform a compatibility check for unlisted plugins.
 			$status = wvc_check_vip_compatibility( $plugin_path );
 			if ( 'Compatible' === $status ) {
 				$compatible_count++;
@@ -191,7 +191,7 @@ function wvc_get_plugins_chart_data() {
 		}
 	}
 
-	// Return the final compatibility count
+	// Return the final compatibility count.
 	return [
 		'compatible'     => $compatible_count,
 		'not_compatible' => $not_compatible_count,
@@ -204,20 +204,20 @@ function wvc_get_plugins_chart_data() {
  * @return array The chart data.
  */
 function wvc_get_mu_plugins_chart_data() {
-	// Ensure the get_mu_plugins function is available
+	// Ensure the get_mu_plugins function is available.
 	if ( ! function_exists( 'get_mu_plugins' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	}
 
-	// Retrieve all must-use (MU) plugins
+	// Retrieve all must-use (MU) plugins.
 	$mu_plugins = get_mu_plugins();
 
-	// Return early if there are no MU plugins
+	// Return early if there are no MU plugins.
 	if ( empty( $mu_plugins ) ) {
 		return [ 'compatible' => 0, 'not_compatible' => 0 ];
 	}
 
-	// Retrieve known MU plugin compatibility data from JSON
+	// Retrieve known MU plugin compatibility data from JSON.
 	$json_data = wvc_get_json_data();
 
 	$compatible_count = 0;
@@ -227,7 +227,7 @@ function wvc_get_mu_plugins_chart_data() {
 		$plugin_slug = dirname( $plugin_file );
 		$plugin_path = WPMU_PLUGIN_DIR . '/' . $plugin_file;
 
-		// Retrieve compatibility information from JSON data
+		// Retrieve compatibility information from JSON data.
 		$mu_plugin_info = $json_data['known_mu_plugins'][$plugin_slug] ?? null;
 
 		if ( $mu_plugin_info ) {
@@ -237,7 +237,7 @@ function wvc_get_mu_plugins_chart_data() {
 				$not_compatible_count++;
 			}
 		} else {
-			// Perform a compatibility check if the plugin is not listed
+			// Perform a compatibility check if the plugin is not listed.
 			$status = wvc_check_vip_compatibility( $plugin_path );
 			if ( 'Compatible' === $status ) {
 				$compatible_count++;
@@ -247,7 +247,7 @@ function wvc_get_mu_plugins_chart_data() {
 		}
 	}
 
-	// Return the final compatibility count
+	// Return the final compatibility count.
 	return [
 		'compatible'     => $compatible_count,
 		'not_compatible' => $not_compatible_count,
@@ -260,12 +260,12 @@ function wvc_get_mu_plugins_chart_data() {
  * @return array The chart data.
  */
 function wvc_get_themes_chart_data() {
-	// Ensure the wp_get_themes function is available
+	// Ensure the wp_get_themes function is available.
 	if ( ! function_exists( 'wp_get_themes' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/theme.php';
 	}
 
-	// Retrieve all installed themes
+	// Retrieve all installed themes.
 	$all_themes = wp_get_themes();
 
 	$compatible_count = 0;
@@ -274,7 +274,7 @@ function wvc_get_themes_chart_data() {
 	foreach ( $all_themes as $theme_slug => $theme_data ) {
 		$theme_path = get_theme_root() . '/' . $theme_slug;
 
-		// Check the theme's VIP compatibility
+		// Check the theme's VIP compatibility.
 		$status = wvc_check_vip_compatibility( $theme_path );
 		if ( 'Compatible' === $status ) {
 			$compatible_count++;
@@ -283,7 +283,7 @@ function wvc_get_themes_chart_data() {
 		}
 	}
 
-	// Return the final compatibility count
+	// Return the final compatibility count.
 	return [
 		'compatible'     => $compatible_count,
 		'not_compatible' => $not_compatible_count,
@@ -298,11 +298,11 @@ function wvc_get_themes_chart_data() {
 function wvc_get_database_chart_data() {
 	global $wpdb;
 
-	// Retrieve supported collations from JSON data
+	// Retrieve supported collations from JSON data.
 	$json_data = wvc_get_json_data();
 	$vip_supported_collations = $json_data['vip_supported_collations'] ?? [];
 
-	// Fetch database tables along with collation and engine details
+	// Fetch database tables along with collation and engine details.
 	$tables = $wpdb->get_results(
 		$wpdb->prepare(
 			"SELECT TABLE_NAME, TABLE_COLLATION, ENGINE 
@@ -312,7 +312,7 @@ function wvc_get_database_chart_data() {
 		)
 	);
 
-	// Return default values if no tables are found
+	// Return default values if no tables are found.
 	if ( empty( $tables ) ) {
 		return [ 'compatible' => 80, 'not_compatible' => 20 ];
 	}
@@ -325,29 +325,29 @@ function wvc_get_database_chart_data() {
 		$engine = $table->ENGINE;
 		$collation = $table->TABLE_COLLATION;
 		
-		// Check collation compatibility
+		// Check collation compatibility.
 		if ( ! in_array( $collation, $vip_supported_collations, true ) ) {
 			$not_compatible_count++;
 			continue;
 		}
 
-		// Check engine compatibility
+		// Check engine compatibility.
 		if ( 'InnoDB' !== $engine ) {
 			$not_compatible_count++;
 			continue;
 		}
 
-		// Check table prefix compatibility
+		// Check table prefix compatibility.
 		if ( strpos( $table_name, 'wp_' ) !== 0 ) {
 			$not_compatible_count++;
 			continue;
 		}
 
-		// If all checks pass, count as compatible
+		// If all checks pass, count as compatible.
 		$compatible_count++;
 	}
 
-	// Return compatibility results
+	// Return compatibility results.
 	return [
 		'compatible'     => $compatible_count,
 		'not_compatible' => $not_compatible_count,
@@ -360,14 +360,14 @@ function wvc_get_database_chart_data() {
  * @return array The chart data.
  */
 function wvc_get_directories_chart_data() {
-	// Retrieve directory compatibility data from JSON
+	// Retrieve directory compatibility data from JSON.
 	$json_data = wvc_get_json_data();
 	$directories = $json_data['directories'] ?? [];
 
 	// Scan the wp-content directory, excluding "." and ".."
 	$items = array_diff( scandir( WP_CONTENT_DIR ), ['.', '..'] );
 
-	// Return default values if no items are found
+	// Return default values if no items are found.
 	if ( empty( $items ) ) {
 		return ['compatible' => 0, 'not_compatible' => 0];
 	}
@@ -376,14 +376,14 @@ function wvc_get_directories_chart_data() {
 	$incompatible_count = 0;
 
 	foreach ( $items as $item ) {
-		// Check if the item is listed in the known directories and is marked as supported
+		// Check if the item is listed in the known directories and is marked as supported.
 		$is_compatible = isset( $directories[$item] ) && !empty( $directories[$item]['is_supported'] );
 
-		// Update the count based on compatibility
+		// Update the count based on compatibility.
 		$is_compatible ? $compatible_count++ : $incompatible_count++;
 	}
 
-	// Return compatibility results
+	// Return compatibility results.
 	return [
 		'compatible'     => $compatible_count,
 		'not_compatible' => $incompatible_count,
