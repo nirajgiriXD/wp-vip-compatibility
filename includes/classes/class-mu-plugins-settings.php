@@ -40,10 +40,11 @@ class MU_Plugins_Settings {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$mu_plugins          = get_mu_plugins();
-		$is_mu_plugins_empty = empty( $mu_plugins );
+		$mu_plugins = get_mu_plugins();
+		$mu_plugin_folders = $this->get_mu_plugin_folders();
+		$is_mu_plugins_empty = empty( $mu_plugins ) && empty( $mu_plugin_folders );
 
-		// Render the filter tabs if there are mu-plugins.
+		// Render the filter tabs if there are MU plugins.
 		if ( ! $is_mu_plugins_empty ) {
 			$this->render_filter_tabs();
 		}
@@ -60,12 +61,52 @@ class MU_Plugins_Settings {
 			foreach ( $mu_plugins as $plugin_file => $plugin_data ) {
 				$this->render_plugin_row( $counter++, $plugin_file, $plugin_data );
 			}
+			foreach ( $mu_plugin_folders as $plugin_folder ) {
+				$this->render_folder_row( $counter++, $plugin_folder );
+			}
 		}
 
 		echo '</tbody></table>';
 
+		?>
+		<div>
+			<p>
+				<?php
+				esc_html_e(
+					'The compatibility status of MU plugins is checked differently from regular plugins or themes because of how MU plugins are loaded. The main PHP file of the MU plugin and the contents of its folder are shown in separate rows since there is no standard way to link the main MU plugin file to its folder when the folder exists.', 'wp-vip-compatibility'
+				);
+				?>
+			</p>
+		</div>
+		<?php
+
 		// Placeholder for log file information (will be updated via AJAX).
 		echo '<div id="wvc-log-note-container" data-filename="mu-plugins"></div>';
+	}
+
+	/**
+	 * Retrieves directories inside mu-plugins that contain at least one PHP file.
+	 *
+	 * @return array List of valid MU plugin folders.
+	 */
+	private function get_mu_plugin_folders() {
+		$mu_plugin_folders = [];
+		$mu_plugins_path = WPMU_PLUGIN_DIR;
+
+		if ( is_dir( $mu_plugins_path ) ) {
+			foreach ( scandir( $mu_plugins_path ) as $folder ) {
+				$folder_path = $mu_plugins_path . '/' . $folder;
+				if ( $folder !== '.' && $folder !== '..' && is_dir( $folder_path ) ) {
+					// Check if at least one PHP file exists inside the folder.
+					$php_files = glob( $folder_path . '/*.php' );
+					if ( ! empty( $php_files ) ) {
+						$mu_plugin_folders[] = $folder;
+					}
+				}
+			}
+		}
+
+		return $mu_plugin_folders;
 	}
 
 	/**
@@ -96,7 +137,7 @@ class MU_Plugins_Settings {
 	 */
 	private function render_table_header() {
 		$headers = [
-			'SN', 'Plugin Name', 'Plugin Directory', 'Author', 'Version', 'WP VIP Compatibility', 'Note'
+			'SN', 'MU Plugin Name', 'MU Plugin Directory', 'Author', 'Version', 'WP VIP Compatibility', 'Note'
 		];
 
 		echo '<thead><tr>';
@@ -133,6 +174,42 @@ class MU_Plugins_Settings {
 		echo '<td>' . esc_html( $plugin_file ) . '</td>';
 		echo '<td>' . esc_html( $plugin_data['Author'] ) . '</td>';
 		echo '<td>' . ( ! empty( $plugin_data['Version'] ) ? esc_html( $plugin_data['Version'] ) : '-' ) . '</td>';
+		if ( $mu_plugin_info && $mu_plugin_info['compatible'] ) {
+			echo '<td class="compatible">' . esc_html__( 'Compatible', 'wp-vip-compatibility' ) . '</td>';
+		} else if ( $mu_plugin_info && ! $mu_plugin_info['compatible'] ) {
+			echo '<td class="not-compatible">' . esc_html__( 'Incompatible', 'wp-vip-compatibility' ) . '</td>';
+		} else {
+			echo '<td class="vip-compatibility-status" data-directory-path="' . esc_attr( $plugin_path ) . '">' . esc_html__( 'Loading...', 'wp-vip-compatibility' ) . '</td>';
+		}
+		echo '<td>' . wp_kses_post( $note ) . '</td>';
+		echo '</tr>';
+	}
+
+	/**
+	 * Renders a folder row.
+	 *
+	 * @param int    $counter  Plugin serial number.
+	 * @param string $folder   Plugin folder name.
+	 *
+	 * @return void
+	 */
+	private function render_folder_row( $counter, $folder ) {
+		$plugin_path = WPMU_PLUGIN_DIR . '/' . $folder;
+
+		// Get MU Plugin details from JSON data.
+		$mu_plugin_info = isset( $this->json_data['known_mu_plugins'][ $folder ] )
+			? $this->json_data['known_mu_plugins'][ $folder ]
+			: null;
+
+		// Determine compatibility and note.
+		$note = $this->get_plugin_note( $mu_plugin_info );
+
+		echo '<tr>';
+		echo '<td>' . esc_html( $counter ) . '</td>';
+		echo '<td>' . esc_html( $folder ) . '</td>';
+		echo '<td>' . esc_html( $folder ) . '</td>';
+		echo '<td>-</td>';
+		echo '<td>-</td>';
 		if ( $mu_plugin_info && $mu_plugin_info['compatible'] ) {
 			echo '<td class="compatible">' . esc_html__( 'Compatible', 'wp-vip-compatibility' ) . '</td>';
 		} else if ( $mu_plugin_info && ! $mu_plugin_info['compatible'] ) {

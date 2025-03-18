@@ -44,7 +44,7 @@ function wvc_check_vip_compatibility( $directory_path ) {
 	}
 
 	// Determine the directory type and extract the slug.
-	if ( is_file( $directory_path ) ) {
+	if ( is_file( $directory_path ) || false !== strpos( $directory_path, WP_CONTENT_DIR . '/mu-plugins' ) ) {
 		$directory_type = 'mu-plugins';
 		$slug           = basename( dirname( $directory_path ) );
 	} elseif ( false !== strpos( $directory_path, WP_CONTENT_DIR . '/plugins' ) ) {
