@@ -4,6 +4,10 @@
       "description": "Client-specific must-use plugins.",
       "is_supported": true
     },
+    "mu-plugins": {
+      "description": "The mu-plugins directory will be replaced by client-mu-plugins directory.",
+      "is_supported": false
+    },
     "docs": {
       "description": "Documentation related to the site.",
       "is_supported": true
