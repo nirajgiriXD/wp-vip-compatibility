@@ -1,5 +1,5 @@
 === WordPress VIP Compatibility ===
-Contributors: nirajgiriXD
+Contributors: nirajgirixd, mi5t4n
 Tags: test, fix, WordPress, VIP, Compatibility
 Requires at least: 6.0
 Tested up to: 6.7.0
