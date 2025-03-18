@@ -1,13 +1,18 @@
 <?php
 /**
- * Plugin Name: WordPress VIP Compatibility
- * Description: Plugin to check and fix WordPress VIP platform compatibility, ensuring migration readiness.
- * Plugin URI:  https://github.com/nirajgiriXD/wp-vip-compatibility
- * Version:     1.0.0
- * Author:      Niraj Giri
- * Author URI:  https://github.com/nirajgiriXD/
- * Text Domain: wp-vip-compatibility
- * Domain Path: /languages/
+ * Plugin Name:       WordPress VIP Compatibility
+ * Description:       Plugin to check and fix WordPress VIP platform compatibility, ensuring migration readiness.
+ * Plugin URI:        https://github.com/nirajgiriXD/wp-vip-compatibility
+ * Version:           1.0.0
+ * Author:            Niraj Giri
+ * Author URI:        https://github.com/nirajgiriXD/
+ * Text Domain:       wp-vip-compatibility
+ * Domain Path:       /languages/
+ * License:           GPLv3 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-3.0.en.html
+ * Requires at least: 6.0
+ * Tested up to:      6.7.0
+ * Requires PHP:      7.0
  *
  * @package wp-vip-compatibility
  */
