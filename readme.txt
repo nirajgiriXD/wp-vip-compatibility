@@ -15,14 +15,14 @@ The WordPress VIP Compatibility plugin helps developers and site owners assess t
 
 == Features ==
 
-- **Real-time Compatibility Checks** – Provides dynamic analysis and results, offering immediate insights.
-- **Database Analysis** – Scans the WordPress database for non-standard tables, custom table sources, and compatibility issues.
-- **Directory Structure Check** – Identifies non-standard files and custom modifications that could affect compatibility.
-- **Must-Use (MU) Plugin Compatibility** – Reviews all installed MU plugins, identifying unsupported or problematic mu-plugins.
-- **Plugin Compatibility** – Reviews all installed plugins, identifying unsupported or problematic plugins.
-- **Theme Compatibility** – Reviews all installed themes, identifying unsupported or problematic themes.
-- **Log Reports** – Generates detailed, exportable reports for easy review and further action.
-- **Fix Recommendations** – Suggests fixes for detected VIP-incompatible issues, helping to streamline the migration process.
+1. **Real-time Compatibility Checks** – Provides dynamic analysis and results, offering immediate insights.
+2. **Database Analysis** – Scans the WordPress database for non-standard tables, custom table sources, and compatibility issues.
+3. **Directory Structure Check** – Identifies non-standard files and custom modifications that could affect compatibility.
+4. **Must-Use (MU) Plugin Compatibility** – Reviews all installed MU plugins, identifying unsupported or problematic mu-plugins.
+5. **Plugin Compatibility** – Reviews all installed plugins, identifying unsupported or problematic plugins.
+6. **Theme Compatibility** – Reviews all installed themes, identifying unsupported or problematic themes.
+7. **Log Reports** – Generates detailed, exportable reports for easy review and further action.
+8. **Fix Recommendations** – Suggests fixes for detected VIP-incompatible issues, helping to streamline the migration process.
 
 == Installation ==
 
@@ -36,19 +36,5 @@ The WordPress VIP Compatibility plugin helps developers and site owners assess t
 
 Once activated, you can access the plugin's analysis tools under the **WVC** menu in the WordPress admin dashboard. The plugin will scan various components of your site (database, plugins, themes, etc.) for compatibility issues. Each section will display detailed reports, and any detected issues will include suggested fixes for easier remediation.
 
-== Changelog ==
+== Screenshots ==
 
-= 1.0.0 =
-* Initial release.
-* Includes database, plugin, theme, and directory compatibility checks.
-* Adds MU plugin compatibility analysis.
-* Provides detailed reports and fix suggestions.
-
-== Upgrade Notice ==
-
-= 1.0.0 =
-Initial release. No previous version to upgrade from.
-
-== Support ==
-
-If you encounter any issues or need further assistance, please visit the support forum at [link to your support forum, if applicable].
