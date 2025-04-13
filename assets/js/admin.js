@@ -19,7 +19,7 @@ jQuery(document).ready(function ($) {
   }
 
   // Check compatibility for each directory
-  tableData.each(function () {
+  tableData?.each(function () {
     const statusCell = $(this);
     const directoryPath = statusCell.data("directory-path");
 
@@ -163,7 +163,7 @@ jQuery(document).ready(function ($) {
   };
 
   // Fetch data for each category and update the chart
-  categories.forEach((category) => {
+  categories?.forEach((category) => {
     $.ajax({
       url: _WPVC_.ajax_url,
       type: "POST",
