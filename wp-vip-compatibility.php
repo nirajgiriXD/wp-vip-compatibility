@@ -30,6 +30,10 @@ if ( ! defined( 'WP_VIP_COMPATIBILITY_URL' ) ) {
 	define( 'WP_VIP_COMPATIBILITY_URL', plugin_dir_url( __FILE__ ) );
 }
 
+if ( ! defined( 'WP_VIP_COMPATIBILITY_VERSION' ) ) {
+	define( 'WP_VIP_COMPATIBILITY_VERSION', '1.0.0' );
+}
+
 // Require necessary files.
 require_once WP_VIP_COMPATIBILITY_DIR . '/includes/helpers/class-autoloader.php';
 require_once WP_VIP_COMPATIBILITY_DIR . '/functions.php';

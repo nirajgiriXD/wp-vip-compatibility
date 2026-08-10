@@ -37,23 +37,32 @@ class Plugins_Settings {
 	 * @return void
 	 */
 	public function render_settings_page() {
-		$all_plugins   = $this->get_installed_plugins();
+		$all_plugins    = $this->get_installed_plugins();
 		$plugin_updates = $this->get_plugin_updates();
+
+		if ( empty( $all_plugins ) ) {
+			UI::render_empty_state(
+				__( 'No plugins installed', 'wp-vip-compatibility' ),
+				__( 'There is nothing to check on this screen yet.', 'wp-vip-compatibility' )
+			);
+			return;
+		}
 
 		// Render the filter tabs.
 		$this->render_filter_tabs();
 
 		// Render the table.
+		echo '<div class="wvc-table-wrap">';
 		echo '<table class="wvc-table" data-target-entity="plugins">';
 		$this->render_table_header();
 		echo '<tbody>';
 
-		$counter = 1;
 		foreach ( $all_plugins as $plugin_file => $plugin_data ) {
-			$this->render_plugin_row( $counter++, $plugin_file, $plugin_data, $plugin_updates );
+			$this->render_plugin_row( $plugin_file, $plugin_data, $plugin_updates );
 		}
 
 		echo '</tbody></table>';
+		echo '</div>';
 
 		// Placeholder for log file information (updated via AJAX).
 		echo '<div id="wvc-log-note-container" data-filename="plugins"></div>';
@@ -89,19 +98,12 @@ class Plugins_Settings {
 	 * @return void
 	 */
 	private function render_filter_tabs() {
-		?>
-		<div id="wvc-filter-tabs">
-			<button data-filter="all" class="active">
-				<?php esc_html_e( 'All', 'wp-vip-compatibility' ); ?>
-			</button>
-			<button data-filter="compatible">
-				<?php esc_html_e( 'Compatible', 'wp-vip-compatibility' ); ?>
-			</button>
-			<button data-filter="incompatible">
-				<?php esc_html_e( 'Incompatible', 'wp-vip-compatibility' ); ?>
-			</button>
-		</div>
-		<?php
+		UI::render_toolbar(
+			array(
+				'search_label'  => __( 'Search plugins', 'wp-vip-compatibility' ),
+				'show_progress' => true,
+			)
+		);
 	}
 
 	/**
@@ -110,43 +112,59 @@ class Plugins_Settings {
 	 * @return void
 	 */
 	private function render_table_header() {
-		$headers = [
-			esc_html__( 'SN', 'wp-vip-compatibility' ),
-			esc_html__( 'Plugin Name', 'wp-vip-compatibility' ),
-			esc_html__( 'Plugin Directory', 'wp-vip-compatibility' ),
-			esc_html__( 'Author', 'wp-vip-compatibility' ),
-			esc_html__( 'Current Version', 'wp-vip-compatibility' ),
-			esc_html__( 'Available Version', 'wp-vip-compatibility' ),
-			esc_html__( 'WP VIP Compatibility', 'wp-vip-compatibility' ),
-			esc_html__( 'Notes', 'wp-vip-compatibility' ),
-		];
-
-		echo '<thead><tr>';
-		foreach ( $headers as $header ) {
-			echo '<th>' . $header . '</th>';
-		}
-		echo '</tr></thead>';
+		UI::render_table_head(
+			array(
+				array(
+					'label' => __( 'SN', 'wp-vip-compatibility' ),
+					'class' => 'wvc-col-sn',
+				),
+				array(
+					'label'    => __( 'Plugin Name', 'wp-vip-compatibility' ),
+					'class'    => 'wvc-col-name',
+					'sortable' => true,
+				),
+				array(
+					'label'    => __( 'Plugin Directory', 'wp-vip-compatibility' ),
+					'class'    => 'wvc-col-path',
+					'sortable' => true,
+				),
+				array(
+					'label'    => __( 'Author', 'wp-vip-compatibility' ),
+					'sortable' => true,
+				),
+				array( 'label' => __( 'Current Version', 'wp-vip-compatibility' ) ),
+				array( 'label' => __( 'Available Version', 'wp-vip-compatibility' ) ),
+				array(
+					'label'    => __( 'WP VIP Compatibility', 'wp-vip-compatibility' ),
+					'class'    => 'wvc-col-status',
+					'sortable' => true,
+				),
+				array(
+					'label' => __( 'Notes', 'wp-vip-compatibility' ),
+					'class' => 'wvc-col-notes',
+				),
+			)
+		);
 	}
 
 	/**
 	 * Renders a plugin row.
 	 *
-	 * @param int    $counter        Plugin serial number.
 	 * @param string $plugin_file    Plugin file path.
 	 * @param array  $plugin_data    Plugin metadata.
 	 * @param object $plugin_updates Plugin update transient data.
 	 *
 	 * @return void
 	 */
-	private function render_plugin_row( $counter, $plugin_file, $plugin_data, $plugin_updates ) {
+	private function render_plugin_row( $plugin_file, $plugin_data, $plugin_updates ) {
 		$plugin_slug                  = dirname( $plugin_file );
 		$plugin_version               = $plugin_data['Version'];
 		$plugin_path                  = WP_PLUGIN_DIR . '/' . $plugin_slug;
 		$is_vip_disallowed_plugins    = isset( $this->json_data['known_plugins']['vip_disallowed_plugins'] ) && in_array( $plugin_slug, $this->json_data['known_plugins']['vip_disallowed_plugins'], true );
 		$is_tested_compatible_plugins = isset( $this->json_data['known_plugins']['tested_compatible_plugins'] ) && in_array( $plugin_slug, $this->json_data['known_plugins']['tested_compatible_plugins'], true );
-		$is_vip_mu_plugin = isset( $this->json_data['known_mu_plugins'][ $plugin_slug ] ) && 'automattic' === $this->json_data['known_mu_plugins'][ $plugin_slug ]['source'];
+		$is_vip_mu_plugin             = isset( $this->json_data['known_mu_plugins'][ $plugin_slug ] ) && 'automattic' === $this->json_data['known_mu_plugins'][ $plugin_slug ]['source'];
 
-		$note = '-';
+		$note = '<span class="wvc-dash" aria-hidden="true">—</span>';
 
 		if ( $is_vip_disallowed_plugins ) {
 			$note = sprintf(
@@ -165,27 +183,28 @@ class Plugins_Settings {
 		}
 
 		// Get the new version if available.
-		$new_version = isset( $plugin_updates->response[ $plugin_file ] ) 
-			? esc_html( $plugin_updates->response[ $plugin_file ]->new_version ) 
+		$has_update  = isset( $plugin_updates->response[ $plugin_file ] );
+		$new_version = $has_update
+			? esc_html( $plugin_updates->response[ $plugin_file ]->new_version )
 			: esc_html__( 'Up to date', 'wp-vip-compatibility' );
 
 		echo '<tr>';
-		echo '<td>' . esc_html( $counter ) . '</td>';
-		echo '<td>' . esc_html( $plugin_data['Name'] ) . '</td>';
-		echo '<td>' . esc_html( $plugin_file ) . '</td>';
-		echo '<td>' . esc_html( $plugin_data['Author'] ) . '</td>';
-		echo '<td>' . esc_html( $plugin_version ) . '</td>';
-		echo '<td>' . esc_html( $new_version ) . '</td>';
+		echo '<td class="wvc-col-sn"></td>';
+		echo '<td class="wvc-col-name" data-label="' . esc_attr__( 'Plugin Name', 'wp-vip-compatibility' ) . '">' . esc_html( $plugin_data['Name'] ) . '</td>';
+		echo '<td class="wvc-col-path" data-label="' . esc_attr__( 'Plugin Directory', 'wp-vip-compatibility' ) . '"><code>' . esc_html( $plugin_file ) . '</code></td>';
+		echo '<td class="wvc-col-muted" data-label="' . esc_attr__( 'Author', 'wp-vip-compatibility' ) . '">' . esc_html( wp_strip_all_tags( $plugin_data['Author'] ) ) . '</td>';
+		echo '<td data-label="' . esc_attr__( 'Current Version', 'wp-vip-compatibility' ) . '"><span class="wvc-version">' . esc_html( $plugin_version ) . '</span></td>';
+		echo '<td data-label="' . esc_attr__( 'Available Version', 'wp-vip-compatibility' ) . '"><span class="wvc-version' . ( $has_update ? '' : ' wvc-version--current' ) . '">' . esc_html( $new_version ) . '</span></td>';
 
 		if ( $is_vip_disallowed_plugins || $is_vip_mu_plugin ) {
-			echo '<td class="not-compatible">' . esc_html__( 'Incompatible', 'wp-vip-compatibility' ) . '</td>';
+			echo UI::get_status_cell( 'not-compatible' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		} elseif ( $is_tested_compatible_plugins ) {
-			echo '<td class="compatible">' . esc_html__( 'Compatible', 'wp-vip-compatibility' ) . '</td>';
+			echo UI::get_status_cell( 'compatible' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		} else {
-			echo '<td class="vip-compatibility-status" data-directory-path="' . esc_attr( $plugin_path ) . '">' . esc_html__( 'Loading...', 'wp-vip-compatibility' ) . '</td>';
+			echo UI::get_status_cell( 'pending', '', array( 'data-directory-path' => $plugin_path ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		}
 
-		echo '<td>' . wp_kses_post( $note ) . '</td>';
+		echo '<td class="wvc-col-notes" data-label="' . esc_attr__( 'Notes', 'wp-vip-compatibility' ) . '">' . wp_kses_post( $note ) . '</td>';
 		echo '</tr>';
 	}
 }

@@ -46,15 +46,18 @@ class Database_Settings {
 		// Fetch database tables with collation and engine.
 		$tables = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT TABLE_NAME, TABLE_COLLATION, ENGINE 
-				FROM information_schema.TABLES 
+				"SELECT TABLE_NAME, TABLE_COLLATION, ENGINE
+				FROM information_schema.TABLES
 				WHERE TABLE_SCHEMA = %s",
 				DB_NAME
 			)
 		);
 
 		if ( empty( $tables ) ) {
-			echo '<p>' . esc_html__( 'No tables found in the database.', 'wp-vip-compatibility' ) . '</p>';
+			UI::render_empty_state(
+				__( 'No tables found in the database.', 'wp-vip-compatibility' ),
+				__( 'There is nothing to check on this screen yet.', 'wp-vip-compatibility' )
+			);
 			return;
 		}
 
@@ -62,23 +65,50 @@ class Database_Settings {
 		$this->render_filter_tabs();
 
 		// Output the settings table.
+		echo '<div class="wvc-table-wrap">';
 		echo '<table class="wvc-table" data-target-entity="database">';
-		echo '<thead><tr>
-				<th>' . esc_html__( 'SN', 'wp-vip-compatibility' ) . '</th>
-				<th>' . esc_html__( 'Table Name', 'wp-vip-compatibility' ) . '</th>
-				<th>' . esc_html__( 'Engine', 'wp-vip-compatibility' ) . '</th>
-				<th>' . esc_html__( 'Collation', 'wp-vip-compatibility' ) . '</th>
-				<th>' . esc_html__( 'Source', 'wp-vip-compatibility' ) . '</th>
-				<th>' . esc_html__( 'WP VIP Compatibility', 'wp-vip-compatibility' ) . '</th>
-				<th>' . esc_html__( 'Notes', 'wp-vip-compatibility' ) . '</th>
-			</tr></thead>';
+
+		UI::render_table_head(
+			array(
+				array(
+					'label' => __( 'SN', 'wp-vip-compatibility' ),
+					'class' => 'wvc-col-sn',
+				),
+				array(
+					'label'    => __( 'Table Name', 'wp-vip-compatibility' ),
+					'class'    => 'wvc-col-name',
+					'sortable' => true,
+				),
+				array(
+					'label'    => __( 'Engine', 'wp-vip-compatibility' ),
+					'sortable' => true,
+				),
+				array(
+					'label'    => __( 'Collation', 'wp-vip-compatibility' ),
+					'sortable' => true,
+				),
+				array(
+					'label'    => __( 'Source', 'wp-vip-compatibility' ),
+					'sortable' => true,
+				),
+				array(
+					'label'    => __( 'WP VIP Compatibility', 'wp-vip-compatibility' ),
+					'class'    => 'wvc-col-status',
+					'sortable' => true,
+				),
+				array(
+					'label' => __( 'Notes', 'wp-vip-compatibility' ),
+					'class' => 'wvc-col-notes',
+				),
+			)
+		);
+
 		echo '<tbody>';
 
-		$counter = 1;
 		foreach ( $tables as $table ) {
-			$table_name           = $table->TABLE_NAME;
-			$engine               = $table->ENGINE;
-			$collation            = $table->TABLE_COLLATION;
+			$table_name           = $table->TABLE_NAME; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- Column name from information_schema.
+			$engine               = $table->ENGINE; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- Column name from information_schema.
+			$collation            = $table->TABLE_COLLATION; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- Column name from information_schema.
 			$vip_supported        = in_array( $collation, $vip_supported_collations, true );
 			$has_supported_prefix = strpos( $table_name, 'wp_' ) === 0;
 
@@ -86,81 +116,82 @@ class Database_Settings {
 			$source = $this->get_table_source( $table_name, $core_tables, $vendor_tables, $has_supported_prefix );
 
 			// Determine compatibility.
-			$compatibility_class = 'compatible';
-			$compatibility       = esc_html__( 'Compatible', 'wp-vip-compatibility' );
-			$notes               = [];
+			$is_compatible = true;
+			$notes         = [];
 
 			// Check collation compatibility.
 			if ( ! $vip_supported ) {
 				$charset             = explode( '_', $collation, 2 )[0] ?? '';
 				$suggested_collation = $this->get_suggested_collation( $collation, $vip_supported_collations );
 
-				if ( $suggested_collation !== 'Not Supported' ) {
-					$notes[] = esc_html__( 'Unsupported collation. Recommended fix:', 'wp-vip-compatibility' ) .
-						'<br><code>ALTER TABLE ' . esc_html( $table_name ) . ' CONVERT TO CHARACTER SET ' . esc_html( $charset ) . ' COLLATE ' . esc_html( $suggested_collation ) . ';</code>';
+				if ( __( 'Not Supported', 'wp-vip-compatibility' ) !== $suggested_collation ) {
+					$notes[] = '<span class="wvc-note__label">' . esc_html__( 'Unsupported collation. Recommended fix:', 'wp-vip-compatibility' ) . '</span>' .
+						UI::get_code_snippet( sprintf( 'ALTER TABLE %s CONVERT TO CHARACTER SET %s COLLATE %s;', $table_name, $charset, $suggested_collation ) );
 				} else {
-					$notes[] = esc_html__( 'The collation is unsupported.', 'wp-vip-compatibility' );
+					$notes[] = '<span class="wvc-note__label">' . esc_html__( 'The collation is unsupported.', 'wp-vip-compatibility' ) . '</span>';
 				}
 
-				$compatibility_class = 'not-compatible';
-				$compatibility       = esc_html__( 'Not Compatible', 'wp-vip-compatibility' );
+				$is_compatible = false;
 			}
 
 			// Check engine compatibility.
 			if ( 'InnoDB' !== $engine ) {
-				$notes[] = esc_html__( 'Unsupported storage engine. Recommended fix:', 'wp-vip-compatibility' ) .
-					'<br><code>ALTER TABLE ' . esc_html( $table_name ) . ' ENGINE = InnoDB;</code>';
+				$notes[] = '<span class="wvc-note__label">' . esc_html__( 'Unsupported storage engine. Recommended fix:', 'wp-vip-compatibility' ) . '</span>' .
+					UI::get_code_snippet( sprintf( 'ALTER TABLE %s ENGINE = InnoDB;', $table_name ) );
 
-				$compatibility_class = 'not-compatible';
-				$compatibility       = esc_html__( 'Not Compatible', 'wp-vip-compatibility' );
+				$is_compatible = false;
 			}
 
 			// Check prefix compatibility.
 			if ( ! $has_supported_prefix ) {
-				$notes[] = esc_html__( 'Non-standard table prefix. Recommended fix:', 'wp-vip-compatibility' ) .
-					'<br><code>ALTER TABLE ' . esc_html( $table_name ) . ' RENAME TO ' . esc_html( 'wp_' . $table_name ) . ';</code>';
+				$notes[] = '<span class="wvc-note__label">' . esc_html__( 'Non-standard table prefix. Recommended fix:', 'wp-vip-compatibility' ) . '</span>' .
+					UI::get_code_snippet( sprintf( 'ALTER TABLE %1$s RENAME TO wp_%1$s;', $table_name ) );
 
-				$compatibility_class = 'not-compatible';
-				$compatibility       = esc_html__( 'Not Compatible', 'wp-vip-compatibility' );
+				$is_compatible = false;
 			}
 
 			// Display notes.
-			$notes_display = empty( $notes ) ? '-' : '<ul><li>' . implode( '</li><li>', $notes ) . '</li></ul>';
+			$notes_display = empty( $notes )
+				? '<span class="wvc-dash" aria-hidden="true">—</span>'
+				: '<ul class="wvc-notes"><li>' . implode( '</li><li>', $notes ) . '</li></ul>';
 
 			// Output table row.
 			echo '<tr>';
-			echo '<td>' . esc_html( $counter++ ) . '</td>';
-			echo '<td>' . esc_html( $table_name ) . '</td>';
-			echo '<td>' . esc_html( $engine ) . '</td>';
-			echo '<td>' . esc_html( $collation ) . '</td>';
-			echo '<td>' . esc_html( $source ) . '</td>';
-			echo '<td class="' . esc_attr( $compatibility_class ) . '">' . esc_html( $compatibility ) . '</td>';
-			echo '<td>' . $notes_display . '</td>';
+			echo '<td class="wvc-col-sn"></td>';
+			echo '<td class="wvc-col-name" data-label="' . esc_attr__( 'Table Name', 'wp-vip-compatibility' ) . '"><code>' . esc_html( $table_name ) . '</code></td>';
+			echo '<td data-label="' . esc_attr__( 'Engine', 'wp-vip-compatibility' ) . '">' . esc_html( $engine ) . '</td>';
+			echo '<td class="wvc-col-mono" data-label="' . esc_attr__( 'Collation', 'wp-vip-compatibility' ) . '">' . esc_html( $collation ) . '</td>';
+			echo '<td class="wvc-col-muted" data-label="' . esc_attr__( 'Source', 'wp-vip-compatibility' ) . '">' . esc_html( $source ) . '</td>';
+			echo UI::get_status_cell( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+				$is_compatible ? 'compatible' : 'not-compatible',
+				$is_compatible ? __( 'Compatible', 'wp-vip-compatibility' ) : __( 'Not Compatible', 'wp-vip-compatibility' )
+			);
+			// Every dynamic value inside the notes is escaped as it is assembled above.
+			echo '<td class="wvc-col-notes" data-label="' . esc_attr__( 'Notes', 'wp-vip-compatibility' ) . '">' . $notes_display . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo '</tr>';
 		}
 
 		echo '</tbody></table>';
+		echo '</div>';
+
+		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			esc_html__( 'Run the suggested statements against a backup first. VIP requires the InnoDB storage engine, a supported collation and the standard wp_ table prefix.', 'wp-vip-compatibility' ),
+			'warning',
+			esc_html__( 'Before you run any SQL', 'wp-vip-compatibility' )
+		);
 	}
 
 	/**
-	 * Renders the tabs for filtering the compatible and incompatible plugins.
+	 * Renders the tabs for filtering the compatible and incompatible tables.
 	 *
 	 * @return void
 	 */
 	private function render_filter_tabs() {
-		?>
-		<div id="wvc-filter-tabs">
-			<button data-filter="all" class="active">
-				<?php esc_html_e( 'All', 'wp-vip-compatibility' ); ?>
-			</button>
-			<button data-filter="compatible">
-				<?php esc_html_e( 'Compatible', 'wp-vip-compatibility' ); ?>
-			</button>
-			<button data-filter="incompatible">
-				<?php esc_html_e( 'Incompatible', 'wp-vip-compatibility' ); ?>
-			</button>
-		</div>
-		<?php
+		UI::render_toolbar(
+			array(
+				'search_label' => __( 'Search database tables', 'wp-vip-compatibility' ),
+			)
+		);
 	}
 
 	/**

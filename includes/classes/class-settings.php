@@ -64,11 +64,22 @@ class Settings {
 	 */
 	public function render_settings_page( $key ) {
 		$settings = $this->get_settings_class( $key );
-		if ( $settings ) {
-			echo '<div class="wrap"><div class="wvc-container" id="' . esc_attr( $key ) . '">';
-			$settings->render_settings_page();
-			echo '</div></div>';
+
+		if ( ! $settings ) {
+			return;
 		}
+
+		echo '<div class="wrap wvc-wrap">';
+
+		// Shared chrome: brand masthead, cross-screen navigation and page heading.
+		UI::render_masthead( $key );
+		UI::render_page_head( $key );
+
+		echo '<div class="wvc-container" id="' . esc_attr( $key ) . '">';
+		$settings->render_settings_page();
+		echo '</div>';
+
+		echo '</div>';
 	}
 
 	/**

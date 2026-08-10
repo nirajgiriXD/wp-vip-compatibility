@@ -40,8 +40,8 @@ class MU_Plugins_Settings {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$mu_plugins = get_mu_plugins();
-		$mu_plugin_folders = $this->get_mu_plugin_folders();
+		$mu_plugins          = get_mu_plugins();
+		$mu_plugin_folders   = $this->get_mu_plugin_folders();
 		$is_mu_plugins_empty = empty( $mu_plugins ) && empty( $mu_plugin_folders );
 
 		// Render the filter tabs if there are MU plugins.
@@ -50,35 +50,33 @@ class MU_Plugins_Settings {
 		}
 
 		// Render the table.
+		echo '<div class="wvc-table-wrap">';
 		echo '<table class="wvc-table" data-target-entity="mu-plugins">';
 		$this->render_table_header();
 		echo '<tbody>';
 
 		if ( $is_mu_plugins_empty ) {
-			echo '<tr><td colspan="7" style="text-align: center;">' . esc_html__( 'No MU plugins are present.', 'wp-vip-compatibility' ) . '</td></tr>';
+			echo '<tr class="wvc-table__empty" data-empty="1"><td colspan="7">' . esc_html__( 'No MU plugins are present.', 'wp-vip-compatibility' ) . '</td></tr>';
 		} else {
-			$counter = 1;
 			foreach ( $mu_plugins as $plugin_file => $plugin_data ) {
-				$this->render_plugin_row( $counter++, $plugin_file, $plugin_data );
+				$this->render_plugin_row( $plugin_file, $plugin_data );
 			}
 			foreach ( $mu_plugin_folders as $plugin_folder ) {
-				$this->render_folder_row( $counter++, $plugin_folder );
+				$this->render_folder_row( $plugin_folder );
 			}
 		}
 
 		echo '</tbody></table>';
+		echo '</div>';
 
-		?>
-		<div>
-			<p>
-				<?php
-				esc_html_e(
-					'The compatibility status of MU plugins is checked differently from regular plugins or themes because of how MU plugins are loaded. The main PHP file of the MU plugin and the contents of its folder are shown in separate rows since there is no standard way to link the main MU plugin file to its folder when the folder exists.', 'wp-vip-compatibility'
-				);
-				?>
-			</p>
-		</div>
-		<?php
+		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			esc_html__(
+				'The compatibility status of MU plugins is checked differently from regular plugins or themes because of how MU plugins are loaded. The main PHP file of the MU plugin and the contents of its folder are shown in separate rows since there is no standard way to link the main MU plugin file to its folder when the folder exists.',
+				'wp-vip-compatibility'
+			),
+			'info',
+			esc_html__( 'How MU plugins are checked', 'wp-vip-compatibility' )
+		);
 
 		// Placeholder for log file information (will be updated via AJAX).
 		echo '<div id="wvc-log-note-container" data-filename="mu-plugins"></div>';
@@ -91,12 +89,12 @@ class MU_Plugins_Settings {
 	 */
 	private function get_mu_plugin_folders() {
 		$mu_plugin_folders = [];
-		$mu_plugins_path = WPMU_PLUGIN_DIR;
+		$mu_plugins_path   = WPMU_PLUGIN_DIR;
 
 		if ( is_dir( $mu_plugins_path ) ) {
 			foreach ( scandir( $mu_plugins_path ) as $folder ) {
 				$folder_path = $mu_plugins_path . '/' . $folder;
-				if ( $folder !== '.' && $folder !== '..' && is_dir( $folder_path ) ) {
+				if ( '.' !== $folder && '..' !== $folder && is_dir( $folder_path ) ) {
 					// Check if at least one PHP file exists inside the folder.
 					$php_files = glob( $folder_path . '/*.php' );
 					if ( ! empty( $php_files ) ) {
@@ -115,19 +113,12 @@ class MU_Plugins_Settings {
 	 * @return void
 	 */
 	private function render_filter_tabs() {
-		?>
-		<div id="wvc-filter-tabs">
-			<button data-filter="all" class="active">
-				<?php esc_html_e( 'All', 'wp-vip-compatibility' ); ?>
-			</button>
-			<button data-filter="compatible">
-				<?php esc_html_e( 'Compatible', 'wp-vip-compatibility' ); ?>
-			</button>
-			<button data-filter="incompatible">
-				<?php esc_html_e( 'Incompatible', 'wp-vip-compatibility' ); ?>
-			</button>
-		</div>
-		<?php
+		UI::render_toolbar(
+			array(
+				'search_label'  => __( 'Search must-use plugins', 'wp-vip-compatibility' ),
+				'show_progress' => true,
+			)
+		);
 	}
 
 	/**
@@ -136,27 +127,49 @@ class MU_Plugins_Settings {
 	 * @return void
 	 */
 	private function render_table_header() {
-		$headers = [
-			'SN', 'MU Plugin Name', 'MU Plugin Directory', 'Author', 'Version', 'WP VIP Compatibility', 'Note'
-		];
-
-		echo '<thead><tr>';
-		foreach ( $headers as $header ) {
-			echo '<th>' . esc_html__( $header, 'wp-vip-compatibility' ) . '</th>';
-		}
-		echo '</tr></thead>';
+		UI::render_table_head(
+			array(
+				array(
+					'label' => __( 'SN', 'wp-vip-compatibility' ),
+					'class' => 'wvc-col-sn',
+				),
+				array(
+					'label'    => __( 'MU Plugin Name', 'wp-vip-compatibility' ),
+					'class'    => 'wvc-col-name',
+					'sortable' => true,
+				),
+				array(
+					'label'    => __( 'MU Plugin Directory', 'wp-vip-compatibility' ),
+					'class'    => 'wvc-col-path',
+					'sortable' => true,
+				),
+				array(
+					'label'    => __( 'Author', 'wp-vip-compatibility' ),
+					'sortable' => true,
+				),
+				array( 'label' => __( 'Version', 'wp-vip-compatibility' ) ),
+				array(
+					'label'    => __( 'WP VIP Compatibility', 'wp-vip-compatibility' ),
+					'class'    => 'wvc-col-status',
+					'sortable' => true,
+				),
+				array(
+					'label' => __( 'Note', 'wp-vip-compatibility' ),
+					'class' => 'wvc-col-notes',
+				),
+			)
+		);
 	}
 
 	/**
 	 * Renders a single plugin row.
 	 *
-	 * @param int    $counter     Plugin serial number.
 	 * @param string $plugin_file Plugin file path.
 	 * @param array  $plugin_data Plugin metadata.
 	 *
 	 * @return void
 	 */
-	private function render_plugin_row( $counter, $plugin_file, $plugin_data ) {
+	private function render_plugin_row( $plugin_file, $plugin_data ) {
 		$plugin_slug = dirname( $plugin_file );
 		$plugin_path = WPMU_PLUGIN_DIR . '/' . $plugin_file;
 
@@ -169,31 +182,26 @@ class MU_Plugins_Settings {
 		$note = $this->get_plugin_note( $mu_plugin_info );
 
 		echo '<tr>';
-		echo '<td>' . esc_html( $counter ) . '</td>';
-		echo '<td>' . esc_html( $plugin_data['Name'] ) . '</td>';
-		echo '<td>' . esc_html( $plugin_file ) . '</td>';
-		echo '<td>' . esc_html( $plugin_data['Author'] ) . '</td>';
-		echo '<td>' . ( ! empty( $plugin_data['Version'] ) ? esc_html( $plugin_data['Version'] ) : '-' ) . '</td>';
-		if ( $mu_plugin_info && $mu_plugin_info['compatible'] ) {
-			echo '<td class="compatible">' . esc_html__( 'Compatible', 'wp-vip-compatibility' ) . '</td>';
-		} else if ( $mu_plugin_info && ! $mu_plugin_info['compatible'] ) {
-			echo '<td class="not-compatible">' . esc_html__( 'Incompatible', 'wp-vip-compatibility' ) . '</td>';
-		} else {
-			echo '<td class="vip-compatibility-status" data-directory-path="' . esc_attr( $plugin_path ) . '">' . esc_html__( 'Loading...', 'wp-vip-compatibility' ) . '</td>';
-		}
-		echo '<td>' . wp_kses_post( $note ) . '</td>';
+		echo '<td class="wvc-col-sn"></td>';
+		echo '<td class="wvc-col-name" data-label="' . esc_attr__( 'MU Plugin Name', 'wp-vip-compatibility' ) . '">' . esc_html( $plugin_data['Name'] ) . '</td>';
+		echo '<td class="wvc-col-path" data-label="' . esc_attr__( 'MU Plugin Directory', 'wp-vip-compatibility' ) . '"><code>' . esc_html( $plugin_file ) . '</code></td>';
+		echo '<td class="wvc-col-muted" data-label="' . esc_attr__( 'Author', 'wp-vip-compatibility' ) . '">' . esc_html( wp_strip_all_tags( $plugin_data['Author'] ) ) . '</td>';
+		echo '<td data-label="' . esc_attr__( 'Version', 'wp-vip-compatibility' ) . '">' . ( ! empty( $plugin_data['Version'] ) ? '<span class="wvc-version">' . esc_html( $plugin_data['Version'] ) . '</span>' : '<span class="wvc-dash" aria-hidden="true">—</span>' ) . '</td>';
+
+		echo $this->get_compatibility_cell( $mu_plugin_info, $plugin_path ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+
+		echo '<td class="wvc-col-notes" data-label="' . esc_attr__( 'Note', 'wp-vip-compatibility' ) . '">' . wp_kses_post( $note ) . '</td>';
 		echo '</tr>';
 	}
 
 	/**
 	 * Renders a folder row.
 	 *
-	 * @param int    $counter  Plugin serial number.
-	 * @param string $folder   Plugin folder name.
+	 * @param string $folder Plugin folder name.
 	 *
 	 * @return void
 	 */
-	private function render_folder_row( $counter, $folder ) {
+	private function render_folder_row( $folder ) {
 		$plugin_path = WPMU_PLUGIN_DIR . '/' . $folder;
 
 		// Get MU Plugin details from JSON data.
@@ -203,22 +211,41 @@ class MU_Plugins_Settings {
 
 		// Determine compatibility and note.
 		$note = $this->get_plugin_note( $mu_plugin_info );
+		$dash = '<span class="wvc-dash" aria-hidden="true">—</span>';
 
 		echo '<tr>';
-		echo '<td>' . esc_html( $counter ) . '</td>';
-		echo '<td>' . esc_html( $folder ) . '</td>';
-		echo '<td>' . esc_html( $folder ) . '</td>';
-		echo '<td>-</td>';
-		echo '<td>-</td>';
-		if ( $mu_plugin_info && $mu_plugin_info['compatible'] ) {
-			echo '<td class="compatible">' . esc_html__( 'Compatible', 'wp-vip-compatibility' ) . '</td>';
-		} else if ( $mu_plugin_info && ! $mu_plugin_info['compatible'] ) {
-			echo '<td class="not-compatible">' . esc_html__( 'Incompatible', 'wp-vip-compatibility' ) . '</td>';
-		} else {
-			echo '<td class="vip-compatibility-status" data-directory-path="' . esc_attr( $plugin_path ) . '">' . esc_html__( 'Loading...', 'wp-vip-compatibility' ) . '</td>';
-		}
-		echo '<td>' . wp_kses_post( $note ) . '</td>';
+		echo '<td class="wvc-col-sn"></td>';
+		echo '<td class="wvc-col-name" data-label="' . esc_attr__( 'MU Plugin Name', 'wp-vip-compatibility' ) . '">' . esc_html( $folder ) . '</td>';
+		echo '<td class="wvc-col-path" data-label="' . esc_attr__( 'MU Plugin Directory', 'wp-vip-compatibility' ) . '"><code>' . esc_html( $folder ) . '</code></td>';
+		echo '<td class="wvc-col-muted" data-label="' . esc_attr__( 'Author', 'wp-vip-compatibility' ) . '">' . $dash . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+		echo '<td data-label="' . esc_attr__( 'Version', 'wp-vip-compatibility' ) . '">' . $dash . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+
+		echo $this->get_compatibility_cell( $mu_plugin_info, $plugin_path ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+
+		echo '<td class="wvc-col-notes" data-label="' . esc_attr__( 'Note', 'wp-vip-compatibility' ) . '">' . wp_kses_post( $note ) . '</td>';
 		echo '</tr>';
+	}
+
+	/**
+	 * Builds the compatibility cell for an MU plugin entry.
+	 *
+	 * Known entries resolve immediately; everything else is checked over AJAX.
+	 *
+	 * @param array|null $mu_plugin_info MU plugin details from known_mu_plugins.
+	 * @param string     $plugin_path    Absolute path used for the async check.
+	 *
+	 * @return string The cell markup.
+	 */
+	private function get_compatibility_cell( $mu_plugin_info, $plugin_path ) {
+		if ( $mu_plugin_info && $mu_plugin_info['compatible'] ) {
+			return UI::get_status_cell( 'compatible', __( 'Compatible', 'wp-vip-compatibility' ) );
+		}
+
+		if ( $mu_plugin_info && ! $mu_plugin_info['compatible'] ) {
+			return UI::get_status_cell( 'not-compatible', __( 'Incompatible', 'wp-vip-compatibility' ) );
+		}
+
+		return UI::get_status_cell( 'pending', '', array( 'data-directory-path' => $plugin_path ) );
 	}
 
 	/**
@@ -230,27 +257,26 @@ class MU_Plugins_Settings {
 	 */
 	private function get_plugin_note( $mu_plugin_info ) {
 		if ( ! $mu_plugin_info ) {
-			return '-';
+			return '<span class="wvc-dash" aria-hidden="true">—</span>';
 		}
 
 		$is_compatible = $mu_plugin_info['compatible'] ?? false;
 		$source        = $mu_plugin_info['source'] ?? '';
-		$note          = '-';
 
 		if ( 'automattic' === $source ) {
-			$note = sprintf(
+			return sprintf(
 				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
 				esc_url( 'https://docs.wpvip.com/vip-go-mu-plugins/' ),
 				esc_html__( 'Plugin will be preinstalled in VIP platform', 'wp-vip-compatibility' )
 			);
-		} elseif ( 'wp-engine' === $source ) {
-			$note = esc_html__( 'WP Engine plugins are not required on VIP platform.', 'wp-vip-compatibility' );
-		} else {
-			$note = $is_compatible 
-				? esc_html__( 'Tested and verified VIP-compatible', 'wp-vip-compatibility' )
-				: esc_html__( 'Tested and verified VIP-incompatible', 'wp-vip-compatibility' );
 		}
 
-		return $note;
+		if ( 'wp-engine' === $source ) {
+			return esc_html__( 'WP Engine plugins are not required on VIP platform.', 'wp-vip-compatibility' );
+		}
+
+		return $is_compatible
+			? esc_html__( 'Tested and verified VIP-compatible', 'wp-vip-compatibility' )
+			: esc_html__( 'Tested and verified VIP-incompatible', 'wp-vip-compatibility' );
 	}
 }

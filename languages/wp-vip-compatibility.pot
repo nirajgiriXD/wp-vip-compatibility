@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Niraj Giri
+# Copyright (C) 2026 Niraj Giri
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
@@ -9,13 +9,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-03-18T16:16:38+00:00\n"
+"POT-Creation-Date: 2026-08-10T07:50:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.11.0\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-vip-compatibility\n"
 
 #. Plugin Name of the plugin
 #: wp-vip-compatibility.php
+#: includes/classes/class-ui.php:156
 msgid "WordPress VIP Compatibility"
 msgstr ""
 
@@ -56,28 +57,23 @@ msgid "Command execution function detected"
 msgstr ""
 
 #: functions.php:115
-#: includes/classes/class-database-settings.php:160
-#: includes/classes/class-directories-settings.php:109
-#: includes/classes/class-mu-plugins-settings.php:127
-#: includes/classes/class-mu-plugins-settings.php:180
-#: includes/classes/class-mu-plugins-settings.php:216
-#: includes/classes/class-plugins-settings.php:101
-#: includes/classes/class-plugins-settings.php:181
-#: includes/classes/class-themes-settings.php:67
+#: includes/classes/class-assets.php:129
+#: includes/classes/class-mu-plugins-settings.php:245
+#: includes/classes/class-overview-settings.php:294
+#: includes/classes/class-ui.php:253
+#: includes/classes/class-ui.php:356
 msgid "Incompatible"
 msgstr ""
 
 #: functions.php:118
-#: includes/classes/class-database-settings.php:90
-#: includes/classes/class-database-settings.php:157
-#: includes/classes/class-directories-settings.php:84
-#: includes/classes/class-directories-settings.php:106
-#: includes/classes/class-mu-plugins-settings.php:124
-#: includes/classes/class-mu-plugins-settings.php:178
-#: includes/classes/class-mu-plugins-settings.php:214
-#: includes/classes/class-plugins-settings.php:98
-#: includes/classes/class-plugins-settings.php:183
-#: includes/classes/class-themes-settings.php:64
+#: includes/classes/class-assets.php:128
+#: includes/classes/class-database-settings.php:167
+#: includes/classes/class-mu-plugins-settings.php:241
+#: includes/classes/class-overview-settings.php:127
+#: includes/classes/class-overview-settings.php:278
+#: includes/classes/class-overview-settings.php:289
+#: includes/classes/class-ui.php:248
+#: includes/classes/class-ui.php:353
 msgid "Compatible"
 msgstr ""
 
@@ -107,260 +103,561 @@ msgstr ""
 msgid "No incompatibility logs were generated."
 msgstr ""
 
-#: includes/classes/class-assets.php:62
+#: includes/classes/class-assets.php:120
 msgid "Checking..."
 msgstr ""
 
-#: includes/classes/class-assets.php:63
+#: includes/classes/class-assets.php:121
 msgid "Error"
 msgstr ""
 
-#: includes/classes/class-assets.php:64
+#: includes/classes/class-assets.php:122
 msgid "Unable to fetch data."
 msgstr ""
 
-#: includes/classes/class-assets.php:65
+#: includes/classes/class-assets.php:123
 msgid "Unable to fetch log details."
 msgstr ""
 
-#: includes/classes/class-assets.php:66
+#: includes/classes/class-assets.php:124
 msgid "No data available."
 msgstr ""
 
-#: includes/classes/class-assets.php:67
+#: includes/classes/class-assets.php:125
 msgid "No chart data available."
 msgstr ""
 
-#: includes/classes/class-database-settings.php:57
+#. translators: 1: Number of completed checks. 2: Total number of checks.
+#: includes/classes/class-assets.php:131
+#, php-format
+msgid "Scanning %1$s of %2$s…"
+msgstr ""
+
+#: includes/classes/class-assets.php:132
+msgid "Scan complete."
+msgstr ""
+
+#. translators: 1: Number of visible rows. 2: Total number of rows.
+#: includes/classes/class-assets.php:134
+#, php-format
+msgid "Showing %1$s of %2$s"
+msgstr ""
+
+#. translators: %s: Total number of rows.
+#: includes/classes/class-assets.php:136
+#, php-format
+msgid "Showing all %s"
+msgstr ""
+
+#: includes/classes/class-assets.php:137
+msgid "No matching results"
+msgstr ""
+
+#: includes/classes/class-assets.php:138
+msgid "Try a different search term or switch the filter back to All."
+msgstr ""
+
+#: includes/classes/class-assets.php:139
+#: includes/classes/class-ui.php:414
+msgid "Copy to clipboard"
+msgstr ""
+
+#: includes/classes/class-assets.php:140
+msgid "Copied"
+msgstr ""
+
+#: includes/classes/class-assets.php:141
+msgid "Press Ctrl+C to copy"
+msgstr ""
+
+#: includes/classes/class-assets.php:142
+msgid "Nothing to check"
+msgstr ""
+
+#. translators: %s: Percentage of compatible items.
+#: includes/classes/class-assets.php:144
+#, php-format
+msgid "%s of the items checked are ready for the VIP platform."
+msgstr ""
+
+#: includes/classes/class-assets.php:145
+msgid "Everything checked so far is ready for the VIP platform."
+msgstr ""
+
+#: includes/classes/class-assets.php:146
+msgid "Review the highlighted sections below and resolve each incompatibility before migrating."
+msgstr ""
+
+#: includes/classes/class-assets.php:147
+msgid "Compatibility data could not be loaded for every section."
+msgstr ""
+
+#: includes/classes/class-assets.php:148
+msgid "Sorted ascending"
+msgstr ""
+
+#: includes/classes/class-assets.php:149
+msgid "Sorted descending"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:58
 msgid "No tables found in the database."
 msgstr ""
 
-#: includes/classes/class-database-settings.php:67
-#: includes/classes/class-directories-settings.php:60
-#: includes/classes/class-plugins-settings.php:114
-#: includes/classes/class-themes-settings.php:75
+#: includes/classes/class-database-settings.php:59
+#: includes/classes/class-directories-settings.php:52
+#: includes/classes/class-plugins-settings.php:46
+#: includes/classes/class-themes-settings.php:65
+msgid "There is nothing to check on this screen yet."
+msgstr ""
+
+#: includes/classes/class-database-settings.php:74
+#: includes/classes/class-directories-settings.php:67
+#: includes/classes/class-mu-plugins-settings.php:133
+#: includes/classes/class-plugins-settings.php:118
+#: includes/classes/class-themes-settings.php:84
 msgid "SN"
 msgstr ""
 
-#: includes/classes/class-database-settings.php:68
+#: includes/classes/class-database-settings.php:78
+#: includes/classes/class-database-settings.php:161
 msgid "Table Name"
 msgstr ""
 
-#: includes/classes/class-database-settings.php:69
+#: includes/classes/class-database-settings.php:83
+#: includes/classes/class-database-settings.php:162
 msgid "Engine"
 msgstr ""
 
-#: includes/classes/class-database-settings.php:70
+#: includes/classes/class-database-settings.php:87
+#: includes/classes/class-database-settings.php:163
 msgid "Collation"
 msgstr ""
 
-#: includes/classes/class-database-settings.php:71
+#: includes/classes/class-database-settings.php:91
+#: includes/classes/class-database-settings.php:164
 msgid "Source"
 msgstr ""
 
-#: includes/classes/class-database-settings.php:72
-#: includes/classes/class-directories-settings.php:63
-#: includes/classes/class-plugins-settings.php:120
-#: includes/classes/class-themes-settings.php:81
+#: includes/classes/class-database-settings.php:95
+#: includes/classes/class-directories-settings.php:80
+#: includes/classes/class-mu-plugins-settings.php:152
+#: includes/classes/class-plugins-settings.php:138
+#: includes/classes/class-themes-settings.php:104
+#: includes/classes/class-ui.php:362
 msgid "WP VIP Compatibility"
 msgstr ""
 
-#: includes/classes/class-database-settings.php:73
-#: includes/classes/class-plugins-settings.php:121
+#: includes/classes/class-database-settings.php:100
+#: includes/classes/class-database-settings.php:170
+#: includes/classes/class-plugins-settings.php:143
+#: includes/classes/class-plugins-settings.php:207
 msgid "Notes"
 msgstr ""
 
-#: includes/classes/class-database-settings.php:99
-msgid "Unsupported collation. Recommended fix:"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:102
-msgid "The collation is unsupported."
-msgstr ""
-
-#: includes/classes/class-database-settings.php:106
-#: includes/classes/class-database-settings.php:115
-#: includes/classes/class-database-settings.php:124
-#: includes/classes/class-directories-settings.php:86
-msgid "Not Compatible"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:111
-msgid "Unsupported storage engine. Recommended fix:"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:120
-msgid "Non-standard table prefix. Recommended fix:"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:154
-#: includes/classes/class-directories-settings.php:103
-#: includes/classes/class-mu-plugins-settings.php:121
-#: includes/classes/class-plugins-settings.php:95
-#: includes/classes/class-themes-settings.php:61
-msgid "All"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:190
-msgid "Custom"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:190
-msgid "Unknown (Non-standard Prefix)"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:207
-#: includes/classes/class-directories-settings.php:70
+#: includes/classes/class-database-settings.php:127
+#: includes/classes/class-database-settings.php:238
+#: includes/classes/class-directories-settings.php:91
 msgid "Not Supported"
 msgstr ""
 
-#: includes/classes/class-directories-settings.php:50
+#: includes/classes/class-database-settings.php:128
+msgid "Unsupported collation. Recommended fix:"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:131
+msgid "The collation is unsupported."
+msgstr ""
+
+#: includes/classes/class-database-settings.php:139
+msgid "Unsupported storage engine. Recommended fix:"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:147
+msgid "Non-standard table prefix. Recommended fix:"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:167
+msgid "Not Compatible"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:178
+msgid "Run the suggested statements against a backup first. VIP requires the InnoDB storage engine, a supported collation and the standard wp_ table prefix."
+msgstr ""
+
+#: includes/classes/class-database-settings.php:180
+msgid "Before you run any SQL"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:192
+msgid "Search database tables"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:221
+msgid "Custom"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:221
+msgid "Unknown (Non-standard Prefix)"
+msgstr ""
+
+#: includes/classes/class-directories-settings.php:51
 msgid "No files or directories found in wp-content."
 msgstr ""
 
-#: includes/classes/class-directories-settings.php:61
+#: includes/classes/class-directories-settings.php:71
+#: includes/classes/class-directories-settings.php:102
 msgid "Files and Folders"
 msgstr ""
 
-#: includes/classes/class-directories-settings.php:62
+#: includes/classes/class-directories-settings.php:76
+#: includes/classes/class-directories-settings.php:103
 msgid "Description"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:58
+#: includes/classes/class-directories-settings.php:112
+msgid "Anything the VIP platform does not recognise inside wp-content has to be removed or relocated before migration. Uploads are served from VIP File System, so the local uploads folder is not carried over."
+msgstr ""
+
+#: includes/classes/class-directories-settings.php:114
+msgid "About this list"
+msgstr ""
+
+#: includes/classes/class-directories-settings.php:126
+msgid "Search files and folders"
+msgstr ""
+
+#: includes/classes/class-mu-plugins-settings.php:59
 msgid "No MU plugins are present."
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:75
+#: includes/classes/class-mu-plugins-settings.php:73
 msgid "The compatibility status of MU plugins is checked differently from regular plugins or themes because of how MU plugins are loaded. The main PHP file of the MU plugin and the contents of its folder are shown in separate rows since there is no standard way to link the main MU plugin file to its folder when the folder exists."
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:182
+#: includes/classes/class-mu-plugins-settings.php:78
+msgid "How MU plugins are checked"
+msgstr ""
+
+#: includes/classes/class-mu-plugins-settings.php:118
+msgid "Search must-use plugins"
+msgstr ""
+
+#: includes/classes/class-mu-plugins-settings.php:137
+#: includes/classes/class-mu-plugins-settings.php:186
 #: includes/classes/class-mu-plugins-settings.php:218
-#: includes/classes/class-plugins-settings.php:185
-#: includes/classes/class-themes-settings.php:99
-msgid "Loading..."
+msgid "MU Plugin Name"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:244
-#: includes/classes/class-plugins-settings.php:163
-msgid "Plugin will be preinstalled in VIP platform"
+#: includes/classes/class-mu-plugins-settings.php:142
+#: includes/classes/class-mu-plugins-settings.php:187
+#: includes/classes/class-mu-plugins-settings.php:219
+msgid "MU Plugin Directory"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:247
-msgid "WP Engine plugins are not required on VIP platform."
-msgstr ""
-
-#: includes/classes/class-mu-plugins-settings.php:250
-#: includes/classes/class-plugins-settings.php:158
-msgid "Tested and verified VIP-compatible"
-msgstr ""
-
-#: includes/classes/class-mu-plugins-settings.php:251
-msgid "Tested and verified VIP-incompatible"
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:47
-msgid "Compatibility Status"
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:50
-msgid "Plugin Details"
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:79
-msgid "WordPress VIP Compatibility (WVC)"
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:83
-msgid "This plugin is a great starting point for analyzing the compatibility of a standard WordPress site with the WordPress VIP platform. It scans your site for potential issues by identifying unsupported plugins, directories, database configurations, and other incompatibilities with VIP requirements."
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:87
-msgid "In addition to highlighting compatibility issues, the plugin also provides several options to address and fix known problems. However, it's important to note that this plugin is not a complete solution for making a WordPress site fully VIP-compatible. It serves as a tool for identifying and resolving common issues, but further manual adjustments and optimizations may be required to meet the platform's strict standards."
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:91
-msgid "While this plugin can fix certain issues, it should be seen as an initial tool to help assess and prepare your site for VIP migration. For more advanced optimizations and compliance, a thorough manual review may still be required."
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:107
-msgid "WordPress VIP Documentation"
-msgstr ""
-
-#. translators: %s: URL to the documentation
-#: includes/classes/class-overview-settings.php:113
-msgid "For more detailed guidelines and in-depth explanations on how to make your WordPress site fully compatible with the VIP platform, please visit the official %s."
-msgstr ""
-
-#: includes/classes/class-plugins-settings.php:115
-msgid "Plugin Name"
-msgstr ""
-
-#: includes/classes/class-plugins-settings.php:116
-msgid "Plugin Directory"
-msgstr ""
-
-#: includes/classes/class-plugins-settings.php:117
-#: includes/classes/class-themes-settings.php:78
+#: includes/classes/class-mu-plugins-settings.php:147
+#: includes/classes/class-mu-plugins-settings.php:188
+#: includes/classes/class-mu-plugins-settings.php:220
+#: includes/classes/class-plugins-settings.php:132
+#: includes/classes/class-plugins-settings.php:195
+#: includes/classes/class-themes-settings.php:98
+#: includes/classes/class-themes-settings.php:126
 msgid "Author"
 msgstr ""
 
-#: includes/classes/class-plugins-settings.php:118
-#: includes/classes/class-themes-settings.php:79
-msgid "Current Version"
+#: includes/classes/class-mu-plugins-settings.php:150
+#: includes/classes/class-mu-plugins-settings.php:189
+#: includes/classes/class-mu-plugins-settings.php:221
+msgid "Version"
 msgstr ""
 
-#: includes/classes/class-plugins-settings.php:119
-#: includes/classes/class-themes-settings.php:80
-msgid "Available Version"
+#: includes/classes/class-mu-plugins-settings.php:157
+#: includes/classes/class-mu-plugins-settings.php:193
+#: includes/classes/class-mu-plugins-settings.php:225
+msgid "Note"
 msgstr ""
 
-#: includes/classes/class-plugins-settings.php:155
-msgid "VIP listed incompatible plugin"
+#: includes/classes/class-mu-plugins-settings.php:270
+#: includes/classes/class-plugins-settings.php:181
+msgid "Plugin will be preinstalled in VIP platform"
 msgstr ""
 
-#: includes/classes/class-plugins-settings.php:170
-#: includes/classes/class-themes-settings.php:47
-msgid "Up to date"
+#: includes/classes/class-mu-plugins-settings.php:275
+msgid "WP Engine plugins are not required on VIP platform."
 msgstr ""
 
-#: includes/classes/class-settings.php:82
+#: includes/classes/class-mu-plugins-settings.php:279
+#: includes/classes/class-plugins-settings.php:176
+msgid "Tested and verified VIP-compatible"
+msgstr ""
+
+#: includes/classes/class-mu-plugins-settings.php:280
+msgid "Tested and verified VIP-incompatible"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:45
+msgid "Overview sections"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:55
+msgid "Compatibility Status"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:66
+msgid "Plugin Details"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:112
+msgid "Ready"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:118
+msgid "Migration readiness"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:121
+msgid "Analysing plugins, themes, must-use plugins, database tables and directories…"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:131
+msgid "Needs attention"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:135
+msgid "Items checked"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:151
+msgid "This plugin is a great starting point for analyzing the compatibility of a standard WordPress site with the WordPress VIP platform. It scans your site for potential issues by identifying unsupported plugins, directories, database configurations, and other incompatibilities with VIP requirements."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:155
+msgid "In addition to highlighting compatibility issues, the plugin also provides several options to address and fix known problems. However, it's important to note that this plugin is not a complete solution for making a WordPress site fully VIP-compatible. It serves as a tool for identifying and resolving common issues, but further manual adjustments and optimizations may be required to meet the platform's strict standards."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:159
+msgid "While this plugin can fix certain issues, it should be seen as an initial tool to help assess and prepare your site for VIP migration. For more advanced optimizations and compliance, a thorough manual review may still be required."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:169
+msgid "WordPress VIP Documentation"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:176
+#: includes/classes/class-overview-settings.php:255
+#: includes/classes/class-settings.php:93
+#: includes/classes/class-ui.php:35
+#: includes/classes/class-ui.php:36
 msgid "Database"
 msgstr ""
 
-#: includes/classes/class-settings.php:83
+#: includes/classes/class-overview-settings.php:177
+msgid "Storage engines, collations and table prefixes."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:181
+#: includes/classes/class-overview-settings.php:256
+#: includes/classes/class-settings.php:94
+#: includes/classes/class-ui.php:42
+#: includes/classes/class-ui.php:43
 msgid "Directories"
 msgstr ""
 
-#: includes/classes/class-settings.php:84
-msgid "MU Plugins"
+#: includes/classes/class-overview-settings.php:182
+msgid "Files and folders in wp-content that VIP does not support."
 msgstr ""
 
-#: includes/classes/class-settings.php:85
+#: includes/classes/class-overview-settings.php:186
+msgid "Plugins & themes"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:187
+msgid "Known incompatible plugins plus a scan for filesystem writes and shell execution."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:191
+#: includes/classes/class-ui.php:50
+msgid "Must-use plugins"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:192
+msgid "MU plugins that VIP preinstalls, replaces or rejects."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:199
+msgid "About this plugin"
+msgstr ""
+
+#. translators: %s: URL to the documentation
+#: includes/classes/class-overview-settings.php:212
+#, php-format
+msgid "For more detailed guidelines and in-depth explanations on how to make your WordPress site fully compatible with the VIP platform, please visit the official %s."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:223
+msgid "What gets checked"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:252
+#: includes/classes/class-settings.php:96
+#: includes/classes/class-ui.php:56
+#: includes/classes/class-ui.php:57
 msgid "Plugins"
 msgstr ""
 
-#: includes/classes/class-settings.php:86
+#: includes/classes/class-overview-settings.php:253
+#: includes/classes/class-settings.php:97
+#: includes/classes/class-ui.php:63
+#: includes/classes/class-ui.php:64
 msgid "Themes"
 msgstr ""
 
-#: includes/classes/class-settings.php:91
+#: includes/classes/class-overview-settings.php:254
+#: includes/classes/class-settings.php:95
+#: includes/classes/class-ui.php:49
+msgid "MU Plugins"
+msgstr ""
+
+#. translators: %s: Section name, e.g. "Plugins".
+#: includes/classes/class-overview-settings.php:304
+#, php-format
+msgid "Review %s"
+msgstr ""
+
+#: includes/classes/class-plugins-settings.php:45
+msgid "No plugins installed"
+msgstr ""
+
+#: includes/classes/class-plugins-settings.php:103
+msgid "Search plugins"
+msgstr ""
+
+#: includes/classes/class-plugins-settings.php:122
+#: includes/classes/class-plugins-settings.php:193
+msgid "Plugin Name"
+msgstr ""
+
+#: includes/classes/class-plugins-settings.php:127
+#: includes/classes/class-plugins-settings.php:194
+msgid "Plugin Directory"
+msgstr ""
+
+#: includes/classes/class-plugins-settings.php:135
+#: includes/classes/class-plugins-settings.php:196
+#: includes/classes/class-themes-settings.php:101
+#: includes/classes/class-themes-settings.php:129
+msgid "Current Version"
+msgstr ""
+
+#: includes/classes/class-plugins-settings.php:136
+#: includes/classes/class-plugins-settings.php:197
+#: includes/classes/class-themes-settings.php:102
+#: includes/classes/class-themes-settings.php:132
+msgid "Available Version"
+msgstr ""
+
+#: includes/classes/class-plugins-settings.php:173
+msgid "VIP listed incompatible plugin"
+msgstr ""
+
+#: includes/classes/class-plugins-settings.php:189
+#: includes/classes/class-themes-settings.php:50
+msgid "Up to date"
+msgstr ""
+
+#: includes/classes/class-settings.php:102
 msgid "WVC - Overview"
 msgstr ""
 
-#: includes/classes/class-settings.php:92
+#: includes/classes/class-settings.php:103
 msgid "WVC"
 msgstr ""
 
 #. translators: %s: Submenu title
-#: includes/classes/class-settings.php:104
+#: includes/classes/class-settings.php:115
+#, php-format
 msgid "WVC - %s"
 msgstr ""
 
-#: includes/classes/class-themes-settings.php:76
+#: includes/classes/class-themes-settings.php:64
+msgid "No themes installed"
+msgstr ""
+
+#: includes/classes/class-themes-settings.php:72
+msgid "Search themes"
+msgstr ""
+
+#: includes/classes/class-themes-settings.php:88
+#: includes/classes/class-themes-settings.php:120
 msgid "Theme Name"
 msgstr ""
 
-#: includes/classes/class-themes-settings.php:77
+#: includes/classes/class-themes-settings.php:93
+#: includes/classes/class-themes-settings.php:123
 msgid "Theme Directory"
+msgstr ""
+
+#: includes/classes/class-ui.php:28
+#: includes/classes/class-ui.php:29
+msgid "Overview"
+msgstr ""
+
+#: includes/classes/class-ui.php:30
+msgid "A snapshot of how ready this site is for the WordPress VIP platform."
+msgstr ""
+
+#: includes/classes/class-ui.php:37
+msgid "Storage engines, collations and table prefixes checked against VIP requirements."
+msgstr ""
+
+#: includes/classes/class-ui.php:44
+msgid "Everything inside wp-content measured against the VIP file structure."
+msgstr ""
+
+#: includes/classes/class-ui.php:51
+msgid "Must-use plugins scanned for code patterns the VIP platform does not allow."
+msgstr ""
+
+#: includes/classes/class-ui.php:58
+msgid "Installed plugins checked against the VIP incompatibility list and scanned for risky code."
+msgstr ""
+
+#: includes/classes/class-ui.php:65
+msgid "Installed themes scanned for code patterns the VIP platform does not allow."
+msgstr ""
+
+#: includes/classes/class-ui.php:162
+msgid "Audit this site against the WordPress VIP platform requirements before you migrate."
+msgstr ""
+
+#: includes/classes/class-ui.php:168
+msgid "VIP documentation"
+msgstr ""
+
+#: includes/classes/class-ui.php:170
+msgid "(opens in a new tab)"
+msgstr ""
+
+#: includes/classes/class-ui.php:174
+msgid "Compatibility sections"
+msgstr ""
+
+#: includes/classes/class-ui.php:232
+msgid "Search results"
+msgstr ""
+
+#: includes/classes/class-ui.php:241
+msgid "Filter by compatibility"
+msgstr ""
+
+#: includes/classes/class-ui.php:243
+msgid "All"
+msgstr ""
+
+#: includes/classes/class-ui.php:267
+msgid "Search…"
+msgstr ""
+
+#: includes/classes/class-ui.php:359
+msgid "Loading…"
 msgstr ""
