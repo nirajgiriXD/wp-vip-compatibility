@@ -11,6 +11,10 @@
 
 namespace WP_VIP_COMPATIBILITY\Includes\Classes;
 
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Renders the shared admin interface building blocks.
  */
@@ -65,7 +69,26 @@ class UI {
 				'description' => __( 'Installed themes scanned for code patterns the VIP platform does not allow.', 'wp-vip-compatibility' ),
 				'icon'        => 'brush',
 			),
+			'findings'    => array(
+				'slug'        => 'wvc-findings',
+				'label'       => __( 'Findings', 'wp-vip-compatibility' ),
+				'title'       => __( 'Findings', 'wp-vip-compatibility' ),
+				'description' => __( 'Every issue the scanner found, with why it matters on VIP and how to resolve it.', 'wp-vip-compatibility' ),
+				'icon'        => 'list',
+			),
 		);
+	}
+
+	/**
+	 * Returns the URL of the findings report, optionally filtered to a target.
+	 *
+	 * @param string $target_key Optional target key to filter by.
+	 * @return string The admin URL.
+	 */
+	public static function get_findings_url( $target_key = '' ) {
+		$url = self::get_screen_url( 'findings' );
+
+		return ( '' === $target_key ) ? $url : add_query_arg( 'target', rawurlencode( $target_key ), $url );
 	}
 
 	/**
@@ -105,10 +128,17 @@ class UI {
 			'info'       => '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
 			'external'   => '<path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14.5V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19V7.5A1.5 1.5 0 0 1 5 6h4.5"/>',
 			'copy'       => '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5V5A1.5 1.5 0 0 1 4.5 3.5H13A1.5 1.5 0 0 1 14.5 5v.5"/>',
-			'arrow-right'=> '<path d="M4 12h15"/><path d="m13 6 6 6-6 6"/>',
+			'arrow-right' => '<path d="M4 12h15"/><path d="m13 6 6 6-6 6"/>',
 			'sort'       => '<path d="m8 9 4-4 4 4"/><path d="m8 15 4 4 4-4"/>',
 			'inbox'      => '<path d="M3 13h4l1.5 3h7L17 13h4"/><path d="M5.5 5h13l2.5 8v5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18v-5Z"/>',
 			'shield'     => '<path d="M12 3 5 6v6c0 4.3 2.9 7.8 7 9 4.1-1.2 7-4.7 7-9V6Z"/><path d="m9 12 2 2 4-4"/>',
+			'list'       => '<path d="M8 6h12"/><path d="M8 12h12"/><path d="M8 18h12"/><path d="M4 6h.01"/><path d="M4 12h.01"/><path d="M4 18h.01"/>',
+			'download'   => '<path d="M12 3v12"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4 19.5h16"/>',
+			'refresh'    => '<path d="M20 6v5h-5"/><path d="M4 18v-5h5"/><path d="M19.5 11a7.5 7.5 0 0 0-13-3.5L4 10"/><path d="M4.5 13a7.5 7.5 0 0 0 13 3.5L20 14"/>',
+			'book'       => '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 1 4 16.5Z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h4.5a1.5 1.5 0 0 0 1.5-1.5Z"/>',
+			'wrench'     => '<path d="M15.5 3.5a5 5 0 0 0-6 6.6L3.6 16a2 2 0 0 0 2.8 2.8l5.9-5.9a5 5 0 0 0 6.6-6l-3 3-2.8-2.8Z"/>',
+			'clock'      => '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/>',
+			'trend'      => '<path d="m4 16 5-5 3.5 3.5L20 7"/><path d="M15 7h5v5"/>',
 		);
 
 		if ( ! isset( $paths[ $name ] ) ) {
@@ -350,13 +380,20 @@ class UI {
 
 		if ( 'compatible' === $state ) {
 			$classes[] = 'compatible';
-			$label     = $label ? $label : __( 'Compatible', 'wp-vip-compatibility' );
+			$label     = $label ? $label : __( 'Ready', 'wp-vip-compatibility' );
+		} elseif ( 'review' === $state ) {
+			// "Needs review" belongs in the needs-attention filter, so it keeps
+			// the long-standing `not-compatible` class while carrying its own
+			// label and colour.
+			$classes[] = 'not-compatible';
+			$classes[] = 'is-review';
+			$label     = $label ? $label : __( 'Needs review', 'wp-vip-compatibility' );
 		} elseif ( 'not-compatible' === $state ) {
 			$classes[] = 'not-compatible';
-			$label     = $label ? $label : __( 'Incompatible', 'wp-vip-compatibility' );
+			$label     = $label ? $label : __( 'Blocked', 'wp-vip-compatibility' );
 		} else {
 			$classes[] = 'vip-compatibility-status';
-			$label     = $label ? $label : __( 'Loading…', 'wp-vip-compatibility' );
+			$label     = $label ? $label : __( 'Not scanned yet', 'wp-vip-compatibility' );
 		}
 
 		$attr_string = ' data-label="' . esc_attr__( 'WP VIP Compatibility', 'wp-vip-compatibility' ) . '"';
@@ -389,8 +426,14 @@ class UI {
 	 * @return string The pill markup.
 	 */
 	public static function get_status_pill( $state, $label ) {
-		$modifier = 'compatible' === $state ? 'ok' : ( 'not-compatible' === $state ? 'bad' : 'pending' );
-		$icon     = 'compatible' === $state ? 'check' : 'alert';
+		$modifiers = array(
+			'compatible'     => 'ok',
+			'review'         => 'warn',
+			'not-compatible' => 'bad',
+		);
+
+		$modifier = $modifiers[ $state ] ?? 'pending';
+		$icon     = 'compatible' === $state ? 'check' : ( 'review' === $state ? 'info' : 'alert' );
 
 		return sprintf(
 			'<span class="wvc-status wvc-status--%1$s">%2$s%3$s</span>',
@@ -398,6 +441,188 @@ class UI {
 			self::get_icon( $icon, array( 'class' => 'wvc-icon wvc-icon--xs' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
 			esc_html( $label )
 		);
+	}
+
+	/**
+	 * Builds a severity pill.
+	 *
+	 * @param string $severity A Taxonomy severity slug.
+	 * @return string The pill markup.
+	 */
+	public static function get_severity_pill( $severity ) {
+		return sprintf(
+			'<span class="wvc-sev wvc-sev--%1$s">%2$s</span>',
+			esc_attr( $severity ),
+			esc_html( Taxonomy::get_label( 'severity', $severity ) )
+		);
+	}
+
+	/**
+	 * Builds a finding-type pill.
+	 *
+	 * @param string $type A Taxonomy type slug.
+	 * @return string The pill markup.
+	 */
+	public static function get_type_pill( $type ) {
+		$blocking = Taxonomy::is_blocking_type( $type );
+
+		return sprintf(
+			'<span class="wvc-tag wvc-tag--%1$s" title="%3$s">%2$s</span>',
+			esc_attr( $blocking ? 'blocking' : 'advisory' ),
+			esc_html( Taxonomy::get_label( 'type', $type ) ),
+			esc_attr( Taxonomy::get_types()[ $type ]['description'] ?? '' )
+		);
+	}
+
+	/**
+	 * Builds a small labelled metadata chip.
+	 *
+	 * @param string $label The chip label.
+	 * @param string $value The chip value.
+	 * @param string $title Optional tooltip.
+	 * @return string The chip markup.
+	 */
+	public static function get_meta_chip( $label, $value, $title = '' ) {
+		return sprintf(
+			'<span class="wvc-chip"%3$s><span class="wvc-chip__label">%1$s</span><span class="wvc-chip__value">%2$s</span></span>',
+			esc_html( $label ),
+			esc_html( $value ),
+			'' === $title ? '' : ' title="' . esc_attr( $title ) . '"'
+		);
+	}
+
+	/**
+	 * Renders one finding as an expandable card.
+	 *
+	 * Each card answers the questions the brief asks a finding to answer: what
+	 * was detected, where, why it matters on VIP, how to fix it, what the
+	 * alternative is, and how much to trust the detection.
+	 *
+	 * @param array<string, mixed> $finding A finding row from Report::findings().
+	 * @return void
+	 */
+	public static function render_finding( array $finding ) {
+		$confidences = Taxonomy::get_confidences();
+		$fixes       = Taxonomy::get_fixabilities();
+		?>
+		<details class="wvc-finding wvc-finding--<?php echo esc_attr( $finding['severity'] ); ?>"
+			data-severity="<?php echo esc_attr( $finding['severity'] ); ?>"
+			data-type="<?php echo esc_attr( $finding['type'] ); ?>"
+			data-category="<?php echo esc_attr( $finding['category'] ); ?>"
+			data-target="<?php echo esc_attr( $finding['target_key'] ); ?>">
+
+			<summary class="wvc-finding__summary">
+				<span class="wvc-finding__pills">
+					<?php
+					echo self::get_severity_pill( $finding['severity'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+					echo self::get_type_pill( $finding['type'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+					?>
+				</span>
+				<span class="wvc-finding__headline">
+					<strong class="wvc-finding__title"><?php echo esc_html( $finding['title'] ); ?></strong>
+					<span class="wvc-finding__location">
+						<code><?php echo esc_html( $finding['file'] . ':' . $finding['line'] ); ?></code>
+						<?php if ( '' !== $finding['scope'] ) : ?>
+							<span class="wvc-finding__scope">
+								<?php
+								printf(
+									/* translators: %s: Function or method name. */
+									esc_html__( 'in %s()', 'wp-vip-compatibility' ),
+									esc_html( $finding['scope'] )
+								);
+								?>
+							</span>
+						<?php endif; ?>
+					</span>
+				</span>
+				<span class="wvc-finding__target"><?php echo esc_html( $finding['target_label'] ); ?></span>
+			</summary>
+
+			<div class="wvc-finding__body">
+				<?php if ( '' !== $finding['evidence'] ) : ?>
+					<pre class="wvc-finding__evidence"><code><?php echo esc_html( $finding['evidence'] ); ?></code></pre>
+				<?php endif; ?>
+
+				<?php if ( '' !== $finding['note'] ) : ?>
+					<p class="wvc-finding__note"><?php echo esc_html( $finding['note'] ); ?></p>
+				<?php endif; ?>
+
+				<dl class="wvc-finding__detail">
+					<dt><?php esc_html_e( 'What was detected', 'wp-vip-compatibility' ); ?></dt>
+					<dd><?php echo esc_html( $finding['detected'] ); ?></dd>
+
+					<dt><?php esc_html_e( 'Why it matters on VIP', 'wp-vip-compatibility' ); ?></dt>
+					<dd><?php echo esc_html( $finding['why'] ); ?></dd>
+
+					<dt><?php esc_html_e( 'Recommended fix', 'wp-vip-compatibility' ); ?></dt>
+					<dd><?php echo esc_html( $finding['remediation'] ); ?></dd>
+
+					<?php if ( '' !== $finding['alternative'] ) : ?>
+						<dt><?php esc_html_e( 'Alternative approach', 'wp-vip-compatibility' ); ?></dt>
+						<dd><?php echo esc_html( $finding['alternative'] ); ?></dd>
+					<?php endif; ?>
+				</dl>
+
+				<div class="wvc-finding__meta">
+					<?php
+					$chips = array(
+						self::get_meta_chip(
+							__( 'Confidence', 'wp-vip-compatibility' ),
+							Taxonomy::get_label( 'confidence', $finding['confidence'] ),
+							$confidences[ $finding['confidence'] ]['description'] ?? ''
+						),
+						self::get_meta_chip(
+							__( 'Fix', 'wp-vip-compatibility' ),
+							Taxonomy::get_label( 'fixability', $finding['fixability'] ),
+							$fixes[ $finding['fixability'] ]['description'] ?? ''
+						),
+						self::get_meta_chip(
+							__( 'Category', 'wp-vip-compatibility' ),
+							Taxonomy::get_label( 'category', $finding['category'] )
+						),
+						self::get_meta_chip(
+							__( 'Rule', 'wp-vip-compatibility' ),
+							$finding['rule']
+						),
+					);
+
+					if ( '' !== $finding['phpcs'] ) {
+						$chips[] = self::get_meta_chip(
+							__( 'PHPCS', 'wp-vip-compatibility' ),
+							$finding['phpcs'],
+							__( 'The WordPress-VIP-Go sniff that reports the same pattern.', 'wp-vip-compatibility' )
+						);
+					}
+
+					foreach ( $chips as $chip ) {
+						echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Every value is escaped inside get_meta_chip().
+					}
+					?>
+				</div>
+
+				<?php if ( ! empty( $finding['also_matched'] ) ) : ?>
+					<p class="wvc-finding__also">
+						<?php
+						printf(
+							/* translators: %s: Comma-separated list of rule identifiers. */
+							esc_html__( 'Also matched on this line: %s', 'wp-vip-compatibility' ),
+							esc_html( implode( ', ', $finding['also_matched'] ) )
+						);
+						?>
+					</p>
+				<?php endif; ?>
+
+				<?php if ( '' !== $finding['doc'] ) : ?>
+					<p class="wvc-finding__doc">
+						<a class="wvc-link" href="<?php echo esc_url( $finding['doc'] ); ?>" target="_blank" rel="noopener noreferrer">
+							<?php esc_html_e( 'VIP documentation for this rule', 'wp-vip-compatibility' ); ?>
+							<?php echo self::get_icon( 'external', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						</a>
+					</p>
+				<?php endif; ?>
+			</div>
+		</details>
+		<?php
 	}
 
 	/**

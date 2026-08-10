@@ -91,15 +91,16 @@ jQuery(document).ready(function ($) {
 	/**
 	 * Builds a resolved status pill.
 	 *
-	 * @param {string} statusClass `compatible` or `not-compatible`.
-	 * @param {string} label       Visible text.
+	 * @param {string} status One of `pass`, `review`, `blocked`.
+	 * @param {string} label  Visible text.
 	 * @returns {jQuery} The pill element.
 	 */
-	function buildPill(statusClass, label) {
-		var isOk = statusClass === "compatible";
+	function buildPill(status, label) {
+		var modifier = status === "pass" ? "ok" : status === "review" ? "warn" : "bad";
+		var glyph = status === "pass" ? "check" : status === "review" ? "info" : "alert";
 
-		return $("<span/>", { class: "wvc-status wvc-status--" + (isOk ? "ok" : "bad") })
-			.append(icon(isOk ? "check" : "alert", "xs"))
+		return $("<span/>", { class: "wvc-status wvc-status--" + modifier })
+			.append(icon(glyph, "xs"))
 			.append($("<span/>").text(label));
 	}
 
@@ -387,16 +388,7 @@ jQuery(document).ready(function ($) {
 	 * ------------------------------------------------------------------ */
 
 	(function scanner() {
-		var $statusCells = $("td.vip-compatibility-status");
-		var $logNoteContainer = $("#wvc-log-note-container");
-		var logNoteFilename = $logNoteContainer.data("filename");
-		var $table = tableView ? tableView.table : $(".wvc-table").first();
-		var targetEntity = $table.data("target-entity");
-
-		// These are the directories that undergo an async compatibility check.
-		var asyncCompatibilityCheckFiles = ["plugins", "themes", "mu-plugins"];
-		var isAsyncEntity = $.inArray(targetEntity, asyncCompatibilityCheckFiles) !== -1;
-
+		var $statusCells = $("td.vip-compatibility-status[data-target]");
 		var $scan = $("[data-role='scan']");
 		var $scanLabel = $("[data-role='scan-label']");
 		var $scanBar = $("[data-role='scan-bar']");
@@ -407,46 +399,9 @@ jQuery(document).ready(function ($) {
 		var completed = 0;
 		var active = 0;
 
-		// Checks are CPU heavy on the server; a small pool keeps the admin
-		// responsive instead of firing one request per row at once.
-		var CONCURRENCY = 4;
-
-		function renderLogNote(html, type) {
-			$logNoteContainer.html(
-				'<div class="wvc-notice wvc-notice--' +
-					type +
-					'">' +
-					icon(type === "warning" ? "alert" : "info", "sm", "wvc-notice__icon") +
-					'<div class="wvc-notice__body">' +
-					html +
-					"</div></div>"
-			);
-		}
-
-		function loadLogNote() {
-			if (!$logNoteContainer.length || !logNoteFilename) {
-				return;
-			}
-
-			$.ajax({
-				url: settings.ajax_url,
-				type: "POST",
-				data: {
-					_ajax_nonce: settings.nonce,
-					action: "wvc_render_log_note",
-					filename: logNoteFilename
-				},
-				success: function (response) {
-					renderLogNote(response.data.message, "info");
-				},
-				error: function () {
-					renderLogNote(
-						"<p><strong>" + i18n.error + ":</strong> " + i18n.unableToFetchLogDetails + "</p>",
-						"warning"
-					);
-				}
-			});
-		}
+		// Tokenising a plugin is CPU heavy on the server; a small pool keeps the
+		// admin responsive instead of firing one request per row at once.
+		var CONCURRENCY = 3;
 
 		function updateProgress() {
 			if (!$scan.length) {
@@ -469,12 +424,43 @@ jQuery(document).ready(function ($) {
 				tableView.setCountsPending(false);
 				tableView.refresh();
 			}
-
-			loadLogNote();
 		}
 
-		function resolveCell($cell, statusClass, label) {
-			$cell.addClass(statusClass).empty().append(buildPill(statusClass, label));
+		/**
+		 * Replaces a pending cell with its verdict.
+		 *
+		 * `compatible` / `not-compatible` remain the classes the filters read,
+		 * so "needs review" keeps `not-compatible` and adds `is-review`.
+		 *
+		 * @param {jQuery} $cell  The status cell.
+		 * @param {Object} result The AJAX payload.
+		 */
+		function resolveCell($cell, result) {
+			$cell.removeClass("vip-compatibility-status").addClass(result.class);
+
+			if (result.status === "review") {
+				$cell.addClass("is-review");
+			}
+
+			var $pill = buildPill(result.status, result.label);
+
+			$cell.empty().append($pill);
+
+			if (result.total > 0 && result.url) {
+				$cell.append(
+					$("<a/>", { class: "wvc-status__link", href: result.url, title: result.summary }).text(
+						format(i18n.findingCount, result.total)
+					)
+				);
+			}
+		}
+
+		function failCell($cell, message) {
+			$cell
+				.removeClass("vip-compatibility-status")
+				.addClass("not-compatible")
+				.empty()
+				.append(buildPill("blocked", message));
 		}
 
 		function onSettled() {
@@ -491,28 +477,27 @@ jQuery(document).ready(function ($) {
 
 		function checkCell(cell) {
 			var $cell = $(cell);
-			var directoryPath = $cell.data("directory-path");
 
 			return $.ajax({
 				url: settings.ajax_url,
 				type: "POST",
 				data: {
 					_ajax_nonce: settings.nonce,
-					action: "wvc_check_vip_compatibility",
-					directory_path: directoryPath
+					action: "wvc_scan_target",
+					target: $cell.data("target")
 				},
 				beforeSend: function () {
 					$cell.empty().append(buildPendingPill(i18n.checking));
 				},
 				success: function (response) {
-					if (response.success) {
-						resolveCell($cell, response.data.class, response.data.message);
+					if (response && response.success) {
+						resolveCell($cell, response.data);
 					} else {
-						resolveCell($cell, "not-compatible", i18n.error);
+						failCell($cell, (response && response.data && response.data.message) || i18n.error);
 					}
 				},
 				error: function () {
-					resolveCell($cell, "not-compatible", i18n.error);
+					failCell($cell, i18n.error);
 				}
 			}).always(onSettled);
 		}
@@ -525,18 +510,14 @@ jQuery(document).ready(function ($) {
 		}
 
 		if (!total) {
-			// Nothing to scan asynchronously — still surface the log note.
-			loadLogNote();
 			return;
 		}
 
 		// Filtering mid-scan would report partial results, so hold the tabs.
-		if (isAsyncEntity) {
-			$filterButtons.prop("disabled", true);
+		$filterButtons.prop("disabled", true);
 
-			if (tableView) {
-				tableView.setCountsPending(true);
-			}
+		if (tableView) {
+			tableView.setCountsPending(true);
 		}
 
 		if ($scan.length) {
@@ -609,12 +590,8 @@ jQuery(document).ready(function ($) {
 
 		var categories = $container.data("categories") || [];
 		var chartInstances = {};
-		var results = {};
-		var attempted = {};
 
-		var GAUGE_RADIUS = 52;
-		var GAUGE_CIRCUMFERENCE = 2 * Math.PI * GAUGE_RADIUS;
-		var COLORS = { ok: "#12805c", bad: "#b32d2e" };
+		var COLORS = { ok: "#12805c", warn: "#bd7b00", bad: "#b32d2e" };
 
 		function card(category) {
 			return $container.find("[data-category='" + category + "']");
@@ -625,7 +602,7 @@ jQuery(document).ready(function ($) {
 			$card.find("[data-role='state']").empty().append(content).show();
 		}
 
-		function renderChart(category, compatible, incompatible) {
+		function renderChart(category, counts) {
 			var canvas = document.getElementById("chart-" + category);
 
 			// Chart.js only ships on the overview screen; degrade to numbers.
@@ -640,11 +617,11 @@ jQuery(document).ready(function ($) {
 			chartInstances[category] = new window.Chart(canvas.getContext("2d"), {
 				type: "doughnut",
 				data: {
-					labels: [i18n.compatible, i18n.incompatible],
+					labels: [i18n.compatible, i18n.needsReview, i18n.incompatible],
 					datasets: [
 						{
-							data: [compatible, incompatible],
-							backgroundColor: [COLORS.ok, COLORS.bad],
+							data: [counts.compatible, counts.needsReview, counts.incompatible],
+							backgroundColor: [COLORS.ok, COLORS.warn, COLORS.bad],
 							borderColor: "#ffffff",
 							borderWidth: 2,
 							hoverOffset: 6
@@ -671,12 +648,13 @@ jQuery(document).ready(function ($) {
 			});
 		}
 
-		function renderCard(category, compatible, incompatible) {
+		function renderCard(category, counts) {
 			var $card = card(category);
-			var checked = compatible + incompatible;
+			var checked = counts.compatible + counts.needsReview + counts.incompatible;
 
-			$card.find("[data-role='compatible']").text(compatible);
-			$card.find("[data-role='incompatible']").text(incompatible);
+			$card.find("[data-role='compatible']").text(counts.compatible);
+			$card.find("[data-role='needs-review']").text(counts.needsReview);
+			$card.find("[data-role='incompatible']").text(counts.incompatible);
 
 			if (!checked) {
 				showCardState($card, $("<span/>").text(i18n.nothingToCheck || ""));
@@ -684,99 +662,27 @@ jQuery(document).ready(function ($) {
 			}
 
 			$card.find("[data-role='state']").empty().hide();
-			$card.find("[data-role='percent']").text(Math.round((compatible / checked) * 100) + "%");
+			$card.find("[data-role='percent']").text(Math.round((counts.compatible / checked) * 100) + "%");
 			$card.find("[data-role='readout']").removeAttr("hidden");
 
-			renderChart(category, compatible, incompatible);
+			renderChart(category, counts);
 		}
 
 		function renderCardError(category) {
 			var $card = card(category);
 
-			$card.find("[data-role='compatible']").text("–");
-			$card.find("[data-role='incompatible']").text("–");
+			$card.find("[data-role='compatible'],[data-role='needs-review'],[data-role='incompatible']").text("–");
 
-			showCardState(
-				$card,
-				[
-					$("<span/>").text(i18n.unableToFetchData || ""),
-					$("<button/>", {
-						type: "button",
-						class: "wvc-btn wvc-btn--ghost",
-						text: i18n.error
-					}).on("click", function () {
-						fetchCategory(category);
-					})
-				]
-			);
-		}
-
-		function updateReadiness() {
-			var compatible = 0;
-			var incompatible = 0;
-			var failed = false;
-			var $gauge = $("[data-role='gauge']");
-
-			$.each(categories, function (index, category) {
-				if (!results[category]) {
-					failed = true;
-					return;
-				}
-
-				compatible += results[category].compatible;
-				incompatible += results[category].not_compatible;
-			});
-
-			var checked = compatible + incompatible;
-			var percent = checked ? Math.round((compatible / checked) * 100) : 0;
-
-			$("[data-role='total-compatible']").text(compatible);
-			$("[data-role='total-incompatible']").text(incompatible);
-			$("[data-role='total-items']").text(checked);
-
-			$("[data-role='score']").text(checked ? percent : "–");
-			$("[data-role='score-unit']").text(checked ? "%" : "");
-
-			$gauge.removeClass("is-good is-fair is-poor");
-
-			if (checked) {
-				$gauge.addClass(percent >= 90 ? "is-good" : percent >= 70 ? "is-fair" : "is-poor");
-
-				// Set as an inline style: the stylesheet's own `stroke-dasharray`
-				// would win over an SVG presentation attribute.
-				$("[data-role='gauge-value']").css(
-					"stroke-dasharray",
-					(percent / 100) * GAUGE_CIRCUMFERENCE + " " + GAUGE_CIRCUMFERENCE
-				);
-			}
-
-			var summary;
-
-			if (!checked) {
-				summary = i18n.noDataAvailable;
-			} else if (!incompatible) {
-				summary = i18n.readinessPerfect;
-			} else {
-				summary = format(i18n.readinessSummary, percent + "%") + " " + i18n.readinessAttention;
-			}
-
-			if (failed) {
-				summary += " " + i18n.readinessUnavailable;
-			}
-
-			$("[data-role='readiness-summary']").text(summary);
-		}
-
-		function allAttempted() {
-			var count = 0;
-
-			$.each(categories, function (index, category) {
-				if (attempted[category]) {
-					count += 1;
-				}
-			});
-
-			return count === categories.length;
+			showCardState($card, [
+				$("<span/>").text(i18n.unableToFetchData || ""),
+				$("<button/>", {
+					type: "button",
+					class: "wvc-btn wvc-btn--ghost",
+					text: i18n.retry
+				}).on("click", function () {
+					fetchCategory(category);
+				})
+			]);
 		}
 
 		function fetchCategory(category) {
@@ -795,27 +701,18 @@ jQuery(document).ready(function ($) {
 					);
 				},
 				success: function (response) {
-					if (response.success) {
-						var compatible = parseInt(response.data.compatible, 10) || 0;
-						var incompatible = parseInt(response.data.not_compatible, 10) || 0;
-
-						results[category] = { compatible: compatible, not_compatible: incompatible };
-						renderCard(category, compatible, incompatible);
+					if (response && response.success) {
+						renderCard(category, {
+							compatible: parseInt(response.data.compatible, 10) || 0,
+							needsReview: parseInt(response.data.needs_review, 10) || 0,
+							incompatible: parseInt(response.data.not_compatible, 10) || 0
+						});
 					} else {
-						delete results[category];
 						renderCardError(category);
 					}
 				},
 				error: function () {
-					delete results[category];
 					renderCardError(category);
-				},
-				complete: function () {
-					attempted[category] = true;
-
-					if (allAttempted()) {
-						updateReadiness();
-					}
 				}
 			});
 		}

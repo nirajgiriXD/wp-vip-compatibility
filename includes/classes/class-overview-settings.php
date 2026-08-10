@@ -8,9 +8,16 @@
 namespace WP_VIP_COMPATIBILITY\Includes\Classes;
 
 use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Results_Store;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Rules;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Scanner;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
+
+defined( 'ABSPATH' ) || exit;
 
 /**
- * Handles the settings overview.
+ * Renders the overview dashboard.
  */
 class Overview_Settings {
 
@@ -22,21 +29,17 @@ class Overview_Settings {
 	public function __construct() {}
 
 	/**
-	 * Renders the settings page HTML.
+	 * Renders the settings page.
 	 *
 	 * @return void
 	 */
 	public function render_settings_page() {
-
-		// Render tab navigation.
 		$this->render_tabs();
-
-		// Render tab contents.
 		$this->render_tab_contents();
 	}
 
 	/**
-	 * Renders the tabs.
+	 * Renders the tab navigation.
 	 *
 	 * @return void
 	 */
@@ -70,7 +73,7 @@ class Overview_Settings {
 	}
 
 	/**
-	 * Renders the tab contents.
+	 * Renders the tab panels.
 	 *
 	 * @return void
 	 */
@@ -90,24 +93,38 @@ class Overview_Settings {
 	}
 
 	/**
-	 * Renders the aggregated readiness summary.
+	 * Renders the readiness summary.
 	 *
-	 * The values are filled in by the admin script once every category has
-	 * reported its counts, so the markup ships with an explicit loading state.
+	 * The headline numbers come from the stored scan results rather than from
+	 * five AJAX round trips, so the page is meaningful before any JavaScript
+	 * runs and does not re-scan the codebase to draw a gauge.
 	 *
 	 * @return void
 	 */
 	private function render_readiness_summary() {
+		$aggregate = Report::aggregate();
+		$delta     = Results_Store::get_delta();
+		$scanned   = $aggregate['targets'] > 0;
+		$score     = (int) $aggregate['score'];
+		$tone      = $score >= 90 ? 'is-good' : ( $score >= 70 ? 'is-fair' : 'is-poor' );
+		$dasharray = ( $score / 100 ) * ( 2 * M_PI * 52 );
 		?>
 		<section class="wvc-readiness" data-role="readiness" aria-labelledby="wvc-readiness-title">
-			<div class="wvc-gauge" data-role="gauge">
+			<div class="wvc-gauge <?php echo $scanned ? esc_attr( $tone ) : ''; ?>" data-role="gauge">
 				<svg viewBox="0 0 120 120" role="img" aria-hidden="true" focusable="false">
 					<circle class="wvc-gauge__track" cx="60" cy="60" r="52"></circle>
-					<circle class="wvc-gauge__value" data-role="gauge-value" cx="60" cy="60" r="52"></circle>
+					<circle
+						class="wvc-gauge__value"
+						data-role="gauge-value"
+						cx="60" cy="60" r="52"
+						<?php if ( $scanned ) : ?>
+							style="stroke-dasharray: <?php echo esc_attr( $dasharray . ' ' . ( 2 * M_PI * 52 ) ); ?>"
+						<?php endif; ?>
+					></circle>
 				</svg>
 				<div class="wvc-gauge__readout">
 					<div>
-						<span class="wvc-gauge__score" data-role="score">–</span><span class="wvc-gauge__unit" data-role="score-unit"></span>
+						<span class="wvc-gauge__score" data-role="score"><?php echo $scanned ? esc_html( (string) $score ) : '–'; ?></span><span class="wvc-gauge__unit" data-role="score-unit"><?php echo $scanned ? '%' : ''; ?></span>
 					</div>
 					<span class="wvc-gauge__caption"><?php esc_html_e( 'Ready', 'wp-vip-compatibility' ); ?></span>
 				</div>
@@ -117,79 +134,154 @@ class Overview_Settings {
 				<h3 class="wvc-readiness__title" id="wvc-readiness-title">
 					<?php esc_html_e( 'Migration readiness', 'wp-vip-compatibility' ); ?>
 				</h3>
+
 				<p class="wvc-readiness__summary" data-role="readiness-summary" role="status" aria-live="polite">
-					<?php esc_html_e( 'Analysing plugins, themes, must-use plugins, database tables and directories…', 'wp-vip-compatibility' ); ?>
+					<?php echo esc_html( $this->readiness_sentence( $aggregate, $scanned ) ); ?>
 				</p>
 
 				<ul class="wvc-stats">
 					<li class="is-ok">
-						<span class="wvc-stats__value" data-role="total-compatible">–</span>
-						<span class="wvc-stats__label"><?php esc_html_e( 'Compatible', 'wp-vip-compatibility' ); ?></span>
+						<span class="wvc-stats__value"><?php echo $scanned ? esc_html( number_format_i18n( $aggregate['statuses'][ Scanner::STATUS_PASS ] ) ) : '–'; ?></span>
+						<span class="wvc-stats__label"><?php esc_html_e( 'Ready', 'wp-vip-compatibility' ); ?></span>
+					</li>
+					<li class="is-warn">
+						<span class="wvc-stats__value"><?php echo $scanned ? esc_html( number_format_i18n( $aggregate['statuses'][ Scanner::STATUS_REVIEW ] ) ) : '–'; ?></span>
+						<span class="wvc-stats__label"><?php esc_html_e( 'Needs review', 'wp-vip-compatibility' ); ?></span>
 					</li>
 					<li class="is-bad">
-						<span class="wvc-stats__value" data-role="total-incompatible">–</span>
-						<span class="wvc-stats__label"><?php esc_html_e( 'Needs attention', 'wp-vip-compatibility' ); ?></span>
+						<span class="wvc-stats__value"><?php echo $scanned ? esc_html( number_format_i18n( $aggregate['statuses'][ Scanner::STATUS_BLOCKED ] ) ) : '–'; ?></span>
+						<span class="wvc-stats__label"><?php esc_html_e( 'Blocked', 'wp-vip-compatibility' ); ?></span>
 					</li>
 					<li>
-						<span class="wvc-stats__value" data-role="total-items">–</span>
-						<span class="wvc-stats__label"><?php esc_html_e( 'Items checked', 'wp-vip-compatibility' ); ?></span>
+						<span class="wvc-stats__value"><?php echo $scanned ? esc_html( number_format_i18n( $aggregate['totals']['findings'] ) ) : '–'; ?></span>
+						<span class="wvc-stats__label"><?php esc_html_e( 'Findings', 'wp-vip-compatibility' ); ?></span>
 					</li>
 				</ul>
+
+				<?php if ( $scanned && null !== $delta && 0 !== $delta['total'] ) : ?>
+					<p class="wvc-readiness__delta">
+						<?php
+						printf(
+							/* translators: 1: Signed change in findings. 2: Signed change in blockers. */
+							esc_html__( '%1$s findings and %2$s blockers since the previous scan.', 'wp-vip-compatibility' ),
+							esc_html( sprintf( '%+d', $delta['total'] ) ),
+							esc_html( sprintf( '%+d', $delta['blocking'] ) )
+						);
+						?>
+					</p>
+				<?php endif; ?>
+
+				<p class="wvc-readiness__actions">
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="wvc_rescan" />
+						<?php wp_nonce_field( Findings_Settings::RESCAN_ACTION ); ?>
+						<button type="submit" class="wvc-btn wvc-btn--primary">
+							<?php echo UI::get_icon( 'refresh', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+							<?php echo esc_html( $scanned ? __( 'Rescan everything', 'wp-vip-compatibility' ) : __( 'Run the first scan', 'wp-vip-compatibility' ) ); ?>
+						</button>
+					</form>
+
+					<?php if ( $scanned ) : ?>
+						<a class="wvc-btn wvc-btn--ghost" href="<?php echo esc_url( UI::get_findings_url() ); ?>">
+							<?php echo UI::get_icon( 'list', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+							<?php esc_html_e( 'Open the findings report', 'wp-vip-compatibility' ); ?>
+						</a>
+					<?php endif; ?>
+				</p>
 			</div>
 		</section>
 		<?php
 	}
 
 	/**
-	 * Renders the plugin description.
+	 * Builds the one-line readiness verdict.
+	 *
+	 * @param array<string, mixed> $aggregate The aggregate.
+	 * @param bool                 $scanned   Whether anything has been scanned.
+	 * @return string The sentence.
+	 */
+	private function readiness_sentence( array $aggregate, $scanned ) {
+		if ( ! $scanned ) {
+			return __( 'Nothing has been scanned yet. Run a scan to check every plugin, theme and must-use plugin against the VIP Platform requirements.', 'wp-vip-compatibility' );
+		}
+
+		$blocked  = (int) $aggregate['statuses'][ Scanner::STATUS_BLOCKED ];
+		$review   = (int) $aggregate['statuses'][ Scanner::STATUS_REVIEW ];
+		$critical = (int) ( $aggregate['by_severity'][ Taxonomy::SEVERITY_CRITICAL ] ?? 0 );
+
+		if ( 0 === $blocked && 0 === $review ) {
+			return __( 'Every scanned plugin, theme and must-use plugin is ready for the VIP Platform. Check the database and directories tabs as well before migrating.', 'wp-vip-compatibility' );
+		}
+
+		if ( $blocked > 0 ) {
+			return sprintf(
+				/* translators: 1: Number of blocked targets. 2: Number of critical findings. */
+				_n(
+					'%1$d target is expected to fail on VIP and has to be resolved before migrating, including %2$d critical finding. Start with the blockers in the findings report.',
+					'%1$d targets are expected to fail on VIP and have to be resolved before migrating, including %2$d critical findings. Start with the blockers in the findings report.',
+					$blocked,
+					'wp-vip-compatibility'
+				),
+				$blocked,
+				$critical
+			);
+		}
+
+		return sprintf(
+			/* translators: %d: Number of targets needing review. */
+			_n(
+				'Nothing is expected to fail outright, but %d target needs review before migrating.',
+				'Nothing is expected to fail outright, but %d targets need review before migrating.',
+				$review,
+				'wp-vip-compatibility'
+			),
+			$review
+		);
+	}
+
+	/**
+	 * Renders the "about" panel.
 	 *
 	 * @return void
 	 */
 	private function render_plugin_description() {
-		// Paragraphs to display on the settings page.
 		$paragraphs = array(
-			__(
-				'This plugin is a great starting point for analyzing the compatibility of a standard WordPress site with the WordPress VIP platform. It scans your site for potential issues by identifying unsupported plugins, directories, database configurations, and other incompatibilities with VIP requirements.',
-				'wp-vip-compatibility'
-			),
-			__(
-				"In addition to highlighting compatibility issues, the plugin also provides several options to address and fix known problems. However, it's important to note that this plugin is not a complete solution for making a WordPress site fully VIP-compatible. It serves as a tool for identifying and resolving common issues, but further manual adjustments and optimizations may be required to meet the platform's strict standards.",
-				'wp-vip-compatibility'
-			),
-			__(
-				'While this plugin can fix certain issues, it should be seen as an initial tool to help assess and prepare your site for VIP migration. For more advanced optimizations and compliance, a thorough manual review may still be required.',
-				'wp-vip-compatibility'
-			),
+			__( 'This plugin analyses a standard WordPress site against the requirements of the WordPress VIP Platform, so that the work needed to migrate is known before the migration starts rather than discovered during it.', 'wp-vip-compatibility' ),
+			__( 'Findings are separated by what they actually are. Something expected to fail on the platform is not shown the same way as a performance risk, a coding-standard warning, or a capability the platform already provides. Where static analysis cannot resolve a value at runtime, the finding says so and records its confidence rather than asserting an incompatibility it cannot prove.', 'wp-vip-compatibility' ),
+			__( 'It is a starting point, not a certificate. It reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Test on a VIP environment before you rely on the result.', 'wp-vip-compatibility' ),
 		);
 
-		// Documentation link.
 		$doc_link = sprintf(
 			'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
 			esc_url( 'https://docs.wpvip.com/' ),
 			esc_html__( 'WordPress VIP Documentation', 'wp-vip-compatibility' )
 		);
 
-		// What each section checks, mirroring the navigation order.
 		$checks = array(
+			array(
+				'icon'        => 'folder',
+				'title'       => __( 'Filesystem and media', 'wp-vip-compatibility' ),
+				'description' => __( 'Writes outside /tmp/ and uploads, directory traversal over the object store, generated PHP/CSS/JS, .htaccess assumptions, and local image processing.', 'wp-vip-compatibility' ),
+			),
 			array(
 				'icon'        => 'database',
 				'title'       => __( 'Database', 'wp-vip-compatibility' ),
-				'description' => __( 'Storage engines, collations and table prefixes.', 'wp-vip-compatibility' ),
-			),
-			array(
-				'icon'        => 'folder',
-				'title'       => __( 'Directories', 'wp-vip-compatibility' ),
-				'description' => __( 'Files and folders in wp-content that VIP does not support.', 'wp-vip-compatibility' ),
-			),
-			array(
-				'icon'        => 'plug',
-				'title'       => __( 'Plugins & themes', 'wp-vip-compatibility' ),
-				'description' => __( 'Known incompatible plugins plus a scan for filesystem writes and shell execution.', 'wp-vip-compatibility' ),
+				'description' => __( 'Storage engines, collations and prefixes, plus unprepared SQL, uncached queries, unbounded result sets and runtime schema changes.', 'wp-vip-compatibility' ),
 			),
 			array(
 				'icon'        => 'bolt',
-				'title'       => __( 'Must-use plugins', 'wp-vip-compatibility' ),
-				'description' => __( 'MU plugins that VIP preinstalls, replaces or rejects.', 'wp-vip-compatibility' ),
+				'title'       => __( 'Caching, cron and requests', 'wp-vip-compatibility' ),
+				'description' => __( 'Cache-busting headers, full object-cache flushes, custom cache layers, Cron Control conflicts, and uncached or untimed outbound requests.', 'wp-vip-compatibility' ),
+			),
+			array(
+				'icon'        => 'shield',
+				'title'       => __( 'Security and environment', 'wp-vip-compatibility' ),
+				'description' => __( 'Shell execution, dynamic code, unescaped request data, PHP sessions, runtime ini changes and redefined core constants.', 'wp-vip-compatibility' ),
+			),
+			array(
+				'icon'        => 'plug',
+				'title'       => __( 'Platform overlap', 'wp-vip-compatibility' ),
+				'description' => __( 'Plugins VIP lists as incompatible, plugins that need testing, and plugins duplicating something the platform already provides.', 'wp-vip-compatibility' ),
 			),
 		);
 		?>
@@ -208,10 +300,21 @@ class Overview_Settings {
 						<?php
 						echo wp_kses_post(
 							sprintf(
-								/* translators: %s: URL to the documentation */
-								__( 'For more detailed guidelines and in-depth explanations on how to make your WordPress site fully compatible with the VIP platform, please visit the official %s.', 'wp-vip-compatibility' ),
+								/* translators: %s: Link to the VIP documentation. */
+								__( 'Every rule records the VIP requirement it comes from and links to the relevant page of the %s.', 'wp-vip-compatibility' ),
 								$doc_link
 							)
+						);
+						?>
+					</p>
+
+					<p class="wvc-ruleref">
+						<?php
+						printf(
+							/* translators: 1: Rule set version. 2: Number of rules. */
+							esc_html__( 'Rule set %1$s — %2$d rules.', 'wp-vip-compatibility' ),
+							esc_html( Rules::VERSION ),
+							count( Rules::all() )
 						);
 						?>
 					</p>
@@ -240,7 +343,7 @@ class Overview_Settings {
 	}
 
 	/**
-	 * Renders the per-category compatibility charts.
+	 * Renders the per-category doughnut charts.
 	 *
 	 * @return void
 	 */
@@ -275,7 +378,7 @@ class Overview_Settings {
 
 					<div class="wvc-chart-card__readout" data-role="readout" hidden>
 						<span class="wvc-chart-card__percent" data-role="percent">–</span>
-						<span class="wvc-chart-card__percent-label"><?php esc_html_e( 'Compatible', 'wp-vip-compatibility' ); ?></span>
+						<span class="wvc-chart-card__percent-label"><?php esc_html_e( 'Ready', 'wp-vip-compatibility' ); ?></span>
 					</div>
 
 					<div class="wvc-chart-card__state" data-role="state">
@@ -286,12 +389,17 @@ class Overview_Settings {
 				<ul class="wvc-legend">
 					<li>
 						<span class="wvc-dot wvc-dot--ok" aria-hidden="true"></span>
-						<span class="wvc-legend__label"><?php esc_html_e( 'Compatible', 'wp-vip-compatibility' ); ?></span>
+						<span class="wvc-legend__label"><?php esc_html_e( 'Ready', 'wp-vip-compatibility' ); ?></span>
 						<span class="wvc-legend__value" data-role="compatible">–</span>
 					</li>
 					<li>
+						<span class="wvc-dot wvc-dot--warn" aria-hidden="true"></span>
+						<span class="wvc-legend__label"><?php esc_html_e( 'Needs review', 'wp-vip-compatibility' ); ?></span>
+						<span class="wvc-legend__value" data-role="needs-review">–</span>
+					</li>
+					<li>
 						<span class="wvc-dot wvc-dot--bad" aria-hidden="true"></span>
-						<span class="wvc-legend__label"><?php esc_html_e( 'Incompatible', 'wp-vip-compatibility' ); ?></span>
+						<span class="wvc-legend__label"><?php esc_html_e( 'Blocked', 'wp-vip-compatibility' ); ?></span>
 						<span class="wvc-legend__value" data-role="incompatible">–</span>
 					</li>
 				</ul>

@@ -9,6 +9,8 @@ namespace WP_VIP_COMPATIBILITY\Includes\Classes;
 
 use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Class to manage all settings pages dynamically.
  */
@@ -21,7 +23,7 @@ class Settings {
 	 *
 	 * @var array
 	 */
-	private $settings_classes = [];
+	private $settings_classes = array();
 
 	/**
 	 * Constructor.
@@ -36,7 +38,7 @@ class Settings {
 	 * @return void
 	 */
 	private function setup_hooks() {
-		add_action( 'admin_menu', [ $this, 'add_plugin_menus' ] );
+		add_action( 'admin_menu', array( $this, 'add_plugin_menus' ) );
 	}
 
 	/**
@@ -89,13 +91,14 @@ class Settings {
 	 */
 	public function add_plugin_menus() {
 		// Define menu structure.
-		$menus = [
-			'database'    => __( 'Database', 'wp-vip-compatibility' ),
-			'directories' => __( 'Directories', 'wp-vip-compatibility' ),
-			'mu-plugins'  => __( 'MU Plugins', 'wp-vip-compatibility' ),
+		$menus = array(
+			'findings'    => __( 'Findings', 'wp-vip-compatibility' ),
 			'plugins'     => __( 'Plugins', 'wp-vip-compatibility' ),
 			'themes'      => __( 'Themes', 'wp-vip-compatibility' ),
-		];
+			'mu-plugins'  => __( 'MU Plugins', 'wp-vip-compatibility' ),
+			'database'    => __( 'Database', 'wp-vip-compatibility' ),
+			'directories' => __( 'Directories', 'wp-vip-compatibility' ),
+		);
 
 		// Add main menu.
 		add_menu_page(

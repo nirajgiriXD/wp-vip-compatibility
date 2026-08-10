@@ -21,6 +21,7 @@
  * 14. Prose
  * 15. Responsive
  * 16. Motion & accessibility
+ * 17. Findings report
  */
 
 /* -------------------------------------------------------------------------
@@ -1761,5 +1762,510 @@
 		forced-color-adjust: none;
 		background: Highlight;
 		color: HighlightText;
+	}
+}
+
+/* -------------------------------------------------------------------------
+ * 17. Findings report
+ *
+ * Added alongside the three-state verdict (ready / needs review / blocked).
+ * The design system previously had only a binary ok/bad axis, which is what
+ * made a deprecated function look as serious as a shell command.
+ * ---------------------------------------------------------------------- */
+
+.wvc-dot--warn {
+	background: var(--wvc-warn);
+}
+
+.wvc-status--warn {
+	color: var(--wvc-warn);
+	background: var(--wvc-warn-soft);
+	border-color: var(--wvc-warn-border);
+}
+
+.wvc-stats li.is-warn {
+	border-left-color: var(--wvc-warn);
+}
+
+.wvc-stats--inline {
+	gap: var(--wvc-5);
+	margin: 0 0 var(--wvc-5);
+	padding: var(--wvc-4) var(--wvc-5);
+	background: var(--wvc-surface);
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-radius);
+}
+
+.wvc-status__link {
+	margin-left: var(--wvc-2);
+	font-size: 12px;
+	white-space: nowrap;
+}
+
+/* Scan state bar. */
+
+.wvc-scanbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wvc-4);
+	margin-bottom: var(--wvc-5);
+	padding: var(--wvc-4) var(--wvc-5);
+	background: var(--wvc-surface);
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-radius);
+}
+
+.wvc-scanbar__state {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-1);
+	min-width: 0;
+}
+
+.wvc-scanbar__when,
+.wvc-scanbar__delta {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-2);
+	margin: 0;
+	font-size: 13px;
+	color: var(--wvc-text-secondary);
+}
+
+.wvc-scanbar__delta--better {
+	color: var(--wvc-ok);
+}
+
+.wvc-scanbar__delta--worse {
+	color: var(--wvc-bad);
+}
+
+.wvc-scanbar__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wvc-2);
+}
+
+.wvc-scanbar__actions form {
+	margin: 0;
+}
+
+/* Severity summary cards, which double as filters. */
+
+.wvc-severity-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wvc-3);
+	margin-bottom: var(--wvc-4);
+}
+
+.wvc-sevcard {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 104px;
+	padding: var(--wvc-3) var(--wvc-4);
+	text-decoration: none;
+	background: var(--wvc-surface);
+	border: 1px solid var(--wvc-border);
+	border-left-width: 3px;
+	border-radius: var(--wvc-radius-sm);
+	color: var(--wvc-text);
+	transition: background 120ms ease, border-color 120ms ease;
+}
+
+.wvc-sevcard:hover,
+.wvc-sevcard:focus {
+	background: var(--wvc-surface-hover);
+	color: var(--wvc-text);
+}
+
+.wvc-sevcard.is-active {
+	border-color: var(--wvc-accent);
+	background: var(--wvc-accent-soft);
+}
+
+.wvc-sevcard--critical,
+.wvc-sevcard--high {
+	border-left-color: var(--wvc-bad);
+}
+
+.wvc-sevcard--medium {
+	border-left-color: var(--wvc-warn);
+}
+
+.wvc-sevcard--low,
+.wvc-sevcard--info {
+	border-left-color: var(--wvc-border-strong);
+}
+
+.wvc-sevcard__count {
+	font-size: 20px;
+	font-weight: 650;
+	line-height: 1.2;
+	font-variant-numeric: tabular-nums;
+}
+
+.wvc-sevcard__label {
+	font-size: 11.5px;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	color: var(--wvc-text-muted);
+}
+
+/* Filter form. */
+
+.wvc-filters {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: var(--wvc-3);
+	margin-bottom: var(--wvc-5);
+	padding: var(--wvc-4);
+	background: var(--wvc-surface-sunken);
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-radius);
+}
+
+.wvc-filters__field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-1);
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--wvc-text-secondary);
+}
+
+.wvc-filters__field--grow {
+	flex: 1 1 200px;
+}
+
+.wvc-filters__field select,
+.wvc-filters__field input {
+	min-width: 160px;
+	max-width: 100%;
+	font-weight: 400;
+}
+
+.wvc-filters__field--grow input {
+	width: 100%;
+}
+
+/* Grouped findings. */
+
+.wvc-group {
+	margin-bottom: var(--wvc-6);
+}
+
+.wvc-group__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wvc-3);
+	margin-bottom: var(--wvc-3);
+	padding-bottom: var(--wvc-2);
+	border-bottom: 1px solid var(--wvc-border);
+}
+
+.wvc-group__title {
+	display: flex;
+	align-items: baseline;
+	gap: var(--wvc-2);
+	margin: 0;
+	font-size: 15px;
+	font-weight: 650;
+}
+
+.wvc-group__kind {
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--wvc-text-muted);
+}
+
+.wvc-group__count {
+	margin-left: auto;
+	font-size: 12px;
+	color: var(--wvc-text-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.wvc-findings {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-2);
+}
+
+/* An individual finding. */
+
+.wvc-finding {
+	background: var(--wvc-surface);
+	border: 1px solid var(--wvc-border);
+	border-left-width: 3px;
+	border-radius: var(--wvc-radius-sm);
+	overflow: hidden;
+}
+
+.wvc-finding--critical,
+.wvc-finding--high {
+	border-left-color: var(--wvc-bad);
+}
+
+.wvc-finding--medium {
+	border-left-color: var(--wvc-warn);
+}
+
+.wvc-finding--low,
+.wvc-finding--info {
+	border-left-color: var(--wvc-border-strong);
+}
+
+.wvc-finding__summary {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wvc-3);
+	padding: var(--wvc-3) var(--wvc-4);
+	cursor: pointer;
+	list-style: none;
+}
+
+.wvc-finding__summary::-webkit-details-marker {
+	display: none;
+}
+
+.wvc-finding__summary:hover {
+	background: var(--wvc-surface-hover);
+}
+
+.wvc-finding__summary:focus-visible {
+	outline: 2px solid var(--wvc-accent);
+	outline-offset: -2px;
+}
+
+.wvc-finding__pills {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	gap: var(--wvc-2);
+}
+
+.wvc-finding__headline {
+	display: flex;
+	flex: 1 1 320px;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.wvc-finding__title {
+	font-size: 13.5px;
+	font-weight: 600;
+	line-height: 1.4;
+}
+
+.wvc-finding__location {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: var(--wvc-2);
+	font-size: 12px;
+	color: var(--wvc-text-muted);
+}
+
+.wvc-finding__location code {
+	padding: 0;
+	background: none;
+	font-size: 11.5px;
+	color: var(--wvc-text-secondary);
+}
+
+.wvc-finding__target {
+	flex: 0 0 auto;
+	font-size: 12px;
+	color: var(--wvc-text-muted);
+}
+
+.wvc-finding__body {
+	padding: 0 var(--wvc-4) var(--wvc-4);
+	border-top: 1px solid var(--wvc-border);
+}
+
+.wvc-finding__evidence {
+	margin: var(--wvc-3) 0;
+	padding: var(--wvc-3);
+	overflow-x: auto;
+	background: var(--wvc-surface-sunken);
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-radius-sm);
+	font-family: var(--wvc-font-mono);
+	font-size: 12px;
+	line-height: 1.6;
+}
+
+.wvc-finding__note {
+	margin: var(--wvc-3) 0;
+	padding: var(--wvc-2) var(--wvc-3);
+	background: var(--wvc-warn-soft);
+	border-left: 2px solid var(--wvc-warn-border);
+	border-radius: 0 var(--wvc-radius-sm) var(--wvc-radius-sm) 0;
+	font-size: 12.5px;
+	color: var(--wvc-text-secondary);
+}
+
+.wvc-finding__detail {
+	display: grid;
+	grid-template-columns: minmax(140px, 180px) 1fr;
+	gap: var(--wvc-2) var(--wvc-4);
+	margin: var(--wvc-3) 0;
+	font-size: 13px;
+}
+
+.wvc-finding__detail dt {
+	font-weight: 600;
+	color: var(--wvc-text-secondary);
+}
+
+.wvc-finding__detail dd {
+	margin: 0;
+	color: var(--wvc-text);
+	line-height: 1.6;
+}
+
+.wvc-finding__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wvc-2);
+	margin-top: var(--wvc-3);
+}
+
+.wvc-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wvc-1);
+	padding: 2px 8px;
+	background: var(--wvc-surface-sunken);
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-radius-pill);
+	font-size: 11.5px;
+}
+
+.wvc-chip__label {
+	font-weight: 600;
+	color: var(--wvc-text-muted);
+}
+
+.wvc-chip__value {
+	color: var(--wvc-text-secondary);
+	font-family: var(--wvc-font-mono);
+	font-size: 11px;
+}
+
+.wvc-finding__also,
+.wvc-finding__doc {
+	margin: var(--wvc-3) 0 0;
+	font-size: 12.5px;
+}
+
+.wvc-finding__also {
+	color: var(--wvc-text-muted);
+}
+
+.wvc-sev {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: var(--wvc-radius-pill);
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.wvc-sev--critical {
+	color: #fff;
+	background: var(--wvc-bad);
+}
+
+.wvc-sev--high {
+	color: var(--wvc-bad);
+	background: var(--wvc-bad-soft);
+	border: 1px solid var(--wvc-bad-border);
+}
+
+.wvc-sev--medium {
+	color: var(--wvc-warn);
+	background: var(--wvc-warn-soft);
+	border: 1px solid var(--wvc-warn-border);
+}
+
+.wvc-sev--low,
+.wvc-sev--info {
+	color: var(--wvc-text-muted);
+	background: var(--wvc-surface-sunken);
+	border: 1px solid var(--wvc-border);
+}
+
+.wvc-tag {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: var(--wvc-radius-sm);
+	font-size: 11px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.wvc-tag--blocking {
+	color: var(--wvc-bad);
+	background: var(--wvc-bad-soft);
+}
+
+.wvc-tag--advisory {
+	color: var(--wvc-text-secondary);
+	background: var(--wvc-surface-sunken);
+}
+
+.wvc-ruleref {
+	margin-top: var(--wvc-5);
+	font-size: 12px;
+	color: var(--wvc-text-muted);
+}
+
+.wvc-readiness__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wvc-2);
+	margin: var(--wvc-4) 0 0;
+}
+
+.wvc-readiness__actions form {
+	margin: 0;
+}
+
+.wvc-readiness__delta {
+	margin: var(--wvc-3) 0 0;
+	font-size: 12.5px;
+	color: var(--wvc-text-muted);
+}
+
+@media (max-width: 782px) {
+	.wvc-finding__detail {
+		grid-template-columns: 1fr;
+		gap: var(--wvc-1) 0;
+	}
+
+	.wvc-finding__detail dd {
+		margin-bottom: var(--wvc-2);
+	}
+
+	.wvc-scanbar {
+		flex-direction: column;
+		align-items: stretch;
 	}
 }

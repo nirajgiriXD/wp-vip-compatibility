@@ -2,21 +2,21 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WordPress VIP Compatibility 1.0.0\n"
+"Project-Id-Version: WordPress VIP Compatibility 2.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-vip-compatibility\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T07:50:26+00:00\n"
+"POT-Creation-Date: 2026-08-10T13:25:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-vip-compatibility\n"
 
 #. Plugin Name of the plugin
 #: wp-vip-compatibility.php
-#: includes/classes/class-ui.php:156
+#: includes/classes/class-ui.php:186
 msgid "WordPress VIP Compatibility"
 msgstr ""
 
@@ -27,7 +27,7 @@ msgstr ""
 
 #. Description of the plugin
 #: wp-vip-compatibility.php
-msgid "Plugin to check and fix WordPress VIP platform compatibility, ensuring migration readiness."
+msgid "Analyse a WordPress site against the WordPress VIP Platform requirements, with an actionable fix for every issue found."
 msgstr ""
 
 #. Author of the plugin
@@ -40,624 +40,2134 @@ msgstr ""
 msgid "https://github.com/nirajgiriXD/"
 msgstr ""
 
-#: functions.php:30
-msgid "Error: File/Directory not found or unreadable"
+#: functions.php:38
+msgid "Error: Unknown scan target"
 msgstr ""
 
-#: functions.php:34
-msgid "No PHP files found"
-msgstr ""
-
-#: functions.php:93
-msgid "Filesystem operation outside uploads directory"
-msgstr ""
-
-#: functions.php:103
-msgid "Command execution function detected"
-msgstr ""
-
-#: functions.php:115
-#: includes/classes/class-assets.php:129
-#: includes/classes/class-mu-plugins-settings.php:245
-#: includes/classes/class-overview-settings.php:294
-#: includes/classes/class-ui.php:253
-#: includes/classes/class-ui.php:356
+#: functions.php:45
+#: includes/classes/class-plugins-settings.php:164
+#: includes/classes/class-ui.php:283
+#: includes/scanner/class-taxonomy.php:79
 msgid "Incompatible"
 msgstr ""
 
-#: functions.php:118
-#: includes/classes/class-assets.php:128
-#: includes/classes/class-database-settings.php:167
-#: includes/classes/class-mu-plugins-settings.php:241
-#: includes/classes/class-overview-settings.php:127
-#: includes/classes/class-overview-settings.php:278
-#: includes/classes/class-overview-settings.php:289
-#: includes/classes/class-ui.php:248
-#: includes/classes/class-ui.php:353
+#: functions.php:47
+#: includes/classes/class-assets.php:129
+#: includes/classes/class-directories-settings.php:112
+#: includes/classes/class-overview-settings.php:149
+#: includes/classes/class-overview-settings.php:397
+#: includes/classes/class-ui.php:390
+#: includes/scanner/class-directory-audit.php:186
+#: includes/scanner/class-scanner.php:335
+msgid "Needs review"
+msgstr ""
+
+#: functions.php:49
+#: includes/classes/class-database-settings.php:179
+#: includes/classes/class-ui.php:278
 msgid "Compatible"
 msgstr ""
 
-#: includes/classes/class-ajax.php:44
-#: includes/classes/class-ajax.php:73
-#: includes/classes/class-ajax.php:114
-msgid "Security check failed."
+#: includes/classes/class-ajax.php:69
+#: includes/classes/class-findings-settings.php:51
+msgid "You do not have permission to run compatibility scans."
 msgstr ""
 
-#: includes/classes/class-ajax.php:49
-#: includes/classes/class-ajax.php:79
-#: includes/classes/class-ajax.php:120
-#: includes/classes/class-ajax.php:141
-msgid "Invalid request."
+#: includes/classes/class-ajax.php:89
+msgid "No scan target was supplied."
 msgstr ""
 
-#: includes/classes/class-ajax.php:91
-#: includes/classes/class-ajax.php:101
-msgid "Note:"
+#: includes/classes/class-ajax.php:95
+msgid "Unknown scan target."
 msgstr ""
 
-#: includes/classes/class-ajax.php:92
-msgid "The log file containing all the details is available for download at "
-msgstr ""
+#. translators: 1: Number of findings. 2: Number of PHP files scanned.
+#: includes/classes/class-ajax.php:115
+#, php-format
+msgid "%1$d finding across %2$d PHP file."
+msgid_plural "%1$d findings across %2$d PHP files."
+msgstr[0] ""
+msgstr[1] ""
 
-#: includes/classes/class-ajax.php:102
-msgid "No incompatibility logs were generated."
-msgstr ""
-
-#: includes/classes/class-assets.php:120
-msgid "Checking..."
-msgstr ""
-
-#: includes/classes/class-assets.php:121
-msgid "Error"
+#: includes/classes/class-ajax.php:142
+msgid "Unknown category."
 msgstr ""
 
 #: includes/classes/class-assets.php:122
-msgid "Unable to fetch data."
+msgid "Scanning…"
 msgstr ""
 
 #: includes/classes/class-assets.php:123
-msgid "Unable to fetch log details."
+msgid "Scan failed"
 msgstr ""
 
 #: includes/classes/class-assets.php:124
-msgid "No data available."
+msgid "Retry"
 msgstr ""
 
 #: includes/classes/class-assets.php:125
-msgid "No chart data available."
+msgid "Unable to fetch data."
+msgstr ""
+
+#: includes/classes/class-assets.php:126
+msgid "No data available."
+msgstr ""
+
+#: includes/classes/class-assets.php:128
+#: includes/classes/class-database-settings.php:121
+#: includes/classes/class-overview-settings.php:129
+#: includes/classes/class-overview-settings.php:145
+#: includes/classes/class-overview-settings.php:381
+#: includes/classes/class-overview-settings.php:392
+#: includes/classes/class-ui.php:383
+#: includes/scanner/class-scanner.php:337
+msgid "Ready"
+msgstr ""
+
+#: includes/classes/class-assets.php:130
+#: includes/classes/class-overview-settings.php:153
+#: includes/classes/class-overview-settings.php:402
+#: includes/classes/class-ui.php:393
+#: includes/scanner/class-scanner.php:333
+msgid "Blocked"
 msgstr ""
 
 #. translators: 1: Number of completed checks. 2: Total number of checks.
-#: includes/classes/class-assets.php:131
+#: includes/classes/class-assets.php:133
 #, php-format
 msgid "Scanning %1$s of %2$s…"
 msgstr ""
 
-#: includes/classes/class-assets.php:132
-msgid "Scan complete."
+#. translators: %s: Number of findings.
+#: includes/classes/class-assets.php:135
+#, php-format
+msgid "%s findings"
 msgstr ""
 
 #. translators: 1: Number of visible rows. 2: Total number of rows.
-#: includes/classes/class-assets.php:134
+#: includes/classes/class-assets.php:138
 #, php-format
 msgid "Showing %1$s of %2$s"
 msgstr ""
 
 #. translators: %s: Total number of rows.
-#: includes/classes/class-assets.php:136
+#: includes/classes/class-assets.php:140
 #, php-format
 msgid "Showing all %s"
 msgstr ""
 
-#: includes/classes/class-assets.php:137
+#: includes/classes/class-assets.php:141
 msgid "No matching results"
 msgstr ""
 
-#: includes/classes/class-assets.php:138
+#: includes/classes/class-assets.php:142
 msgid "Try a different search term or switch the filter back to All."
 msgstr ""
 
-#: includes/classes/class-assets.php:139
-#: includes/classes/class-ui.php:414
+#: includes/classes/class-assets.php:144
+#: includes/classes/class-ui.php:639
 msgid "Copy to clipboard"
 msgstr ""
 
-#: includes/classes/class-assets.php:140
+#: includes/classes/class-assets.php:145
 msgid "Copied"
 msgstr ""
 
-#: includes/classes/class-assets.php:141
+#: includes/classes/class-assets.php:146
 msgid "Press Ctrl+C to copy"
 msgstr ""
 
-#: includes/classes/class-assets.php:142
+#: includes/classes/class-assets.php:147
 msgid "Nothing to check"
 msgstr ""
 
-#. translators: %s: Percentage of compatible items.
-#: includes/classes/class-assets.php:144
-#, php-format
-msgid "%s of the items checked are ready for the VIP platform."
-msgstr ""
-
-#: includes/classes/class-assets.php:145
-msgid "Everything checked so far is ready for the VIP platform."
-msgstr ""
-
-#: includes/classes/class-assets.php:146
-msgid "Review the highlighted sections below and resolve each incompatibility before migrating."
-msgstr ""
-
-#: includes/classes/class-assets.php:147
-msgid "Compatibility data could not be loaded for every section."
-msgstr ""
-
-#: includes/classes/class-assets.php:148
-msgid "Sorted ascending"
-msgstr ""
-
-#: includes/classes/class-assets.php:149
-msgid "Sorted descending"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:58
+#: includes/classes/class-database-settings.php:37
 msgid "No tables found in the database."
 msgstr ""
 
-#: includes/classes/class-database-settings.php:59
-#: includes/classes/class-directories-settings.php:52
-#: includes/classes/class-plugins-settings.php:46
-#: includes/classes/class-themes-settings.php:65
+#: includes/classes/class-database-settings.php:38
+#: includes/classes/class-directories-settings.php:38
+#: includes/classes/class-plugins-settings.php:41
+#: includes/classes/class-themes-settings.php:40
 msgid "There is nothing to check on this screen yet."
 msgstr ""
 
-#: includes/classes/class-database-settings.php:74
-#: includes/classes/class-directories-settings.php:67
-#: includes/classes/class-mu-plugins-settings.php:133
-#: includes/classes/class-plugins-settings.php:118
-#: includes/classes/class-themes-settings.php:84
-msgid "SN"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:78
-#: includes/classes/class-database-settings.php:161
-msgid "Table Name"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:83
-#: includes/classes/class-database-settings.php:162
-msgid "Engine"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:87
-#: includes/classes/class-database-settings.php:163
-msgid "Collation"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:91
-#: includes/classes/class-database-settings.php:164
-msgid "Source"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:95
-#: includes/classes/class-directories-settings.php:80
-#: includes/classes/class-mu-plugins-settings.php:152
-#: includes/classes/class-plugins-settings.php:138
-#: includes/classes/class-themes-settings.php:104
-#: includes/classes/class-ui.php:362
-msgid "WP VIP Compatibility"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:100
-#: includes/classes/class-database-settings.php:170
-#: includes/classes/class-plugins-settings.php:143
-#: includes/classes/class-plugins-settings.php:207
-msgid "Notes"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:127
-#: includes/classes/class-database-settings.php:238
-#: includes/classes/class-directories-settings.php:91
-msgid "Not Supported"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:128
-msgid "Unsupported collation. Recommended fix:"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:131
-msgid "The collation is unsupported."
-msgstr ""
-
-#: includes/classes/class-database-settings.php:139
-msgid "Unsupported storage engine. Recommended fix:"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:147
-msgid "Non-standard table prefix. Recommended fix:"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:167
-msgid "Not Compatible"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:178
-msgid "Run the suggested statements against a backup first. VIP requires the InnoDB storage engine, a supported collation and the standard wp_ table prefix."
-msgstr ""
-
-#: includes/classes/class-database-settings.php:180
-msgid "Before you run any SQL"
-msgstr ""
-
-#: includes/classes/class-database-settings.php:192
+#: includes/classes/class-database-settings.php:45
 msgid "Search database tables"
 msgstr ""
 
-#: includes/classes/class-database-settings.php:221
-msgid "Custom"
+#: includes/classes/class-database-settings.php:53
+#: includes/classes/class-directories-settings.php:53
+#: includes/classes/class-mu-plugins-settings.php:83
+#: includes/classes/class-plugins-settings.php:90
+#: includes/classes/class-themes-settings.php:62
+msgid "SN"
 msgstr ""
 
-#: includes/classes/class-database-settings.php:221
-msgid "Unknown (Non-standard Prefix)"
+#: includes/classes/class-database-settings.php:57
+#: includes/classes/class-database-settings.php:171
+msgid "Table Name"
 msgstr ""
 
-#: includes/classes/class-directories-settings.php:51
+#: includes/classes/class-database-settings.php:62
+#: includes/classes/class-database-settings.php:172
+msgid "Engine"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:66
+#: includes/classes/class-database-settings.php:173
+msgid "Collation"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:70
+#: includes/classes/class-database-settings.php:174
+msgid "Size"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:75
+#: includes/classes/class-database-settings.php:175
+msgid "Source"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:79
+#: includes/classes/class-directories-settings.php:66
+#: includes/classes/class-mu-plugins-settings.php:102
+#: includes/classes/class-plugins-settings.php:110
+#: includes/classes/class-themes-settings.php:82
+#: includes/classes/class-ui.php:399
+msgid "WP VIP Compatibility"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:84
+#: includes/classes/class-database-settings.php:184
+#: includes/classes/class-plugins-settings.php:115
+#: includes/classes/class-plugins-settings.php:146
+#: includes/classes/class-themes-settings.php:87
+#: includes/classes/class-themes-settings.php:158
+msgid "Notes"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:100
+msgid "Run these statements against a backup first, and convert collations before the final export rather than after the import. Table prefixes are the exception: report a non-standard prefix to VIP and only rename tables if VIP confirms it, because the prefix is also embedded in option names and user meta keys that control roles and capabilities."
+msgstr ""
+
+#: includes/classes/class-database-settings.php:102
+msgid "Before you run any SQL"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:117
+msgid "Tables"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:125
+msgid "Need changes"
+msgstr ""
+
+#: includes/classes/class-database-settings.php:129
+msgid "Total size"
+msgstr ""
+
+#. translators: %d: Number of tables.
+#: includes/classes/class-database-settings.php:140
+#, php-format
+msgid "%d wrong storage engine"
+msgid_plural "%d wrong storage engines"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: Number of tables.
+#: includes/classes/class-database-settings.php:145
+#, php-format
+msgid "%d unsupported collation"
+msgid_plural "%d unsupported collations"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: Number of tables.
+#: includes/classes/class-database-settings.php:150
+#, php-format
+msgid "%d non-standard prefix"
+msgid_plural "%d non-standard prefixes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/classes/class-database-settings.php:179
+msgid "Needs changes"
+msgstr ""
+
+#: includes/classes/class-directories-settings.php:37
 msgid "No files or directories found in wp-content."
 msgstr ""
 
-#: includes/classes/class-directories-settings.php:71
-#: includes/classes/class-directories-settings.php:102
-msgid "Files and Folders"
-msgstr ""
-
-#: includes/classes/class-directories-settings.php:76
-#: includes/classes/class-directories-settings.php:103
-msgid "Description"
-msgstr ""
-
-#: includes/classes/class-directories-settings.php:112
-msgid "Anything the VIP platform does not recognise inside wp-content has to be removed or relocated before migration. Uploads are served from VIP File System, so the local uploads folder is not carried over."
-msgstr ""
-
-#: includes/classes/class-directories-settings.php:114
-msgid "About this list"
-msgstr ""
-
-#: includes/classes/class-directories-settings.php:126
+#: includes/classes/class-directories-settings.php:45
 msgid "Search files and folders"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:59
-msgid "No MU plugins are present."
+#: includes/classes/class-directories-settings.php:57
+#: includes/classes/class-directories-settings.php:138
+msgid "Files and Folders"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:73
-msgid "The compatibility status of MU plugins is checked differently from regular plugins or themes because of how MU plugins are loaded. The main PHP file of the MU plugin and the contents of its folder are shown in separate rows since there is no standard way to link the main MU plugin file to its folder when the folder exists."
+#: includes/classes/class-directories-settings.php:62
+#: includes/classes/class-directories-settings.php:139
+msgid "Description"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:78
-msgid "How MU plugins are checked"
+#: includes/classes/class-directories-settings.php:71
+#: includes/classes/class-directories-settings.php:148
+msgid "What to do"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:118
+#: includes/classes/class-directories-settings.php:87
+msgid "Not everything here has to be removed. \"Not deployed\" marks the directories WordPress or the local environment maintains — uploads/ above all, which is the one path under wp-content that application code may write to on VIP. It is imported with the VIP CLI rather than committed. Only the entries marked \"Remove or relocate\" actually conflict with the platform."
+msgstr ""
+
+#: includes/classes/class-directories-settings.php:89
+msgid "How to read this list"
+msgstr ""
+
+#: includes/classes/class-directories-settings.php:104
+msgid "Part of the VIP structure"
+msgstr ""
+
+#: includes/classes/class-directories-settings.php:108
+#: includes/scanner/class-directory-audit.php:182
+msgid "Remove or relocate"
+msgstr ""
+
+#: includes/classes/class-directories-settings.php:116
+#: includes/scanner/class-directory-audit.php:184
+msgid "Not deployed"
+msgstr ""
+
+#: includes/classes/class-directories-settings.php:159
+msgid "Reference"
+msgstr ""
+
+#: includes/classes/class-export.php:59
+msgid "JSON"
+msgstr ""
+
+#: includes/classes/class-export.php:60
+msgid "Full report with every finding. Suitable for CI and tooling."
+msgstr ""
+
+#: includes/classes/class-export.php:65
+msgid "CSV"
+msgstr ""
+
+#: includes/classes/class-export.php:66
+msgid "One row per finding, for a spreadsheet or an analysis sheet."
+msgstr ""
+
+#: includes/classes/class-export.php:71
+msgid "Markdown"
+msgstr ""
+
+#: includes/classes/class-export.php:72
+msgid "Grouped by target, for pasting into a ticket or a pull request."
+msgstr ""
+
+#: includes/classes/class-export.php:106
+msgid "You do not have permission to export the compatibility report."
+msgstr ""
+
+#: includes/classes/class-export.php:107
+#: includes/classes/class-findings-settings.php:52
+msgid "Forbidden"
+msgstr ""
+
+#. translators: 1: Number of targets. 2: Number of PHP files.
+#: includes/classes/class-findings-settings.php:81
+#, php-format
+msgid "Scanned %1$d targets and %2$d PHP files."
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:87
+msgid "Scan complete"
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:102
+msgid "No findings match these filters"
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:103
+msgid "Clear the filters to see everything the last scan reported."
+msgstr ""
+
+#. translators: 1: Human-readable time difference. 2: Number of targets. 3: Number of PHP files.
+#: includes/classes/class-findings-settings.php:164
+#, php-format
+msgid "Last scanned %1$s ago — %2$d plugins, themes and must-use plugins, %3$d PHP files."
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:172
+msgid "Nothing has been scanned yet."
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:180
+msgid "No change in the total number of findings since the previous scan."
+msgstr ""
+
+#. translators: 1: Signed change in findings. 2: Signed change in blockers.
+#: includes/classes/class-findings-settings.php:184
+#: includes/classes/class-overview-settings.php:166
+#, php-format
+msgid "%1$s findings and %2$s blockers since the previous scan."
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:200
+#: includes/classes/class-overview-settings.php:180
+msgid "Rescan everything"
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:222
+msgid "No scan results yet"
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:223
+msgid "Run a scan to analyse every plugin, theme and must-use plugin against the VIP Platform requirements."
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:262
+msgid "Type"
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:264
+msgid "All types"
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:276
+#: includes/classes/class-ui.php:580
+msgid "Category"
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:278
+msgid "All categories"
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:290
+msgid "Target"
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:292
+msgid "Everything"
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:304
+msgid "Search"
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:305
+msgid "Rule, file, function…"
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:312
+msgid "Apply"
+msgstr ""
+
+#: includes/classes/class-findings-settings.php:313
+msgid "Reset"
+msgstr ""
+
+#. translators: 1: Number of findings. 2: Number of targets.
+#: includes/classes/class-findings-settings.php:360
+#, php-format
+msgid "%1$d finding across %2$d target."
+msgid_plural "%1$d findings across %2$d targets."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: Number of findings.
+#: includes/classes/class-findings-settings.php:389
+#, php-format
+msgid "%d finding"
+msgid_plural "%d findings"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/classes/class-findings-settings.php:399
+msgid "This target is large enough that the scan stopped early. Fix what is listed and rescan to see the rest."
+msgstr ""
+
+#. translators: 1: Rule set version. 2: Number of rules.
+#: includes/classes/class-findings-settings.php:419
+#, php-format
+msgid "Rule set %1$s — %2$d rules, each mapped to the VIP requirement it comes from."
+msgstr ""
+
+#: includes/classes/class-mu-plugins-settings.php:40
+msgid "No must-use plugins are present"
+msgstr ""
+
+#: includes/classes/class-mu-plugins-settings.php:41
+msgid "Nothing in wp-content/mu-plugins needs to be relocated."
+msgstr ""
+
+#: includes/classes/class-mu-plugins-settings.php:50
 msgid "Search must-use plugins"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:137
-#: includes/classes/class-mu-plugins-settings.php:186
-#: includes/classes/class-mu-plugins-settings.php:218
+#: includes/classes/class-mu-plugins-settings.php:68
+msgid "VIP reserves wp-content/mu-plugins for platform code, so everything here has to move to client-mu-plugins/ — except the plugins VIP already preinstalls, and anything a previous host added, which should be dropped instead. Loose PHP files and directories are listed separately because WordPress only auto-loads files at the root of mu-plugins, and there is no reliable way to tell which directory belongs to which loader file."
+msgstr ""
+
+#: includes/classes/class-mu-plugins-settings.php:70
+msgid "How must-use plugins migrate"
+msgstr ""
+
+#: includes/classes/class-mu-plugins-settings.php:87
+#: includes/classes/class-mu-plugins-settings.php:127
 msgid "MU Plugin Name"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:142
-#: includes/classes/class-mu-plugins-settings.php:187
-#: includes/classes/class-mu-plugins-settings.php:219
+#: includes/classes/class-mu-plugins-settings.php:92
+#: includes/classes/class-mu-plugins-settings.php:128
 msgid "MU Plugin Directory"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:147
-#: includes/classes/class-mu-plugins-settings.php:188
-#: includes/classes/class-mu-plugins-settings.php:220
-#: includes/classes/class-plugins-settings.php:132
-#: includes/classes/class-plugins-settings.php:195
-#: includes/classes/class-themes-settings.php:98
-#: includes/classes/class-themes-settings.php:126
+#: includes/classes/class-mu-plugins-settings.php:97
+#: includes/classes/class-mu-plugins-settings.php:129
+#: includes/classes/class-plugins-settings.php:104
+#: includes/classes/class-plugins-settings.php:141
+#: includes/classes/class-themes-settings.php:76
+#: includes/classes/class-themes-settings.php:134
 msgid "Author"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:150
-#: includes/classes/class-mu-plugins-settings.php:189
-#: includes/classes/class-mu-plugins-settings.php:221
+#: includes/classes/class-mu-plugins-settings.php:100
+#: includes/classes/class-mu-plugins-settings.php:130
 msgid "Version"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:157
-#: includes/classes/class-mu-plugins-settings.php:193
-#: includes/classes/class-mu-plugins-settings.php:225
+#: includes/classes/class-mu-plugins-settings.php:107
+#: includes/classes/class-mu-plugins-settings.php:133
 msgid "Note"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:270
-#: includes/classes/class-plugins-settings.php:181
-msgid "Plugin will be preinstalled in VIP platform"
+#: includes/classes/class-mu-plugins-settings.php:149
+msgid "Do not migrate"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:275
-msgid "WP Engine plugins are not required on VIP platform."
+#. translators: 1: Status label. 2: Number of findings.
+#: includes/classes/class-mu-plugins-settings.php:167
+#: includes/classes/class-plugins-settings.php:182
+#: includes/classes/class-themes-settings.php:152
+#, php-format
+msgid "%1$s (%2$d)"
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:279
-#: includes/classes/class-plugins-settings.php:176
-msgid "Tested and verified VIP-compatible"
+#: includes/classes/class-mu-plugins-settings.php:197
+msgid "Move it into client-mu-plugins/ in the VIP repository."
 msgstr ""
 
-#: includes/classes/class-mu-plugins-settings.php:280
-msgid "Tested and verified VIP-incompatible"
-msgstr ""
+#. translators: %d: Number of findings.
+#: includes/classes/class-mu-plugins-settings.php:209
+#: includes/classes/class-plugins-settings.php:222
+#: includes/classes/class-themes-settings.php:167
+#, php-format
+msgid "Review %d finding"
+msgid_plural "Review %d findings"
+msgstr[0] ""
+msgstr[1] ""
 
-#: includes/classes/class-overview-settings.php:45
+#: includes/classes/class-overview-settings.php:48
 msgid "Overview sections"
 msgstr ""
 
-#: includes/classes/class-overview-settings.php:55
+#: includes/classes/class-overview-settings.php:58
 msgid "Compatibility Status"
 msgstr ""
 
-#: includes/classes/class-overview-settings.php:66
+#: includes/classes/class-overview-settings.php:69
 msgid "Plugin Details"
 msgstr ""
 
-#: includes/classes/class-overview-settings.php:112
-msgid "Ready"
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:118
+#: includes/classes/class-overview-settings.php:135
 msgid "Migration readiness"
 msgstr ""
 
-#: includes/classes/class-overview-settings.php:121
-msgid "Analysing plugins, themes, must-use plugins, database tables and directories…"
+#: includes/classes/class-overview-settings.php:157
+#: includes/classes/class-settings.php:95
+#: includes/classes/class-ui.php:74
+#: includes/classes/class-ui.php:75
+msgid "Findings"
 msgstr ""
 
-#: includes/classes/class-overview-settings.php:131
-msgid "Needs attention"
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:135
-msgid "Items checked"
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:151
-msgid "This plugin is a great starting point for analyzing the compatibility of a standard WordPress site with the WordPress VIP platform. It scans your site for potential issues by identifying unsupported plugins, directories, database configurations, and other incompatibilities with VIP requirements."
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:155
-msgid "In addition to highlighting compatibility issues, the plugin also provides several options to address and fix known problems. However, it's important to note that this plugin is not a complete solution for making a WordPress site fully VIP-compatible. It serves as a tool for identifying and resolving common issues, but further manual adjustments and optimizations may be required to meet the platform's strict standards."
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:159
-msgid "While this plugin can fix certain issues, it should be seen as an initial tool to help assess and prepare your site for VIP migration. For more advanced optimizations and compliance, a thorough manual review may still be required."
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:169
-msgid "WordPress VIP Documentation"
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:176
-#: includes/classes/class-overview-settings.php:255
-#: includes/classes/class-settings.php:93
-#: includes/classes/class-ui.php:35
-#: includes/classes/class-ui.php:36
-msgid "Database"
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:177
-msgid "Storage engines, collations and table prefixes."
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:181
-#: includes/classes/class-overview-settings.php:256
-#: includes/classes/class-settings.php:94
-#: includes/classes/class-ui.php:42
-#: includes/classes/class-ui.php:43
-msgid "Directories"
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:182
-msgid "Files and folders in wp-content that VIP does not support."
-msgstr ""
-
-#: includes/classes/class-overview-settings.php:186
-msgid "Plugins & themes"
+#: includes/classes/class-overview-settings.php:180
+msgid "Run the first scan"
 msgstr ""
 
 #: includes/classes/class-overview-settings.php:187
-msgid "Known incompatible plugins plus a scan for filesystem writes and shell execution."
+#: includes/classes/class-plugins-settings.php:73
+msgid "Open the findings report"
 msgstr ""
 
-#: includes/classes/class-overview-settings.php:191
-#: includes/classes/class-ui.php:50
-msgid "Must-use plugins"
+#: includes/classes/class-overview-settings.php:205
+msgid "Nothing has been scanned yet. Run a scan to check every plugin, theme and must-use plugin against the VIP Platform requirements."
 msgstr ""
 
-#: includes/classes/class-overview-settings.php:192
-msgid "MU plugins that VIP preinstalls, replaces or rejects."
+#: includes/classes/class-overview-settings.php:213
+msgid "Every scanned plugin, theme and must-use plugin is ready for the VIP Platform. Check the database and directories tabs as well before migrating."
 msgstr ""
 
-#: includes/classes/class-overview-settings.php:199
+#. translators: 1: Number of blocked targets. 2: Number of critical findings.
+#: includes/classes/class-overview-settings.php:219
+#, php-format
+msgid "%1$d target is expected to fail on VIP and has to be resolved before migrating, including %2$d critical finding. Start with the blockers in the findings report."
+msgid_plural "%1$d targets are expected to fail on VIP and have to be resolved before migrating, including %2$d critical findings. Start with the blockers in the findings report."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: Number of targets needing review.
+#: includes/classes/class-overview-settings.php:232
+#, php-format
+msgid "Nothing is expected to fail outright, but %d target needs review before migrating."
+msgid_plural "Nothing is expected to fail outright, but %d targets need review before migrating."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/classes/class-overview-settings.php:249
+msgid "This plugin analyses a standard WordPress site against the requirements of the WordPress VIP Platform, so that the work needed to migrate is known before the migration starts rather than discovered during it."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:250
+msgid "Findings are separated by what they actually are. Something expected to fail on the platform is not shown the same way as a performance risk, a coding-standard warning, or a capability the platform already provides. Where static analysis cannot resolve a value at runtime, the finding says so and records its confidence rather than asserting an incompatibility it cannot prove."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:251
+msgid "It is a starting point, not a certificate. It reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Test on a VIP environment before you rely on the result."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:257
+msgid "WordPress VIP Documentation"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:263
+#: includes/scanner/class-taxonomy.php:210
+msgid "Filesystem and media"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:264
+msgid "Writes outside /tmp/ and uploads, directory traversal over the object store, generated PHP/CSS/JS, .htaccess assumptions, and local image processing."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:268
+#: includes/classes/class-overview-settings.php:358
+#: includes/classes/class-settings.php:99
+#: includes/classes/class-ui.php:39
+#: includes/classes/class-ui.php:40
+#: includes/scanner/class-taxonomy.php:211
+msgid "Database"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:269
+msgid "Storage engines, collations and prefixes, plus unprepared SQL, uncached queries, unbounded result sets and runtime schema changes."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:273
+msgid "Caching, cron and requests"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:274
+msgid "Cache-busting headers, full object-cache flushes, custom cache layers, Cron Control conflicts, and uncached or untimed outbound requests."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:278
+msgid "Security and environment"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:279
+msgid "Shell execution, dynamic code, unescaped request data, PHP sessions, runtime ini changes and redefined core constants."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:283
+#: includes/scanner/class-taxonomy.php:218
+msgid "Platform overlap"
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:284
+msgid "Plugins VIP lists as incompatible, plugins that need testing, and plugins duplicating something the platform already provides."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:291
 msgid "About this plugin"
 msgstr ""
 
-#. translators: %s: URL to the documentation
-#: includes/classes/class-overview-settings.php:212
+#. translators: %s: Link to the VIP documentation.
+#: includes/classes/class-overview-settings.php:304
 #, php-format
-msgid "For more detailed guidelines and in-depth explanations on how to make your WordPress site fully compatible with the VIP platform, please visit the official %s."
+msgid "Every rule records the VIP requirement it comes from and links to the relevant page of the %s."
 msgstr ""
 
-#: includes/classes/class-overview-settings.php:223
+#. translators: 1: Rule set version. 2: Number of rules.
+#: includes/classes/class-overview-settings.php:315
+#, php-format
+msgid "Rule set %1$s — %2$d rules."
+msgstr ""
+
+#: includes/classes/class-overview-settings.php:326
 msgid "What gets checked"
 msgstr ""
 
-#: includes/classes/class-overview-settings.php:252
+#: includes/classes/class-overview-settings.php:355
 #: includes/classes/class-settings.php:96
-#: includes/classes/class-ui.php:56
-#: includes/classes/class-ui.php:57
+#: includes/classes/class-ui.php:60
+#: includes/classes/class-ui.php:61
 msgid "Plugins"
 msgstr ""
 
-#: includes/classes/class-overview-settings.php:253
+#: includes/classes/class-overview-settings.php:356
 #: includes/classes/class-settings.php:97
-#: includes/classes/class-ui.php:63
-#: includes/classes/class-ui.php:64
+#: includes/classes/class-ui.php:67
+#: includes/classes/class-ui.php:68
 msgid "Themes"
 msgstr ""
 
-#: includes/classes/class-overview-settings.php:254
-#: includes/classes/class-settings.php:95
-#: includes/classes/class-ui.php:49
+#: includes/classes/class-overview-settings.php:357
+#: includes/classes/class-settings.php:98
+#: includes/classes/class-ui.php:53
 msgid "MU Plugins"
 msgstr ""
 
+#: includes/classes/class-overview-settings.php:359
+#: includes/classes/class-settings.php:100
+#: includes/classes/class-ui.php:46
+#: includes/classes/class-ui.php:47
+msgid "Directories"
+msgstr ""
+
 #. translators: %s: Section name, e.g. "Plugins".
-#: includes/classes/class-overview-settings.php:304
+#: includes/classes/class-overview-settings.php:412
 #, php-format
 msgid "Review %s"
 msgstr ""
 
-#: includes/classes/class-plugins-settings.php:45
+#: includes/classes/class-plugins-settings.php:40
 msgid "No plugins installed"
 msgstr ""
 
-#: includes/classes/class-plugins-settings.php:103
+#: includes/classes/class-plugins-settings.php:51
 msgid "Search plugins"
 msgstr ""
 
-#: includes/classes/class-plugins-settings.php:122
-#: includes/classes/class-plugins-settings.php:193
+#. translators: %s: Link to the findings screen.
+#: includes/classes/class-plugins-settings.php:72
+#, php-format
+msgid "A verdict of \"Blocked\" means at least one finding is expected to fail on VIP; \"Needs review\" means there is work to do that will not by itself stop a migration. %s for the detail behind every verdict."
+msgstr ""
+
+#: includes/classes/class-plugins-settings.php:77
+msgid "How to read this column"
+msgstr ""
+
+#: includes/classes/class-plugins-settings.php:94
+#: includes/classes/class-plugins-settings.php:139
 msgid "Plugin Name"
 msgstr ""
 
-#: includes/classes/class-plugins-settings.php:127
-#: includes/classes/class-plugins-settings.php:194
+#: includes/classes/class-plugins-settings.php:99
+#: includes/classes/class-plugins-settings.php:140
 msgid "Plugin Directory"
 msgstr ""
 
-#: includes/classes/class-plugins-settings.php:135
-#: includes/classes/class-plugins-settings.php:196
-#: includes/classes/class-themes-settings.php:101
-#: includes/classes/class-themes-settings.php:129
+#: includes/classes/class-plugins-settings.php:107
+#: includes/classes/class-plugins-settings.php:142
+#: includes/classes/class-themes-settings.php:79
+#: includes/classes/class-themes-settings.php:135
 msgid "Current Version"
 msgstr ""
 
-#: includes/classes/class-plugins-settings.php:136
-#: includes/classes/class-plugins-settings.php:197
-#: includes/classes/class-themes-settings.php:102
-#: includes/classes/class-themes-settings.php:132
+#: includes/classes/class-plugins-settings.php:108
+#: includes/classes/class-plugins-settings.php:143
+#: includes/classes/class-themes-settings.php:80
+#: includes/classes/class-themes-settings.php:136
 msgid "Available Version"
 msgstr ""
 
-#: includes/classes/class-plugins-settings.php:173
-msgid "VIP listed incompatible plugin"
-msgstr ""
-
-#: includes/classes/class-plugins-settings.php:189
-#: includes/classes/class-themes-settings.php:50
+#: includes/classes/class-plugins-settings.php:135
+#: includes/classes/class-themes-settings.php:122
 msgid "Up to date"
 msgstr ""
 
-#: includes/classes/class-settings.php:102
+#: includes/classes/class-settings.php:105
 msgid "WVC - Overview"
 msgstr ""
 
-#: includes/classes/class-settings.php:103
+#: includes/classes/class-settings.php:106
 msgid "WVC"
 msgstr ""
 
 #. translators: %s: Submenu title
-#: includes/classes/class-settings.php:115
+#: includes/classes/class-settings.php:118
 #, php-format
 msgid "WVC - %s"
 msgstr ""
 
-#: includes/classes/class-themes-settings.php:64
+#: includes/classes/class-themes-settings.php:39
 msgid "No themes installed"
 msgstr ""
 
-#: includes/classes/class-themes-settings.php:72
+#: includes/classes/class-themes-settings.php:51
 msgid "Search themes"
 msgstr ""
 
-#: includes/classes/class-themes-settings.php:88
-#: includes/classes/class-themes-settings.php:120
+#: includes/classes/class-themes-settings.php:66
+#: includes/classes/class-themes-settings.php:126
 msgid "Theme Name"
 msgstr ""
 
-#: includes/classes/class-themes-settings.php:93
-#: includes/classes/class-themes-settings.php:123
+#: includes/classes/class-themes-settings.php:71
+#: includes/classes/class-themes-settings.php:133
 msgid "Theme Directory"
 msgstr ""
 
-#: includes/classes/class-ui.php:28
-#: includes/classes/class-ui.php:29
+#: includes/classes/class-themes-settings.php:103
+msgid "Inactive themes still ship in the repository and are still scanned by the VIP Code Analysis Bot. Removing the ones you do not use is the quickest way to shrink this list."
+msgstr ""
+
+#: includes/classes/class-themes-settings.php:105
+msgid "Before you migrate"
+msgstr ""
+
+#: includes/classes/class-themes-settings.php:129
+msgid "Active"
+msgstr ""
+
+#: includes/classes/class-ui.php:32
+#: includes/classes/class-ui.php:33
 msgid "Overview"
 msgstr ""
 
-#: includes/classes/class-ui.php:30
+#: includes/classes/class-ui.php:34
 msgid "A snapshot of how ready this site is for the WordPress VIP platform."
 msgstr ""
 
-#: includes/classes/class-ui.php:37
+#: includes/classes/class-ui.php:41
 msgid "Storage engines, collations and table prefixes checked against VIP requirements."
 msgstr ""
 
-#: includes/classes/class-ui.php:44
+#: includes/classes/class-ui.php:48
 msgid "Everything inside wp-content measured against the VIP file structure."
 msgstr ""
 
-#: includes/classes/class-ui.php:51
+#: includes/classes/class-ui.php:54
+msgid "Must-use plugins"
+msgstr ""
+
+#: includes/classes/class-ui.php:55
 msgid "Must-use plugins scanned for code patterns the VIP platform does not allow."
 msgstr ""
 
-#: includes/classes/class-ui.php:58
+#: includes/classes/class-ui.php:62
 msgid "Installed plugins checked against the VIP incompatibility list and scanned for risky code."
 msgstr ""
 
-#: includes/classes/class-ui.php:65
+#: includes/classes/class-ui.php:69
 msgid "Installed themes scanned for code patterns the VIP platform does not allow."
 msgstr ""
 
-#: includes/classes/class-ui.php:162
+#: includes/classes/class-ui.php:76
+msgid "Every issue the scanner found, with why it matters on VIP and how to resolve it."
+msgstr ""
+
+#: includes/classes/class-ui.php:192
 msgid "Audit this site against the WordPress VIP platform requirements before you migrate."
 msgstr ""
 
-#: includes/classes/class-ui.php:168
+#: includes/classes/class-ui.php:198
 msgid "VIP documentation"
 msgstr ""
 
-#: includes/classes/class-ui.php:170
+#: includes/classes/class-ui.php:200
 msgid "(opens in a new tab)"
 msgstr ""
 
-#: includes/classes/class-ui.php:174
+#: includes/classes/class-ui.php:204
 msgid "Compatibility sections"
 msgstr ""
 
-#: includes/classes/class-ui.php:232
+#: includes/classes/class-ui.php:262
 msgid "Search results"
 msgstr ""
 
-#: includes/classes/class-ui.php:241
+#: includes/classes/class-ui.php:271
 msgid "Filter by compatibility"
 msgstr ""
 
-#: includes/classes/class-ui.php:243
+#: includes/classes/class-ui.php:273
 msgid "All"
 msgstr ""
 
-#: includes/classes/class-ui.php:267
+#: includes/classes/class-ui.php:297
 msgid "Search…"
 msgstr ""
 
-#: includes/classes/class-ui.php:359
-msgid "Loading…"
+#: includes/classes/class-ui.php:396
+msgid "Not scanned yet"
+msgstr ""
+
+#. translators: %s: Function or method name.
+#: includes/classes/class-ui.php:530
+#, php-format
+msgid "in %s()"
+msgstr ""
+
+#: includes/classes/class-ui.php:551
+msgid "What was detected"
+msgstr ""
+
+#: includes/classes/class-ui.php:554
+msgid "Why it matters on VIP"
+msgstr ""
+
+#: includes/classes/class-ui.php:557
+msgid "Recommended fix"
+msgstr ""
+
+#: includes/classes/class-ui.php:561
+msgid "Alternative approach"
+msgstr ""
+
+#: includes/classes/class-ui.php:570
+msgid "Confidence"
+msgstr ""
+
+#: includes/classes/class-ui.php:575
+msgid "Fix"
+msgstr ""
+
+#: includes/classes/class-ui.php:584
+msgid "Rule"
+msgstr ""
+
+#: includes/classes/class-ui.php:591
+msgid "PHPCS"
+msgstr ""
+
+#: includes/classes/class-ui.php:593
+msgid "The WordPress-VIP-Go sniff that reports the same pattern."
+msgstr ""
+
+#. translators: %s: Comma-separated list of rule identifiers.
+#: includes/classes/class-ui.php:608
+#, php-format
+msgid "Also matched on this line: %s"
+msgstr ""
+
+#: includes/classes/class-ui.php:618
+msgid "VIP documentation for this rule"
+msgstr ""
+
+#: includes/scanner/class-database-audit.php:156
+msgid "Unsupported storage engine"
+msgstr ""
+
+#. translators: %s: Current storage engine, for example "MyISAM".
+#: includes/scanner/class-database-audit.php:158
+#, php-format
+msgid "The table uses %s. VIP requires InnoDB."
+msgstr ""
+
+#: includes/scanner/class-database-audit.php:159
+msgid "Convert the table before exporting the database for import."
+msgstr ""
+
+#: includes/scanner/class-database-audit.php:170
+msgid "Unsupported collation"
+msgstr ""
+
+#. translators: %s: Current collation.
+#: includes/scanner/class-database-audit.php:172
+#, php-format
+msgid "%s is not on the VIP supported collation list. VIP expects a utf8mb4 collation."
+msgstr ""
+
+#: includes/scanner/class-database-audit.php:174
+msgid "No direct utf8mb4 equivalent exists for this collation. Pick the closest supported one and verify the data after converting."
+msgstr ""
+
+#: includes/scanner/class-database-audit.php:175
+msgid "Convert the table to the equivalent utf8mb4 collation. Run it against a backup first and check any columns holding non-ASCII text."
+msgstr ""
+
+#: includes/scanner/class-database-audit.php:186
+msgid "Non-standard table prefix"
+msgstr ""
+
+#: includes/scanner/class-database-audit.php:187
+msgid "VIP expects every table to use the wp_ prefix."
+msgstr ""
+
+#: includes/scanner/class-database-audit.php:188
+msgid "Report the prefix to VIP and only rename tables once VIP confirms it is required. Renaming also means updating option names and user meta keys that embed the prefix — wp_user_roles, wp_capabilities, wp_user_level and wp_user-settings — or users lose their roles."
+msgstr ""
+
+#: includes/scanner/class-database-audit.php:260
+msgid "WordPress core"
+msgstr ""
+
+#. translators: 1: Plugin slug. 2: Number of additional plugins.
+#: includes/scanner/class-database-audit.php:270
+#, php-format
+msgid "%1$s (and %2$d others)"
+msgstr ""
+
+#: includes/scanner/class-database-audit.php:275
+msgid "Custom"
+msgstr ""
+
+#: includes/scanner/class-database-audit.php:276
+msgid "Unknown"
+msgstr ""
+
+#: includes/scanner/class-directory-audit.php:129
+msgid "WordPress drop-in."
+msgstr ""
+
+#: includes/scanner/class-directory-audit.php:130
+msgid "VIP installs its own drop-ins. A drop-in shipped with the application either has no effect or conflicts with the platform."
+msgstr ""
+
+#: includes/scanner/class-directory-audit.php:140
+msgid "Directory that is not part of the VIP application structure."
+msgstr ""
+
+#: includes/scanner/class-directory-audit.php:141
+msgid "File that is not part of the VIP application structure."
+msgstr ""
+
+#: includes/scanner/class-directory-audit.php:142
+msgid "Work out what created it. If the codebase reads from it, move the contents into uploads/ and update the stored paths; if nothing uses it, leave it out of the repository."
+msgstr ""
+
+#: includes/scanner/class-directory-audit.php:180
+msgid "Supported"
+msgstr ""
+
+#: includes/scanner/class-guards.php:175
+msgid "The traversal target resolves to the uploads directory, which has no real directory structure on VIP."
+msgstr ""
+
+#: includes/scanner/class-guards.php:187
+msgid "The traversal target could not be resolved statically. Confirm it never points at the uploads directory."
+msgstr ""
+
+#. translators: %s: File extension, for example "css".
+#: includes/scanner/class-guards.php:227
+#, php-format
+msgid "The write target is a .%s file."
+msgstr ""
+
+#: includes/scanner/class-guards.php:267
+msgid "The SQL is held in a variable and no $wpdb->prepare() call appears in the same function."
+msgstr ""
+
+#: includes/scanner/class-guards.php:289
+msgid "Direct write to the database. Confirm the affected cache keys are invalidated afterwards."
+msgstr ""
+
+#: includes/scanner/class-guards.php:304
+msgid "This file does cache elsewhere, but not inside the function holding the query. Confirm this particular result is cached."
+msgstr ""
+
+#. translators: %s: Query argument name, for example "posts_per_page".
+#: includes/scanner/class-guards.php:323
+#, php-format
+msgid "%s is set to -1, so the query is bounded only by how much content the site holds."
+msgstr ""
+
+#: includes/scanner/class-guards.php:329
+msgid "nopaging is true, which removes the result limit entirely."
+msgstr ""
+
+#. translators: %s: Comma-separated list of query arguments.
+#: includes/scanner/class-guards.php:364
+#, php-format
+msgid "Expensive query arguments in use: %s."
+msgstr ""
+
+#: includes/scanner/class-guards.php:426
+msgid "The response is cached, but no explicit timeout is set. A slow endpoint still blocks the request that refreshes the cache."
+msgstr ""
+
+#: includes/scanner/class-guards.php:432
+msgid "No caching and no explicit timeout: every cache miss waits on the remote service for the PHP default timeout."
+msgstr ""
+
+#: includes/scanner/class-guards.php:470
+msgid "A cache header is set by hand. Confirm the value matches what the VIP edge cache should do with this response."
+msgstr ""
+
+#. translators: %s: The SQL statement type, for example "CREATE TABLE".
+#: includes/scanner/class-guards.php:533
+#, php-format
+msgid "The query issues a %s statement."
+msgstr ""
+
+#: includes/scanner/class-guards.php:542
+msgid "DDL appears in the same function as this query."
+msgstr ""
+
+#: includes/scanner/class-guards.php:572
+msgid "The path is anchored to a known base directory, so the risk depends entirely on how the variable part is validated."
+msgstr ""
+
+#: includes/scanner/class-guards.php:651
+msgid "The path is built from the application directory, which is read-only on VIP."
+msgstr ""
+
+#: includes/scanner/class-guards.php:659
+msgid "The destination could not be resolved statically. Confirm it resolves to the uploads directory or /tmp/ at runtime."
+msgstr ""
+
+#: includes/scanner/class-known-plugins.php:65
+msgid "Tested against the VIP Platform and found to behave correctly."
+msgstr ""
+
+#: includes/scanner/class-known-plugins.php:113
+msgid "Listed incompatible by VIP"
+msgstr ""
+
+#: includes/scanner/class-known-plugins.php:115
+msgid "Needs testing on VIP"
+msgstr ""
+
+#: includes/scanner/class-known-plugins.php:117
+msgid "Provided by the VIP platform"
+msgstr ""
+
+#: includes/scanner/class-known-plugins.php:119
+msgid "Verified on VIP"
+msgstr ""
+
+#: includes/scanner/class-rules.php:153
+msgid "Filesystem write outside the writable paths"
+msgstr ""
+
+#: includes/scanner/class-rules.php:159
+msgid "A write, delete, move or permission-change call whose target does not resolve to the uploads directory or /tmp/."
+msgstr ""
+
+#: includes/scanner/class-rules.php:160
+msgid "Application code on VIP is deployed from Git onto a read-only filesystem. Only /tmp/ and /wp-content/uploads/ accept writes. Writing anywhere else — including into a plugin or theme directory — fails at runtime."
+msgstr ""
+
+#: includes/scanner/class-rules.php:161
+msgid "Point the write at the uploads directory using wp_get_upload_dir(), or at get_temp_dir() for scratch data that does not need to survive the request. Never build the path by concatenating WP_CONTENT_DIR, plugin_dir_path() or __DIR__."
+msgstr ""
+
+#: includes/scanner/class-rules.php:162
+msgid "If the data is state rather than a file, store it in an option, post meta, a custom table or the object cache instead of on disk."
+msgstr ""
+
+#: includes/scanner/class-rules.php:192
+msgid "File opened for writing outside the writable paths"
+msgstr ""
+
+#: includes/scanner/class-rules.php:198
+msgid "fopen() called with a write, append or truncate mode on a path that does not resolve to uploads or /tmp/."
+msgstr ""
+
+#: includes/scanner/class-rules.php:199
+msgid "Opening a file for reading is fine on VIP. Opening one for writing outside /tmp/ and the uploads directory fails, because the application filesystem is read-only."
+msgstr ""
+
+#: includes/scanner/class-rules.php:200
+msgid "Write to a path built from wp_get_upload_dir(), or to get_temp_dir() for transient scratch files. The VIP stream wrapper makes fopen(), fwrite() and fclose() work normally inside /wp-content/uploads/."
+msgstr ""
+
+#: includes/scanner/class-rules.php:201
+msgid "For read-only access to a bundled data file, keep the current path and the \"r\" mode — that is supported."
+msgstr ""
+
+#: includes/scanner/class-rules.php:210
+msgid "Hard-coded uploads path"
+msgstr ""
+
+#: includes/scanner/class-rules.php:216
+msgid "A literal \"wp-content/uploads\" path in the source."
+msgstr ""
+
+#: includes/scanner/class-rules.php:217
+msgid "On VIP the uploads directory is mapped onto an external object store, and on multisite each subsite writes under its own prefix. A hard-coded path resolves to the wrong location, or to nothing at all."
+msgstr ""
+
+#: includes/scanner/class-rules.php:218
+msgid "Replace the literal with wp_get_upload_dir() (paths) or wp_upload_dir()[\"baseurl\"] (URLs) and append the sub-path to the returned value."
+msgstr ""
+
+#: includes/scanner/class-rules.php:219
+msgid "For a static asset that ships with the code, reference it with plugins_url() or get_theme_file_uri() instead of putting it in uploads."
+msgstr ""
+
+#: includes/scanner/class-rules.php:229
+msgid "Legacy blogs.dir media path"
+msgstr ""
+
+#: includes/scanner/class-rules.php:235
+msgid "A reference to the pre-3.5 multisite blogs.dir media directory."
+msgstr ""
+
+#: includes/scanner/class-rules.php:236
+msgid "VIP only serves and accepts media under /wp-content/uploads/. Media stored in wp-content/blogs.dir is neither importable nor reachable, so anything that reads or writes there breaks."
+msgstr ""
+
+#: includes/scanner/class-rules.php:237
+msgid "Move the media into the uploads directory, update the stored paths in the database with a targeted search-and-replace, and add redirects for the old URLs."
+msgstr ""
+
+#: includes/scanner/class-rules.php:248
+msgid "Directory iteration over uploads"
+msgstr ""
+
+#: includes/scanner/class-rules.php:254
+msgid "A directory listing or traversal call pointed at the uploads directory."
+msgstr ""
+
+#: includes/scanner/class-rules.php:255
+msgid "The VIP File System is an object store presented through a stream wrapper. It has no real directory tree, so listing a directory returns nothing useful and some traversal calls raise a fatal error. This is the failure mode behind the known BuddyPress avatar incompatibility."
+msgstr ""
+
+#: includes/scanner/class-rules.php:256
+msgid "Stop discovering files by listing a directory. Record the files you write — in post meta, user meta, an option or a custom table — and read that index back instead."
+msgstr ""
+
+#: includes/scanner/class-rules.php:257
+msgid "For attachments, query the media library with WP_Query on the \"attachment\" post type rather than walking the uploads folder."
+msgstr ""
+
+#: includes/scanner/class-rules.php:267
+msgid "Apache or .htaccess assumption"
+msgstr ""
+
+#: includes/scanner/class-rules.php:273
+msgid "Code that reads, writes or depends on .htaccess or the Apache API."
+msgstr ""
+
+#: includes/scanner/class-rules.php:274
+msgid "VIP serves requests through NGINX. There is no .htaccess file, the Apache functions do not exist, and the web root is not writable, so rewrite rules, deny rules and header rules written this way are silently ignored."
+msgstr ""
+
+#: includes/scanner/class-rules.php:275
+msgid "Express redirects in PHP — wp_safe_redirect() on the \"template_redirect\" hook, or the Safe Redirect Manager plugin. Domain-level redirects belong in vip-config.php. Access rules belong in application code."
+msgstr ""
+
+#: includes/scanner/class-rules.php:276
+msgid "Send headers with the WordPress HTTP API and the \"wp_headers\" filter rather than through server configuration."
+msgstr ""
+
+#: includes/scanner/class-rules.php:287
+msgid "Dynamically generated PHP, CSS or JS file"
+msgstr ""
+
+#: includes/scanner/class-rules.php:293
+msgid "A write whose target filename ends in .php, .css, .js, .html or .json."
+msgstr ""
+
+#: includes/scanner/class-rules.php:294
+msgid "Generating code or asset files at runtime assumes a writable application directory, which VIP does not provide. Even when the write lands in uploads, generated PHP is never executed there, and generated CSS or JS bypasses the platform asset pipeline."
+msgstr ""
+
+#: includes/scanner/class-rules.php:295
+msgid "Build the asset at deploy time and commit it, or render it through a WordPress endpoint (wp_add_inline_style(), wp_add_inline_script(), or a registered REST route) instead of writing a file."
+msgstr ""
+
+#: includes/scanner/class-rules.php:296
+msgid "For configuration that used to be written to a PHP file, store it in an option and read it back through get_option()."
+msgstr ""
+
+#: includes/scanner/class-rules.php:305
+msgid "WP_Filesystem credentials request"
+msgstr ""
+
+#: includes/scanner/class-rules.php:311
+msgid "Use of the WP_Filesystem abstraction or a request for filesystem credentials."
+msgstr ""
+
+#: includes/scanner/class-rules.php:312
+msgid "WP_Filesystem exists to write into the WordPress install. On VIP those paths are read-only and file modifications are disabled, so the credentials prompt cannot succeed and the write will not land."
+msgstr ""
+
+#: includes/scanner/class-rules.php:313
+msgid "Drop the WP_Filesystem layer and write directly into the uploads directory with the standard PHP file functions — the VIP stream wrapper handles them."
+msgstr ""
+
+#: includes/scanner/class-rules.php:322
+msgid "upload_dir filter changes the media location"
+msgstr ""
+
+#: includes/scanner/class-rules.php:328
+msgid "A callback attached to the upload_dir filter."
+msgstr ""
+
+#: includes/scanner/class-rules.php:329
+msgid "Media on VIP can only be written to paths beginning /wp-content/uploads/. A filter that redirects uploads elsewhere — a plugin folder, a sibling directory, a third-party bucket — produces failed uploads or missing thumbnails."
+msgstr ""
+
+#: includes/scanner/class-rules.php:330
+msgid "Keep the base directory as VIP supplies it and only vary the sub-path underneath it. Confirm the filter still returns a path inside the uploads base directory."
+msgstr ""
+
+#: includes/scanner/class-rules.php:331
+msgid "Organise media with taxonomy or post meta instead of custom folder layouts."
+msgstr ""
+
+#: includes/scanner/class-rules.php:339
+msgid "Local image processing"
+msgstr ""
+
+#: includes/scanner/class-rules.php:345
+msgid "Direct use of GD or Imagick to resize, crop or re-encode images."
+msgstr ""
+
+#: includes/scanner/class-rules.php:346
+msgid "VIP resizes, crops and re-encodes images on the fly at the CDN edge from the original upload. Doing the same work in PHP spends request time on something the platform already provides, and writes extra derivative files into the file system."
+msgstr ""
+
+#: includes/scanner/class-rules.php:347
+msgid "Request the size you need through the image URL and let the platform generate it, or use wp_get_attachment_image() with a registered size."
+msgstr ""
+
+#: includes/scanner/class-rules.php:348
+msgid "Where bespoke processing is genuinely required, run it once on upload rather than on every page render."
+msgstr ""
+
+#: includes/scanner/class-rules.php:369
+msgid "Registered intermediate image sizes"
+msgstr ""
+
+#: includes/scanner/class-rules.php:375
+msgid "A call to add_image_size()."
+msgstr ""
+
+#: includes/scanner/class-rules.php:376
+msgid "Every registered size multiplies the derivative files created per upload, which inflates the media payload that has to be migrated and stored. VIP can generate sizes on demand from the original, so most registered sizes are avoidable."
+msgstr ""
+
+#: includes/scanner/class-rules.php:377
+msgid "Review whether each registered size is used. Request one-off dimensions through the image URL rather than registering a size for them."
+msgstr ""
+
+#: includes/scanner/class-rules.php:397
+msgid "SQL built by interpolation instead of $wpdb->prepare()"
+msgstr ""
+
+#: includes/scanner/class-rules.php:403
+msgid "A $wpdb query whose SQL contains an interpolated or concatenated variable, with no $wpdb->prepare() call."
+msgstr ""
+
+#: includes/scanner/class-rules.php:404
+msgid "This is a SQL injection vector. VIP code review blocks unprepared queries, and the VIP Code Analysis Bot reports them on every pull request."
+msgstr ""
+
+#: includes/scanner/class-rules.php:408
+msgid "Wrap the SQL in $wpdb->prepare() using its string, integer and float placeholders, and pass the values as arguments. Table names cannot be placeholders — build them from $wpdb->prefix and validate against a known list."
+msgstr ""
+
+#: includes/scanner/class-rules.php:409
+msgid "Prefer a core API — WP_Query, get_posts(), get_terms() — over hand-written SQL wherever one exists."
+msgstr ""
+
+#: includes/scanner/class-rules.php:419
+msgid "Direct database query"
+msgstr ""
+
+#: includes/scanner/class-rules.php:425
+msgid "A $wpdb query that bypasses the WordPress data APIs."
+msgstr ""
+
+#: includes/scanner/class-rules.php:426
+msgid "VIP runs behind HyperDB, which splits reads across replicas. Hand-written queries skip the object cache entirely, so each one is a round trip on every request, and they are the usual cause of slow pages at traffic."
+msgstr ""
+
+#: includes/scanner/class-rules.php:427
+msgid "Use a core API where one exists. Where a direct query is genuinely needed, wrap the result in wp_cache_get()/wp_cache_set() with an explicit group and expiry."
+msgstr ""
+
+#: includes/scanner/class-rules.php:428
+msgid "For search and heavy filtering, use VIP Search (Enterprise Search) rather than SQL."
+msgstr ""
+
+#: includes/scanner/class-rules.php:438
+msgid "Runtime database schema change"
+msgstr ""
+
+#: includes/scanner/class-rules.php:444
+msgid "CREATE TABLE, ALTER TABLE, DROP TABLE, TRUNCATE TABLE or dbDelta() in application code."
+msgstr ""
+
+#: includes/scanner/class-rules.php:445
+msgid "Custom tables are allowed on VIP but are expected to be reviewed, and a schema change issued during a web request can lock tables on a production database. Tables created this way also need the InnoDB engine, a supported collation and the wp_ prefix, which ad-hoc SQL frequently gets wrong."
+msgstr ""
+
+#: includes/scanner/class-rules.php:446
+msgid "Move schema changes out of the request path into an idempotent WP-CLI command, and specify ENGINE=InnoDB with a VIP-supported utf8mb4 collation and the $wpdb->prefix prefix."
+msgstr ""
+
+#: includes/scanner/class-rules.php:447
+msgid "Consider whether a custom post type, taxonomy or meta table can replace the custom table before adding one."
+msgstr ""
+
+#: includes/scanner/class-rules.php:460
+msgid "Uncached lookup function"
+msgstr ""
+
+#: includes/scanner/class-rules.php:466
+msgid "A core function that VIP documents as running an uncached database query."
+msgstr ""
+
+#: includes/scanner/class-rules.php:467
+msgid "These functions query the database directly on every call with no object-cache layer in front of them. On a high-traffic site they turn into an uncached query per page view."
+msgstr ""
+
+#: includes/scanner/class-rules.php:468
+msgid "Cache the result yourself with wp_cache_get()/wp_cache_set(), or replace the lookup with one that is cached — get_post(), get_term(), or a WP_Query with the identifier you already hold."
+msgstr ""
+
+#: includes/scanner/class-rules.php:469
+msgid "Store the resolved ID alongside the data that needed it so the lookup only happens once."
+msgstr ""
+
+#: includes/scanner/class-rules.php:488
+msgid "Query with no result limit"
+msgstr ""
+
+#: includes/scanner/class-rules.php:494
+msgid "A query asking for every matching row: posts_per_page => -1, numberposts => -1 or nopaging => true."
+msgstr ""
+
+#: includes/scanner/class-rules.php:495
+msgid "The query is bounded by however much content the site has. It is fine on a development database and times out or exhausts memory once the site has real volume, which is exactly the scale VIP sites run at."
+msgstr ""
+
+#: includes/scanner/class-rules.php:496
+msgid "Set an explicit posts_per_page. If you genuinely need every row, page through the results in batches inside a WP-CLI command rather than in a web request."
+msgstr ""
+
+#: includes/scanner/class-rules.php:497
+msgid "Add \"fields\" => \"ids\" when you only need identifiers — it avoids hydrating every post object."
+msgstr ""
+
+#: includes/scanner/class-rules.php:508
+msgid "Query argument known to be expensive"
+msgstr ""
+
+#: includes/scanner/class-rules.php:514
+msgid "A query using post__not_in, an unindexed meta_query, or orderby => rand."
+msgstr ""
+
+#: includes/scanner/class-rules.php:515
+msgid "These arguments generate SQL the database cannot serve from an index. Random ordering also defeats caching entirely, because every response differs."
+msgstr ""
+
+#: includes/scanner/class-rules.php:516
+msgid "Replace post__not_in by over-fetching slightly and filtering in PHP. Replace random ordering by selecting a random slice from a cached ID list. Where meta filtering drives the query, move it to VIP Search."
+msgstr ""
+
+#: includes/scanner/class-rules.php:517
+msgid "Model the filter as a taxonomy term instead of post meta — taxonomy queries are indexed."
+msgstr ""
+
+#: includes/scanner/class-rules.php:528
+msgid "Explicitly autoloaded option"
+msgstr ""
+
+#: includes/scanner/class-rules.php:534
+msgid "add_option() or update_option() called with autoload set to \"yes\"."
+msgstr ""
+
+#: includes/scanner/class-rules.php:535
+msgid "Autoloaded options are read into memory on every single request, including cache misses on the front end. A large autoloaded value is a fixed tax on every page render."
+msgstr ""
+
+#: includes/scanner/class-rules.php:536
+msgid "Pass \"no\" for autoload unless the option is genuinely needed on most requests, and keep autoloaded values small."
+msgstr ""
+
+#: includes/scanner/class-rules.php:537
+msgid "For data read on a handful of screens, a transient or a custom table is a better fit than an autoloaded option."
+msgstr ""
+
+#: includes/scanner/class-rules.php:557
+msgid "Raw cURL instead of the WordPress HTTP API"
+msgstr ""
+
+#: includes/scanner/class-rules.php:563
+msgid "A direct cURL call."
+msgstr ""
+
+#: includes/scanner/class-rules.php:564
+msgid "VIP expects outbound traffic to go through the WordPress HTTP API so that platform-level timeouts, retries and monitoring apply. Raw cURL sidesteps all of it, and typically ships with no timeout at all, so a slow endpoint stalls the whole request."
+msgstr ""
+
+#: includes/scanner/class-rules.php:565
+msgid "Replace the cURL handle with wp_safe_remote_get() or wp_safe_remote_post(), passing an explicit \"timeout\" of 3 seconds or less."
+msgstr ""
+
+#: includes/scanner/class-rules.php:566
+msgid "Use vip_safe_wp_remote_get(), which adds a circuit breaker that stops calling an endpoint that has started failing."
+msgstr ""
+
+#: includes/scanner/class-rules.php:575
+msgid "Remote URL fetched with a filesystem function"
+msgstr ""
+
+#: includes/scanner/class-rules.php:581
+msgid "A filesystem function called with an http:// or https:// URL."
+msgstr ""
+
+#: includes/scanner/class-rules.php:582
+msgid "Fetching over HTTP with file_get_contents() and friends relies on allow_url_fopen, has no timeout, ignores the platform HTTP layer, and is explicitly reported by the VIP PHPCS standard."
+msgstr ""
+
+#: includes/scanner/class-rules.php:583
+msgid "Use wp_safe_remote_get() and read the body with wp_remote_retrieve_body(), passing an explicit short timeout."
+msgstr ""
+
+#: includes/scanner/class-rules.php:584
+msgid "For feeds, fetch_feed() adds caching for free."
+msgstr ""
+
+#: includes/scanner/class-rules.php:594
+msgid "Direct socket or external service connection"
+msgstr ""
+
+#: includes/scanner/class-rules.php:600
+msgid "A raw socket, FTP, SSH, LDAP or third-party database connection."
+msgstr ""
+
+#: includes/scanner/class-rules.php:601
+msgid "VIP containers restrict outbound traffic and do not ship every client extension. Connections on arbitrary ports and protocols are blocked, so this code fails on the platform even though it works locally."
+msgstr ""
+
+#: includes/scanner/class-rules.php:602
+msgid "Move the integration behind an HTTPS API reached with the WordPress HTTP API, and raise a VIP support request to allow-list the host if outbound access is refused."
+msgstr ""
+
+#: includes/scanner/class-rules.php:603
+msgid "Where the remote system cannot expose HTTP, run the transfer outside the application and push the results in."
+msgstr ""
+
+#: includes/scanner/class-rules.php:625
+msgid "Remote request with no caching"
+msgstr ""
+
+#: includes/scanner/class-rules.php:631
+msgid "A WordPress HTTP API call with no transient or object-cache call anywhere in the same function."
+msgstr ""
+
+#: includes/scanner/class-rules.php:632
+msgid "An uncached outbound request runs on every cache miss and blocks page generation until it returns. VIP treats remote calls on the front end as a primary cause of slow page generation."
+msgstr ""
+
+#: includes/scanner/class-rules.php:633
+msgid "Wrap the call in a transient or object-cache read, and pass an explicit \"timeout\" of 3 seconds or less."
+msgstr ""
+
+#: includes/scanner/class-rules.php:634
+msgid "Move the fetch into a scheduled job that refreshes a cached copy, so no visitor request ever waits on the remote service."
+msgstr ""
+
+#: includes/scanner/class-rules.php:643
+msgid "Remote request not protected against SSRF"
+msgstr ""
+
+#: includes/scanner/class-rules.php:649
+msgid "wp_remote_* used where the wp_safe_remote_* variant exists."
+msgstr ""
+
+#: includes/scanner/class-rules.php:650
+msgid "The unsafe variants will follow a URL to a private or internal address. When any part of the URL comes from stored or user input, that is a server-side request forgery vector."
+msgstr ""
+
+#: includes/scanner/class-rules.php:651
+msgid "Swap wp_remote_get() for wp_safe_remote_get() (and the same for post/head/request). The signatures are identical."
+msgstr ""
+
+#: includes/scanner/class-rules.php:671
+msgid "Custom page-cache implementation"
+msgstr ""
+
+#: includes/scanner/class-rules.php:677
+msgid "References to the advanced-cache.php or object-cache.php drop-ins, or to the WP_CACHE constant."
+msgstr ""
+
+#: includes/scanner/class-rules.php:678
+msgid "VIP provides a globally distributed edge page cache and a managed object cache, and installs its own drop-ins. A second caching layer either has no effect or actively conflicts with the platform, which is why the well-known caching plugins are on the VIP incompatibility list."
+msgstr ""
+
+#: includes/scanner/class-rules.php:679
+msgid "Remove the custom caching layer and rely on the platform. Tune behaviour with cache-control headers and the VIP Cache API instead."
+msgstr ""
+
+#: includes/scanner/class-rules.php:680
+msgid "For fragment caching inside a page, use the WordPress object cache API (wp_cache_get/wp_cache_set), which VIP backs with Memcached."
+msgstr ""
+
+#: includes/scanner/class-rules.php:691
+msgid "Full object-cache flush"
+msgstr ""
+
+#: includes/scanner/class-rules.php:697
+msgid "A call to wp_cache_flush()."
+msgstr ""
+
+#: includes/scanner/class-rules.php:698
+msgid "The object cache on VIP is shared infrastructure. Flushing all of it evicts every other cached value on the site at once and produces a burst of uncached traffic straight onto the database."
+msgstr ""
+
+#: includes/scanner/class-rules.php:699
+msgid "Delete only the keys you invalidated with wp_cache_delete(), or move the data into its own cache group and version the group key."
+msgstr ""
+
+#: includes/scanner/class-rules.php:709
+msgid "Code that disables the page cache"
+msgstr ""
+
+#: includes/scanner/class-rules.php:715
+msgid "nocache_headers(), or a Cache-Control / Pragma / Expires header sent by hand."
+msgstr ""
+
+#: includes/scanner/class-rules.php:716
+msgid "Sending no-cache headers on a front-end response tells the VIP edge cache not to store the page. Applied broadly, it takes the site off the CDN and puts every visitor onto the origin."
+msgstr ""
+
+#: includes/scanner/class-rules.php:717
+msgid "Scope the header to genuinely per-user responses. Where the page is mostly static with a small dynamic part, cache the page and load the dynamic fragment separately."
+msgstr ""
+
+#: includes/scanner/class-rules.php:718
+msgid "Use the VIP Cache API to set an explicit max-age instead of disabling caching outright."
+msgstr ""
+
+#: includes/scanner/class-rules.php:727
+msgid "Cookie set on a front-end response"
+msgstr ""
+
+#: includes/scanner/class-rules.php:733
+msgid "A call to setcookie() or setrawcookie()."
+msgstr ""
+
+#: includes/scanner/class-rules.php:734
+msgid "Cookies interact with the edge cache: the wrong cookie name on a front-end response can make every visitor a cache miss. Only a defined set of cookie prefixes is safe to vary on."
+msgstr ""
+
+#: includes/scanner/class-rules.php:735
+msgid "Check the cookie against the VIP cache-personalisation rules, and set it only on the responses that genuinely need it rather than on every page load."
+msgstr ""
+
+#: includes/scanner/class-rules.php:736
+msgid "Read the value in JavaScript after the cached page loads, so the HTML itself stays cacheable."
+msgstr ""
+
+#: includes/scanner/class-rules.php:755
+msgid "WP-Cron constant defined in application code"
+msgstr ""
+
+#: includes/scanner/class-rules.php:761
+msgid "DISABLE_WP_CRON, ALTERNATE_WP_CRON or WP_CRON_LOCK_TIMEOUT defined by a plugin or theme."
+msgstr ""
+
+#: includes/scanner/class-rules.php:762
+msgid "VIP replaces WP-Cron with Cron Control, which runs events from a managed runner rather than from page loads. Redefining these constants either does nothing or interferes with the platform runner."
+msgstr ""
+
+#: includes/scanner/class-rules.php:763
+msgid "Remove the constant. Cron Control already guarantees that scheduled events run without depending on site traffic."
+msgstr ""
+
+#: includes/scanner/class-rules.php:772
+msgid "Manual cron invocation or cron array manipulation"
+msgstr ""
+
+#: includes/scanner/class-rules.php:778
+msgid "spawn_cron(), a direct call into wp-cron.php, or direct reads and writes of the cron array."
+msgstr ""
+
+#: includes/scanner/class-rules.php:779
+msgid "Cron Control owns the event queue on VIP. Code that spawns its own cron run or rewrites the cron array fights the platform runner and can drop or duplicate events."
+msgstr ""
+
+#: includes/scanner/class-rules.php:780
+msgid "Schedule work with wp_schedule_event() and wp_schedule_single_event() and let Cron Control run it."
+msgstr ""
+
+#: includes/scanner/class-rules.php:781
+msgid "For work that must run on a precise schedule or take a long time, use a WP-CLI command triggered by Cron Control."
+msgstr ""
+
+#: includes/scanner/class-rules.php:792
+msgid "Custom cron schedule"
+msgstr ""
+
+#: includes/scanner/class-rules.php:798
+msgid "A callback registered on the cron_schedules filter."
+msgstr ""
+
+#: includes/scanner/class-rules.php:799
+msgid "Cron Control executes events at a bounded concurrency. Very short intervals produce a backlog rather than more frequent execution, so a custom schedule is worth checking against how long the job actually takes."
+msgstr ""
+
+#: includes/scanner/class-rules.php:800
+msgid "Confirm the interval is at least a minute and that the job finishes well inside it. Long jobs should be split into batches."
+msgstr ""
+
+#: includes/scanner/class-rules.php:820
+msgid "Shell command execution"
+msgstr ""
+
+#: includes/scanner/class-rules.php:826
+msgid "A call that shells out to the operating system."
+msgstr ""
+
+#: includes/scanner/class-rules.php:827
+msgid "Process execution is disabled in VIP application containers, so these calls fail. They are also a command-injection risk whenever any part of the command is built from input."
+msgstr ""
+
+#: includes/scanner/class-rules.php:828
+msgid "Replace the external binary with a PHP library or a WordPress API. Where the work is genuinely a batch job, implement it as a WP-CLI command."
+msgstr ""
+
+#: includes/scanner/class-rules.php:829
+msgid "For media processing specifically, the platform already handles resizing and format conversion — no external binary is needed."
+msgstr ""
+
+#: includes/scanner/class-rules.php:839
+msgid "Dynamic code execution"
+msgstr ""
+
+#: includes/scanner/class-rules.php:845
+msgid "eval(), create_function(), or assert() called with a string."
+msgstr ""
+
+#: includes/scanner/class-rules.php:846
+msgid "Executing code assembled at runtime is a remote-code-execution risk and cannot be reviewed statically. VIP code review rejects it, and create_function() was removed in PHP 8."
+msgstr ""
+
+#: includes/scanner/class-rules.php:847
+msgid "Rewrite the dynamic code as a real function, a closure, or a lookup table of allowed behaviours."
+msgstr ""
+
+#: includes/scanner/class-rules.php:857
+msgid "Unserialising possibly untrusted data"
+msgstr ""
+
+#: includes/scanner/class-rules.php:863
+msgid "A call to unserialize()."
+msgstr ""
+
+#: includes/scanner/class-rules.php:864
+msgid "PHP object injection through unserialize() can lead to remote code execution when the payload is attacker-controlled. It is on the VIP restricted-function list."
+msgstr ""
+
+#: includes/scanner/class-rules.php:865
+msgid "Use JSON for data interchange, and maybe_unserialize() only for values WordPress itself serialised."
+msgstr ""
+
+#: includes/scanner/class-rules.php:866
+msgid "If unserialize() is unavoidable, pass [\"allowed_classes\" => false]."
+msgstr ""
+
+#: includes/scanner/class-rules.php:875
+msgid "Request data echoed without escaping"
+msgstr ""
+
+#: includes/scanner/class-rules.php:881
+msgid "A superglobal printed directly by echo or print."
+msgstr ""
+
+#: includes/scanner/class-rules.php:882
+msgid "This is a reflected cross-site scripting vector. VIP code review treats unescaped output as a blocker."
+msgstr ""
+
+#: includes/scanner/class-rules.php:883
+msgid "Sanitise on input with sanitize_text_field( wp_unslash( ... ) ) and escape on output with esc_html(), esc_attr() or esc_url() as appropriate."
+msgstr ""
+
+#: includes/scanner/class-rules.php:893
+msgid "extract() imports variables from an array"
+msgstr ""
+
+#: includes/scanner/class-rules.php:899
+msgid "A call to extract()."
+msgstr ""
+
+#: includes/scanner/class-rules.php:900
+msgid "extract() creates variables whose names come from data, so it can overwrite existing variables and makes the surrounding code impossible to reason about or review."
+msgstr ""
+
+#: includes/scanner/class-rules.php:901
+msgid "Read the array keys explicitly, or destructure with list()/[] so the variable names are visible in the source."
+msgstr ""
+
+#: includes/scanner/class-rules.php:911
+msgid "File included from a variable path"
+msgstr ""
+
+#: includes/scanner/class-rules.php:917
+msgid "include or require whose path is built from a variable."
+msgstr ""
+
+#: includes/scanner/class-rules.php:918
+msgid "If any part of the path can be influenced by input, this is a local file inclusion vulnerability."
+msgstr ""
+
+#: includes/scanner/class-rules.php:919
+msgid "Validate the variable against an explicit allow-list of filenames before including it, and anchor the path to a known base directory."
+msgstr ""
+
+#: includes/scanner/class-rules.php:920
+msgid "For template loading, use locate_template() or get_template_part(), which resolve against the theme only."
+msgstr ""
+
+#: includes/scanner/class-rules.php:929
+msgid "PHP file with no direct-access guard"
+msgstr ""
+
+#: includes/scanner/class-rules.php:935
+msgid "A PHP file that declares functions or classes without checking for ABSPATH first."
+msgstr ""
+
+#: includes/scanner/class-rules.php:936
+msgid "Without the guard the file executes if it is requested directly, outside the WordPress bootstrap, which can expose errors or run code without any of the usual context."
+msgstr ""
+
+#: includes/scanner/class-rules.php:937
+msgid "Add defined( 'ABSPATH' ) || exit; near the top of the file, below the file docblock."
+msgstr ""
+
+#: includes/scanner/class-rules.php:957
+msgid "PHP session used"
+msgstr ""
+
+#: includes/scanner/class-rules.php:963
+msgid "session_start(), another session function, or $_SESSION."
+msgstr ""
+
+#: includes/scanner/class-rules.php:964
+msgid "PHP sessions are not supported on VIP. Requests are served by many containers with no shared session store, so a session written on one request is missing on the next, and starting a session sends headers that take the response out of the page cache."
+msgstr ""
+
+#: includes/scanner/class-rules.php:965
+msgid "Move per-user state into a cookie, user meta, or the object cache keyed by a value the client sends. Move short-lived flow state into a signed token in the URL."
+msgstr ""
+
+#: includes/scanner/class-rules.php:966
+msgid "For logged-in users, user meta is the direct replacement and is already cached."
+msgstr ""
+
+#: includes/scanner/class-rules.php:976
+msgid "PHP runtime setting changed at request time"
+msgstr ""
+
+#: includes/scanner/class-rules.php:982
+msgid "ini_set(), set_time_limit(), error_reporting(), putenv() or dl()."
+msgstr ""
+
+#: includes/scanner/class-rules.php:983
+msgid "PHP configuration on VIP is managed by the platform. These calls are either ignored or overridden, so code that depends on the new value behaves differently in production than it does locally."
+msgstr ""
+
+#: includes/scanner/class-rules.php:984
+msgid "Remove the call and make the code work within the platform limits. If a limit genuinely blocks the workload, raise it with VIP support rather than trying to change it from PHP."
+msgstr ""
+
+#: includes/scanner/class-rules.php:985
+msgid "Work that needs a long execution time belongs in a WP-CLI command or a batched cron job, not a web request."
+msgstr ""
+
+#: includes/scanner/class-rules.php:994
+msgid "Assumption about the server or filesystem layout"
+msgstr ""
+
+#: includes/scanner/class-rules.php:1000
+msgid "Code reading the document root, host name, process details or disk statistics."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1001
+msgid "VIP runs the application in ephemeral containers behind a proxy. The document root, host name and process identity are not stable and not meaningful, and disk statistics describe a container rather than the site."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1002
+msgid "Use ABSPATH and the WordPress path helpers for locations, home_url()/site_url() for addresses, and the VIP environment constants to detect the environment."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1012
+msgid "Core path or behaviour constant redefined"
+msgstr ""
+
+#: includes/scanner/class-rules.php:1018
+msgid "A plugin or theme calling define() for a core WordPress constant."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1019
+msgid "These constants are set by the platform bootstrap on VIP. Redefining them from a plugin either has no effect, because the constant is already defined, or points WordPress at a path that does not exist on the platform."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1020
+msgid "Remove the define(). Environment-specific configuration belongs in vip-config.php, which the platform loads before WordPress."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1046
+msgid "Debug output left in the code"
+msgstr ""
+
+#: includes/scanner/class-rules.php:1052
+msgid "error_log(), var_dump(), print_r(), phpinfo() or similar."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1053
+msgid "Debug helpers can leak internal detail into a response and add noise to the platform logs. VIP code review flags them, and phpinfo() in particular discloses the environment."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1054
+msgid "Remove the call. Where logging is genuinely wanted, guard it behind WP_DEBUG and use the platform log rather than printing to the response."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1065
+msgid "mail() used instead of wp_mail()"
+msgstr ""
+
+#: includes/scanner/class-rules.php:1071
+msgid "A call to PHP's mail() function."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1072
+msgid "Outbound mail on VIP is delivered through the platform mail service, which hooks wp_mail(). PHP mail() bypasses that entirely, so the message is not sent and not logged."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1073
+msgid "Replace mail() with wp_mail(). The arguments map directly."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1083
+msgid "switch_to_blog() without a matching restore"
+msgstr ""
+
+#: includes/scanner/class-rules.php:1089
+msgid "switch_to_blog() with no restore_current_blog() in the same function."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1090
+msgid "Leaving the site switched corrupts every subsequent query and cache read in the request, and the bug surfaces far from its cause. Switching is also expensive, so doing it inside a loop is a common source of slow pages on multisite."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1091
+msgid "Pair every switch_to_blog() with restore_current_blog(), including on early-return and exception paths."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1092
+msgid "Where the data is read repeatedly across sites, collect it once and cache it rather than switching per item."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1110
+msgid "flush_rewrite_rules() called at runtime"
+msgstr ""
+
+#: includes/scanner/class-rules.php:1116
+msgid "A call to flush_rewrite_rules()."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1117
+msgid "Regenerating the rewrite rules is expensive and writes a large autoloaded option. Called on a hook such as \"init\" it runs on every request, which VIP treats as a serious performance defect."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1118
+msgid "Call it only from an activation hook or a WP-CLI command, never on a request-time hook."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1128
+msgid "wp_redirect() instead of wp_safe_redirect()"
+msgstr ""
+
+#: includes/scanner/class-rules.php:1134
+msgid "A call to wp_redirect()."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1135
+msgid "wp_redirect() will send a visitor to any host. When the destination comes from a request parameter that is an open-redirect vulnerability."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1136
+msgid "Use wp_safe_redirect(), which restricts the destination to allowed hosts, and add external hosts with the \"allowed_redirect_hosts\" filter when you need them."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1146
+msgid "Deprecated or removed function"
+msgstr ""
+
+#: includes/scanner/class-rules.php:1152
+msgid "A WordPress or PHP function that has been deprecated or removed."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1153
+msgid "VIP tracks current WordPress and PHP versions closely. Deprecated calls emit notices, and the removed PHP extensions in this list cause fatal errors on PHP 8."
+msgstr ""
+
+#: includes/scanner/class-rules.php:1154
+msgid "Replace the call with its current equivalent before migrating."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:80
+msgid "Expected to fail or behave incorrectly on the VIP Platform."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:84
+msgid "Potentially incompatible"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:85
+msgid "Depends on runtime conditions static analysis cannot resolve. Needs a human check."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:89
+msgid "Performance concern"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:90
+msgid "Works on VIP, but can create unacceptable performance characteristics at scale."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:94
+msgid "Security concern"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:95
+msgid "Flagged by the VIP code review process as a security risk."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:99
+msgid "Redundant on VIP"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:100
+msgid "The platform already provides this capability; the local implementation can conflict with it."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:104
+msgid "Coding-standard violation"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:105
+msgid "Reported by the WordPress-VIP-Go PHPCS standard used in VIP code review."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:109
+msgid "Recommendation"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:110
+msgid "Not a blocker, but worth changing before migrating."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:114
+msgid "Informational"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:115
+msgid "Context that helps plan the migration. No action necessarily required."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:129
+msgid "Critical"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:133
+#: includes/scanner/class-taxonomy.php:163
+msgid "High"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:137
+#: includes/scanner/class-taxonomy.php:167
+msgid "Medium"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:141
+#: includes/scanner/class-taxonomy.php:171
+msgid "Low"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:145
+msgid "Info"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:159
+msgid "Definitive"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:160
+msgid "The pattern itself is the problem; no further context can make it acceptable."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:164
+msgid "Surrounding code was analysed and supports the finding."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:168
+msgid "Heuristic match. Review the code before acting on it."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:172
+msgid "Weak signal, reported for completeness. Expect false positives."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:185
+msgid "Automatically fixable"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:186
+msgid "A mechanical substitution resolves it."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:189
+msgid "Manually fixable"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:190
+msgid "A developer must rewrite the affected code."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:193
+msgid "Configurable"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:194
+msgid "Resolved through configuration, a constant, or a filter rather than a code change."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:197
+msgid "Requires architectural change"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:198
+msgid "The feature has to be redesigned around the platform."
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:212
+msgid "Caching"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:213
+msgid "Performance"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:214
+msgid "Security"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:215
+msgid "Cron and scheduling"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:216
+msgid "External requests"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:217
+msgid "Environment and configuration"
+msgstr ""
+
+#: includes/scanner/class-taxonomy.php:219
+msgid "Coding standards"
 msgstr ""
