@@ -184,9 +184,6 @@ class UI {
 				<div class="wvc-masthead__text">
 					<h1 class="wvc-masthead__title">
 						<?php esc_html_e( 'WordPress VIP Compatibility', 'wp-vip-compatibility' ); ?>
-						<?php if ( $version ) : ?>
-							<span class="wvc-badge wvc-badge--neutral"><?php echo esc_html( 'v' . $version ); ?></span>
-						<?php endif; ?>
 					</h1>
 					<p class="wvc-masthead__tagline">
 						<?php esc_html_e( 'Audit this site against the WordPress VIP platform requirements before you migrate.', 'wp-vip-compatibility' ); ?>

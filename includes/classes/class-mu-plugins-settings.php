@@ -45,6 +45,12 @@ class MU_Plugins_Settings {
 
 		$index = Results_Store::get_index();
 
+		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			esc_html__( 'VIP reserves wp-content/mu-plugins for platform code, so everything here has to move to client-mu-plugins/ — except the plugins VIP already preinstalls, and anything a previous host added, which should be dropped instead. Loose PHP files and directories are listed separately because WordPress only auto-loads files at the root of mu-plugins, and there is no reliable way to tell which directory belongs to which loader file.', 'wp-vip-compatibility' ),
+			'info',
+			esc_html__( 'How must-use plugins migrate', 'wp-vip-compatibility' )
+		);
+
 		UI::render_toolbar(
 			array(
 				'search_label'  => __( 'Search must-use plugins', 'wp-vip-compatibility' ),
@@ -63,12 +69,6 @@ class MU_Plugins_Settings {
 
 		echo '</tbody></table>';
 		echo '</div>';
-
-		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-			esc_html__( 'VIP reserves wp-content/mu-plugins for platform code, so everything here has to move to client-mu-plugins/ — except the plugins VIP already preinstalls, and anything a previous host added, which should be dropped instead. Loose PHP files and directories are listed separately because WordPress only auto-loads files at the root of mu-plugins, and there is no reliable way to tell which directory belongs to which loader file.', 'wp-vip-compatibility' ),
-			'info',
-			esc_html__( 'How must-use plugins migrate', 'wp-vip-compatibility' )
-		);
 	}
 
 	/**

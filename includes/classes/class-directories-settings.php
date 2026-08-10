@@ -42,6 +42,12 @@ class Directories_Settings {
 
 		$this->render_summary( $audit['summary'] );
 
+		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			esc_html__( 'Not everything here has to be removed. "Not deployed" marks the directories WordPress or the local environment maintains — uploads/ above all, which is the one path under wp-content that application code may write to on VIP. It is imported with the VIP CLI rather than committed. Only the entries marked "Remove or relocate" actually conflict with the platform.', 'wp-vip-compatibility' ),
+			'info',
+			esc_html__( 'How to read this list', 'wp-vip-compatibility' )
+		);
+
 		UI::render_toolbar( array( 'search_label' => __( 'Search files and folders', 'wp-vip-compatibility' ) ) );
 
 		echo '<div class="wvc-table-wrap">';
@@ -82,12 +88,6 @@ class Directories_Settings {
 
 		echo '</tbody></table>';
 		echo '</div>';
-
-		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-			esc_html__( 'Not everything here has to be removed. "Not deployed" marks the directories WordPress or the local environment maintains — uploads/ above all, which is the one path under wp-content that application code may write to on VIP. It is imported with the VIP CLI rather than committed. Only the entries marked "Remove or relocate" actually conflict with the platform.', 'wp-vip-compatibility' ),
-			'info',
-			esc_html__( 'How to read this list', 'wp-vip-compatibility' )
-		);
 	}
 
 	/**

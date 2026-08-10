@@ -42,6 +42,12 @@ class Database_Settings {
 
 		$this->render_summary( $audit['summary'] );
 
+		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			esc_html__( 'Run these statements against a backup first, and convert collations before the final export rather than after the import. Table prefixes are the exception: report a non-standard prefix to VIP and only rename tables if VIP confirms it, because the prefix is also embedded in option names and user meta keys that control roles and capabilities.', 'wp-vip-compatibility' ),
+			'warning',
+			esc_html__( 'Before you run any SQL', 'wp-vip-compatibility' )
+		);
+
 		UI::render_toolbar( array( 'search_label' => __( 'Search database tables', 'wp-vip-compatibility' ) ) );
 
 		echo '<div class="wvc-table-wrap">';
@@ -95,12 +101,6 @@ class Database_Settings {
 
 		echo '</tbody></table>';
 		echo '</div>';
-
-		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-			esc_html__( 'Run these statements against a backup first, and convert collations before the final export rather than after the import. Table prefixes are the exception: report a non-standard prefix to VIP and only rename tables if VIP confirms it, because the prefix is also embedded in option names and user meta keys that control roles and capabilities.', 'wp-vip-compatibility' ),
-			'warning',
-			esc_html__( 'Before you run any SQL', 'wp-vip-compatibility' )
-		);
 	}
 
 	/**

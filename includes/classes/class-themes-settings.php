@@ -46,6 +46,12 @@ class Themes_Settings {
 		$index   = Results_Store::get_index();
 		$active  = get_stylesheet();
 
+		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			esc_html__( 'Inactive themes still ship in the repository and are still scanned by the VIP Code Analysis Bot. Removing the ones you do not use is the quickest way to shrink this list.', 'wp-vip-compatibility' ),
+			'info',
+			esc_html__( 'Before you migrate', 'wp-vip-compatibility' )
+		);
+
 		UI::render_toolbar(
 			array(
 				'search_label'  => __( 'Search themes', 'wp-vip-compatibility' ),
@@ -98,12 +104,6 @@ class Themes_Settings {
 
 		echo '</tbody></table>';
 		echo '</div>';
-
-		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-			esc_html__( 'Inactive themes still ship in the repository and are still scanned by the VIP Code Analysis Bot. Removing the ones you do not use is the quickest way to shrink this list.', 'wp-vip-compatibility' ),
-			'info',
-			esc_html__( 'Before you migrate', 'wp-vip-compatibility' )
-		);
 	}
 
 	/**

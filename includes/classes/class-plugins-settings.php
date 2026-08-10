@@ -46,6 +46,18 @@ class Plugins_Settings {
 		$updates = get_site_transient( 'update_plugins' );
 		$index   = Results_Store::get_index();
 
+		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			wp_kses_post(
+				sprintf(
+					/* translators: %s: Link to the findings screen. */
+					__( 'A verdict of "Blocked" means at least one finding is expected to fail on VIP; "Needs review" means there is work to do that will not by itself stop a migration. %s for the detail behind every verdict.', 'wp-vip-compatibility' ),
+					'<a href="' . esc_url( UI::get_findings_url() ) . '">' . esc_html__( 'Open the findings report', 'wp-vip-compatibility' ) . '</a>'
+				)
+			),
+			'info',
+			esc_html__( 'How to read this column', 'wp-vip-compatibility' )
+		);
+
 		UI::render_toolbar(
 			array(
 				'search_label'  => __( 'Search plugins', 'wp-vip-compatibility' ),
@@ -64,18 +76,6 @@ class Plugins_Settings {
 
 		echo '</tbody></table>';
 		echo '</div>';
-
-		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-			wp_kses_post(
-				sprintf(
-					/* translators: %s: Link to the findings screen. */
-					__( 'A verdict of "Blocked" means at least one finding is expected to fail on VIP; "Needs review" means there is work to do that will not by itself stop a migration. %s for the detail behind every verdict.', 'wp-vip-compatibility' ),
-					'<a href="' . esc_url( UI::get_findings_url() ) . '">' . esc_html__( 'Open the findings report', 'wp-vip-compatibility' ) . '</a>'
-				)
-			),
-			'info',
-			esc_html__( 'How to read this column', 'wp-vip-compatibility' )
-		);
 	}
 
 	/**
