@@ -463,7 +463,7 @@ class Rules {
 				'severity'    => Taxonomy::SEVERITY_MEDIUM,
 				'confidence'  => Taxonomy::CONFIDENCE_HIGH,
 				'fixability'  => Taxonomy::FIX_MANUAL,
-				'detected'    => __( 'A core function that VIP documents as running an uncached database query.', 'wp-vip-compatibility' ),
+				'detected'    => __( 'A core function that WordPress VIP documents as running an uncached database query.', 'wp-vip-compatibility' ),
 				'why'         => __( 'These functions query the database directly on every call with no object-cache layer in front of them. On a high-traffic site they turn into an uncached query per page view.', 'wp-vip-compatibility' ),
 				'remediation' => __( 'Cache the result yourself with wp_cache_get()/wp_cache_set(), or replace the lookup with one that is cached — get_post(), get_term(), or a WP_Query with the identifier you already hold.', 'wp-vip-compatibility' ),
 				'alternative' => __( 'Store the resolved ID alongside the data that needed it so the lookup only happens once.', 'wp-vip-compatibility' ),

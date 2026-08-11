@@ -66,6 +66,19 @@ class Taxonomy {
 	const FIX_ARCHITECTURAL = 'architectural';
 
 	/**
+	 * Consequence tiers.
+	 *
+	 * A severity says how bad a rule hit is; a tier says what that means for the
+	 * person reading it, which is what the interface leads with. Every screen
+	 * uses these four words and only these four, so "critical", "blocker",
+	 * "needs attention" and "warning" cannot drift apart between screens.
+	 */
+	const TIER_BLOCKING  = 'blocking';
+	const TIER_IMPORTANT = 'important';
+	const TIER_WARNING   = 'warning';
+	const TIER_INFO      = 'info';
+
+	/**
 	 * Returns the type definitions, keyed by type.
 	 *
 	 * `blocking` marks the types that stop a migration rather than merely
@@ -146,6 +159,64 @@ class Taxonomy {
 				'weight' => 1,
 			),
 		);
+	}
+
+	/**
+	 * Returns the tier definitions, most serious first.
+	 *
+	 * @return array<string, array<string, mixed>> Tier definitions keyed by tier.
+	 */
+	public static function get_tiers() {
+		return array(
+			self::TIER_BLOCKING  => array(
+				'label'      => __( 'Blocking', 'wp-vip-compatibility' ),
+				'summary'    => __( 'Expected to fail on the VIP Platform. Resolve these before migrating.', 'wp-vip-compatibility' ),
+				'severities' => array( self::SEVERITY_CRITICAL ),
+			),
+			self::TIER_IMPORTANT => array(
+				'label'      => __( 'Important', 'wp-vip-compatibility' ),
+				'summary'    => __( 'Will not stop the migration, but needs attention before it.', 'wp-vip-compatibility' ),
+				'severities' => array( self::SEVERITY_HIGH ),
+			),
+			self::TIER_WARNING   => array(
+				'label'      => __( 'Warning', 'wp-vip-compatibility' ),
+				'summary'    => __( 'A potential concern. Review it and decide.', 'wp-vip-compatibility' ),
+				'severities' => array( self::SEVERITY_MEDIUM ),
+			),
+			self::TIER_INFO      => array(
+				'label'      => __( 'Informational', 'wp-vip-compatibility' ),
+				'summary'    => __( 'Context that helps plan the migration. No action necessarily required.', 'wp-vip-compatibility' ),
+				'severities' => array( self::SEVERITY_LOW, self::SEVERITY_INFO ),
+			),
+		);
+	}
+
+	/**
+	 * Returns the tier a severity belongs to.
+	 *
+	 * @param string $severity A severity slug.
+	 * @return string The tier slug.
+	 */
+	public static function get_tier( $severity ) {
+		foreach ( self::get_tiers() as $tier => $definition ) {
+			if ( in_array( $severity, $definition['severities'], true ) ) {
+				return $tier;
+			}
+		}
+
+		return self::TIER_INFO;
+	}
+
+	/**
+	 * Returns the severities a tier covers.
+	 *
+	 * @param string $tier A tier slug.
+	 * @return string[] Severity slugs, empty when the tier is unknown.
+	 */
+	public static function get_tier_severities( $tier ) {
+		$tiers = self::get_tiers();
+
+		return $tiers[ $tier ]['severities'] ?? array();
 	}
 
 	/**

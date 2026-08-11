@@ -2,9 +2,15 @@
 /**
  * The findings report screen.
  *
- * The other screens answer "is this plugin ready?". This one answers "what
- * exactly is wrong, and what do I do about it?" — which is the question the
- * original plugin left to a JSON file in the uploads directory.
+ * The other screens answer "is this ready?". This one answers "what exactly is
+ * wrong, and what do I do about it?".
+ *
+ * The report is organised by consequence rather than by inventory. Blocking and
+ * important findings are laid out first and open; warnings and informational
+ * findings are present but folded away, because a hundred coding-standard notes
+ * should never be what a migration lead reads first. Within a target, findings
+ * from the same rule are collapsed into one entry with its locations attached:
+ * a rule that fires twenty times is one decision, not twenty.
  *
  * @package wp-vip-compatibility
  */
@@ -14,7 +20,6 @@ namespace WP_VIP_COMPATIBILITY\Includes\Classes;
 use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Results_Store;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Rules;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Scanner;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
@@ -41,7 +46,7 @@ class Findings_Settings {
 	}
 
 	/**
-	 * Runs a full rescan and returns to the findings screen.
+	 * Runs a full rescan and returns to the screen the request came from.
 	 *
 	 * @return void
 	 */
@@ -68,9 +73,7 @@ class Findings_Settings {
 	 * @return void
 	 */
 	public function render_settings_page() {
-		$filters   = $this->read_filters();
 		$aggregate = Report::aggregate();
-		$findings  = Report::findings( $filters );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Presentation only; the scan itself was nonce-checked in handle_rescan().
 		if ( isset( $_GET['wvc-scanned'] ) ) {
@@ -78,9 +81,9 @@ class Findings_Settings {
 				esc_html(
 					sprintf(
 						/* translators: 1: Number of targets. 2: Number of PHP files. */
-						__( 'Scanned %1$d targets and %2$d PHP files.', 'wp-vip-compatibility' ),
+						__( 'Scanned %1$d items and %2$s PHP files.', 'wp-vip-compatibility' ),
 						(int) $aggregate['targets'],
-						(int) $aggregate['totals']['files']
+						number_format_i18n( (int) $aggregate['totals']['files'] )
 					)
 				),
 				'success',
@@ -88,24 +91,43 @@ class Findings_Settings {
 			);
 		}
 
-		$this->render_scan_state( $aggregate );
-
 		if ( 0 === $aggregate['targets'] ) {
-			$this->render_empty_scan_state();
+			UI::render_empty_state(
+				__( 'No scan results yet', 'wp-vip-compatibility' ),
+				__( 'Run a scan to analyse every plugin, theme and must-use plugin against the VIP Platform requirements.', 'wp-vip-compatibility' ),
+				array(
+					'label'   => __( 'Run the first scan', 'wp-vip-compatibility' ),
+					'submit'  => 'wvc_rescan',
+					'nonce'   => self::RESCAN_ACTION,
+					'icon'    => 'refresh',
+					'primary' => true,
+				)
+			);
+
 			return;
 		}
 
+		$filters = $this->read_filters();
+
+		$this->render_scan_bar( $aggregate );
 		$this->render_filters( $filters, $aggregate );
+
+		$findings = Report::findings( $filters );
 
 		if ( empty( $findings ) ) {
 			UI::render_empty_state(
 				__( 'No findings match these filters', 'wp-vip-compatibility' ),
-				__( 'Clear the filters to see everything the last scan reported.', 'wp-vip-compatibility' )
+				__( 'Clear the filters to see everything the last scan reported.', 'wp-vip-compatibility' ),
+				array(
+					'label' => __( 'Clear filters', 'wp-vip-compatibility' ),
+					'url'   => UI::get_screen_url( 'findings' ),
+				)
 			);
+
 			return;
 		}
 
-		$this->render_findings( $findings );
+		$this->render_tiers( $findings, $filters );
 	}
 
 	/**
@@ -116,7 +138,7 @@ class Findings_Settings {
 	private function read_filters() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only filtering of a report the caller can already see.
 		$filters = array(
-			'severity' => isset( $_GET['severity'] ) ? sanitize_key( wp_unslash( $_GET['severity'] ) ) : '',
+			'tier'     => isset( $_GET['tier'] ) ? sanitize_key( wp_unslash( $_GET['tier'] ) ) : '',
 			'type'     => isset( $_GET['type'] ) ? sanitize_text_field( wp_unslash( $_GET['type'] ) ) : '',
 			'category' => isset( $_GET['category'] ) ? sanitize_key( wp_unslash( $_GET['category'] ) ) : '',
 			'target'   => isset( $_GET['target'] ) ? sanitize_text_field( wp_unslash( $_GET['target'] ) ) : '',
@@ -125,8 +147,8 @@ class Findings_Settings {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Reject anything that is not a value we actually produce.
-		if ( ! isset( Taxonomy::get_severities()[ $filters['severity'] ] ) ) {
-			$filters['severity'] = '';
+		if ( ! isset( UI::get_tiers()[ $filters['tier'] ] ) ) {
+			$filters['tier'] = '';
 		}
 
 		if ( ! isset( Taxonomy::get_types()[ $filters['type'] ] ) ) {
@@ -145,173 +167,190 @@ class Findings_Settings {
 	}
 
 	/**
-	 * Renders the scan state header: when it ran, and what changed since.
+	 * Renders the slim bar carrying the scan state and the report-level actions.
+	 *
+	 * What changed since the previous scan is deliberately not repeated here: the
+	 * overview owns that, and this screen owns the findings themselves.
 	 *
 	 * @param array<string, mixed> $aggregate The aggregate.
 	 * @return void
 	 */
-	private function render_scan_state( array $aggregate ) {
-		$delta = Results_Store::get_delta();
+	private function render_scan_bar( array $aggregate ) {
 		?>
-		<section class="wvc-scanbar">
-			<div class="wvc-scanbar__state">
-				<?php if ( $aggregate['scanned_at'] > 0 ) : ?>
-					<p class="wvc-scanbar__when">
-						<?php echo UI::get_icon( 'clock', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-						<?php
-						printf(
-							/* translators: 1: Human-readable time difference. 2: Number of targets. 3: Number of PHP files. */
-							esc_html__( 'Last scanned %1$s ago — %2$d plugins, themes and must-use plugins, %3$d PHP files.', 'wp-vip-compatibility' ),
-							esc_html( human_time_diff( $aggregate['scanned_at'] ) ),
-							(int) $aggregate['targets'],
-							(int) $aggregate['totals']['files']
-						);
-						?>
-					</p>
-				<?php else : ?>
-					<p class="wvc-scanbar__when"><?php esc_html_e( 'Nothing has been scanned yet.', 'wp-vip-compatibility' ); ?></p>
-				<?php endif; ?>
-
-				<?php if ( null !== $delta ) : ?>
-					<p class="wvc-scanbar__delta wvc-scanbar__delta--<?php echo esc_attr( $delta['total'] > 0 ? 'worse' : ( $delta['total'] < 0 ? 'better' : 'same' ) ); ?>">
-						<?php echo UI::get_icon( 'trend', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-						<?php
-						if ( 0 === $delta['total'] ) {
-							esc_html_e( 'No change in the total number of findings since the previous scan.', 'wp-vip-compatibility' );
-						} else {
-							printf(
-								/* translators: 1: Signed change in findings. 2: Signed change in blockers. */
-								esc_html__( '%1$s findings and %2$s blockers since the previous scan.', 'wp-vip-compatibility' ),
-								esc_html( sprintf( '%+d', $delta['total'] ) ),
-								esc_html( sprintf( '%+d', $delta['blocking'] ) )
-							);
-						}
-						?>
-					</p>
-				<?php endif; ?>
-			</div>
+		<div class="wvc-scanbar">
+			<p class="wvc-scanbar__state">
+				<?php echo UI::get_icon( 'clock', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+				<?php
+				printf(
+					/* translators: 1: Human-readable time difference. 2: Number of findings. */
+					esc_html__( 'Scanned %1$s ago · %2$s findings', 'wp-vip-compatibility' ),
+					esc_html( human_time_diff( max( 1, (int) $aggregate['scanned_at'] ) ) ),
+					esc_html( number_format_i18n( (int) $aggregate['totals']['findings'] ) )
+				);
+				?>
+			</p>
 
 			<div class="wvc-scanbar__actions">
-				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-					<input type="hidden" name="action" value="wvc_rescan" />
-					<?php wp_nonce_field( self::RESCAN_ACTION ); ?>
-					<button type="submit" class="wvc-btn wvc-btn--primary">
-						<?php echo UI::get_icon( 'refresh', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-						<?php esc_html_e( 'Rescan everything', 'wp-vip-compatibility' ); ?>
-					</button>
-				</form>
+				<?php
+				echo UI::get_action_button( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+					array(
+						'label'  => __( 'Rescan', 'wp-vip-compatibility' ),
+						'submit' => 'wvc_rescan',
+						'nonce'  => self::RESCAN_ACTION,
+						'icon'   => 'refresh',
+					)
+				);
+				?>
 
-				<?php foreach ( Export::get_formats() as $slug => $format ) : ?>
-					<a class="wvc-btn wvc-btn--ghost" href="<?php echo esc_url( Export::get_url( $slug ) ); ?>" title="<?php echo esc_attr( $format['description'] ); ?>">
-						<?php echo UI::get_icon( 'download', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-						<?php echo esc_html( $format['label'] ); ?>
-					</a>
-				<?php endforeach; ?>
+				<span class="wvc-exports">
+					<span class="wvc-exports__label"><?php esc_html_e( 'Export', 'wp-vip-compatibility' ); ?></span>
+					<?php foreach ( Export::get_formats() as $slug => $format ) : ?>
+						<a class="wvc-exports__link" href="<?php echo esc_url( Export::get_url( $slug ) ); ?>" title="<?php echo esc_attr( $format['description'] ); ?>">
+							<?php echo esc_html( $format['label'] ); ?>
+						</a>
+					<?php endforeach; ?>
+				</span>
 			</div>
-		</section>
+		</div>
 		<?php
 	}
 
 	/**
-	 * Renders the prompt shown before the first scan.
+	 * Renders the filter bar.
 	 *
-	 * @return void
-	 */
-	private function render_empty_scan_state() {
-		UI::render_empty_state(
-			__( 'No scan results yet', 'wp-vip-compatibility' ),
-			__( 'Run a scan to analyse every plugin, theme and must-use plugin against the VIP Platform requirements.', 'wp-vip-compatibility' )
-		);
-	}
-
-	/**
-	 * Renders the filter controls and the headline counts.
+	 * The tier control is the primary filter and is always visible. Type,
+	 * category, target and free text are secondary and stay folded away until
+	 * they are needed — they used to occupy a four-field form above the report on
+	 * every visit, alongside a separate row of severity cards that did the same
+	 * job as the control below.
 	 *
 	 * @param array<string, string> $filters   The active filters.
 	 * @param array<string, mixed>  $aggregate The aggregate.
 	 * @return void
 	 */
 	private function render_filters( array $filters, array $aggregate ) {
-		$base = UI::get_screen_url( 'findings' );
+		$base      = UI::get_screen_url( 'findings' );
+		$secondary = (int) ( '' !== $filters['type'] ) + (int) ( '' !== $filters['category'] ) + (int) ( '' !== $filters['target'] ) + (int) ( '' !== $filters['search'] );
+		$total     = (int) $aggregate['totals']['findings'];
 		?>
-		<div class="wvc-severity-row">
-			<?php
-			foreach ( Taxonomy::get_severities() as $severity => $definition ) :
-				$count = (int) ( $aggregate['by_severity'][ $severity ] ?? 0 );
-
-				if ( 0 === $count ) {
-					continue;
-				}
-
-				$is_active = ( $filters['severity'] === $severity );
-				$url       = $is_active
-					? remove_query_arg( 'severity', add_query_arg( $this->query_args( $filters, 'severity' ), $base ) )
-					: add_query_arg( array_merge( $this->query_args( $filters, 'severity' ), array( 'severity' => $severity ) ), $base );
-				?>
-				<a class="wvc-sevcard wvc-sevcard--<?php echo esc_attr( $severity ); ?><?php echo $is_active ? ' is-active' : ''; ?>" href="<?php echo esc_url( $url ); ?>">
-					<span class="wvc-sevcard__count"><?php echo esc_html( number_format_i18n( $count ) ); ?></span>
-					<span class="wvc-sevcard__label"><?php echo esc_html( $definition['label'] ); ?></span>
+		<div class="wvc-filterbar">
+			<div class="wvc-segmented wvc-segmented--links" role="group" aria-label="<?php esc_attr_e( 'Filter findings by importance', 'wp-vip-compatibility' ); ?>">
+				<a
+					class="<?php echo ( '' === $filters['tier'] ) ? 'active' : ''; ?>"
+					href="<?php echo esc_url( add_query_arg( $this->query_args( $filters, 'tier' ), $base ) ); ?>"
+					<?php echo ( '' === $filters['tier'] ) ? 'aria-current="true"' : ''; ?>
+				>
+					<span><?php esc_html_e( 'All', 'wp-vip-compatibility' ); ?></span>
+					<span class="wvc-segmented__count"><?php echo esc_html( number_format_i18n( $total ) ); ?></span>
 				</a>
-			<?php endforeach; ?>
+
+				<?php foreach ( UI::get_tiers() as $tier => $definition ) : ?>
+					<?php
+					$count = 0;
+
+					foreach ( $definition['severities'] as $severity ) {
+						$count += (int) ( $aggregate['by_severity'][ $severity ] ?? 0 );
+					}
+
+					if ( 0 === $count ) {
+						continue;
+					}
+
+					$is_active = ( $filters['tier'] === $tier );
+					$url       = $is_active
+						? add_query_arg( $this->query_args( $filters, 'tier' ), $base )
+						: add_query_arg( array_merge( $this->query_args( $filters, 'tier' ), array( 'tier' => $tier ) ), $base );
+					?>
+					<a
+						class="<?php echo $is_active ? 'active' : ''; ?>"
+						href="<?php echo esc_url( $url ); ?>"
+						title="<?php echo esc_attr( $definition['summary'] ); ?>"
+						<?php echo $is_active ? 'aria-current="true"' : ''; ?>
+					>
+						<span class="wvc-tierdot wvc-tierdot--<?php echo esc_attr( $tier ); ?>" aria-hidden="true"></span>
+						<span><?php echo esc_html( $definition['label'] ); ?></span>
+						<span class="wvc-segmented__count"><?php echo esc_html( number_format_i18n( $count ) ); ?></span>
+					</a>
+				<?php endforeach; ?>
+			</div>
+
+			<details class="wvc-morefilters"<?php echo ( $secondary > 0 ) ? ' open' : ''; ?>>
+				<summary class="wvc-morefilters__summary">
+					<?php echo UI::get_icon( 'filter', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+					<span>
+						<?php
+						if ( $secondary > 0 ) {
+							printf(
+								/* translators: %d: Number of active filters. */
+								esc_html( _n( '%d more filter', '%d more filters', $secondary, 'wp-vip-compatibility' ) ),
+								$secondary
+							);
+						} else {
+							esc_html_e( 'More filters', 'wp-vip-compatibility' );
+						}
+						?>
+					</span>
+				</summary>
+
+				<form class="wvc-filters" method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>">
+					<input type="hidden" name="page" value="wvc-findings" />
+
+					<?php if ( '' !== $filters['tier'] ) : ?>
+						<input type="hidden" name="tier" value="<?php echo esc_attr( $filters['tier'] ); ?>" />
+					<?php endif; ?>
+
+					<label class="wvc-filters__field">
+						<span><?php esc_html_e( 'Type', 'wp-vip-compatibility' ); ?></span>
+						<select name="type">
+							<option value=""><?php esc_html_e( 'All types', 'wp-vip-compatibility' ); ?></option>
+							<?php foreach ( Taxonomy::get_types() as $type => $definition ) : ?>
+								<?php if ( ! empty( $aggregate['by_type'][ $type ] ) ) : ?>
+									<option value="<?php echo esc_attr( $type ); ?>" <?php selected( $filters['type'], $type ); ?>>
+										<?php echo esc_html( sprintf( '%s (%d)', $definition['label'], $aggregate['by_type'][ $type ] ) ); ?>
+									</option>
+								<?php endif; ?>
+							<?php endforeach; ?>
+						</select>
+					</label>
+
+					<label class="wvc-filters__field">
+						<span><?php esc_html_e( 'Category', 'wp-vip-compatibility' ); ?></span>
+						<select name="category">
+							<option value=""><?php esc_html_e( 'All categories', 'wp-vip-compatibility' ); ?></option>
+							<?php foreach ( Taxonomy::get_categories() as $category => $label ) : ?>
+								<?php if ( ! empty( $aggregate['by_category'][ $category ] ) ) : ?>
+									<option value="<?php echo esc_attr( $category ); ?>" <?php selected( $filters['category'], $category ); ?>>
+										<?php echo esc_html( sprintf( '%s (%d)', $label, $aggregate['by_category'][ $category ] ) ); ?>
+									</option>
+								<?php endif; ?>
+							<?php endforeach; ?>
+						</select>
+					</label>
+
+					<label class="wvc-filters__field">
+						<span><?php esc_html_e( 'Item', 'wp-vip-compatibility' ); ?></span>
+						<select name="target">
+							<option value=""><?php esc_html_e( 'Everything', 'wp-vip-compatibility' ); ?></option>
+							<?php foreach ( Results_Store::get_index() as $key => $entry ) : ?>
+								<?php if ( ! empty( $entry['summary']['total'] ) ) : ?>
+									<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $filters['target'], $key ); ?>>
+										<?php echo esc_html( sprintf( '%s (%d)', $entry['label'], $entry['summary']['total'] ) ); ?>
+									</option>
+								<?php endif; ?>
+							<?php endforeach; ?>
+						</select>
+					</label>
+
+					<label class="wvc-filters__field wvc-filters__field--grow">
+						<span><?php esc_html_e( 'Search', 'wp-vip-compatibility' ); ?></span>
+						<input type="search" name="s" value="<?php echo esc_attr( $filters['search'] ); ?>" placeholder="<?php esc_attr_e( 'Rule, file, function…', 'wp-vip-compatibility' ); ?>" />
+					</label>
+
+					<button type="submit" class="wvc-btn wvc-btn--primary wvc-btn--sm"><?php esc_html_e( 'Apply', 'wp-vip-compatibility' ); ?></button>
+					<a class="wvc-btn wvc-btn--ghost wvc-btn--sm" href="<?php echo esc_url( $base ); ?>"><?php esc_html_e( 'Reset all', 'wp-vip-compatibility' ); ?></a>
+				</form>
+			</details>
 		</div>
-
-		<form class="wvc-filters" method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>">
-			<input type="hidden" name="page" value="wvc-findings" />
-
-			<label class="wvc-filters__field">
-				<span><?php esc_html_e( 'Type', 'wp-vip-compatibility' ); ?></span>
-				<select name="type">
-					<option value=""><?php esc_html_e( 'All types', 'wp-vip-compatibility' ); ?></option>
-					<?php foreach ( Taxonomy::get_types() as $type => $definition ) : ?>
-						<?php if ( ! empty( $aggregate['by_type'][ $type ] ) ) : ?>
-							<option value="<?php echo esc_attr( $type ); ?>" <?php selected( $filters['type'], $type ); ?>>
-								<?php echo esc_html( sprintf( '%s (%d)', $definition['label'], $aggregate['by_type'][ $type ] ) ); ?>
-							</option>
-						<?php endif; ?>
-					<?php endforeach; ?>
-				</select>
-			</label>
-
-			<label class="wvc-filters__field">
-				<span><?php esc_html_e( 'Category', 'wp-vip-compatibility' ); ?></span>
-				<select name="category">
-					<option value=""><?php esc_html_e( 'All categories', 'wp-vip-compatibility' ); ?></option>
-					<?php foreach ( Taxonomy::get_categories() as $category => $label ) : ?>
-						<?php if ( ! empty( $aggregate['by_category'][ $category ] ) ) : ?>
-							<option value="<?php echo esc_attr( $category ); ?>" <?php selected( $filters['category'], $category ); ?>>
-								<?php echo esc_html( sprintf( '%s (%d)', $label, $aggregate['by_category'][ $category ] ) ); ?>
-							</option>
-						<?php endif; ?>
-					<?php endforeach; ?>
-				</select>
-			</label>
-
-			<label class="wvc-filters__field">
-				<span><?php esc_html_e( 'Target', 'wp-vip-compatibility' ); ?></span>
-				<select name="target">
-					<option value=""><?php esc_html_e( 'Everything', 'wp-vip-compatibility' ); ?></option>
-					<?php foreach ( Results_Store::get_index() as $key => $entry ) : ?>
-						<?php if ( ! empty( $entry['summary']['total'] ) ) : ?>
-							<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $filters['target'], $key ); ?>>
-								<?php echo esc_html( sprintf( '%s (%d)', $entry['label'], $entry['summary']['total'] ) ); ?>
-							</option>
-						<?php endif; ?>
-					<?php endforeach; ?>
-				</select>
-			</label>
-
-			<label class="wvc-filters__field wvc-filters__field--grow">
-				<span><?php esc_html_e( 'Search', 'wp-vip-compatibility' ); ?></span>
-				<input type="search" name="s" value="<?php echo esc_attr( $filters['search'] ); ?>" placeholder="<?php esc_attr_e( 'Rule, file, function…', 'wp-vip-compatibility' ); ?>" />
-			</label>
-
-			<?php if ( '' !== $filters['severity'] ) : ?>
-				<input type="hidden" name="severity" value="<?php echo esc_attr( $filters['severity'] ); ?>" />
-			<?php endif; ?>
-
-			<button type="submit" class="wvc-btn wvc-btn--primary"><?php esc_html_e( 'Apply', 'wp-vip-compatibility' ); ?></button>
-			<a class="wvc-btn wvc-btn--ghost" href="<?php echo esc_url( $base ); ?>"><?php esc_html_e( 'Reset', 'wp-vip-compatibility' ); ?></a>
-		</form>
 		<?php
 	}
 
@@ -324,11 +363,11 @@ class Findings_Settings {
 	 */
 	private function query_args( array $filters, $exclude ) {
 		$map = array(
+			'tier'     => 'tier',
 			'type'     => 'type',
 			'category' => 'category',
 			'target'   => 'target',
 			'search'   => 's',
-			'severity' => 'severity',
 		);
 
 		$args = array();
@@ -343,84 +382,132 @@ class Findings_Settings {
 	}
 
 	/**
-	 * Renders the findings, grouped by target.
+	 * Renders the findings, banded by tier and grouped by item within each band.
 	 *
 	 * @param array<int, array<string, mixed>> $findings The findings.
+	 * @param array<string, string>            $filters  The active filters.
 	 * @return void
 	 */
-	private function render_findings( array $findings ) {
-		$grouped = Report::group( $findings, 'target_key' );
-		$index   = Results_Store::get_index();
+	private function render_tiers( array $findings, array $filters ) {
+		$banded = array();
 
-		printf(
-			'<p class="wvc-result-count">%s</p>',
-			esc_html(
-				sprintf(
-					/* translators: 1: Number of findings. 2: Number of targets. */
-					_n( '%1$d finding across %2$d target.', '%1$d findings across %2$d targets.', count( $findings ), 'wp-vip-compatibility' ),
-					count( $findings ),
-					count( $grouped )
-				)
-			)
-		);
-
-		foreach ( $grouped as $target_key => $target_findings ) {
-			$entry  = $index[ $target_key ] ?? array();
-			$status = $entry['status'] ?? Scanner::STATUS_REVIEW;
-			?>
-			<section class="wvc-group">
-				<header class="wvc-group__head">
-					<h3 class="wvc-group__title">
-						<?php echo esc_html( $target_findings[0]['target_label'] ); ?>
-						<span class="wvc-group__kind"><?php echo esc_html( $target_findings[0]['target_type'] ); ?></span>
-					</h3>
-					<?php
-					$pill = UI::get_status_pill(
-						Scanner::STATUS_PASS === $status ? 'compatible' : ( Scanner::STATUS_REVIEW === $status ? 'review' : 'not-compatible' ),
-						Scanner::status_label( $status )
-					);
-
-					echo $pill; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in get_status_pill().
-					?>
-					<span class="wvc-group__count">
-						<?php
-						printf(
-							/* translators: %d: Number of findings. */
-							esc_html( _n( '%d finding', '%d findings', count( $target_findings ), 'wp-vip-compatibility' ) ),
-							count( $target_findings )
-						);
-						?>
-					</span>
-				</header>
-
-				<?php if ( ! empty( $entry['truncated'] ) ) : ?>
-					<?php
-					echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-						esc_html__( 'This target is large enough that the scan stopped early. Fix what is listed and rescan to see the rest.', 'wp-vip-compatibility' ),
-						'info'
-					);
-					?>
-				<?php endif; ?>
-
-				<div class="wvc-findings">
-					<?php foreach ( $target_findings as $finding ) : ?>
-						<?php UI::render_finding( $finding ); ?>
-					<?php endforeach; ?>
-				</div>
-			</section>
-			<?php
+		foreach ( $findings as $finding ) {
+			$banded[ UI::get_tier( $finding['severity'] ) ][] = $finding;
 		}
 
-		printf(
-			'<p class="wvc-ruleref">%s</p>',
-			esc_html(
-				sprintf(
-					/* translators: 1: Rule set version. 2: Number of rules. */
-					__( 'Rule set %1$s — %2$d rules, each mapped to the VIP requirement it comes from.', 'wp-vip-compatibility' ),
-					Rules::VERSION,
-					count( Rules::all() )
-				)
-			)
+		foreach ( UI::get_tiers() as $tier => $definition ) {
+			if ( empty( $banded[ $tier ] ) ) {
+				continue;
+			}
+
+			// A band the user asked for is never folded away, and neither are the
+			// two that represent work. The rest open on demand.
+			$open = $definition['open'] || ( $filters['tier'] === $tier );
+
+			$this->render_tier( $tier, $definition, $banded[ $tier ], $open );
+		}
+	}
+
+	/**
+	 * Renders one tier band.
+	 *
+	 * @param string                           $tier       The tier slug.
+	 * @param array<string, mixed>             $definition The tier definition.
+	 * @param array<int, array<string, mixed>> $findings   The findings in this tier.
+	 * @param bool                             $open       Whether the band starts open.
+	 * @return void
+	 */
+	private function render_tier( $tier, array $definition, array $findings, $open ) {
+		$by_target = Report::group( $findings, 'target_key' );
+		$count     = count( $findings );
+		?>
+		<details class="wvc-band wvc-band--<?php echo esc_attr( $tier ); ?>"<?php echo $open ? ' open' : ''; ?>>
+			<summary class="wvc-band__summary">
+				<span class="wvc-tierdot wvc-tierdot--<?php echo esc_attr( $tier ); ?>" aria-hidden="true"></span>
+				<span class="wvc-band__title"><?php echo esc_html( $definition['label'] ); ?></span>
+				<span class="wvc-band__count">
+					<?php
+					printf(
+						/* translators: 1: Number of findings. 2: Number of items. */
+						esc_html( _n( '%1$s finding in %2$s item', '%1$s findings in %2$s items', $count, 'wp-vip-compatibility' ) ),
+						esc_html( number_format_i18n( $count ) ),
+						esc_html( number_format_i18n( count( $by_target ) ) )
+					);
+					?>
+				</span>
+				<span class="wvc-band__summary-text"><?php echo esc_html( $definition['summary'] ); ?></span>
+			</summary>
+
+			<div class="wvc-band__body">
+				<?php
+				// Worst-affected item first, so the biggest job is at the top.
+				uasort(
+					$by_target,
+					static function ( $a, $b ) {
+						return count( $b ) <=> count( $a );
+					}
+				);
+
+				$index = Results_Store::get_index();
+
+				foreach ( $by_target as $target_key => $target_findings ) {
+					$this->render_target_group( $target_key, $target_findings, $index );
+				}
+				?>
+			</div>
+		</details>
+		<?php
+	}
+
+	/**
+	 * Renders the findings of one item within a tier band.
+	 *
+	 * @param string                              $target_key      The target key.
+	 * @param array<int, array<string, mixed>>    $target_findings The findings.
+	 * @param array<string, array<string, mixed>> $index           The stored result index.
+	 * @return void
+	 */
+	private function render_target_group( $target_key, array $target_findings, array $index ) {
+		$entry  = $index[ $target_key ] ?? array();
+		$status = $entry['status'] ?? Scanner::STATUS_REVIEW;
+		$states = array(
+			Scanner::STATUS_PASS    => 'compatible',
+			Scanner::STATUS_REVIEW  => 'review',
+			Scanner::STATUS_BLOCKED => 'not-compatible',
 		);
+		$groups = Report::group_by_rule( $target_findings );
+		?>
+		<section class="wvc-group">
+			<header class="wvc-group__head">
+				<h4 class="wvc-group__title"><?php echo esc_html( $target_findings[0]['target_label'] ); ?></h4>
+				<span class="wvc-group__kind"><?php echo esc_html( $target_findings[0]['target_type'] ); ?></span>
+				<?php echo UI::get_status_pill( $states[ $status ] ?? 'review', Scanner::status_label( $status ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
+				<span class="wvc-group__count">
+					<?php
+					printf(
+						/* translators: %d: Number of distinct issues. */
+						esc_html( _n( '%d issue', '%d issues', count( $groups ), 'wp-vip-compatibility' ) ),
+						count( $groups )
+					);
+					?>
+				</span>
+			</header>
+
+			<?php if ( ! empty( $entry['truncated'] ) ) : ?>
+				<?php
+				echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+					esc_html__( 'This item is large enough that the scan stopped early. Fix what is listed and rescan to see the rest.', 'wp-vip-compatibility' ),
+					'info'
+				);
+				?>
+			<?php endif; ?>
+
+			<div class="wvc-findings">
+				<?php foreach ( $groups as $group ) : ?>
+					<?php UI::render_finding_group( $group ); ?>
+				<?php endforeach; ?>
+			</div>
+		</section>
+		<?php
 	}
 }

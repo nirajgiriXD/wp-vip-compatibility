@@ -148,10 +148,430 @@ class Report {
 	}
 
 	/**
+	 * Resolves the verdict for a single scan target.
+	 *
+	 * This is the one place that decides what a plugin, theme or must-use plugin
+	 * is called on screen. It used to be answered separately by each entity
+	 * screen and again by the chart helpers, which is how the same plugin could
+	 * be "Incompatible" in a table and "needs review" in a total.
+	 *
+	 * @param array<string, mixed>                $target The target.
+	 * @param array<string, array<string, mixed>> $index  The stored result index.
+	 * @return array<string, mixed> The verdict: `status`, `state`, `label`, `total`, `known`, `scanned`.
+	 */
+	public static function verdict( array $target, array $index ) {
+		$entry = $index[ $target['key'] ] ?? null;
+		$total = (int) ( $entry['summary']['total'] ?? 0 );
+		$known = ( 'mu-plugin' === $target['type'] )
+			? Known_Plugins::mu_plugin( $target['slug'] )
+			: Known_Plugins::classify( $target['slug'] );
+
+		$verdict = array(
+			'total'   => $total,
+			'known'   => $known,
+			'scanned' => null !== $entry,
+		);
+
+		// A plugin WordPress VIP documents as incompatible is settled without a scan.
+		if ( 'mu-plugin' !== $target['type'] && is_array( $known ) && Known_Plugins::INCOMPATIBLE === $known['classification'] ) {
+			return array_merge(
+				$verdict,
+				array(
+					'status' => Scanner::STATUS_BLOCKED,
+					'state'  => 'not-compatible',
+					'label'  => __( 'Incompatible', 'wp-vip-compatibility' ),
+				)
+			);
+		}
+
+		// Neither a VIP-preinstalled nor a previous host's must-use plugin is
+		// "incompatible code" — both are "do not ship this", which is review work.
+		if ( 'mu-plugin' === $target['type'] && is_array( $known ) ) {
+			return array_merge(
+				$verdict,
+				array(
+					'status' => Scanner::STATUS_REVIEW,
+					'state'  => 'review',
+					'label'  => __( 'Do not migrate', 'wp-vip-compatibility' ),
+				)
+			);
+		}
+
+		if ( null === $entry ) {
+			return array_merge(
+				$verdict,
+				array(
+					'status' => '',
+					'state'  => 'pending',
+					'label'  => __( 'Not scanned yet', 'wp-vip-compatibility' ),
+				)
+			);
+		}
+
+		$status = $entry['status'] ?? Scanner::STATUS_PASS;
+		$states = array(
+			Scanner::STATUS_PASS    => 'compatible',
+			Scanner::STATUS_REVIEW  => 'review',
+			Scanner::STATUS_BLOCKED => 'not-compatible',
+		);
+
+		return array_merge(
+			$verdict,
+			array(
+				'status' => $status,
+				'state'  => $states[ $status ] ?? 'review',
+				'label'  => Scanner::status_label( $status ),
+			)
+		);
+	}
+
+	/**
+	 * Counts the verdicts within one area of the site.
+	 *
+	 * `pending` is reported separately rather than folded into "needs review",
+	 * so a breakdown never claims a verdict for something that has not been
+	 * scanned yet.
+	 *
+	 * @param string $area One of `plugin`, `theme`, `mu-plugin`, `database`, `directories`.
+	 * @return array<string, int> Counts keyed `ready`, `review`, `blocked`, `pending`, `total`.
+	 */
+	public static function area_counts( $area ) {
+		$counts = array(
+			'ready'   => 0,
+			'review'  => 0,
+			'blocked' => 0,
+			'pending' => 0,
+			'total'   => 0,
+		);
+
+		if ( 'database' === $area ) {
+			$summary = Database_Audit::run()['summary'];
+
+			$counts['ready']   = (int) $summary['compatible'];
+			$counts['blocked'] = (int) $summary['incompatible'];
+			$counts['total']   = (int) $summary['total'];
+
+			return $counts;
+		}
+
+		if ( 'directories' === $area ) {
+			$summary = Directory_Audit::run()['summary'];
+
+			// "Not deployed" entries such as uploads/ are neither a pass nor a
+			// failure: they are imported separately rather than committed.
+			$counts['ready']   = (int) $summary['supported'] + (int) $summary['informational'];
+			$counts['review']  = (int) $summary['review'];
+			$counts['blocked'] = (int) $summary['unsupported'];
+			$counts['total']   = (int) $summary['total'];
+
+			return $counts;
+		}
+
+		$index = Results_Store::get_index();
+		$map   = array(
+			Scanner::STATUS_PASS    => 'ready',
+			Scanner::STATUS_REVIEW  => 'review',
+			Scanner::STATUS_BLOCKED => 'blocked',
+		);
+
+		foreach ( Targets::of_type( $area ) as $target ) {
+			$verdict = self::verdict( $target, $index );
+			$bucket  = ( 'pending' === $verdict['state'] ) ? 'pending' : ( $map[ $verdict['status'] ] ?? 'review' );
+
+			++$counts[ $bucket ];
+			++$counts['total'];
+		}
+
+		return $counts;
+	}
+
+	/**
+	 * Returns the per-area breakdown the overview shows.
+	 *
+	 * @return array<int, array<string, mixed>> Areas, each with `key`, `label`, `screen`, `filter` and `counts`.
+	 */
+	public static function areas() {
+		$areas = array(
+			'plugin'      => array( __( 'Plugins', 'wp-vip-compatibility' ), 'inventory', 'plugin' ),
+			'theme'       => array( __( 'Themes', 'wp-vip-compatibility' ), 'inventory', 'theme' ),
+			'mu-plugin'   => array( __( 'Must-use plugins', 'wp-vip-compatibility' ), 'inventory', 'mu-plugin' ),
+			'database'    => array( __( 'Database tables', 'wp-vip-compatibility' ), 'site', 'database' ),
+			'directories' => array( __( 'wp-content layout', 'wp-vip-compatibility' ), 'site', 'directories' ),
+		);
+
+		$rows = array();
+
+		foreach ( $areas as $key => $area ) {
+			$rows[] = array(
+				'key'    => $key,
+				'label'  => $area[0],
+				'screen' => $area[1],
+				'filter' => $area[2],
+				'counts' => self::area_counts( $key ),
+			);
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Builds the ranked list of things to do next.
+	 *
+	 * The overview's job is to answer "what should I do?", which a set of totals
+	 * does not do. Each entry names the work, says how much of it there is, and
+	 * links to the screen that shows it — ordered worst first, and capped so the
+	 * list stays a plan rather than another report.
+	 *
+	 * @return array<int, array<string, mixed>> Actions, each with `tier`, `title`, `detail`, `url` and `action`.
+	 */
+	public static function next_actions() {
+		$aggregate = self::aggregate();
+		$actions   = array();
+
+		// Informational findings are context, not work, so they never become a
+		// step in the plan.
+		foreach ( Taxonomy::get_tiers() as $tier => $definition ) {
+			if ( Taxonomy::TIER_INFO === $tier ) {
+				continue;
+			}
+
+			$count = 0;
+
+			foreach ( $definition['severities'] as $severity ) {
+				$count += (int) ( $aggregate['by_severity'][ $severity ] ?? 0 );
+			}
+
+			if ( 0 === $count ) {
+				continue;
+			}
+
+			$actions[] = array(
+				'tier'   => $tier,
+				'title'  => sprintf(
+					/* translators: 1: Number of findings. 2: Tier label, e.g. "blocking". */
+					_n( 'Resolve %1$d %2$s finding', 'Resolve %1$d %2$s findings', $count, 'wp-vip-compatibility' ),
+					$count,
+					strtolower( $definition['label'] )
+				),
+				'detail' => $definition['summary'],
+				'url'    => add_query_arg( 'tier', $tier, admin_url( 'admin.php?page=wvc-findings' ) ),
+				'action' => __( 'Review findings', 'wp-vip-compatibility' ),
+			);
+		}
+
+		$actions = array_merge( $actions, self::inventory_actions(), self::site_actions() );
+
+		// Worst first, and short enough to read in one pass.
+		$order = array(
+			'blocking'  => 0,
+			'important' => 1,
+			'warning'   => 2,
+			'info'      => 3,
+		);
+
+		usort(
+			$actions,
+			static function ( $a, $b ) use ( $order ) {
+				return ( $order[ $a['tier'] ] ?? 9 ) <=> ( $order[ $b['tier'] ] ?? 9 );
+			}
+		);
+
+		return array_slice( $actions, 0, 6 );
+	}
+
+	/**
+	 * Builds the actions that come from the plugin, theme and must-use inventory.
+	 *
+	 * @return array<int, array<string, mixed>> Actions.
+	 */
+	private static function inventory_actions() {
+		$index      = Results_Store::get_index();
+		$actions    = array();
+		$listed     = 0;
+		$mu_to_move = 0;
+
+		foreach ( Targets::all() as $target ) {
+			$verdict = self::verdict( $target, $index );
+
+			if ( 'plugin' === $target['type'] && is_array( $verdict['known'] ) && Known_Plugins::INCOMPATIBLE === $verdict['known']['classification'] ) {
+				++$listed;
+			}
+
+			if ( 'mu-plugin' === $target['type'] ) {
+				++$mu_to_move;
+			}
+		}
+
+		if ( $listed > 0 ) {
+			$actions[] = array(
+				'tier'   => 'blocking',
+				'title'  => sprintf(
+					/* translators: %d: Number of plugins. */
+					_n( 'Replace %d plugin VIP lists as incompatible', 'Replace %d plugins VIP lists as incompatible', $listed, 'wp-vip-compatibility' ),
+					$listed
+				),
+				'detail' => __( 'WordPress VIP documents these as incompatible with the platform. No code change makes them work.', 'wp-vip-compatibility' ),
+				'url'    => add_query_arg(
+					array(
+						'kind'   => 'plugin',
+						'status' => 'not-compatible',
+					),
+					admin_url( 'admin.php?page=wvc-inventory' )
+				),
+				'action' => __( 'Open the inventory', 'wp-vip-compatibility' ),
+			);
+		}
+
+		if ( $mu_to_move > 0 ) {
+			$actions[] = array(
+				'tier'   => 'important',
+				'title'  => sprintf(
+					/* translators: %d: Number of must-use plugins. */
+					_n( 'Relocate %d must-use plugin', 'Relocate %d must-use plugins', $mu_to_move, 'wp-vip-compatibility' ),
+					$mu_to_move
+				),
+				'detail' => __( 'VIP reserves wp-content/mu-plugins for platform code. Anything you ship belongs in client-mu-plugins/.', 'wp-vip-compatibility' ),
+				'url'    => add_query_arg( 'kind', 'mu-plugin', admin_url( 'admin.php?page=wvc-inventory' ) ),
+				'action' => __( 'Open the inventory', 'wp-vip-compatibility' ),
+			);
+		}
+
+		return $actions;
+	}
+
+	/**
+	 * Builds the actions that come from the database and wp-content audits.
+	 *
+	 * @return array<int, array<string, mixed>> Actions.
+	 */
+	private static function site_actions() {
+		$actions  = array();
+		$database = Database_Audit::run()['summary'];
+		$content  = Directory_Audit::run()['summary'];
+		$schema   = (int) $database['issues']['engine'] + (int) $database['issues']['collation'];
+
+		if ( $schema > 0 ) {
+			$actions[] = array(
+				'tier'   => 'blocking',
+				'title'  => sprintf(
+					/* translators: %d: Number of tables. */
+					_n( 'Convert %d table to InnoDB and utf8mb4', 'Convert %d tables to InnoDB and utf8mb4', $schema, 'wp-vip-compatibility' ),
+					$schema
+				),
+				'detail' => __( 'VIP will not import a database with an unsupported storage engine or collation.', 'wp-vip-compatibility' ),
+				'url'    => add_query_arg(
+					array(
+						'section' => 'database',
+						'status'  => 'not-compatible',
+					),
+					admin_url( 'admin.php?page=wvc-site' )
+				),
+				'action' => __( 'Show the SQL', 'wp-vip-compatibility' ),
+			);
+		}
+
+		if ( (int) $database['issues']['prefix'] > 0 ) {
+			$actions[] = array(
+				'tier'   => 'warning',
+				'title'  => sprintf(
+					/* translators: %d: Number of tables. */
+					_n( 'Report %d non-standard table prefix to VIP', 'Report %d non-standard table prefixes to VIP', (int) $database['issues']['prefix'], 'wp-vip-compatibility' ),
+					(int) $database['issues']['prefix']
+				),
+				'detail' => __( 'The prefix is embedded in option names and user meta keys, so renaming tables without VIP confirming it breaks roles and capabilities.', 'wp-vip-compatibility' ),
+				'url'    => add_query_arg( 'section', 'database', admin_url( 'admin.php?page=wvc-site' ) ),
+				'action' => __( 'Open the audit', 'wp-vip-compatibility' ),
+			);
+		}
+
+		if ( (int) $content['unsupported'] > 0 ) {
+			$actions[] = array(
+				'tier'   => 'important',
+				'title'  => sprintf(
+					/* translators: %d: Number of paths. */
+					_n( 'Remove or relocate %d path in wp-content', 'Remove or relocate %d paths in wp-content', (int) $content['unsupported'], 'wp-vip-compatibility' ),
+					(int) $content['unsupported']
+				),
+				'detail' => __( 'These conflict with the VIP application structure, or with drop-ins the platform installs itself.', 'wp-vip-compatibility' ),
+				'url'    => add_query_arg(
+					array(
+						'section' => 'directories',
+						'status'  => 'not-compatible',
+					),
+					admin_url( 'admin.php?page=wvc-site' )
+				),
+				'action' => __( 'Open the audit', 'wp-vip-compatibility' ),
+			);
+		}
+
+		return $actions;
+	}
+
+	/**
+	 * Collapses findings that come from the same rule into one entry.
+	 *
+	 * A rule that fires twenty times in one plugin is one decision with twenty
+	 * locations, not twenty decisions. Repeating the whole explanation per hit
+	 * is what made the report unreadable on a real codebase.
+	 *
+	 * @param array<int, array<string, mixed>> $findings Findings for a single target.
+	 * @return array<int, array<string, mixed>> Rule groups, worst severity first.
+	 */
+	public static function group_by_rule( array $findings ) {
+		$groups = array();
+
+		foreach ( $findings as $finding ) {
+			$key = $finding['rule'];
+
+			if ( ! isset( $groups[ $key ] ) ) {
+				$groups[ $key ] = array_merge(
+					$finding,
+					array(
+						'occurrences' => array(),
+						'also_matched' => array(),
+					)
+				);
+			}
+
+			// The most serious hit sets the tone for the whole group.
+			if ( Taxonomy::get_severity_weight( $finding['severity'] ) > Taxonomy::get_severity_weight( $groups[ $key ]['severity'] ) ) {
+				$groups[ $key ]['severity']   = $finding['severity'];
+				$groups[ $key ]['confidence'] = $finding['confidence'];
+			}
+
+			$groups[ $key ]['occurrences'][] = array(
+				'file'     => $finding['file'],
+				'line'     => $finding['line'],
+				'scope'    => $finding['scope'],
+				'symbol'   => $finding['symbol'],
+				'evidence' => $finding['evidence'],
+				'note'     => $finding['note'],
+			);
+
+			$groups[ $key ]['also_matched'] = array_values(
+				array_unique( array_merge( $groups[ $key ]['also_matched'], (array) ( $finding['also_matched'] ?? array() ) ) )
+			);
+		}
+
+		$groups = array_values( $groups );
+
+		usort(
+			$groups,
+			static function ( $a, $b ) {
+				$weight = Taxonomy::get_severity_weight( $b['severity'] ) <=> Taxonomy::get_severity_weight( $a['severity'] );
+
+				return ( 0 !== $weight ) ? $weight : ( count( $b['occurrences'] ) <=> count( $a['occurrences'] ) );
+			}
+		);
+
+		return $groups;
+	}
+
+	/**
 	 * Returns every stored finding, flattened and enriched with its rule.
 	 *
 	 * @param array<string, mixed> $filters Optional filters: `type`, `severity`,
-	 *                                      `category`, `target`, `search`.
+	 *                                      `tier`, `category`, `target`, `search`.
 	 * @return array<int, array<string, mixed>> The findings.
 	 */
 	public static function findings( array $filters = array() ) {
@@ -160,11 +580,15 @@ class Report {
 			array(
 				'type'     => '',
 				'severity' => '',
+				'tier'     => '',
 				'category' => '',
 				'target'   => '',
 				'search'   => '',
 			)
 		);
+
+		// A tier is a set of severities, so it resolves to the same comparison.
+		$tier_severities = ( '' === $filters['tier'] ) ? array() : Taxonomy::get_tier_severities( $filters['tier'] );
 
 		$rows = array();
 
@@ -185,6 +609,10 @@ class Report {
 				}
 
 				if ( '' !== $filters['severity'] && $finding['severity'] !== $filters['severity'] ) {
+					continue;
+				}
+
+				if ( ! empty( $tier_severities ) && ! in_array( $finding['severity'], $tier_severities, true ) ) {
 					continue;
 				}
 

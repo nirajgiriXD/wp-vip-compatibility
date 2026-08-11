@@ -28,7 +28,7 @@ A target ends up in one of three states: **ready**, **needs review** (work to do
 - File, line and enclosing function, with the line of code as evidence
 - The recommended fix, and an alternative approach where one exists
 - The matching `WordPress-VIP-Go` PHPCS sniff, where there is one
-- A link to the VIP documentation page the rule was derived from
+- A link to the WordPress VIP documentation page the rule was derived from
 
 ## Coverage
 
@@ -41,7 +41,7 @@ A target ends up in one of three states: **ready**, **needs review** (work to do
 | **External requests** | Raw cURL, sockets, remote URLs through filesystem functions, uncached or untimed HTTP calls |
 | **Security** | Shell execution, dynamic code, unserialisation, unescaped request data, dynamic includes |
 | **Environment** | PHP sessions, runtime `ini_set()`, server-layout assumptions, redefined core constants |
-| **Platform overlap** | Plugins VIP documents as incompatible, plugins needing testing, plugins duplicating platform capabilities |
+| **Platform overlap** | Plugins WordPress VIP documents as incompatible, plugins needing testing, plugins duplicating platform capabilities |
 
 `wp-content` and the database schema are audited separately against the VIP application structure and the VIP collation and engine requirements.
 

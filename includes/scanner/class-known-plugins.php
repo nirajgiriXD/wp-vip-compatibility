@@ -6,7 +6,7 @@
  * actions, so they are kept apart rather than collapsed into one
  * "incompatible" flag:
  *
- * - incompatible : VIP documents it as incompatible. Remove or replace it.
+ * - incompatible : WordPress VIP documents it as incompatible. Remove or replace it.
  * - caution      : works, but has a documented failure mode to test for.
  * - redundant    : the platform already provides it. Shipping it duplicates
  *                  or fights platform code.

@@ -4,13 +4,21 @@
  * Behaviour is grouped into small controllers:
  *   - clipboard : copy SQL snippets
  *   - tableView : filtering, searching, sorting and live counts
- *   - scanner   : queued async compatibility checks, progress, log note
- *   - tabs      : overview tab navigation
- *   - dashboard : per-category doughnuts and the aggregated readiness gauge
+ *   - scanner   : queued async compatibility checks and progress
  *
- * The DOM contract used by the PHP side is intentionally preserved: status
- * cells keep their `compatible` / `not-compatible` classes, the filter buttons
- * keep their `data-filter` values, and the chart canvases keep their ids.
+ * Two things changed with the information-architecture rework:
+ *
+ * Filtering reads declarative `data-<group>` attributes on each row rather than
+ * sniffing `compatible` / `not-compatible` classes on cells. That contract only
+ * supported a two-way "ready / not ready" split, which is why "needs review"
+ * used to be tagged as a failure just to remain findable.
+ *
+ * A screen may now hold more than one table (the Site screen's two audits), so a
+ * view is scoped to its own `[data-role="table-view"]` container and its nearest
+ * toolbar, instead of the first `.wvc-table` on the page.
+ *
+ * The dashboard controller is gone: the overview renders its proportion bars
+ * server-side, so there is nothing left to fetch or draw.
  */
 jQuery(document).ready(function ($) {
 	"use strict";
@@ -58,8 +66,8 @@ jQuery(document).ready(function ($) {
 	/**
 	 * Builds an inline icon that matches the icons rendered by PHP.
 	 *
-	 * @param {string} name        Icon name.
-	 * @param {string} [size]      Size modifier: `sm` or `xs`.
+	 * @param {string} name         Icon name.
+	 * @param {string} [size]       Size modifier: `sm` or `xs`.
 	 * @param {string} [extraClass] Additional class names.
 	 * @returns {string} SVG markup.
 	 */
@@ -91,13 +99,13 @@ jQuery(document).ready(function ($) {
 	/**
 	 * Builds a resolved status pill.
 	 *
-	 * @param {string} status One of `pass`, `review`, `blocked`.
-	 * @param {string} label  Visible text.
+	 * @param {string} state One of `compatible`, `review`, `not-compatible`.
+	 * @param {string} label Visible text.
 	 * @returns {jQuery} The pill element.
 	 */
-	function buildPill(status, label) {
-		var modifier = status === "pass" ? "ok" : status === "review" ? "warn" : "bad";
-		var glyph = status === "pass" ? "check" : status === "review" ? "info" : "alert";
+	function buildPill(state, label) {
+		var modifier = state === "compatible" ? "ok" : state === "review" ? "warn" : "bad";
+		var glyph = state === "compatible" ? "check" : state === "review" ? "info" : "alert";
 
 		return $("<span/>", { class: "wvc-status wvc-status--" + modifier })
 			.append(icon(glyph, "xs"))
@@ -190,22 +198,43 @@ jQuery(document).ready(function ($) {
 	 * Table view: filter + search + sort + counts
 	 * ------------------------------------------------------------------ */
 
-	var tableView = (function () {
-		var $table = $(".wvc-table").first();
+	/**
+	 * Wires up one table and the toolbar that precedes it.
+	 *
+	 * @param {HTMLElement} container The `[data-role="table-view"]` element.
+	 * @returns {Object|null} The view controller, or null when there is no table.
+	 */
+	function createTableView(container) {
+		var $container = $(container);
+		var $table = $container.find(".wvc-table").first();
 
 		if (!$table.length) {
 			return null;
 		}
 
+		// The toolbar sits before the table wrapper, so the closest preceding one
+		// belongs to this view even when the screen renders several.
+		var $toolbar = $container.prevAll(".wvc-toolbar").first();
+		var $scan = $container.prevAll(".wvc-scan").first();
 		var $tbody = $table.children("tbody");
 		var $rows = $tbody.children("tr").not("[data-empty]");
-		var $filterButtons = $("#wvc-filter-tabs button");
-		var $search = $("[data-role='table-search']");
-		var $resultCount = $("[data-role='result-count']");
+		var $groups = $toolbar.find("[data-filter-group]");
+		var $search = $toolbar.find("[data-role='table-search']");
+		var $resultCount = $toolbar.find("[data-role='result-count']");
 		var columnCount = $table.find("thead th").length || 1;
 
-		var state = { filter: "all", query: "", countsPending: false };
+		var state = { query: "", filters: {}, countsPending: false };
 		var $noResults = null;
+
+		// Seed each group from whichever option the server marked active, so a
+		// link such as ?kind=mu-plugin lands on a filtered view.
+		$groups.each(function () {
+			var $group = $(this);
+			var name = $group.data("filter-group");
+			var $active = $group.find("button.active").first();
+
+			state.filters[name] = $active.length ? String($active.data("filter-value")) : "all";
+		});
 
 		function getNoResultsRow() {
 			if (!$noResults) {
@@ -221,16 +250,29 @@ jQuery(document).ready(function ($) {
 			return $noResults;
 		}
 
-		function rowMatchesFilter($row) {
-			if (state.filter === "compatible") {
-				return $row.children("td.compatible").length > 0;
-			}
+		/**
+		 * Whether a row satisfies every active filter group.
+		 *
+		 * @param {jQuery} $row The row.
+		 * @returns {boolean} True when the row should be visible.
+		 */
+		function rowMatchesFilters($row) {
+			var matches = true;
 
-			if (state.filter === "incompatible") {
-				return $row.children("td.not-compatible").length > 0;
-			}
+			$.each(state.filters, function (name, value) {
+				if (value === "all") {
+					return true;
+				}
 
-			return true;
+				if (String($row.attr("data-" + name) || "") !== value) {
+					matches = false;
+					return false;
+				}
+
+				return true;
+			});
+
+			return matches;
 		}
 
 		function rowMatchesQuery($row) {
@@ -241,26 +283,52 @@ jQuery(document).ready(function ($) {
 			return $row.text().toLowerCase().indexOf(state.query) !== -1;
 		}
 
+		/**
+		 * Recomputes the count shown on every filter option.
+		 *
+		 * A group's counts are measured against the *other* groups' filters, so
+		 * "Blocked (2)" means two of the rows currently in view, not two of every
+		 * row on the screen.
+		 */
 		function updateCounts() {
-			var counts = {
-				all: $rows.length,
-				compatible: $rows.filter(function () {
-					return $(this).children("td.compatible").length > 0;
-				}).length,
-				incompatible: $rows.filter(function () {
-					return $(this).children("td.not-compatible").length > 0;
-				}).length
-			};
+			$groups.each(function () {
+				var $group = $(this);
+				var name = $group.data("filter-group");
 
-			$filterButtons.each(function () {
-				var $button = $(this);
-				var key = $button.data("filter");
-				var value = counts[key];
-				var isUnknownWhileScanning = state.countsPending && key !== "all";
+				var $candidates = $rows.filter(function () {
+					var $row = $(this);
+					var matches = true;
 
-				$button
-					.find(".wvc-segmented__count")
-					.text(typeof value === "number" && !isUnknownWhileScanning ? String(value) : "");
+					$.each(state.filters, function (other, value) {
+						if (other === name || value === "all") {
+							return true;
+						}
+
+						if (String($row.attr("data-" + other) || "") !== value) {
+							matches = false;
+							return false;
+						}
+
+						return true;
+					});
+
+					return matches && rowMatchesQuery($row);
+				});
+
+				$group.find("button").each(function () {
+					var $button = $(this);
+					var value = String($button.data("filter-value"));
+					var count =
+						value === "all"
+							? $candidates.length
+							: $candidates.filter("[data-" + name + "='" + value + "']").length;
+
+					// While an async scan is running the verdicts are not known
+					// yet, so a number would be a guess.
+					var unknown = state.countsPending && name === "status" && value !== "all";
+
+					$button.find(".wvc-segmented__count").text(unknown ? "" : String(count));
+				});
 			});
 		}
 
@@ -269,7 +337,7 @@ jQuery(document).ready(function ($) {
 
 			$rows.each(function () {
 				var $row = $(this);
-				var show = rowMatchesFilter($row) && rowMatchesQuery($row);
+				var show = rowMatchesFilters($row) && rowMatchesQuery($row);
 
 				$row.toggle(show);
 
@@ -278,7 +346,6 @@ jQuery(document).ready(function ($) {
 				}
 			});
 
-			// Empty state for a filter/search combination that matches nothing.
 			if (!visible && $rows.length) {
 				getNoResultsRow().appendTo($tbody).show();
 			} else if ($noResults) {
@@ -288,21 +355,24 @@ jQuery(document).ready(function ($) {
 			if ($resultCount.length) {
 				if (!$rows.length) {
 					$resultCount.text("");
-				} else if (state.filter === "all" && !state.query) {
+				} else if (visible === $rows.length) {
 					$resultCount.text(format(i18n.showingAll, $rows.length));
 				} else {
 					$resultCount.text(format(i18n.showingFiltered, visible, $rows.length));
 				}
 			}
+
+			updateCounts();
 		}
 
 		/* Filtering. */
-		$filterButtons.on("click", function () {
+		$groups.on("click", "button", function () {
 			var $button = $(this);
+			var $group = $button.closest("[data-filter-group]");
 
-			state.filter = $button.data("filter");
+			state.filters[$group.data("filter-group")] = String($button.data("filter-value"));
 
-			$filterButtons.removeClass("active").attr("aria-pressed", "false");
+			$group.find("button").removeClass("active").attr("aria-pressed", "false");
 			$button.addClass("active").attr("aria-pressed", "true");
 
 			apply();
@@ -366,36 +436,59 @@ jQuery(document).ready(function ($) {
 			}
 		});
 
-		updateCounts();
 		apply();
 
 		return {
 			table: $table,
-			filterButtons: $filterButtons,
+			scan: $scan,
+			groups: $groups,
 			setCountsPending: function (pending) {
 				state.countsPending = !!pending;
 				updateCounts();
 			},
-			refresh: function () {
-				updateCounts();
-				apply();
-			}
+			refresh: apply
 		};
-	})();
+	}
+
+	var views = [];
+
+	$("[data-role='table-view']").each(function () {
+		var view = createTableView(this);
+
+		if (view) {
+			views.push(view);
+		}
+	});
 
 	/* ---------------------------------------------------------------------
 	 * Scanner: queued compatibility checks
 	 * ------------------------------------------------------------------ */
 
 	(function scanner() {
-		var $statusCells = $("td.vip-compatibility-status[data-target]");
-		var $scan = $("[data-role='scan']");
-		var $scanLabel = $("[data-role='scan-label']");
-		var $scanBar = $("[data-role='scan-bar']");
-		var $filterButtons = tableView ? tableView.filterButtons : $("#wvc-filter-tabs button");
+		var $statusCells = $("td.wvc-col-status.is-pending[data-target]");
+		var total = $statusCells.length;
+
+		if (!total) {
+			return;
+		}
+
+		// Only the view that actually owns pending rows is held during the scan.
+		var view = null;
+
+		$.each(views, function (index, candidate) {
+			if (candidate.table.find("td.wvc-col-status.is-pending[data-target]").length) {
+				view = candidate;
+				return false;
+			}
+
+			return true;
+		});
+
+		var $scan = view ? view.scan : $("[data-role='scan']").first();
+		var $scanLabel = $scan.find("[data-role='scan-label']");
+		var $scanBar = $scan.find("[data-role='scan-bar']");
 
 		var queue = $statusCells.toArray();
-		var total = queue.length;
 		var completed = 0;
 		var active = 0;
 
@@ -413,38 +506,35 @@ jQuery(document).ready(function ($) {
 		}
 
 		function complete() {
-			$filterButtons.prop("disabled", false);
+			if (view) {
+				view.groups.find("button").prop("disabled", false);
+				view.setCountsPending(false);
+				view.refresh();
+			}
 
 			if ($scan.length) {
 				$scanBar.css("width", "100%");
 				$scan.attr("hidden", "hidden");
-			}
-
-			if (tableView) {
-				tableView.setCountsPending(false);
-				tableView.refresh();
 			}
 		}
 
 		/**
 		 * Replaces a pending cell with its verdict.
 		 *
-		 * `compatible` / `not-compatible` remain the classes the filters read,
-		 * so "needs review" keeps `not-compatible` and adds `is-review`.
+		 * The row's `data-status` is what the filters read, so it is updated
+		 * alongside the cell's own state class.
 		 *
 		 * @param {jQuery} $cell  The status cell.
 		 * @param {Object} result The AJAX payload.
 		 */
 		function resolveCell($cell, result) {
-			$cell.removeClass("vip-compatibility-status").addClass(result.class);
+			$cell
+				.removeClass("is-pending is-compatible is-review is-not-compatible")
+				.addClass("is-" + result.state);
 
-			if (result.status === "review") {
-				$cell.addClass("is-review");
-			}
+			$cell.closest("tr").attr("data-status", result.state);
 
-			var $pill = buildPill(result.status, result.label);
-
-			$cell.empty().append($pill);
+			$cell.empty().append(buildPill(result.state, result.label));
 
 			if (result.total > 0 && result.url) {
 				$cell.append(
@@ -457,10 +547,12 @@ jQuery(document).ready(function ($) {
 
 		function failCell($cell, message) {
 			$cell
-				.removeClass("vip-compatibility-status")
-				.addClass("not-compatible")
+				.removeClass("is-pending")
+				.addClass("is-review")
 				.empty()
-				.append(buildPill("blocked", message));
+				.append(buildPill("review", message));
+
+			$cell.closest("tr").attr("data-status", "review");
 		}
 
 		function onSettled() {
@@ -509,15 +601,10 @@ jQuery(document).ready(function ($) {
 			}
 		}
 
-		if (!total) {
-			return;
-		}
-
-		// Filtering mid-scan would report partial results, so hold the tabs.
-		$filterButtons.prop("disabled", true);
-
-		if (tableView) {
-			tableView.setCountsPending(true);
+		// Filtering mid-scan would report partial results, so hold the controls.
+		if (view) {
+			view.groups.find("button").prop("disabled", true);
+			view.setCountsPending(true);
 		}
 
 		if ($scan.length) {
@@ -526,199 +613,5 @@ jQuery(document).ready(function ($) {
 		}
 
 		pump();
-	})();
-
-	/* ---------------------------------------------------------------------
-	 * Overview tabs
-	 * ------------------------------------------------------------------ */
-
-	(function tabs() {
-		var $tabs = $("#wvc-navigation-tabs button");
-		var $panels = $(".wvc-navigation-tab-content");
-
-		if (!$tabs.length) {
-			return;
-		}
-
-		function activate($tab) {
-			$tabs.removeClass("active").attr({ "aria-selected": "false", tabindex: "-1" });
-			$panels.removeClass("active");
-
-			$tab.addClass("active").attr({ "aria-selected": "true", tabindex: "0" });
-			$("#" + $tab.data("tab")).addClass("active");
-		}
-
-		$tabs.on("click", function () {
-			activate($(this));
-		});
-
-		// Roving focus with the arrow keys, per the WAI-ARIA tabs pattern.
-		$tabs.on("keydown", function (event) {
-			var index = $tabs.index(this);
-			var next = null;
-
-			if (event.key === "ArrowRight" || event.key === "ArrowDown") {
-				next = (index + 1) % $tabs.length;
-			} else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
-				next = (index - 1 + $tabs.length) % $tabs.length;
-			} else if (event.key === "Home") {
-				next = 0;
-			} else if (event.key === "End") {
-				next = $tabs.length - 1;
-			}
-
-			if (null === next) {
-				return;
-			}
-
-			event.preventDefault();
-			activate($tabs.eq(next));
-			$tabs.eq(next).trigger("focus");
-		});
-	})();
-
-	/* ---------------------------------------------------------------------
-	 * Overview dashboard
-	 * ------------------------------------------------------------------ */
-
-	(function dashboard() {
-		var $container = $("#wvc-chart-container");
-
-		if (!$container.length) {
-			return;
-		}
-
-		var categories = $container.data("categories") || [];
-		var chartInstances = {};
-
-		var COLORS = { ok: "#12805c", warn: "#bd7b00", bad: "#b32d2e" };
-
-		function card(category) {
-			return $container.find("[data-category='" + category + "']");
-		}
-
-		function showCardState($card, content) {
-			$card.find("[data-role='readout']").attr("hidden", "hidden");
-			$card.find("[data-role='state']").empty().append(content).show();
-		}
-
-		function renderChart(category, counts) {
-			var canvas = document.getElementById("chart-" + category);
-
-			// Chart.js only ships on the overview screen; degrade to numbers.
-			if (!canvas || typeof window.Chart === "undefined") {
-				return;
-			}
-
-			if (chartInstances[category]) {
-				chartInstances[category].destroy();
-			}
-
-			chartInstances[category] = new window.Chart(canvas.getContext("2d"), {
-				type: "doughnut",
-				data: {
-					labels: [i18n.compatible, i18n.needsReview, i18n.incompatible],
-					datasets: [
-						{
-							data: [counts.compatible, counts.needsReview, counts.incompatible],
-							backgroundColor: [COLORS.ok, COLORS.warn, COLORS.bad],
-							borderColor: "#ffffff",
-							borderWidth: 2,
-							hoverOffset: 6
-						}
-					]
-				},
-				options: {
-					responsive: true,
-					maintainAspectRatio: false,
-					cutout: "72%",
-					animation: { duration: 500 },
-					plugins: {
-						legend: { display: false },
-						tooltip: {
-							backgroundColor: "#14181f",
-							padding: 10,
-							cornerRadius: 6,
-							boxPadding: 4,
-							titleFont: { size: 12 },
-							bodyFont: { size: 12 }
-						}
-					}
-				}
-			});
-		}
-
-		function renderCard(category, counts) {
-			var $card = card(category);
-			var checked = counts.compatible + counts.needsReview + counts.incompatible;
-
-			$card.find("[data-role='compatible']").text(counts.compatible);
-			$card.find("[data-role='needs-review']").text(counts.needsReview);
-			$card.find("[data-role='incompatible']").text(counts.incompatible);
-
-			if (!checked) {
-				showCardState($card, $("<span/>").text(i18n.nothingToCheck || ""));
-				return;
-			}
-
-			$card.find("[data-role='state']").empty().hide();
-			$card.find("[data-role='percent']").text(Math.round((counts.compatible / checked) * 100) + "%");
-			$card.find("[data-role='readout']").removeAttr("hidden");
-
-			renderChart(category, counts);
-		}
-
-		function renderCardError(category) {
-			var $card = card(category);
-
-			$card.find("[data-role='compatible'],[data-role='needs-review'],[data-role='incompatible']").text("–");
-
-			showCardState($card, [
-				$("<span/>").text(i18n.unableToFetchData || ""),
-				$("<button/>", {
-					type: "button",
-					class: "wvc-btn wvc-btn--ghost",
-					text: i18n.retry
-				}).on("click", function () {
-					fetchCategory(category);
-				})
-			]);
-		}
-
-		function fetchCategory(category) {
-			$.ajax({
-				url: settings.ajax_url,
-				type: "POST",
-				data: {
-					_ajax_nonce: settings.nonce,
-					action: "wvc_get_chart_data",
-					category: category
-				},
-				beforeSend: function () {
-					showCardState(
-						card(category),
-						$("<span/>", { class: "wvc-chart-card__ring-skeleton", "aria-hidden": "true" })
-					);
-				},
-				success: function (response) {
-					if (response && response.success) {
-						renderCard(category, {
-							compatible: parseInt(response.data.compatible, 10) || 0,
-							needsReview: parseInt(response.data.needs_review, 10) || 0,
-							incompatible: parseInt(response.data.not_compatible, 10) || 0
-						});
-					} else {
-						renderCardError(category);
-					}
-				},
-				error: function () {
-					renderCardError(category);
-				}
-			});
-		}
-
-		$.each(categories, function (index, category) {
-			fetchCategory(category);
-		});
 	})();
 });

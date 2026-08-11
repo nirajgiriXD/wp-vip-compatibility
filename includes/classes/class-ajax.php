@@ -52,7 +52,6 @@ class Ajax {
 	 */
 	private function setup_hooks() {
 		add_action( 'wp_ajax_wvc_scan_target', array( $this, 'scan_target' ) );
-		add_action( 'wp_ajax_wvc_get_chart_data', array( $this, 'get_chart_data' ) );
 		add_action( 'wp_ajax_wvc_get_scan_summary', array( $this, 'get_scan_summary' ) );
 	}
 
@@ -103,7 +102,7 @@ class Ajax {
 				'target'   => $result['key'],
 				'status'   => $result['status'],
 				'label'    => Scanner::status_label( $result['status'] ),
-				'class'    => $this->status_class( $result['status'] ),
+				'state'    => $this->status_state( $result['status'] ),
 				'total'    => (int) $result['summary']['total'],
 				'blocking' => (int) $result['summary']['blocking'],
 				'severity' => $this->highest_severity( $result['summary']['by_severity'] ),
@@ -118,31 +117,6 @@ class Ajax {
 				),
 			)
 		);
-	}
-
-	/**
-	 * Returns the compatibility counts for one overview category.
-	 *
-	 * @return void
-	 */
-	public function get_chart_data() {
-		$this->authorize();
-
-		$category = isset( $_POST['category'] ) ? sanitize_key( wp_unslash( $_POST['category'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce and capability are verified by authorize() at the top of this handler.
-
-		$callbacks = array(
-			'plugins'     => 'wvc_get_plugins_chart_data',
-			'themes'      => 'wvc_get_themes_chart_data',
-			'mu-plugins'  => 'wvc_get_mu_plugins_chart_data',
-			'database'    => 'wvc_get_database_chart_data',
-			'directories' => 'wvc_get_directories_chart_data',
-		);
-
-		if ( ! isset( $callbacks[ $category ] ) ) {
-			wp_send_json_error( array( 'message' => __( 'Unknown category.', 'wp-vip-compatibility' ) ), 400 );
-		}
-
-		wp_send_json_success( call_user_func( $callbacks[ $category ] ) );
 	}
 
 	/**
@@ -172,17 +146,24 @@ class Ajax {
 	}
 
 	/**
-	 * Maps a verdict onto the CSS class the table filters use.
+	 * Maps a verdict onto the state the tables filter and style by.
 	 *
-	 * The `compatible` / `not-compatible` classes are the long-standing DOM
-	 * contract for filtering, so "needs review" reuses `not-compatible` to stay
-	 * in the "needs attention" filter while carrying its own label.
+	 * "Needs review" used to be reported as `not-compatible` so that it landed in
+	 * a two-way "ready / needs attention" filter. The filters now read a
+	 * `data-status` attribute with one value per verdict, so a review no longer
+	 * has to impersonate a failure to be findable.
 	 *
 	 * @param string $status One of the Scanner STATUS_* constants.
-	 * @return string The CSS class.
+	 * @return string The verdict state.
 	 */
-	private function status_class( $status ) {
-		return ( Scanner::STATUS_PASS === $status ) ? 'compatible' : 'not-compatible';
+	private function status_state( $status ) {
+		$states = array(
+			Scanner::STATUS_PASS    => 'compatible',
+			Scanner::STATUS_REVIEW  => 'review',
+			Scanner::STATUS_BLOCKED => 'not-compatible',
+		);
+
+		return $states[ $status ] ?? 'review';
 	}
 
 	/**

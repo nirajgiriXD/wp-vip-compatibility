@@ -30,7 +30,7 @@ Each is scored independently for severity, detection confidence, and the kind of
 
 = What every finding tells you =
 
-The issue title, what was detected, why it matters on the VIP Platform specifically, the file, line and function, the line of code as evidence, the recommended fix, an alternative approach where one exists, the matching WordPress-VIP-Go PHPCS sniff, and a link to the VIP documentation the rule came from.
+The issue title, what was detected, why it matters on the VIP Platform specifically, the file, line and function, the line of code as evidence, the recommended fix, an alternative approach where one exists, the matching WordPress-VIP-Go PHPCS sniff, and a link to the WordPress VIP documentation the rule came from.
 
 = What gets checked =
 
@@ -41,7 +41,7 @@ The issue title, what was detected, why it matters on the VIP Platform specifica
 * **External requests** — raw cURL, sockets, remote URLs fetched through filesystem functions, and uncached or untimed HTTP calls.
 * **Security** — shell execution, dynamic code execution, unserialisation, unescaped request data and dynamic includes.
 * **Environment** — PHP sessions, runtime `ini_set()`, server-layout assumptions, and redefined core constants.
-* **Platform overlap** — plugins VIP documents as incompatible, plugins that need testing, and plugins duplicating something VIP already provides.
+* **Platform overlap** — plugins WordPress VIP documents as incompatible, plugins that need testing, and plugins duplicating something VIP already provides.
 
 = Reporting =
 
