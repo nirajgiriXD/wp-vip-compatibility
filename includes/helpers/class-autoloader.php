@@ -7,6 +7,8 @@
 
 namespace WP_VIP_COMPATIBILITY\Includes\Helpers;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Abstract Class Autoloader
  *

@@ -9,6 +9,8 @@
 
 namespace WP_VIP_COMPATIBILITY\Includes\Traits;
 
+defined( 'ABSPATH' ) || exit;
+
 trait Singleton {
 	/**
 	 * Holds the singleton instance of the class.

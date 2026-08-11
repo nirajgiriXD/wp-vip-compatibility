@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <ruleset name="WP VIP Compatibility">
-	<description>A custom set of rules to check phpcs for WP VIP Compatibility plugin.</description>
+	<description>The WordPress VIP coding standards, applied to this plugin's own source.</description>
 
 	<arg name="extensions" value="php"/>
 	<rule ref="PHPCompatibilityWP"/>
-	<config name="testVersion" value="8.0-"/>
+	<config name="testVersion" value="7.4-"/>
 
 	<arg value="psvn"/>
 
@@ -21,6 +21,15 @@
 	</rule>
 	<rule ref="Generic.Commenting.DocComment.ShortNotCapital">
 		<severity>0</severity>
+	</rule>
+
+	<!--
+		The plugin bootstrap file has to be named after the plugin so WordPress
+		can find it, which conflicts with the class-file naming convention for
+		the loader class it contains.
+	-->
+	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
+		<exclude-pattern>*/wp-vip-compatibility.php</exclude-pattern>
 	</rule>
 
 	<exclude-pattern>*/build/*</exclude-pattern>

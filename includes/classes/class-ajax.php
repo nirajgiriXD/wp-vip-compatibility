@@ -1,6 +1,16 @@
 <?php
 /**
- * This file contains the class and methods to handle ajax requests.
+ * AJAX endpoints.
+ *
+ * Three things were wrong with the previous implementation and are fixed here:
+ *
+ * - No capability check. `wp_ajax_*` only requires a logged-in user, so every
+ *   handler was reachable by any authenticated account, including subscribers.
+ * - `directory_path` was taken from the request and passed to the filesystem,
+ *   which let a caller scan and enumerate arbitrary server paths. Requests now
+ *   name a target key that is resolved against the plugins, themes and must-use
+ *   plugins WordPress reports; anything else is rejected.
+ * - `filename` was interpolated into a path with no traversal guard.
  *
  * @package wp-vip-compatibility
  */
@@ -8,139 +18,167 @@
 namespace WP_VIP_COMPATIBILITY\Includes\Classes;
 
 use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Results_Store;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Scanner;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
+
+defined( 'ABSPATH' ) || exit;
 
 /**
- * This class will handle ajax requests.
+ * Handles the plugin's AJAX requests.
  */
 class Ajax {
 
 	use Singleton;
 
 	/**
-	 * Constructor method is used to initialize the fields.
+	 * Capability required for every endpoint.
+	 */
+	const CAPABILITY = 'manage_options';
+
+	/**
+	 * Constructor.
 	 */
 	public function __construct() {
 		$this->setup_hooks();
 	}
 
 	/**
-	 * To setup actions and filters.
+	 * Registers the endpoints.
 	 *
 	 * @return void
 	 */
 	private function setup_hooks() {
-
-		add_action( 'wp_ajax_wvc_check_vip_compatibility', array( $this, 'wvc_ajax_check_vip_compatibility' ) );
-		add_action( 'wp_ajax_wvc_render_log_note', array( $this, 'wvc_ajax_render_log_note' ) );
-		add_action( 'wp_ajax_wvc_get_chart_data', array( $this, 'wvc_ajax_get_chart_data' ) );
+		add_action( 'wp_ajax_wvc_scan_target', array( $this, 'scan_target' ) );
+		add_action( 'wp_ajax_wvc_get_scan_summary', array( $this, 'get_scan_summary' ) );
 	}
 
 	/**
-	 * Handle the AJAX request for VIP compatibility check.
+	 * Verifies the nonce and the caller's capability.
+	 *
+	 * Sends an error response and exits when either check fails.
+	 *
+	 * @return void
 	 */
-	public function wvc_ajax_check_vip_compatibility() {
-		// Verify nonce for security.
-		if ( ! isset( $_POST['_ajax_nonce'] ) || ! wp_verify_nonce( $_POST['_ajax_nonce'], 'wvc_ajax_nonce' ) ) {
-			wp_send_json_error( [ 'message' => __( 'Security check failed.', 'wp-vip-compatibility' ) ] );
+	private function authorize() {
+		if ( ! current_user_can( self::CAPABILITY ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'You do not have permission to run compatibility scans.', 'wp-vip-compatibility' ) ),
+				403
+			);
 		}
 
-		// Validate input.
-		if ( ! isset( $_POST['directory_path'] ) ) {
-			wp_send_json_error( [ 'message' => __( 'Invalid request.', 'wp-vip-compatibility' ) ] );
-		}
-
-		$directory_path = sanitize_text_field( wp_unslash( $_POST['directory_path'] ) );
-
-		// Check compatibility using vip compatibility checking function.
-		$status = wvc_check_vip_compatibility( $directory_path );
-
-		// Determine CSS class for styling.
-		$class = ( 'Compatible' === $status ) ? 'compatible' : 'not-compatible';
-
-		// Send response.
-		wp_send_json_success( [
-			'message' => $status,
-			'class'   => $class
-		] );
+		// check_ajax_referer() handles unslashing and dies on failure.
+		check_ajax_referer( 'wvc_ajax_nonce', '_ajax_nonce' );
 	}
 
 	/**
-	 * Handle the AJAX request to render log note.
+	 * Scans a single target and returns its verdict.
+	 *
+	 * @return void
 	 */
-	public function wvc_ajax_render_log_note() {
-		// Verify nonce for security.
-		if ( empty( $_POST['_ajax_nonce'] ) || ! wp_verify_nonce( $_POST['_ajax_nonce'], 'wvc_ajax_nonce' ) ) {
-			wp_send_json_error( [ 'message' => __( 'Security check failed.', 'wp-vip-compatibility' ) ] );
+	public function scan_target() {
+		$this->authorize();
+
+		$key = isset( $_POST['target'] ) ? sanitize_text_field( wp_unslash( $_POST['target'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce and capability are verified by authorize() at the top of this handler.
+
+		if ( '' === $key ) {
+			wp_send_json_error( array( 'message' => __( 'No scan target was supplied.', 'wp-vip-compatibility' ) ), 400 );
 		}
 
-		// Validate input.
-		$filename = isset( $_POST['filename'] ) ? sanitize_text_field( $_POST['filename'] ) : '';
-		if ( empty( $filename ) ) {
-			wp_send_json_error( [ 'message' => __( 'Invalid request.', 'wp-vip-compatibility' ) ] );
+		$target = Targets::get( $key );
+
+		if ( null === $target ) {
+			wp_send_json_error( array( 'message' => __( 'Unknown scan target.', 'wp-vip-compatibility' ) ), 404 );
 		}
 
-		// Construct log file path.
-		$log_file_path = WP_CONTENT_DIR . "/uploads/wvc-logs/{$filename}.json";
-		$log_file_url  = WP_CONTENT_URL . "/uploads/wvc-logs/{$filename}.json";
+		$force  = ! empty( $_POST['force'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce and capability are verified by authorize() at the top of this handler.
+		$result = ( new Scanner() )->get_result( $target, $force );
 
-		// Check if log file exists.
-		if ( file_exists( $log_file_path ) ) {
-			wp_send_json_success( [
-				'message' => sprintf(
-					'<p><strong>%s</strong> %s <a href="%s" download>%s</a></p>',
-					esc_html__( 'Note:', 'wp-vip-compatibility' ),
-					esc_html__( 'The log file containing all the details is available for download at ', 'wp-vip-compatibility' ),
-					esc_url( $log_file_url ),
-					esc_html( "wp-content/uploads/wvc-logs/{$filename}.json" )
-				)
-			] );
-		} else {
-			wp_send_json_success( [ 
-				'message' => sprintf(
-					'<p><strong>%s</strong> %s</p>',
-					esc_html__( 'Note:', 'wp-vip-compatibility' ),
-					esc_html__( 'No incompatibility logs were generated.', 'wp-vip-compatibility' )
-				) 
-			] );
-		}
+		wp_send_json_success(
+			array(
+				'target'   => $result['key'],
+				'status'   => $result['status'],
+				'label'    => Scanner::status_label( $result['status'] ),
+				'state'    => $this->status_state( $result['status'] ),
+				'total'    => (int) $result['summary']['total'],
+				'blocking' => (int) $result['summary']['blocking'],
+				'severity' => $this->highest_severity( $result['summary']['by_severity'] ),
+				'files'    => (int) $result['files_scanned'],
+				'url'      => UI::get_findings_url( $result['key'] ),
+				/* translators: 1: Number of findings. 2: Number of files scanned. */
+				'summary'  => sprintf(
+					/* translators: 1: Number of findings. 2: Number of PHP files scanned. */
+					_n( '%1$d finding across %2$d PHP file.', '%1$d findings across %2$d PHP files.', (int) $result['summary']['total'], 'wp-vip-compatibility' ),
+					(int) $result['summary']['total'],
+					(int) $result['files_scanned']
+				),
+			)
+		);
 	}
 
 	/**
-	 * Handle the AJAX request to get chart data.
+	 * Returns the aggregate readiness summary.
+	 *
+	 * @return void
 	 */
-	public function wvc_ajax_get_chart_data() {
-		// Verify nonce for security.
-		if ( empty( $_POST['_ajax_nonce'] ) || ! wp_verify_nonce( $_POST['_ajax_nonce'], 'wvc_ajax_nonce' ) ) {
-			wp_send_json_error( [ 'message' => __( 'Security check failed.', 'wp-vip-compatibility' ) ] );
+	public function get_scan_summary() {
+		$this->authorize();
+
+		$aggregate = Report::aggregate();
+		$delta     = Results_Store::get_delta();
+
+		wp_send_json_success(
+			array(
+				'score'      => (int) $aggregate['score'],
+				'targets'    => (int) $aggregate['targets'],
+				'statuses'   => $aggregate['statuses'],
+				'findings'   => (int) $aggregate['totals']['findings'],
+				'blocking'   => (int) $aggregate['totals']['blocking'],
+				'files'      => (int) $aggregate['totals']['files'],
+				'severities' => $aggregate['by_severity'],
+				'delta'      => $delta,
+				'url'        => UI::get_findings_url(),
+			)
+		);
+	}
+
+	/**
+	 * Maps a verdict onto the state the tables filter and style by.
+	 *
+	 * "Needs review" used to be reported as `not-compatible` so that it landed in
+	 * a two-way "ready / needs attention" filter. The filters now read a
+	 * `data-status` attribute with one value per verdict, so a review no longer
+	 * has to impersonate a failure to be findable.
+	 *
+	 * @param string $status One of the Scanner STATUS_* constants.
+	 * @return string The verdict state.
+	 */
+	private function status_state( $status ) {
+		$states = array(
+			Scanner::STATUS_PASS    => 'compatible',
+			Scanner::STATUS_REVIEW  => 'review',
+			Scanner::STATUS_BLOCKED => 'not-compatible',
+		);
+
+		return $states[ $status ] ?? 'review';
+	}
+
+	/**
+	 * Returns the most serious severity present in a summary.
+	 *
+	 * @param array<string, int> $by_severity Counts keyed by severity.
+	 * @return string The severity slug, or an empty string when there are none.
+	 */
+	private function highest_severity( array $by_severity ) {
+		foreach ( array_keys( Taxonomy::get_severities() ) as $severity ) {
+			if ( ! empty( $by_severity[ $severity ] ) ) {
+				return $severity;
+			}
 		}
 
-		// Validate input.
-		$category = isset( $_POST['category'] ) ? sanitize_text_field( $_POST['category'] ) : '';
-		if ( empty( $category ) ) {
-			wp_send_json_error( [ 'message' => __( 'Invalid request.', 'wp-vip-compatibility' ) ] );
-		}
-
-		// Get chart data based on category.
-		switch ( $category ) {
-			case 'plugins':
-				$data = wvc_get_plugins_chart_data();
-				break;
-			case 'themes':
-				$data = wvc_get_themes_chart_data();
-				break;
-			case 'mu-plugins':
-				$data = wvc_get_mu_plugins_chart_data();
-				break;
-			case 'database':
-				$data = wvc_get_database_chart_data();
-				break;
-			case 'directories':
-				$data = wvc_get_directories_chart_data();
-				break;
-			default:
-				wp_send_json_error( [ 'message' => __( 'Invalid request.', 'wp-vip-compatibility' ) ] );
-		}
-
-		wp_send_json_success( $data );
+		return '';
 	}
 }

@@ -1,193 +1,617 @@
+/**
+ * WordPress VIP Compatibility — admin interactions.
+ *
+ * Behaviour is grouped into small controllers:
+ *   - clipboard : copy SQL snippets
+ *   - tableView : filtering, searching, sorting and live counts
+ *   - scanner   : queued async compatibility checks and progress
+ *
+ * Two things changed with the information-architecture rework:
+ *
+ * Filtering reads declarative `data-<group>` attributes on each row rather than
+ * sniffing `compatible` / `not-compatible` classes on cells. That contract only
+ * supported a two-way "ready / not ready" split, which is why "needs review"
+ * used to be tagged as a failure just to remain findable.
+ *
+ * A screen may now hold more than one table (the Site screen's two audits), so a
+ * view is scoped to its own `[data-role="table-view"]` container and its nearest
+ * toolbar, instead of the first `.wvc-table` on the page.
+ *
+ * The dashboard controller is gone: the overview renders its proportion bars
+ * server-side, so there is nothing left to fetch or draw.
+ */
 jQuery(document).ready(function ($) {
-  const ajaxRequests = [];
-  const table = $(".wvc-table");
-  const tabs = $("#wvc-filter-tabs button");
-  const tableData = $("td.vip-compatibility-status");
-  const logNoteContainer = $("#wvc-log-note-container");
-  const logNoteFilename = logNoteContainer?.data("filename");
-  const targetEntity = table.data("target-entity");
+	"use strict";
 
-  // These are the directories that undergoes async compatibility check
-  const asyncCompatibilityCheckFiles = ["plugins", "themes", "mu-plugins"];
+	var settings = window._WPVC_ || {};
+	var i18n = settings.i18n || {};
 
-  // Disable tabs initially
-  if (
-    tableData.length > 0 &&
-    asyncCompatibilityCheckFiles.includes(targetEntity)
-  ) {
-    tabs.prop("disabled", true);
-  }
+	/* ---------------------------------------------------------------------
+	 * Helpers
+	 * ------------------------------------------------------------------ */
 
-  // Check compatibility for each directory
-  tableData?.each(function () {
-    const statusCell = $(this);
-    const directoryPath = statusCell.data("directory-path");
+	/**
+	 * Minimal sprintf supporting `%s` and positional `%1$s` placeholders.
+	 *
+	 * @param {string} template Localized template.
+	 * @returns {string} The interpolated string.
+	 */
+	function format(template) {
+		var args = Array.prototype.slice.call(arguments, 1);
+		var cursor = 0;
 
-    // Send AJAX request
-    const request = $.ajax({
-      url: _WPVC_.ajax_url,
-      type: "POST",
-      data: {
-        _ajax_nonce: _WPVC_.nonce,
-        action: "wvc_check_vip_compatibility",
-        directory_path: directoryPath,
-      },
-      beforeSend: function () {
-        statusCell.text(_WPVC_.i18n.checking);
-      },
-      success: function (response) {
-        if (response.success) {
-          statusCell
-            .text(response.data.message)
-            .addClass(response.data.class);
-        } else {
-          statusCell
-            .text(_WPVC_.i18n.error)
-            .addClass("not-compatible");
-        }
-      },
-      error: function () {
-        statusCell.text(_WPVC_.i18n.error).addClass("not-compatible");
-      },
-    });
+		return String(template || "")
+			.replace(/%(\d+)\$s/g, function (match, position) {
+				var value = args[parseInt(position, 10) - 1];
+				return typeof value === "undefined" ? "" : value;
+			})
+			.replace(/%s/g, function () {
+				var value = args[cursor];
+				cursor += 1;
+				return typeof value === "undefined" ? "" : value;
+			});
+	}
 
-    // Store the request
-    ajaxRequests.push(request);
-  });
+	var ICON_PATHS = {
+		check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+		alert:
+			'<path d="M12 8.5v5"/><path d="M12 17h.01"/>' +
+			'<path d="M10.3 3.9 2.6 17.4A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3.1L13.7 3.9a2 2 0 0 0-3.4 0Z"/>',
+		info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
+		copy:
+			'<rect x="9" y="9" width="11" height="11" rx="2"/>' +
+			'<path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5V5A1.5 1.5 0 0 1 4.5 3.5H13A1.5 1.5 0 0 1 14.5 5v.5"/>'
+	};
 
-  // Once all AJAX requests are done, enable filter tabs and load the log note
-  $.when.apply($, ajaxRequests).done(function () {
-    tabs.prop("disabled", false);
+	/**
+	 * Builds an inline icon that matches the icons rendered by PHP.
+	 *
+	 * @param {string} name         Icon name.
+	 * @param {string} [size]       Size modifier: `sm` or `xs`.
+	 * @param {string} [extraClass] Additional class names.
+	 * @returns {string} SVG markup.
+	 */
+	function icon(name, size, extraClass) {
+		if (!ICON_PATHS[name]) {
+			return "";
+		}
 
-    $.ajax({
-      url: _WPVC_.ajax_url,
-      type: "POST",
-      data: {
-        _ajax_nonce: _WPVC_.nonce,
-        action: "wvc_render_log_note",
-        filename: logNoteFilename,
-      },
-      success: function (response) {
-        if (response.success) {
-          logNoteContainer.html(response.data.message);
-        } else {
-          logNoteContainer.html(response.data.message);
-        }
-      },
-      error: function () {
-        logNoteContainer.html(
-          "<p><strong>" +
-            _WPVC_.i18n.error +
-            ":</strong> " +
-            _WPVC_.i18n.unableToFetchLogDetails +
-            "</p>"
-        );
-      },
-    });
-  });
+		var classes = "wvc-icon";
 
-  // Tabs filter functionality
-  $("#wvc-filter-tabs button").on("click", function () {
-    const filter = $(this).data("filter");
-    $("#wvc-filter-tabs button").removeClass("active");
-    $(this).addClass("active");
+		if (size) {
+			classes += " wvc-icon--" + size;
+		}
 
-    if (filter === "all") {
-      table.find("tbody tr").show();
-    } else if (filter === "compatible") {
-      table.find("tbody tr").hide();
-      table.find("td.compatible").closest("tr").show();
-    } else if (filter === "incompatible") {
-      table.find("tbody tr").hide();
-      table.find("td.not-compatible").closest("tr").show();
-    }
-  });
+		if (extraClass) {
+			classes += " " + extraClass;
+		}
 
-  // Tabs navigation functionality
-  const navigationTabs = $("#wvc-navigation-tabs button");
-  const contents = $(".wvc-navigation-tab-content");
+		return (
+			'<svg class="' +
+			classes +
+			'" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" ' +
+			'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
+			ICON_PATHS[name] +
+			"</svg>"
+		);
+	}
 
-  navigationTabs.on("click", function () {
-    navigationTabs.removeClass("active");
-    contents.removeClass("active");
+	/**
+	 * Builds a resolved status pill.
+	 *
+	 * @param {string} state One of `compatible`, `review`, `not-compatible`.
+	 * @param {string} label Visible text.
+	 * @returns {jQuery} The pill element.
+	 */
+	function buildPill(state, label) {
+		var modifier = state === "compatible" ? "ok" : state === "review" ? "warn" : "bad";
+		var glyph = state === "compatible" ? "check" : state === "review" ? "info" : "alert";
 
-    $(this).addClass("active");
-    $("#" + $(this).data("tab")).addClass("active");
-  });
+		return $("<span/>", { class: "wvc-status wvc-status--" + modifier })
+			.append(icon(glyph, "xs"))
+			.append($("<span/>").text(label));
+	}
 
-  // Chart functionality
-  const chartInstances = {};
-  const chartContainer = $("#wvc-chart-container");
-  const categories = chartContainer.data("categories");
+	/**
+	 * Builds an in-progress status pill.
+	 *
+	 * @param {string} label Visible text.
+	 * @returns {jQuery} The pill element.
+	 */
+	function buildPendingPill(label) {
+		return $("<span/>", { class: "wvc-status wvc-status--pending" })
+			.append($("<span/>", { class: "wvc-spinner wvc-spinner--xs", "aria-hidden": "true" }))
+			.append($("<span/>").text(label));
+	}
 
-  // Update the chart with the new data
-  const updateChart = (category, data) => {
-    const canvasId = "chart-" + category;
-    const ctx = document.getElementById(canvasId).getContext("2d");
+	/* ---------------------------------------------------------------------
+	 * Clipboard
+	 * ------------------------------------------------------------------ */
 
-    // Destroy the existing chart instance if it exists
-    if (chartInstances[canvasId]) {
-      chartInstances[canvasId].destroy();
-    }
+	(function clipboard() {
+		/**
+		 * Copies text, falling back to a hidden textarea on insecure origins.
+		 *
+		 * @param {string} text The text to copy.
+		 * @returns {Promise|jQuery.Promise} Resolves when the copy succeeded.
+		 */
+		function writeText(text) {
+			if (window.navigator && window.navigator.clipboard && window.isSecureContext) {
+				return window.navigator.clipboard.writeText(text);
+			}
 
-    // Create a new chart and store it
-    chartInstances[canvasId] = new Chart(ctx, {
-      type: "pie",
-      data: {
-        labels: ["Compatible", "Not-Compatible"],
-        datasets: [
-          {
-            data: [data.compatible, data.not_compatible],
-            backgroundColor: ["#4CAF50", "#FF5733"],
-            hoverOffset: 4,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: "bottom",
-          },
-          title: {
-            display: true,
-            text: category.toUpperCase(),
-            font: {
-              size: 12,
-            },
-            padding: 10,
-          },
-        },
-      },
-    });
-  };
+			var deferred = $.Deferred();
+			var $helper = $("<textarea/>")
+				.val(text)
+				.attr("readonly", "readonly")
+				.css({ position: "fixed", top: "-1000px", opacity: 0 })
+				.appendTo(document.body);
 
-  // Fetch data for each category and update the chart
-  categories?.forEach((category) => {
-    $.ajax({
-      url: _WPVC_.ajax_url,
-      type: "POST",
-      data: {
-        _ajax_nonce: _WPVC_.nonce,
-        action: "wvc_get_chart_data",
-        category: category,
-      },
-      beforeSend: function () {
-        updateChart(category, {
-          compatible: 0,
-          not_compatible: 0,
-        });
-      },
-      success: function (response) {
-        if (response.success) {
-          updateChart(category, response.data);
-        } else {
-          alert(_WPVC_.i18n.unableToFetchData);
-        }
-      },
-      error: function () {
-        alert(_WPVC_.i18n.unableToFetchData);
-      },
-    });
-  });
+			$helper[0].select();
+
+			try {
+				if (document.execCommand("copy")) {
+					deferred.resolve();
+				} else {
+					deferred.reject();
+				}
+			} catch (error) {
+				deferred.reject();
+			}
+
+			$helper.remove();
+
+			return deferred.promise();
+		}
+
+		$(document).on("click", "[data-role='copy']", function () {
+			var $button = $(this);
+			var timer = $button.data("wvcResetTimer");
+
+			window.clearTimeout(timer);
+
+			$.when(writeText($button.attr("data-clipboard") || ""))
+				.done(function () {
+					$button
+						.addClass("is-copied")
+						.html(icon("check", "xs"))
+						.attr({ "aria-label": i18n.copied, title: i18n.copied });
+				})
+				.fail(function () {
+					$button.attr({ "aria-label": i18n.copyFailed, title: i18n.copyFailed });
+				})
+				.always(function () {
+					$button.data(
+						"wvcResetTimer",
+						window.setTimeout(function () {
+							$button
+								.removeClass("is-copied")
+								.html(icon("copy", "xs"))
+								.attr({ "aria-label": i18n.copy, title: i18n.copy });
+						}, 1800)
+					);
+				});
+		});
+	})();
+
+	/* ---------------------------------------------------------------------
+	 * Table view: filter + search + sort + counts
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Wires up one table and the toolbar that precedes it.
+	 *
+	 * @param {HTMLElement} container The `[data-role="table-view"]` element.
+	 * @returns {Object|null} The view controller, or null when there is no table.
+	 */
+	function createTableView(container) {
+		var $container = $(container);
+		var $table = $container.find(".wvc-table").first();
+
+		if (!$table.length) {
+			return null;
+		}
+
+		// The toolbar sits before the table wrapper, so the closest preceding one
+		// belongs to this view even when the screen renders several.
+		var $toolbar = $container.prevAll(".wvc-toolbar").first();
+		var $scan = $container.prevAll(".wvc-scan").first();
+		var $tbody = $table.children("tbody");
+		var $rows = $tbody.children("tr").not("[data-empty]");
+		var $groups = $toolbar.find("[data-filter-group]");
+		var $search = $toolbar.find("[data-role='table-search']");
+		var $resultCount = $toolbar.find("[data-role='result-count']");
+		var columnCount = $table.find("thead th").length || 1;
+
+		var state = { query: "", filters: {}, countsPending: false };
+		var $noResults = null;
+
+		// Seed each group from whichever option the server marked active, so a
+		// link such as ?kind=mu-plugin lands on a filtered view.
+		$groups.each(function () {
+			var $group = $(this);
+			var name = $group.data("filter-group");
+			var $active = $group.find("button.active").first();
+
+			state.filters[name] = $active.length ? String($active.data("filter-value")) : "all";
+		});
+
+		function getNoResultsRow() {
+			if (!$noResults) {
+				$noResults = $('<tr class="wvc-no-results"><td></td></tr>');
+				$noResults
+					.children("td")
+					.attr("colspan", columnCount)
+					.append($("<strong/>").text(i18n.noResults || ""))
+					.append("<br>")
+					.append($("<span/>").text(i18n.noResultsHint || ""));
+			}
+
+			return $noResults;
+		}
+
+		/**
+		 * Whether a row satisfies every active filter group.
+		 *
+		 * @param {jQuery} $row The row.
+		 * @returns {boolean} True when the row should be visible.
+		 */
+		function rowMatchesFilters($row) {
+			var matches = true;
+
+			$.each(state.filters, function (name, value) {
+				if (value === "all") {
+					return true;
+				}
+
+				if (String($row.attr("data-" + name) || "") !== value) {
+					matches = false;
+					return false;
+				}
+
+				return true;
+			});
+
+			return matches;
+		}
+
+		function rowMatchesQuery($row) {
+			if (!state.query) {
+				return true;
+			}
+
+			return $row.text().toLowerCase().indexOf(state.query) !== -1;
+		}
+
+		/**
+		 * Recomputes the count shown on every filter option.
+		 *
+		 * A group's counts are measured against the *other* groups' filters, so
+		 * "Blocked (2)" means two of the rows currently in view, not two of every
+		 * row on the screen.
+		 */
+		function updateCounts() {
+			$groups.each(function () {
+				var $group = $(this);
+				var name = $group.data("filter-group");
+
+				var $candidates = $rows.filter(function () {
+					var $row = $(this);
+					var matches = true;
+
+					$.each(state.filters, function (other, value) {
+						if (other === name || value === "all") {
+							return true;
+						}
+
+						if (String($row.attr("data-" + other) || "") !== value) {
+							matches = false;
+							return false;
+						}
+
+						return true;
+					});
+
+					return matches && rowMatchesQuery($row);
+				});
+
+				$group.find("button").each(function () {
+					var $button = $(this);
+					var value = String($button.data("filter-value"));
+					var count =
+						value === "all"
+							? $candidates.length
+							: $candidates.filter("[data-" + name + "='" + value + "']").length;
+
+					// While an async scan is running the verdicts are not known
+					// yet, so a number would be a guess.
+					var unknown = state.countsPending && name === "status" && value !== "all";
+
+					$button.find(".wvc-segmented__count").text(unknown ? "" : String(count));
+				});
+			});
+		}
+
+		function apply() {
+			var visible = 0;
+
+			$rows.each(function () {
+				var $row = $(this);
+				var show = rowMatchesFilters($row) && rowMatchesQuery($row);
+
+				$row.toggle(show);
+
+				if (show) {
+					visible += 1;
+				}
+			});
+
+			if (!visible && $rows.length) {
+				getNoResultsRow().appendTo($tbody).show();
+			} else if ($noResults) {
+				$noResults.hide();
+			}
+
+			if ($resultCount.length) {
+				if (!$rows.length) {
+					$resultCount.text("");
+				} else if (visible === $rows.length) {
+					$resultCount.text(format(i18n.showingAll, $rows.length));
+				} else {
+					$resultCount.text(format(i18n.showingFiltered, visible, $rows.length));
+				}
+			}
+
+			updateCounts();
+		}
+
+		/* Filtering. */
+		$groups.on("click", "button", function () {
+			var $button = $(this);
+			var $group = $button.closest("[data-filter-group]");
+
+			state.filters[$group.data("filter-group")] = String($button.data("filter-value"));
+
+			$group.find("button").removeClass("active").attr("aria-pressed", "false");
+			$button.addClass("active").attr("aria-pressed", "true");
+
+			apply();
+		});
+
+		/* Searching. */
+		if ($search.length) {
+			var searchTimer = null;
+
+			$search.on("input search", function () {
+				var value = $(this).val();
+
+				window.clearTimeout(searchTimer);
+				searchTimer = window.setTimeout(function () {
+					state.query = $.trim(String(value)).toLowerCase();
+					apply();
+				}, 140);
+			});
+
+			$search.on("keydown", function (event) {
+				if (event.key === "Escape" && $(this).val()) {
+					event.stopPropagation();
+					$(this).val("");
+					state.query = "";
+					apply();
+				}
+			});
+		}
+
+		/* Sorting. */
+		$table.find("thead th.is-sortable .wvc-th__sort").on("click", function () {
+			var $th = $(this).closest("th");
+			var index = $th.index();
+			var type = $th.data("sort-type") || "text";
+			var ascending = $th.attr("aria-sort") !== "ascending";
+
+			var sorted = $rows.toArray().sort(function (a, b) {
+				var left = $(a).children("td").eq(index).text().trim();
+				var right = $(b).children("td").eq(index).text().trim();
+
+				if (type === "number") {
+					var leftNumber = parseFloat(left.replace(/[^\d.-]/g, "")) || 0;
+					var rightNumber = parseFloat(right.replace(/[^\d.-]/g, "")) || 0;
+
+					return ascending ? leftNumber - rightNumber : rightNumber - leftNumber;
+				}
+
+				return ascending
+					? left.localeCompare(right, undefined, { numeric: true, sensitivity: "base" })
+					: right.localeCompare(left, undefined, { numeric: true, sensitivity: "base" });
+			});
+
+			$table.find("thead th").attr("aria-sort", "none");
+			$th.attr("aria-sort", ascending ? "ascending" : "descending");
+
+			$tbody.append(sorted);
+
+			// Keep the empty-result row last.
+			if ($noResults) {
+				$noResults.appendTo($tbody);
+			}
+		});
+
+		apply();
+
+		return {
+			table: $table,
+			scan: $scan,
+			groups: $groups,
+			setCountsPending: function (pending) {
+				state.countsPending = !!pending;
+				updateCounts();
+			},
+			refresh: apply
+		};
+	}
+
+	var views = [];
+
+	$("[data-role='table-view']").each(function () {
+		var view = createTableView(this);
+
+		if (view) {
+			views.push(view);
+		}
+	});
+
+	/* ---------------------------------------------------------------------
+	 * Scanner: queued compatibility checks
+	 * ------------------------------------------------------------------ */
+
+	(function scanner() {
+		var $statusCells = $("td.wvc-col-status.is-pending[data-target]");
+		var total = $statusCells.length;
+
+		if (!total) {
+			return;
+		}
+
+		// Only the view that actually owns pending rows is held during the scan.
+		var view = null;
+
+		$.each(views, function (index, candidate) {
+			if (candidate.table.find("td.wvc-col-status.is-pending[data-target]").length) {
+				view = candidate;
+				return false;
+			}
+
+			return true;
+		});
+
+		var $scan = view ? view.scan : $("[data-role='scan']").first();
+		var $scanLabel = $scan.find("[data-role='scan-label']");
+		var $scanBar = $scan.find("[data-role='scan-bar']");
+
+		var queue = $statusCells.toArray();
+		var completed = 0;
+		var active = 0;
+
+		// Tokenising a plugin is CPU heavy on the server; a small pool keeps the
+		// admin responsive instead of firing one request per row at once.
+		var CONCURRENCY = 3;
+
+		function updateProgress() {
+			if (!$scan.length) {
+				return;
+			}
+
+			$scanLabel.text(format(i18n.scanning, completed, total));
+			$scanBar.css("width", total ? (completed / total) * 100 + "%" : "0%");
+		}
+
+		function complete() {
+			if (view) {
+				view.groups.find("button").prop("disabled", false);
+				view.setCountsPending(false);
+				view.refresh();
+			}
+
+			if ($scan.length) {
+				$scanBar.css("width", "100%");
+				$scan.attr("hidden", "hidden");
+			}
+		}
+
+		/**
+		 * Replaces a pending cell with its verdict.
+		 *
+		 * The row's `data-status` is what the filters read, so it is updated
+		 * alongside the cell's own state class.
+		 *
+		 * @param {jQuery} $cell  The status cell.
+		 * @param {Object} result The AJAX payload.
+		 */
+		function resolveCell($cell, result) {
+			$cell
+				.removeClass("is-pending is-compatible is-review is-not-compatible")
+				.addClass("is-" + result.state);
+
+			$cell.closest("tr").attr("data-status", result.state);
+
+			$cell.empty().append(buildPill(result.state, result.label));
+
+			if (result.total > 0 && result.url) {
+				$cell.append(
+					$("<a/>", { class: "wvc-status__link", href: result.url, title: result.summary }).text(
+						format(i18n.findingCount, result.total)
+					)
+				);
+			}
+		}
+
+		function failCell($cell, message) {
+			$cell
+				.removeClass("is-pending")
+				.addClass("is-review")
+				.empty()
+				.append(buildPill("review", message));
+
+			$cell.closest("tr").attr("data-status", "review");
+		}
+
+		function onSettled() {
+			active -= 1;
+			completed += 1;
+			updateProgress();
+
+			if (queue.length) {
+				pump();
+			} else if (completed === total) {
+				complete();
+			}
+		}
+
+		function checkCell(cell) {
+			var $cell = $(cell);
+
+			return $.ajax({
+				url: settings.ajax_url,
+				type: "POST",
+				data: {
+					_ajax_nonce: settings.nonce,
+					action: "wvc_scan_target",
+					target: $cell.data("target")
+				},
+				beforeSend: function () {
+					$cell.empty().append(buildPendingPill(i18n.checking));
+				},
+				success: function (response) {
+					if (response && response.success) {
+						resolveCell($cell, response.data);
+					} else {
+						failCell($cell, (response && response.data && response.data.message) || i18n.error);
+					}
+				},
+				error: function () {
+					failCell($cell, i18n.error);
+				}
+			}).always(onSettled);
+		}
+
+		function pump() {
+			while (active < CONCURRENCY && queue.length) {
+				active += 1;
+				checkCell(queue.shift());
+			}
+		}
+
+		// Filtering mid-scan would report partial results, so hold the controls.
+		if (view) {
+			view.groups.find("button").prop("disabled", true);
+			view.setCountsPending(true);
+		}
+
+		if ($scan.length) {
+			$scan.removeAttr("hidden");
+			updateProgress();
+		}
+
+		pump();
+	})();
 });

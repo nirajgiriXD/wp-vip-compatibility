@@ -1,391 +1,160 @@
 <?php
 /**
- * File that contains functions for the WordPress VIP Compatibility.
+ * Public helper functions.
+ *
+ * These wrap the scanner classes so that the signatures the plugin has always
+ * exposed keep working. New code should use the classes in
+ * `WP_VIP_COMPATIBILITY\Includes\Scanner` directly.
  *
  * @package wp-vip-compatibility
  */
 
+use WP_VIP_COMPATIBILITY\Includes\Classes\Plugin;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Scanner;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
+
+defined( 'ABSPATH' ) || exit;
+
 /**
- * Check the compatibility of a directory with VIP Go and store logs for incompatible files.
+ * Returns the compatibility verdict for a scan target.
  *
- * @param string $directory_path The directory path to check.
- * @return string The compatibility status: 'Compatible' or 'Incompatible'.
+ * @since 1.0.0
+ * @since 2.0.0 Accepts a target key such as `plugin:akismet`. A filesystem path
+ *              is still accepted and resolved against the known targets, but a
+ *              path that does not belong to a known plugin, theme or must-use
+ *              plugin is rejected rather than scanned.
+ *
+ * @param string $target The target key, or a legacy filesystem path.
+ * @return string One of `Compatible`, `Needs review`, `Incompatible`, or an error message.
  */
-function wvc_check_vip_compatibility( $directory_path ) {
-	// Check if path is a file or directory.
-	if ( is_file( $directory_path ) ) {
-		$php_files = [ realpath( $directory_path ) ];
-	} elseif ( is_dir( $directory_path ) && is_readable( $directory_path ) ) {
-		// Initialize iterator to recursively get all PHP files.
-		$php_files = [];
-		$directory_iterator = new RecursiveDirectoryIterator( $directory_path, RecursiveDirectoryIterator::SKIP_DOTS );
-		$iterator = new RecursiveIteratorIterator( $directory_iterator );
+function wvc_check_vip_compatibility( $target ) {
+	$resolved = wvc_resolve_target( $target );
 
-		foreach ( $iterator as $file ) {
-			if ( $file->getExtension() === 'php' ) {
-				$php_files[] = $file->getRealPath();
-			}
-		}
-	} else {
-		return esc_html__( 'Error: File/Directory not found or unreadable', 'wp-vip-compatibility' );
+	if ( null === $resolved ) {
+		return esc_html__( 'Error: Unknown scan target', 'wp-vip-compatibility' );
 	}
 
-	if ( empty( $php_files ) ) {
-		return esc_html__( 'No PHP files found', 'wp-vip-compatibility' );
+	$result = ( new Scanner() )->get_result( $resolved );
+
+	switch ( $result['status'] ) {
+		case Scanner::STATUS_BLOCKED:
+			return esc_html__( 'Incompatible', 'wp-vip-compatibility' );
+		case Scanner::STATUS_REVIEW:
+			return esc_html__( 'Needs review', 'wp-vip-compatibility' );
+		default:
+			return esc_html__( 'Compatible', 'wp-vip-compatibility' );
 	}
-
-	// Define the log directory inside wp-content/uploads.
-	$upload_dir   = wp_upload_dir();
-	$log_base_dir = $upload_dir['basedir'] . '/wvc-logs';
-
-	// Create the log directory if it doesn't exist.
-	if ( ! file_exists( $log_base_dir ) ) {
-		wp_mkdir_p( $log_base_dir );
-	}
-
-	// Determine the directory type and extract the slug.
-	if ( is_file( $directory_path ) || false !== strpos( $directory_path, WP_CONTENT_DIR . '/mu-plugins' ) ) {
-		$directory_type = 'mu-plugins';
-		$slug           = basename( dirname( $directory_path ) );
-	} elseif ( false !== strpos( $directory_path, WP_CONTENT_DIR . '/plugins' ) ) {
-		$directory_type = 'plugins';
-		$slug           = basename( $directory_path );
-	} elseif ( false !== strpos( $directory_path, WP_CONTENT_DIR . '/themes' ) ) {
-		$directory_type = 'themes';
-		$slug           = basename( $directory_path );
-	} else {
-		$directory_type = 'general';
-		$slug           = basename( $directory_path );
-	}
-
-	// Define the log file path.
-	$log_file_path = $log_base_dir . '/' . $directory_type . '.json';
-
-	// Read existing JSON data if file exists.
-	$log_data = [];
-	if ( file_exists( $log_file_path ) ) {
-		$existing_data = file_get_contents( $log_file_path );
-		$log_data      = json_decode( $existing_data, true ) ?: array();
-	}
-
-	// Scan for violations.
-	$issues = [];
-	foreach ( $php_files as $file_path ) {
-		// Skip vendor directory.
-		if ( false !== strpos( $file_path, '/vendor/' ) || false !== strpos( $file_path, '\\vendor\\' ) ) {
-			continue;
-		}
-
-		// Open file and scan line by line.
-		$file_handle = fopen( $file_path, 'r' );
-		if ( $file_handle ) {
-			$line_number = 0;
-			
-			while ( ( $line = fgets( $file_handle ) ) !== false ) {
-				$line_number++;
-
-				// Detect filesystem operations outside uploads directory.
-				if ( preg_match( '/\b(fopen|file_put_contents|fwrite|rename|unlink)\(/', $line ) ) {
-					if ( strpos( $line, 'wp-content/uploads' ) === false ) {
-						$issues[] = array(
-							'file'  => $file_path,
-							'line'  => $line_number,
-							'issue' => esc_html__( 'Filesystem operation outside uploads directory', 'wp-vip-compatibility' ),
-						);
-					}
-				}
-
-				// Detect shell execution functions.
-				if ( preg_match( '/\b(exec|shell_exec|system|passthru|popen)\(/', $line ) ) {
-					$issues[] = array(
-						'file'  => $file_path,
-						'line'  => $line_number,
-						'issue' => esc_html__( 'Command execution function detected', 'wp-vip-compatibility' ),
-					);
-				}
-			}
-			fclose( $file_handle );
-		}
-	}
-
-	// Update JSON data with new issues.
-	if ( ! empty( $issues ) ) {
-		$log_data[ $slug ] = $issues;
-		file_put_contents( $log_file_path, json_encode( $log_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
-		return esc_html__( 'Incompatible', 'wp-vip-compatibility' );
-	}
-
-	return esc_html__( 'Compatible', 'wp-vip-compatibility' );
 }
 
 /**
- * Load the JSON data from the data.json file.
+ * Resolves a target key, or a legacy filesystem path, to a known target.
  *
- * @return void
+ * Accepting a raw path used to mean any authenticated caller could point the
+ * scanner at any directory on the server. A path is now only honoured when it
+ * matches a plugin, theme or must-use plugin that WordPress already knows about.
+ *
+ * @param string $target The target key or filesystem path.
+ * @return array<string, mixed>|null The target, or null when it cannot be resolved.
+ */
+function wvc_resolve_target( $target ) {
+	$target = (string) $target;
+
+	if ( '' === $target ) {
+		return null;
+	}
+
+	$resolved = Targets::get( $target );
+
+	if ( null !== $resolved ) {
+		return $resolved;
+	}
+
+	// Legacy callers passed an absolute path. Match it against known targets.
+	$normalised = rtrim( str_replace( '\\', '/', $target ), '/' );
+
+	foreach ( Targets::all() as $candidate ) {
+		if ( rtrim( str_replace( '\\', '/', $candidate['path'] ), '/' ) === $normalised ) {
+			return $candidate;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * Returns the plugin's reference data.
+ *
+ * @return array<string, mixed> The reference data.
  */
 function wvc_get_json_data() {
-
-	// Path to the JSON file containing table source data.
-	$json_path = WP_VIP_COMPATIBILITY_DIR . '/data/data.json';
-
-	if ( file_exists( $json_path ) ) {
-		// Read the JSON file contents.
-		$json_content = file_get_contents( $json_path );
-
-		// Decode the JSON data into an associative array.
-		return json_decode( $json_content, true ) ?: array();
-	}
-
-	return array();
+	return Plugin::get_instance()->get_json_data();
 }
 
 /**
- * Get the VIP compatibility chart data for plugins.
+ * Returns the compatibility counts for one target type.
  *
- * @return array The chart data.
+ * @since 2.0.0 Delegates to Report::area_counts(), which is the single place the
+ *              verdict for a target is decided. This function used to resolve it
+ *              a second time, with its own rules, so a plugin could be counted
+ *              one way here and displayed another way on screen.
+ *
+ * @param string $type One of `plugin`, `theme`, `mu-plugin`, `database`, `directories`.
+ * @return array<string, int> Counts keyed `compatible`, `needs_review`, `not_compatible`.
+ */
+function wvc_get_target_chart_data( $type ) {
+	$counts = Report::area_counts( $type );
+
+	return array(
+		'compatible'     => $counts['ready'],
+		// An unscanned target is not a verdict, but a caller of this legacy
+		// signature has nowhere to put one, so it stays on the cautious side.
+		'needs_review'   => $counts['review'] + $counts['pending'],
+		'not_compatible' => $counts['blocked'],
+	);
+}
+
+/**
+ * Returns the compatibility counts for plugins.
+ *
+ * @return array<string, int> The chart data.
  */
 function wvc_get_plugins_chart_data() {
-	// Ensure the get_plugins function is available.
-	if ( ! function_exists( 'get_plugins' ) ) {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-	}
-
-	// Retrieve known plugin compatibility data from JSON.
-	$json_data = wvc_get_json_data();
-
-	// Fetch all installed plugins.
-	$all_plugins = get_plugins();
-
-	$compatible_count = 0;
-	$not_compatible_count = 0;
-
-	foreach ( $all_plugins as $plugin_file => $plugin_data ) {
-		$plugin_slug = dirname( $plugin_file );
-		$plugin_path = WP_PLUGIN_DIR . '/' . $plugin_slug;
-
-		// Check if the plugin is in the known disallowed list.
-		$is_vip_disallowed = ! empty( $json_data['known_plugins']['vip_disallowed_plugins'] ) && 
-							in_array( $plugin_slug, $json_data['known_plugins']['vip_disallowed_plugins'], true );
-
-		// Check if the plugin is in the tested compatible list.
-		$is_tested_compatible = ! empty( $json_data['known_plugins']['tested_compatible_plugins'] ) && 
-								in_array( $plugin_slug, $json_data['known_plugins']['tested_compatible_plugins'], true );
-
-		// Check if the plugin is a VIP MU plugin from Automattic.
-		$is_vip_mu_plugin = ! empty( $json_data['known_mu_plugins'][ $plugin_slug ] ) && 
-							'automattic' === $json_data['known_mu_plugins'][ $plugin_slug ]['source'];
-
-		// Determine compatibility status.
-		if ( $is_vip_disallowed || $is_vip_mu_plugin ) {
-			$not_compatible_count++;
-		} elseif ( $is_tested_compatible ) {
-			$compatible_count++;
-		} else {
-			// Perform a compatibility check for unlisted plugins.
-			$status = wvc_check_vip_compatibility( $plugin_path );
-			if ( 'Compatible' === $status ) {
-				$compatible_count++;
-			} else {
-				$not_compatible_count++;
-			}
-		}
-	}
-
-	// Return the final compatibility count.
-	return [
-		'compatible'     => $compatible_count,
-		'not_compatible' => $not_compatible_count,
-	];
+	return wvc_get_target_chart_data( 'plugin' );
 }
 
 /**
- * Get the VIP compatibility chart data for mu-plugins.
+ * Returns the compatibility counts for must-use plugins.
  *
- * @return array The chart data.
+ * @return array<string, int> The chart data.
  */
 function wvc_get_mu_plugins_chart_data() {
-	// Ensure the get_mu_plugins function is available.
-	if ( ! function_exists( 'get_mu_plugins' ) ) {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-	}
-
-	// Retrieve all must-use (MU) plugins.
-	$mu_plugins = get_mu_plugins();
-
-	// Return early if there are no MU plugins.
-	if ( empty( $mu_plugins ) ) {
-		return [ 'compatible' => 0, 'not_compatible' => 0 ];
-	}
-
-	// Retrieve known MU plugin compatibility data from JSON.
-	$json_data = wvc_get_json_data();
-
-	$compatible_count = 0;
-	$not_compatible_count = 0;
-
-	foreach ( $mu_plugins as $plugin_file => $plugin_data ) {
-		$plugin_slug = dirname( $plugin_file );
-		$plugin_path = WPMU_PLUGIN_DIR . '/' . $plugin_file;
-
-		// Retrieve compatibility information from JSON data.
-		$mu_plugin_info = $json_data['known_mu_plugins'][$plugin_slug] ?? null;
-
-		if ( $mu_plugin_info ) {
-			if ( ! empty( $mu_plugin_info['compatible'] ) ) {
-				$compatible_count++;
-			} else {
-				$not_compatible_count++;
-			}
-		} else {
-			// Perform a compatibility check if the plugin is not listed.
-			$status = wvc_check_vip_compatibility( $plugin_path );
-			if ( 'Compatible' === $status ) {
-				$compatible_count++;
-			} else {
-				$not_compatible_count++;
-			}
-		}
-	}
-
-	// Return the final compatibility count.
-	return [
-		'compatible'     => $compatible_count,
-		'not_compatible' => $not_compatible_count,
-	];
+	return wvc_get_target_chart_data( 'mu-plugin' );
 }
 
 /**
- * Get the VIP compatibility chart data for themes.
+ * Returns the compatibility counts for themes.
  *
- * @return array The chart data.
+ * @return array<string, int> The chart data.
  */
 function wvc_get_themes_chart_data() {
-	// Ensure the wp_get_themes function is available.
-	if ( ! function_exists( 'wp_get_themes' ) ) {
-		require_once ABSPATH . 'wp-admin/includes/theme.php';
-	}
-
-	// Retrieve all installed themes.
-	$all_themes = wp_get_themes();
-
-	$compatible_count = 0;
-	$not_compatible_count = 0;
-
-	foreach ( $all_themes as $theme_slug => $theme_data ) {
-		$theme_path = get_theme_root() . '/' . $theme_slug;
-
-		// Check the theme's VIP compatibility.
-		$status = wvc_check_vip_compatibility( $theme_path );
-		if ( 'Compatible' === $status ) {
-			$compatible_count++;
-		} else {
-			$not_compatible_count++;
-		}
-	}
-
-	// Return the final compatibility count.
-	return [
-		'compatible'     => $compatible_count,
-		'not_compatible' => $not_compatible_count,
-	];
+	return wvc_get_target_chart_data( 'theme' );
 }
 
 /**
- * Get the VIP compatibility chart data for database.
+ * Returns the compatibility counts for database tables.
  *
- * @return array The chart data.
+ * @return array<string, int> The chart data.
  */
 function wvc_get_database_chart_data() {
-	global $wpdb;
-
-	// Retrieve supported collations from JSON data.
-	$json_data = wvc_get_json_data();
-	$vip_supported_collations = $json_data['vip_supported_collations'] ?? [];
-
-	// Fetch database tables along with collation and engine details.
-	$tables = $wpdb->get_results(
-		$wpdb->prepare(
-			"SELECT TABLE_NAME, TABLE_COLLATION, ENGINE 
-			FROM information_schema.TABLES 
-			WHERE TABLE_SCHEMA = %s",
-			DB_NAME
-		)
-	);
-
-	// Return default values if no tables are found.
-	if ( empty( $tables ) ) {
-		return [ 'compatible' => 80, 'not_compatible' => 20 ];
-	}
-
-	$compatible_count = 0;
-	$not_compatible_count = 0;
-
-	foreach ( $tables as $table ) {
-		$table_name = $table->TABLE_NAME;
-		$engine = $table->ENGINE;
-		$collation = $table->TABLE_COLLATION;
-		
-		// Check collation compatibility.
-		if ( ! in_array( $collation, $vip_supported_collations, true ) ) {
-			$not_compatible_count++;
-			continue;
-		}
-
-		// Check engine compatibility.
-		if ( 'InnoDB' !== $engine ) {
-			$not_compatible_count++;
-			continue;
-		}
-
-		// Check table prefix compatibility.
-		if ( strpos( $table_name, 'wp_' ) !== 0 ) {
-			$not_compatible_count++;
-			continue;
-		}
-
-		// If all checks pass, count as compatible.
-		$compatible_count++;
-	}
-
-	// Return compatibility results.
-	return [
-		'compatible'     => $compatible_count,
-		'not_compatible' => $not_compatible_count,
-	];
+	return wvc_get_target_chart_data( 'database' );
 }
 
 /**
- * Get the VIP compatibility chart data for directories.
+ * Returns the compatibility counts for the wp-content directory.
  *
- * @return array The chart data.
+ * @return array<string, int> The chart data.
  */
 function wvc_get_directories_chart_data() {
-	// Retrieve directory compatibility data from JSON.
-	$json_data = wvc_get_json_data();
-	$directories = $json_data['directories'] ?? [];
-
-	// Scan the wp-content directory, excluding "." and ".."
-	$items = array_diff( scandir( WP_CONTENT_DIR ), ['.', '..'] );
-
-	// Return default values if no items are found.
-	if ( empty( $items ) ) {
-		return ['compatible' => 0, 'not_compatible' => 0];
-	}
-
-	$compatible_count = 0;
-	$incompatible_count = 0;
-
-	foreach ( $items as $item ) {
-		// Check if the item is listed in the known directories and is marked as supported.
-		$is_compatible = isset( $directories[$item] ) && !empty( $directories[$item]['is_supported'] );
-
-		// Update the count based on compatibility.
-		$is_compatible ? $compatible_count++ : $incompatible_count++;
-	}
-
-	// Return compatibility results.
-	return [
-		'compatible'     => $compatible_count,
-		'not_compatible' => $incompatible_count,
-	];
+	return wvc_get_target_chart_data( 'directories' );
 }
