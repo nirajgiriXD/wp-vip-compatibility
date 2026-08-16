@@ -288,15 +288,18 @@ class Report {
 	/**
 	 * Returns the per-area breakdown the overview shows.
 	 *
-	 * @return array<int, array<string, mixed>> Areas, each with `key`, `label`, `screen`, `filter` and `counts`.
+	 * Each area maps onto the screen that owns it, so a card on the overview and
+	 * the entry in the section rail lead to the same place.
+	 *
+	 * @return array<int, array<string, mixed>> Areas, each with `key`, `label`, `screen`, `icon` and `counts`.
 	 */
 	public static function areas() {
 		$areas = array(
-			'plugin'      => array( __( 'Plugins', 'wp-vip-compatibility' ), 'inventory', 'plugin' ),
-			'theme'       => array( __( 'Themes', 'wp-vip-compatibility' ), 'inventory', 'theme' ),
-			'mu-plugin'   => array( __( 'Must-use plugins', 'wp-vip-compatibility' ), 'inventory', 'mu-plugin' ),
-			'database'    => array( __( 'Database tables', 'wp-vip-compatibility' ), 'site', 'database' ),
-			'directories' => array( __( 'wp-content layout', 'wp-vip-compatibility' ), 'site', 'directories' ),
+			'plugin'      => array( __( 'Plugins', 'wp-vip-compatibility' ), 'plugins', 'plug' ),
+			'theme'       => array( __( 'Themes', 'wp-vip-compatibility' ), 'themes', 'brush' ),
+			'mu-plugin'   => array( __( 'Must-use plugins', 'wp-vip-compatibility' ), 'mu-plugins', 'bolt' ),
+			'database'    => array( __( 'Database tables', 'wp-vip-compatibility' ), 'database', 'database' ),
+			'directories' => array( __( 'wp-content layout', 'wp-vip-compatibility' ), 'directories', 'folder' ),
 		);
 
 		$rows = array();
@@ -306,12 +309,80 @@ class Report {
 				'key'    => $key,
 				'label'  => $area[0],
 				'screen' => $area[1],
-				'filter' => $area[2],
+				'icon'   => $area[2],
 				'counts' => self::area_counts( $key ),
 			);
 		}
 
 		return $rows;
+	}
+
+	/**
+	 * Describes the environment the site runs in today.
+	 *
+	 * The overview used to say nothing about the platform underneath the code,
+	 * which is half of what "is this ready" means: a site on PHP 7.4 with no
+	 * persistent object cache has migration work that no code scan reports.
+	 *
+	 * @return array<int, array<string, mixed>> Rows, each with `label`, `value`, `hint` and `tone`.
+	 */
+	public static function environment() {
+		$database = Database_Audit::run()['summary'];
+		$php_ok   = version_compare( PHP_VERSION, '8.0', '>=' );
+		$cache_ok = wp_using_ext_object_cache();
+
+		return array(
+			array(
+				'label' => __( 'PHP', 'wp-vip-compatibility' ),
+				'value' => PHP_VERSION,
+				'hint'  => $php_ok
+					? __( 'Within the range VIP runs.', 'wp-vip-compatibility' )
+					: __( 'VIP runs PHP 8.0 and above. Test on a supported version first.', 'wp-vip-compatibility' ),
+				'tone'  => $php_ok ? 'ok' : 'warn',
+			),
+			array(
+				'label' => __( 'WordPress', 'wp-vip-compatibility' ),
+				'value' => get_bloginfo( 'version' ),
+				'hint'  => __( 'VIP tracks the latest release closely.', 'wp-vip-compatibility' ),
+			),
+			array(
+				'label' => __( 'Object cache', 'wp-vip-compatibility' ),
+				'value' => $cache_ok
+					? __( 'Persistent', 'wp-vip-compatibility' )
+					: __( 'Not persistent', 'wp-vip-compatibility' ),
+				'hint'  => $cache_ok
+					? __( 'Matches the VIP environment, where the object cache is always persistent.', 'wp-vip-compatibility' )
+					: __( 'VIP always has a persistent object cache. Uncached queries behave differently there.', 'wp-vip-compatibility' ),
+				'tone'  => $cache_ok ? 'ok' : 'warn',
+			),
+			array(
+				'label' => __( 'Install type', 'wp-vip-compatibility' ),
+				'value' => is_multisite()
+					? __( 'Multisite', 'wp-vip-compatibility' )
+					: __( 'Single site', 'wp-vip-compatibility' ),
+				'hint'  => is_multisite()
+					? __( 'A multisite migration needs the network layout agreed with VIP up front.', 'wp-vip-compatibility' )
+					: '',
+			),
+			array(
+				'label' => __( 'Database size', 'wp-vip-compatibility' ),
+				'value' => size_format( (int) $database['bytes'], 1 ),
+				'hint'  => sprintf(
+					/* translators: %s: Number of tables. */
+					_n( '%s table', '%s tables', (int) $database['total'], 'wp-vip-compatibility' ),
+					number_format_i18n( (int) $database['total'] )
+				),
+			),
+			array(
+				'label' => __( 'Rule set', 'wp-vip-compatibility' ),
+				'value' => Rules::VERSION,
+				'hint'  => sprintf(
+					/* translators: %s: Number of rules. */
+					_n( '%s rule, each mapped to a VIP requirement.', '%s rules, each mapped to a VIP requirement.', count( Rules::all() ), 'wp-vip-compatibility' ),
+					number_format_i18n( count( Rules::all() ) )
+				),
+			),
+		);
 	}
 
 	/**
@@ -411,14 +482,8 @@ class Report {
 					$listed
 				),
 				'detail' => __( 'WordPress VIP documents these as incompatible with the platform. No code change makes them work.', 'wp-vip-compatibility' ),
-				'url'    => add_query_arg(
-					array(
-						'kind'   => 'plugin',
-						'status' => 'not-compatible',
-					),
-					admin_url( 'admin.php?page=wvc-inventory' )
-				),
-				'action' => __( 'Open the inventory', 'wp-vip-compatibility' ),
+				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=wvc-plugins' ) ),
+				'action' => __( 'Open plugins', 'wp-vip-compatibility' ),
 			);
 		}
 
@@ -431,8 +496,8 @@ class Report {
 					$mu_to_move
 				),
 				'detail' => __( 'VIP reserves wp-content/mu-plugins for platform code. Anything you ship belongs in client-mu-plugins/.', 'wp-vip-compatibility' ),
-				'url'    => add_query_arg( 'kind', 'mu-plugin', admin_url( 'admin.php?page=wvc-inventory' ) ),
-				'action' => __( 'Open the inventory', 'wp-vip-compatibility' ),
+				'url'    => admin_url( 'admin.php?page=wvc-mu-plugins' ),
+				'action' => __( 'Open must-use', 'wp-vip-compatibility' ),
 			);
 		}
 
@@ -459,13 +524,7 @@ class Report {
 					$schema
 				),
 				'detail' => __( 'VIP will not import a database with an unsupported storage engine or collation.', 'wp-vip-compatibility' ),
-				'url'    => add_query_arg(
-					array(
-						'section' => 'database',
-						'status'  => 'not-compatible',
-					),
-					admin_url( 'admin.php?page=wvc-site' )
-				),
+				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=wvc-database' ) ),
 				'action' => __( 'Show the SQL', 'wp-vip-compatibility' ),
 			);
 		}
@@ -479,7 +538,7 @@ class Report {
 					(int) $database['issues']['prefix']
 				),
 				'detail' => __( 'The prefix is embedded in option names and user meta keys, so renaming tables without VIP confirming it breaks roles and capabilities.', 'wp-vip-compatibility' ),
-				'url'    => add_query_arg( 'section', 'database', admin_url( 'admin.php?page=wvc-site' ) ),
+				'url'    => admin_url( 'admin.php?page=wvc-database' ),
 				'action' => __( 'Open the audit', 'wp-vip-compatibility' ),
 			);
 		}
@@ -493,13 +552,7 @@ class Report {
 					(int) $content['unsupported']
 				),
 				'detail' => __( 'These conflict with the VIP application structure, or with drop-ins the platform installs itself.', 'wp-vip-compatibility' ),
-				'url'    => add_query_arg(
-					array(
-						'section' => 'directories',
-						'status'  => 'not-compatible',
-					),
-					admin_url( 'admin.php?page=wvc-site' )
-				),
+				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=wvc-directories' ) ),
 				'action' => __( 'Open the audit', 'wp-vip-compatibility' ),
 			);
 		}

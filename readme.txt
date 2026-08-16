@@ -63,9 +63,9 @@ The plugin holds itself to the same standard: its own source passes `phpcs --sta
 
 == Usage ==
 
-Open **WVC** in the admin menu and run a scan from the overview. Results are stored, so screens load without re-analysing the codebase; a target is only re-scanned when its files change or the rule set is updated.
+Open **VIP Compatibility** in the admin menu and run a scan from the header. Results are stored, so screens load without re-analysing the codebase; a target is only re-scanned when its files change or the rule set is updated.
 
-**Findings** lists every issue with its remediation. **Plugins**, **Themes** and **MU Plugins** give a per-target verdict. **Database** and **Directories** check the schema and the contents of `wp-content` against the VIP application structure.
+**Overview** answers how ready the site is and what to do first. **Findings** lists every issue with its remediation. **Plugins**, **Themes** and **Must-use** give a per-target verdict, with each row expanding to the evidence behind it. **Database** and **wp-content** check the schema and the application structure against what VIP requires.
 
 Scan results are stored in the options table and are only readable by users who can `manage_options`. They are removed when the plugin is uninstalled.
 

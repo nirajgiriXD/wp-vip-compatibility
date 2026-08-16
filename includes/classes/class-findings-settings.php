@@ -63,8 +63,39 @@ class Findings_Settings {
 
 		Report::run_full_scan( true );
 
-		wp_safe_redirect( add_query_arg( 'wvc-scanned', '1', UI::get_findings_url() ) );
+		wp_safe_redirect( add_query_arg( 'wvc-scanned', '1', $this->get_return_url() ) );
 		exit;
+	}
+
+	/**
+	 * Resolves the screen a rescan should return to.
+	 *
+	 * Rescanning is a masthead action available from every screen, so sending
+	 * everyone to the findings report would take a reader looking at the database
+	 * audit somewhere they did not ask to go. The referring screen is used when it
+	 * is one of ours, and the report is the fallback.
+	 *
+	 * @return string The admin URL.
+	 */
+	private function get_return_url() {
+		$referer = wp_get_referer();
+
+		if ( false === $referer ) {
+			return UI::get_findings_url();
+		}
+
+		$query = array();
+		parse_str( (string) wp_parse_url( $referer, PHP_URL_QUERY ), $query );
+
+		$page = isset( $query['page'] ) ? sanitize_key( $query['page'] ) : '';
+
+		foreach ( UI::get_screens() as $key => $screen ) {
+			if ( $screen['slug'] === $page ) {
+				return UI::get_screen_url( $key );
+			}
+		}
+
+		return UI::get_findings_url();
 	}
 
 	/**
@@ -73,23 +104,9 @@ class Findings_Settings {
 	 * @return void
 	 */
 	public function render_settings_page() {
+		// The "scan complete" confirmation belongs to the shell, because a rescan
+		// can now be started from — and returns to — any screen.
 		$aggregate = Report::aggregate();
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Presentation only; the scan itself was nonce-checked in handle_rescan().
-		if ( isset( $_GET['wvc-scanned'] ) ) {
-			echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in get_notice().
-				esc_html(
-					sprintf(
-						/* translators: 1: Number of targets. 2: Number of PHP files. */
-						__( 'Scanned %1$d items and %2$s PHP files.', 'wp-vip-compatibility' ),
-						(int) $aggregate['targets'],
-						number_format_i18n( (int) $aggregate['totals']['files'] )
-					)
-				),
-				'success',
-				esc_html__( 'Scan complete', 'wp-vip-compatibility' )
-			);
-		}
 
 		if ( 0 === $aggregate['targets'] ) {
 			UI::render_empty_state(
@@ -109,10 +126,11 @@ class Findings_Settings {
 
 		$filters = $this->read_filters();
 
-		$this->render_scan_bar( $aggregate );
 		$this->render_filters( $filters, $aggregate );
 
 		$findings = Report::findings( $filters );
+
+		$this->render_result_line( $findings, $aggregate );
 
 		if ( empty( $findings ) ) {
 			UI::render_empty_state(
@@ -167,52 +185,45 @@ class Findings_Settings {
 	}
 
 	/**
-	 * Renders the slim bar carrying the scan state and the report-level actions.
+	 * Renders the line that says what is currently on screen.
 	 *
-	 * What changed since the previous scan is deliberately not repeated here: the
-	 * overview owns that, and this screen owns the findings themselves.
+	 * The filter control above it carries the counts per tier; this says how much
+	 * of the report those filters are showing, which is the one number the
+	 * control cannot express.
 	 *
-	 * @param array<string, mixed> $aggregate The aggregate.
+	 * @param array<int, array<string, mixed>> $findings  The filtered findings.
+	 * @param array<string, mixed>             $aggregate The aggregate.
 	 * @return void
 	 */
-	private function render_scan_bar( array $aggregate ) {
+	private function render_result_line( array $findings, array $aggregate ) {
+		$total    = (int) $aggregate['totals']['findings'];
+		$shown    = count( $findings );
+		$filtered = ( $shown !== $total );
 		?>
-		<div class="wvc-scanbar">
-			<p class="wvc-scanbar__state">
-				<?php echo UI::get_icon( 'clock', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-				<?php
+		<p class="wvc-resultline">
+			<?php
+			if ( $filtered ) {
 				printf(
-					/* translators: 1: Human-readable time difference. 2: Number of findings. */
-					esc_html__( 'Scanned %1$s ago · %2$s findings', 'wp-vip-compatibility' ),
-					esc_html( human_time_diff( max( 1, (int) $aggregate['scanned_at'] ) ) ),
-					esc_html( number_format_i18n( (int) $aggregate['totals']['findings'] ) )
+					/* translators: 1: Number of findings shown. 2: Total number of findings. */
+					esc_html__( 'Showing %1$s of %2$s findings', 'wp-vip-compatibility' ),
+					esc_html( number_format_i18n( $shown ) ),
+					esc_html( number_format_i18n( $total ) )
 				);
-				?>
-			</p>
-
-			<div class="wvc-scanbar__actions">
-				<?php
-				echo UI::get_action_button( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-					array(
-						'label'  => __( 'Rescan', 'wp-vip-compatibility' ),
-						'submit' => 'wvc_rescan',
-						'nonce'  => self::RESCAN_ACTION,
-						'icon'   => 'refresh',
-					)
+			} else {
+				printf(
+					/* translators: %s: Total number of findings. */
+					esc_html( _n( '%s finding in total', '%s findings in total', $total, 'wp-vip-compatibility' ) ),
+					esc_html( number_format_i18n( $total ) )
 				);
-				?>
+			}
+			?>
 
-				<span class="wvc-exports">
-					<span class="wvc-exports__label"><?php esc_html_e( 'Export', 'wp-vip-compatibility' ); ?></span>
-					<?php foreach ( Export::get_formats() as $slug => $format ) : ?>
-						<a class="wvc-exports__link" href="<?php echo esc_url( Export::get_url( $slug ) ); ?>" title="<?php echo esc_attr( $format['description'] ); ?>">
-							<?php echo esc_html( $format['label'] ); ?>
-						</a>
-					<?php endforeach; ?>
-				</span>
-			</div>
-		</div>
+			<?php if ( $filtered ) : ?>
+				<a class="wvc-link" href="<?php echo esc_url( UI::get_screen_url( 'findings' ) ); ?>"><?php esc_html_e( 'Clear filters', 'wp-vip-compatibility' ); ?></a>
+			<?php endif; ?>
+		</p>
 		<?php
+		unset( $filters );
 	}
 
 	/**

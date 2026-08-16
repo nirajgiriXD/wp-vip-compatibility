@@ -47,11 +47,15 @@ A target ends up in one of three states: **ready**, **needs review** (work to do
 
 ## Screens
 
-- **Overview** — readiness score, per-category breakdown, change since the last scan.
-- **Findings** — every issue, grouped by target, with severity/type/category filters, search, and export.
-- **Plugins / Themes / MU Plugins** — per-target verdicts with curated notes for known plugins.
-- **Database** — per-table engine, collation, prefix, size and source, with the SQL to fix each problem.
-- **Directories** — everything in `wp-content` measured against the VIP application structure.
+Navigation is the WordPress admin menu itself; the screens fall into three groups — readiness, the code you ship, and the site's own infrastructure — and each page names the group it belongs to. Where the outstanding work sits is answered by the Overview's per-area breakdown.
+
+- **Overview** — readiness score, the ranked list of what to do next, a per-area breakdown, the environment the site runs on, and how the report has moved over recent scans.
+- **Findings** — every issue banded by consequence and grouped by target, with severity/type/category filters and search.
+- **Plugins** — every installed plugin with its verdict, activation state, available update and severity split; each row expands to its evidence.
+- **Themes** — the active theme in detail, plus every other theme that still ships in the repository.
+- **Must-use** — everything in `wp-content/mu-plugins`, separated into what to relocate and what to drop.
+- **Database** — the schema's shape, the work grouped by requirement with copyable SQL, and every table's engine, collation, rows, size and owner.
+- **wp-content** — every entry measured against the VIP application structure.
 
 ## Export
 

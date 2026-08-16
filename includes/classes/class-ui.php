@@ -1,22 +1,29 @@
 <?php
 /**
- * Shared presentation helpers for the plugin admin screens.
+ * Shared presentation layer for the plugin admin screens.
  *
- * This class owns the reusable chrome so that every screen renders from a single
- * design system, and — more importantly — from a single information hierarchy:
+ * The interface is an application shell rather than a stack of WordPress
+ * settings pages: a masthead that carries identity, scan state and the two
+ * global actions; a persistent section rail that says where you are and where
+ * the work is; and a content column that every screen fills through the same
+ * primitives — stat rows, panels, tables, disclosures.
  *
- * - A screen leads with one verdict, not a wall of counts.
- * - Severity is expressed through one vocabulary (the tiers below) everywhere it
- *   appears: the overview's action list, the findings report, and the tables.
- * - Counts are rendered once, in the control that filters by them, instead of
- *   once in a stats strip, again in a chart legend and again in a filter tab.
- * - Anything that is evidence rather than a decision lives behind a disclosure.
+ * Three rules hold the whole thing together:
+ *
+ * - One vocabulary for severity. Tiers (blocking, important, warning, info) are
+ *   the only words used for consequence, on every screen.
+ * - One place per number. A count is rendered where it is acted on — in the
+ *   filter that selects it, or the tile that links to it — never three times.
+ * - Depth through disclosure, not through deletion. Primary facts are always
+ *   visible, evidence sits one interaction away, and diagnostics two.
  *
  * @package wp-vip-compatibility
  */
 
 namespace WP_VIP_COMPATIBILITY\Includes\Classes;
 
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Rules;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
@@ -27,48 +34,156 @@ defined( 'ABSPATH' ) || exit;
 class UI {
 
 	/**
+	 * Incrementing id source for disclosure controls.
+	 *
+	 * @var int
+	 */
+	private static $sequence = 0;
+
+	/* ---------------------------------------------------------------------
+	 * Screens and routing
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Returns the section groups the rail is organised by.
+	 *
+	 * @return array<string, string> Group labels keyed by group slug.
+	 */
+	public static function get_groups() {
+		return array(
+			'summary' => __( 'Readiness', 'wp-vip-compatibility' ),
+			'code'    => __( 'Code you ship', 'wp-vip-compatibility' ),
+			'site'    => __( 'Site infrastructure', 'wp-vip-compatibility' ),
+		);
+	}
+
+	/**
 	 * Returns the map of plugin screens.
 	 *
-	 * Four screens, each a genuinely different question: what is the state, what
-	 * exactly is wrong, what is installed, and what does the site itself look
-	 * like. Plugins, themes and must-use plugins used to be three screens with
-	 * the same columns and the same workflow, and the database and wp-content
-	 * audits two more; splitting them spread one job across five tabs.
+	 * Each subject gets its own screen again. Plugins, themes and must-use
+	 * plugins share a table shape but not a workflow — you decide about a plugin
+	 * by replacing it, about a theme by rewriting it, and about a must-use plugin
+	 * by moving it — and a single merged list made all three harder to work
+	 * through than any of them had been alone.
 	 *
 	 * @return array<string, array<string, string>> Screen definitions keyed by settings key.
 	 */
 	public static function get_screens() {
 		return array(
-			'overview'  => array(
+			'overview'    => array(
 				'slug'        => 'wp-vip-compatibility',
 				'label'       => __( 'Overview', 'wp-vip-compatibility' ),
 				'title'       => __( 'Overview', 'wp-vip-compatibility' ),
-				'description' => __( 'How ready this site is for the VIP Platform, and what to do next.', 'wp-vip-compatibility' ),
+				'description' => __( 'How ready this site is for the VIP Platform, where the work is, and what to do first.', 'wp-vip-compatibility' ),
 				'icon'        => 'gauge',
+				'group'       => 'summary',
 			),
-			'findings'  => array(
+			'findings'    => array(
 				'slug'        => 'wvc-findings',
 				'label'       => __( 'Findings', 'wp-vip-compatibility' ),
 				'title'       => __( 'Findings', 'wp-vip-compatibility' ),
 				'description' => __( 'Every issue the scanner found, worst first, with why it matters and how to fix it.', 'wp-vip-compatibility' ),
 				'icon'        => 'list',
+				'group'       => 'summary',
 			),
-			'inventory' => array(
-				'slug'        => 'wvc-inventory',
-				'label'       => __( 'Inventory', 'wp-vip-compatibility' ),
-				'title'       => __( 'Inventory', 'wp-vip-compatibility' ),
-				'description' => __( 'Every plugin, theme and must-use plugin with its VIP verdict.', 'wp-vip-compatibility' ),
+			'plugins'     => array(
+				'slug'        => 'wvc-plugins',
+				'label'       => __( 'Plugins', 'wp-vip-compatibility' ),
+				'title'       => __( 'Plugins', 'wp-vip-compatibility' ),
+				'description' => __( 'Every installed plugin with its VIP verdict, update state and the work it implies.', 'wp-vip-compatibility' ),
 				'icon'        => 'plug',
+				'group'       => 'code',
 			),
-			'site'      => array(
-				'slug'        => 'wvc-site',
-				'label'       => __( 'Site', 'wp-vip-compatibility' ),
-				'title'       => __( 'Site', 'wp-vip-compatibility' ),
-				'description' => __( 'The database schema and the wp-content layout, measured against the VIP structure.', 'wp-vip-compatibility' ),
+			'themes'      => array(
+				'slug'        => 'wvc-themes',
+				'label'       => __( 'Themes', 'wp-vip-compatibility' ),
+				'title'       => __( 'Themes', 'wp-vip-compatibility' ),
+				'description' => __( 'The active theme in detail, and every other theme that still ships in the repository.', 'wp-vip-compatibility' ),
+				'icon'        => 'brush',
+				'group'       => 'code',
+			),
+			'mu-plugins'  => array(
+				'slug'        => 'wvc-mu-plugins',
+				'label'       => __( 'Must-use', 'wp-vip-compatibility' ),
+				'title'       => __( 'Must-use plugins', 'wp-vip-compatibility' ),
+				'description' => __( 'VIP reserves wp-content/mu-plugins for platform code, so everything here needs a decision.', 'wp-vip-compatibility' ),
+				'icon'        => 'bolt',
+				'group'       => 'code',
+			),
+			'database'    => array(
+				'slug'        => 'wvc-database',
+				'label'       => __( 'Database', 'wp-vip-compatibility' ),
+				'title'       => __( 'Database', 'wp-vip-compatibility' ),
+				'description' => __( 'The schema measured against the storage engine, collation and prefix VIP requires on import.', 'wp-vip-compatibility' ),
 				'icon'        => 'database',
+				'group'       => 'site',
+			),
+			'directories' => array(
+				'slug'        => 'wvc-directories',
+				'label'       => __( 'wp-content', 'wp-vip-compatibility' ),
+				'title'       => __( 'wp-content layout', 'wp-vip-compatibility' ),
+				'description' => __( 'What sits in wp-content today, and how each entry maps onto the VIP application structure.', 'wp-vip-compatibility' ),
+				'icon'        => 'folder',
+				'group'       => 'site',
 			),
 		);
 	}
+
+	/**
+	 * Returns the admin URL of a plugin screen.
+	 *
+	 * @param string $key  The settings key.
+	 * @param array  $args Optional query arguments.
+	 * @return string The admin URL.
+	 */
+	public static function get_screen_url( $key, $args = array() ) {
+		$screens = self::get_screens();
+		$slug    = $screens[ $key ]['slug'] ?? 'wp-vip-compatibility';
+		$url     = admin_url( 'admin.php?page=' . $slug );
+
+		return empty( $args ) ? $url : add_query_arg( $args, $url );
+	}
+
+	/**
+	 * Returns the screen key that lists a given target type.
+	 *
+	 * @param string $type One of `plugin`, `theme`, `mu-plugin`.
+	 * @return string The settings key.
+	 */
+	public static function get_screen_for_type( $type ) {
+		$map = array(
+			'plugin'    => 'plugins',
+			'theme'     => 'themes',
+			'mu-plugin' => 'mu-plugins',
+		);
+
+		return $map[ $type ] ?? 'plugins';
+	}
+
+	/**
+	 * Returns the URL of the findings report, optionally filtered.
+	 *
+	 * @param string $target_key Optional target key to filter by.
+	 * @param string $tier       Optional tier to filter by.
+	 * @return string The admin URL.
+	 */
+	public static function get_findings_url( $target_key = '', $tier = '' ) {
+		$args = array();
+
+		if ( '' !== $target_key ) {
+			$args['target'] = $target_key;
+		}
+
+		if ( '' !== $tier ) {
+			$args['tier'] = $tier;
+		}
+
+		return self::get_screen_url( 'findings', $args );
+	}
+
+	/* ---------------------------------------------------------------------
+	 * Severity vocabulary
+	 * ------------------------------------------------------------------ */
 
 	/**
 	 * Returns the tier definitions with their presentation defaults.
@@ -84,18 +199,22 @@ class UI {
 			Taxonomy::TIER_BLOCKING  => array(
 				'icon' => 'alert',
 				'open' => true,
+				'tone' => 'bad',
 			),
 			Taxonomy::TIER_IMPORTANT => array(
 				'icon' => 'alert',
 				'open' => true,
+				'tone' => 'warn',
 			),
 			Taxonomy::TIER_WARNING   => array(
 				'icon' => 'info',
 				'open' => false,
+				'tone' => 'notice',
 			),
 			Taxonomy::TIER_INFO      => array(
 				'icon' => 'info',
 				'open' => false,
+				'tone' => 'muted',
 			),
 		);
 
@@ -130,43 +249,9 @@ class UI {
 		return $tiers[ $tier ]['label'] ?? $tier;
 	}
 
-	/**
-	 * Returns the URL of the findings report, optionally filtered.
-	 *
-	 * @param string $target_key Optional target key to filter by.
-	 * @param string $tier       Optional tier to filter by.
-	 * @return string The admin URL.
-	 */
-	public static function get_findings_url( $target_key = '', $tier = '' ) {
-		$args = array();
-
-		if ( '' !== $target_key ) {
-			$args['target'] = $target_key;
-		}
-
-		if ( '' !== $tier ) {
-			$args['tier'] = $tier;
-		}
-
-		$url = self::get_screen_url( 'findings' );
-
-		return empty( $args ) ? $url : add_query_arg( $args, $url );
-	}
-
-	/**
-	 * Returns the admin URL of a plugin screen.
-	 *
-	 * @param string $key  The settings key.
-	 * @param array  $args Optional query arguments.
-	 * @return string The admin URL.
-	 */
-	public static function get_screen_url( $key, $args = array() ) {
-		$screens = self::get_screens();
-		$slug    = $screens[ $key ]['slug'] ?? 'wp-vip-compatibility';
-		$url     = admin_url( 'admin.php?page=' . $slug );
-
-		return empty( $args ) ? $url : add_query_arg( $args, $url );
-	}
+	/* ---------------------------------------------------------------------
+	 * Icons
+	 * ------------------------------------------------------------------ */
 
 	/**
 	 * Returns an inline SVG icon.
@@ -193,6 +278,8 @@ class UI {
 			'external'    => '<path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14.5V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19V7.5A1.5 1.5 0 0 1 5 6h4.5"/>',
 			'copy'        => '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5V5A1.5 1.5 0 0 1 4.5 3.5H13A1.5 1.5 0 0 1 14.5 5v.5"/>',
 			'arrow-right' => '<path d="M4 12h15"/><path d="m13 6 6 6-6 6"/>',
+			'chevron'     => '<path d="m8 5 7 7-7 7"/>',
+			'chevron-down' => '<path d="m5 9 7 7 7-7"/>',
 			'sort'        => '<path d="m8 9 4-4 4 4"/><path d="m8 15 4 4 4-4"/>',
 			'inbox'       => '<path d="M3 13h4l1.5 3h7L17 13h4"/><path d="M5.5 5h13l2.5 8v5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18v-5Z"/>',
 			'shield'      => '<path d="M12 3 5 6v6c0 4.3 2.9 7.8 7 9 4.1-1.2 7-4.7 7-9V6Z"/><path d="m9 12 2 2 4-4"/>',
@@ -204,6 +291,9 @@ class UI {
 			'clock'       => '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/>',
 			'trend'       => '<path d="m4 16 5-5 3.5 3.5L20 7"/><path d="M15 7h5v5"/>',
 			'filter'      => '<path d="M3 5h18"/><path d="M6.5 12h11"/><path d="M10 19h4"/>',
+			'server'      => '<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01"/><path d="M7 16.5h.01"/>',
+			'layers'      => '<path d="m12 3 9 5-9 5-9-5Z"/><path d="m3 13 9 5 9-5"/>',
+			'sparkle'     => '<path d="M12 3v5"/><path d="M12 16v5"/><path d="M3 12h5"/><path d="M16 12h5"/><path d="m6 6 3 3"/><path d="m15 15 3 3"/><path d="m18 6-3 3"/><path d="m9 15-3 3"/>',
 		);
 
 		if ( ! isset( $paths[ $name ] ) ) {
@@ -231,59 +321,133 @@ class UI {
 		);
 	}
 
+	/* ---------------------------------------------------------------------
+	 * Application shell
+	 * ------------------------------------------------------------------ */
+
 	/**
-	 * Renders the plugin masthead and the screen navigation.
+	 * Opens the application shell: masthead and content column.
 	 *
-	 * The masthead carries identity and one link out. It used to also carry a
-	 * tagline explaining what the plugin does, immediately above a page heading
-	 * that explained what the screen does — two sentences of chrome before any
-	 * of the site's own data. The plugin's purpose now lives in the overview's
-	 * "About" disclosure, where it is read once.
+	 * There is no section navigation of our own. WordPress already lists every
+	 * screen in the admin menu, and a second list of the same seven links beside
+	 * it was one navigation too many — it cost a fifth of the width on every
+	 * screen to repeat what was already on the left.
 	 *
-	 * @param string $current The current settings key.
 	 * @return void
 	 */
-	public static function render_masthead( $current ) {
-		$screens = self::get_screens();
+	public static function render_shell_open() {
+		echo '<div class="wrap wvc-wrap">';
+		echo '<div class="wvc-app">';
+
+		self::render_masthead();
+
+		echo '<main class="wvc-main" id="wvc-main">';
+	}
+
+	/**
+	 * Closes the application shell.
+	 *
+	 * @return void
+	 */
+	public static function render_shell_close() {
+		echo '</main></div></div>';
+	}
+
+	/**
+	 * Renders the masthead: identity, scan state and the two global actions.
+	 *
+	 * Rescanning and exporting are properties of the whole report rather than of
+	 * any one screen, so they live here and are reachable from all of them,
+	 * instead of being duplicated into every page header.
+	 *
+	 * @return void
+	 */
+	private static function render_masthead() {
+		$aggregate = Report::aggregate();
+		$scanned   = $aggregate['targets'] > 0 && $aggregate['scanned_at'] > 0;
 		?>
 		<header class="wvc-masthead">
 			<div class="wvc-masthead__identity">
 				<span class="wvc-masthead__mark" aria-hidden="true">
 					<?php echo self::get_icon( 'shield' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 				</span>
-				<h1 class="wvc-masthead__title">
-					<?php esc_html_e( 'WordPress VIP Compatibility', 'wp-vip-compatibility' ); ?>
-				</h1>
+				<span class="wvc-masthead__text">
+					<h1 class="wvc-masthead__title"><?php esc_html_e( 'WordPress VIP Compatibility', 'wp-vip-compatibility' ); ?></h1>
+					<span class="wvc-masthead__meta">
+						<?php
+						printf(
+							/* translators: 1: Rule set version. 2: Number of rules. */
+							esc_html__( 'Rule set %1$s · %2$d rules', 'wp-vip-compatibility' ),
+							esc_html( Rules::VERSION ),
+							count( Rules::all() )
+						);
+						?>
+					</span>
+				</span>
 			</div>
 
-			<a class="wvc-btn wvc-btn--ghost wvc-btn--sm" href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">
-				<?php esc_html_e( 'WordPress VIP documentation', 'wp-vip-compatibility' ); ?>
-				<?php echo self::get_icon( 'external', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-				<span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'wp-vip-compatibility' ); ?></span>
-			</a>
-		</header>
+			<div class="wvc-masthead__actions">
+				<span class="wvc-scanstate<?php echo $scanned ? '' : ' is-empty'; ?>">
+					<?php echo self::get_icon( 'clock', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+					<span>
+						<?php
+						if ( $scanned ) {
+							printf(
+								/* translators: %s: Human-readable time difference. */
+								esc_html__( 'Scanned %s ago', 'wp-vip-compatibility' ),
+								esc_html( human_time_diff( $aggregate['scanned_at'] ) )
+							);
+						} else {
+							esc_html_e( 'Never scanned', 'wp-vip-compatibility' );
+						}
+						?>
+					</span>
+				</span>
 
-		<nav class="wvc-subnav" aria-label="<?php esc_attr_e( 'Compatibility sections', 'wp-vip-compatibility' ); ?>">
-			<ul class="wvc-subnav__list">
-				<?php foreach ( $screens as $key => $screen ) : ?>
-					<li>
-						<a
-							class="wvc-subnav__item<?php echo ( $key === $current ) ? ' is-active' : ''; ?>"
-							href="<?php echo esc_url( self::get_screen_url( $key ) ); ?>"
-							<?php echo ( $key === $current ) ? 'aria-current="page"' : ''; ?>
-						>
-							<?php echo self::get_icon( $screen['icon'], array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-							<span><?php echo esc_html( $screen['label'] ); ?></span>
-						</a>
-					</li>
-				<?php endforeach; ?>
-			</ul>
-		</nav>
+				<?php
+				echo self::get_action_button( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+					array(
+						'label'   => $scanned ? __( 'Rescan', 'wp-vip-compatibility' ) : __( 'Run a scan', 'wp-vip-compatibility' ),
+						'submit'  => 'wvc_rescan',
+						'nonce'   => Findings_Settings::RESCAN_ACTION,
+						'icon'    => 'refresh',
+						'primary' => ! $scanned,
+					)
+				);
+				?>
+
+				<details class="wvc-menu">
+					<summary class="wvc-btn wvc-btn--ghost wvc-btn--sm">
+						<?php echo self::get_icon( 'download', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<span><?php esc_html_e( 'Export', 'wp-vip-compatibility' ); ?></span>
+					</summary>
+					<div class="wvc-menu__panel">
+						<p class="wvc-menu__title"><?php esc_html_e( 'Download the full report', 'wp-vip-compatibility' ); ?></p>
+						<?php foreach ( Export::get_formats() as $slug => $format ) : ?>
+							<a class="wvc-menu__item" href="<?php echo esc_url( Export::get_url( $slug ) ); ?>">
+								<span class="wvc-menu__label"><?php echo esc_html( $format['label'] ); ?></span>
+								<span class="wvc-menu__hint"><?php echo esc_html( $format['description'] ); ?></span>
+							</a>
+						<?php endforeach; ?>
+					</div>
+				</details>
+
+				<a class="wvc-btn wvc-btn--ghost wvc-btn--sm" href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">
+					<?php echo self::get_icon( 'book', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+					<span><?php esc_html_e( 'VIP docs', 'wp-vip-compatibility' ); ?></span>
+					<span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'wp-vip-compatibility' ); ?></span>
+				</a>
+			</div>
+		</header>
 		<?php
 	}
 
 	/**
-	 * Renders the page heading for a screen.
+	 * Renders the page heading.
+	 *
+	 * The group name above the title is what the admin menu cannot say: the menu
+	 * lists seven flat entries, and this places the one you are on inside the part
+	 * of the job it belongs to.
 	 *
 	 * @param string $current The current settings key.
 	 * @return void
@@ -294,112 +458,55 @@ class UI {
 		if ( ! isset( $screens[ $current ] ) ) {
 			return;
 		}
+
+		$screen = $screens[ $current ];
+		$groups = self::get_groups();
 		?>
 		<div class="wvc-page-head">
-			<h2 class="wvc-page-head__title"><?php echo esc_html( $screens[ $current ]['title'] ); ?></h2>
-			<p class="wvc-page-head__description"><?php echo esc_html( $screens[ $current ]['description'] ); ?></p>
+			<div class="wvc-page-head__text">
+				<p class="wvc-page-head__eyebrow"><?php echo esc_html( $groups[ $screen['group'] ] ?? '' ); ?></p>
+				<h2 class="wvc-page-head__title"><?php echo esc_html( $screen['title'] ); ?></h2>
+				<p class="wvc-page-head__description"><?php echo esc_html( $screen['description'] ); ?></p>
+			</div>
 		</div>
 		<?php
 	}
 
 	/**
-	 * Renders a section heading.
+	 * Confirms a completed rescan.
 	 *
-	 * @param string $title   The heading.
-	 * @param string $meta    Optional short count or status to the right of it.
-	 * @param string $summary Optional one-line explanation below it.
+	 * Rescanning is reachable from every screen and returns you to the one you
+	 * were on, so the confirmation belongs to the shell rather than to any one
+	 * screen — otherwise a scan started from the database audit would finish
+	 * without ever saying so.
+	 *
 	 * @return void
 	 */
-	public static function render_section_head( $title, $meta = '', $summary = '' ) {
-		?>
-		<div class="wvc-section-head">
-			<h3 class="wvc-section-head__title">
-				<?php echo esc_html( $title ); ?>
-				<?php if ( '' !== $meta ) : ?>
-					<span class="wvc-section-head__meta"><?php echo esc_html( $meta ); ?></span>
-				<?php endif; ?>
-			</h3>
-			<?php if ( '' !== $summary ) : ?>
-				<p class="wvc-section-head__summary"><?php echo esc_html( $summary ); ?></p>
-			<?php endif; ?>
-		</div>
-		<?php
-	}
+	public static function render_scan_notice() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Presentation only; the scan itself was nonce-checked in Findings_Settings::handle_rescan().
+		if ( ! isset( $_GET['wvc-scanned'] ) ) {
+			return;
+		}
 
-	/**
-	 * Renders the verdict card: the one thing a screen leads with.
-	 *
-	 * @param array $args {
-	 *     Verdict arguments.
-	 *
-	 *     @type int    $score      Readiness percentage, or -1 when nothing is scanned.
-	 *     @type string $tier       Tier driving the accent colour.
-	 *     @type string $headline   Short verdict, e.g. "Not ready to migrate".
-	 *     @type string $summary    One sentence saying what that means.
-	 *     @type string $meta       Optional supporting line (when it ran, what changed).
-	 *     @type array  $actions    List of `label`, `url`, `primary`, `icon` links or forms.
-	 * }
-	 * @return void
-	 */
-	public static function render_verdict( array $args ) {
-		$args = wp_parse_args(
-			$args,
-			array(
-				'score'    => -1,
-				'tier'     => Taxonomy::TIER_INFO,
-				'headline' => '',
-				'summary'  => '',
-				'meta'     => '',
-				'actions'  => array(),
-			)
+		$aggregate = Report::aggregate();
+
+		echo self::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			esc_html(
+				sprintf(
+					/* translators: 1: Number of targets. 2: Number of PHP files. */
+					__( 'Scanned %1$d items and %2$s PHP files.', 'wp-vip-compatibility' ),
+					(int) $aggregate['targets'],
+					number_format_i18n( (int) $aggregate['totals']['files'] )
+				)
+			),
+			'success',
+			esc_html__( 'Scan complete', 'wp-vip-compatibility' )
 		);
-
-		$scored      = $args['score'] >= 0;
-		$radius      = 52;
-		$circumfence = 2 * M_PI * $radius;
-		?>
-		<section class="wvc-verdict wvc-verdict--<?php echo esc_attr( $args['tier'] ); ?>" aria-labelledby="wvc-verdict-title">
-			<div class="wvc-gauge" role="img" aria-label="<?php echo esc_attr( $scored ? sprintf( /* translators: %d: Percentage. */ __( '%d%% ready', 'wp-vip-compatibility' ), (int) $args['score'] ) : __( 'Not scanned yet', 'wp-vip-compatibility' ) ); ?>">
-				<svg viewBox="0 0 120 120" aria-hidden="true" focusable="false">
-					<circle class="wvc-gauge__track" cx="60" cy="60" r="<?php echo esc_attr( (string) $radius ); ?>"></circle>
-					<?php if ( $scored ) : ?>
-						<circle
-							class="wvc-gauge__value"
-							cx="60" cy="60" r="<?php echo esc_attr( (string) $radius ); ?>"
-							style="stroke-dasharray: <?php echo esc_attr( ( ( (int) $args['score'] / 100 ) * $circumfence ) . ' ' . $circumfence ); ?>"
-						></circle>
-					<?php endif; ?>
-				</svg>
-				<span class="wvc-gauge__readout">
-					<span class="wvc-gauge__score"><?php echo $scored ? esc_html( (string) (int) $args['score'] ) : '–'; ?><?php echo $scored ? '<span class="wvc-gauge__unit">%</span>' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?></span>
-					<span class="wvc-gauge__caption"><?php esc_html_e( 'Ready', 'wp-vip-compatibility' ); ?></span>
-				</span>
-			</div>
-
-			<div class="wvc-verdict__body">
-				<h3 class="wvc-verdict__headline" id="wvc-verdict-title"><?php echo esc_html( $args['headline'] ); ?></h3>
-				<p class="wvc-verdict__summary"><?php echo esc_html( $args['summary'] ); ?></p>
-
-				<?php if ( ! empty( $args['actions'] ) ) : ?>
-					<div class="wvc-verdict__actions">
-						<?php
-						foreach ( $args['actions'] as $action ) {
-							echo self::get_action_button( $action ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-						}
-						?>
-					</div>
-				<?php endif; ?>
-
-				<?php if ( '' !== $args['meta'] ) : ?>
-					<p class="wvc-verdict__meta">
-						<?php echo self::get_icon( 'clock', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-						<?php echo esc_html( $args['meta'] ); ?>
-					</p>
-				<?php endif; ?>
-			</div>
-		</section>
-		<?php
 	}
+
+	/* ---------------------------------------------------------------------
+	 * Buttons and links
+	 * ------------------------------------------------------------------ */
 
 	/**
 	 * Builds one button, either a link or a nonce-protected form submission.
@@ -413,6 +520,8 @@ class UI {
 	 *     @type string $nonce   Nonce action, required with `submit`.
 	 *     @type string $icon    Optional icon name.
 	 *     @type bool   $primary Whether it is the primary action.
+	 *     @type bool   $small   Whether to render the compact size.
+	 *     @type bool   $external Whether the link opens in a new tab.
 	 * }
 	 * @return string The button markup.
 	 */
@@ -420,21 +529,28 @@ class UI {
 		$action = wp_parse_args(
 			$action,
 			array(
-				'label'   => '',
-				'url'     => '',
-				'submit'  => '',
-				'nonce'   => '',
-				'icon'    => '',
-				'primary' => false,
+				'label'    => '',
+				'url'      => '',
+				'submit'   => '',
+				'nonce'    => '',
+				'icon'     => '',
+				'primary'  => false,
+				'small'    => true,
+				'external' => false,
 			)
 		);
 
 		$classes = 'wvc-btn ' . ( $action['primary'] ? 'wvc-btn--primary' : 'wvc-btn--ghost' );
-		$icon    = '' === $action['icon'] ? '' : self::get_icon( $action['icon'], array( 'class' => 'wvc-icon wvc-icon--sm' ) );
+
+		if ( $action['small'] ) {
+			$classes .= ' wvc-btn--sm';
+		}
+
+		$icon = '' === $action['icon'] ? '' : self::get_icon( $action['icon'], array( 'class' => 'wvc-icon wvc-icon--sm' ) );
 
 		if ( '' !== $action['submit'] ) {
 			return sprintf(
-				'<form method="post" action="%1$s" class="wvc-inline-form"><input type="hidden" name="action" value="%2$s" />%3$s<button type="submit" class="%4$s">%5$s%6$s</button></form>',
+				'<form method="post" action="%1$s" class="wvc-inline-form"><input type="hidden" name="action" value="%2$s" />%3$s<button type="submit" class="%4$s">%5$s<span>%6$s</span></button></form>',
 				esc_url( admin_url( 'admin-post.php' ) ),
 				esc_attr( $action['submit'] ),
 				wp_nonce_field( $action['nonce'], '_wpnonce', true, false ),
@@ -445,12 +561,275 @@ class UI {
 		}
 
 		return sprintf(
-			'<a class="%1$s" href="%2$s">%3$s%4$s</a>',
+			'<a class="%1$s" href="%2$s"%5$s>%3$s<span>%4$s</span></a>',
 			esc_attr( $classes ),
 			esc_url( $action['url'] ),
 			$icon,
-			esc_html( $action['label'] )
+			esc_html( $action['label'] ),
+			$action['external'] ? ' target="_blank" rel="noopener noreferrer"' : ''
 		);
+	}
+
+	/* ---------------------------------------------------------------------
+	 * Layout primitives
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Renders a row of headline statistics.
+	 *
+	 * A tile is the top of the hierarchy on every screen: one number, one label,
+	 * one line of context, and — where the number stands for work — the link that
+	 * takes you to it. Tiles are never used for values nobody acts on.
+	 *
+	 * @param array<int, array<string, mixed>> $stats {
+	 *     Tiles to render.
+	 *
+	 *     @type string $label Short label.
+	 *     @type string $value The headline value.
+	 *     @type string $meta  Optional supporting line.
+	 *     @type string $tone  One of `ok`, `warn`, `bad`, `accent`, `neutral`.
+	 *     @type string $url   Optional destination.
+	 * }
+	 * @param string                           $modifier Optional extra class, e.g. `wvc-stats--compact`.
+	 * @return void
+	 */
+	public static function render_stats( array $stats, $modifier = '' ) {
+		if ( empty( $stats ) ) {
+			return;
+		}
+		?>
+		<ul class="<?php echo esc_attr( trim( 'wvc-stats ' . $modifier ) ); ?>">
+			<?php foreach ( $stats as $stat ) : ?>
+				<?php
+				$stat = wp_parse_args(
+					$stat,
+					array(
+						'label' => '',
+						'value' => '',
+						'meta'  => '',
+						'tone'  => 'neutral',
+						'url'   => '',
+					)
+				);
+
+				$tag        = ( '' === $stat['url'] ) ? 'div' : 'a';
+				$attributes = ( '' === $stat['url'] ) ? '' : ' href="' . esc_url( $stat['url'] ) . '"';
+				?>
+				<li class="wvc-stat wvc-stat--<?php echo esc_attr( $stat['tone'] ); ?><?php echo ( '' === $stat['url'] ) ? '' : ' is-linked'; ?>">
+					<<?php echo esc_html( $tag ); ?> class="wvc-stat__inner"<?php echo $attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?>>
+						<span class="wvc-stat__label"><?php echo esc_html( $stat['label'] ); ?></span>
+						<span class="wvc-stat__value"><?php echo esc_html( $stat['value'] ); ?></span>
+						<?php if ( '' !== $stat['meta'] ) : ?>
+							<span class="wvc-stat__meta"><?php echo esc_html( $stat['meta'] ); ?></span>
+						<?php endif; ?>
+						<?php if ( '' !== $stat['url'] ) : ?>
+							<?php echo self::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--xs wvc-stat__chevron' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<?php endif; ?>
+					</<?php echo esc_html( $tag ); ?>>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+		<?php
+	}
+
+	/**
+	 * Opens a titled panel.
+	 *
+	 * @param array $args {
+	 *     Panel arguments.
+	 *
+	 *     @type string $title    The heading.
+	 *     @type string $count    Optional count rendered next to the heading.
+	 *     @type string $summary  Optional one-line explanation.
+	 *     @type array  $actions  Optional actions, as accepted by get_action_button().
+	 *     @type bool   $flush    Whether the body should have no padding (tables).
+	 *     @type string $modifier Optional extra class.
+	 * }
+	 * @return void
+	 */
+	public static function render_panel_open( array $args ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'title'    => '',
+				'count'    => '',
+				'summary'  => '',
+				'actions'  => array(),
+				'flush'    => false,
+				'modifier' => '',
+			)
+		);
+		?>
+		<section class="<?php echo esc_attr( trim( 'wvc-panel ' . $args['modifier'] ) ); ?>">
+			<?php if ( '' !== $args['title'] ) : ?>
+				<header class="wvc-panel__head">
+					<div class="wvc-panel__heading">
+						<h3 class="wvc-panel__title">
+							<?php echo esc_html( $args['title'] ); ?>
+							<?php if ( '' !== $args['count'] ) : ?>
+								<span class="wvc-panel__count"><?php echo esc_html( $args['count'] ); ?></span>
+							<?php endif; ?>
+						</h3>
+						<?php if ( '' !== $args['summary'] ) : ?>
+							<p class="wvc-panel__summary"><?php echo esc_html( $args['summary'] ); ?></p>
+						<?php endif; ?>
+					</div>
+
+					<?php if ( ! empty( $args['actions'] ) ) : ?>
+						<div class="wvc-panel__actions">
+							<?php
+							foreach ( $args['actions'] as $action ) {
+								echo self::get_action_button( $action ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+							}
+							?>
+						</div>
+					<?php endif; ?>
+				</header>
+			<?php endif; ?>
+
+			<div class="wvc-panel__body<?php echo $args['flush'] ? ' wvc-panel__body--flush' : ''; ?>">
+		<?php
+	}
+
+	/**
+	 * Closes a panel.
+	 *
+	 * @return void
+	 */
+	public static function render_panel_close() {
+		echo '</div></section>';
+	}
+
+	/**
+	 * Builds a definition grid.
+	 *
+	 * Used wherever a set of labelled values belongs together — the environment
+	 * summary, a row's expanded detail — and is read rather than scanned.
+	 *
+	 * @param array<int, array<string, string>> $rows     Each with `label`, `value` and optional `hint` and `tone`.
+	 * @param string                            $modifier Optional extra class.
+	 * @return string The grid markup.
+	 */
+	public static function get_defs( array $rows, $modifier = '' ) {
+		if ( empty( $rows ) ) {
+			return '';
+		}
+
+		$items = '';
+
+		foreach ( $rows as $row ) {
+			$tone  = empty( $row['tone'] ) ? '' : ' wvc-def--' . $row['tone'];
+			$hint  = empty( $row['hint'] ) ? '' : '<span class="wvc-def__hint">' . esc_html( $row['hint'] ) . '</span>';
+			$value = empty( $row['html'] ) ? esc_html( (string) ( $row['value'] ?? '' ) ) : $row['html'];
+
+			$items .= sprintf(
+				'<div class="wvc-def%1$s"><dt class="wvc-def__label">%2$s</dt><dd class="wvc-def__value">%3$s%4$s</dd></div>',
+				esc_attr( $tone ),
+				esc_html( (string) ( $row['label'] ?? '' ) ),
+				$value,
+				$hint
+			);
+		}
+
+		return '<dl class="' . esc_attr( trim( 'wvc-defs ' . $modifier ) ) . '">' . $items . '</dl>';
+	}
+
+	/* ---------------------------------------------------------------------
+	 * Verdict, actions and proportion bars
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Renders the verdict hero: the one thing the overview leads with.
+	 *
+	 * @param array $args {
+	 *     Verdict arguments.
+	 *
+	 *     @type int    $score    Readiness percentage, or -1 when nothing is scanned.
+	 *     @type string $tier     Tier driving the accent colour.
+	 *     @type string $headline Short verdict, e.g. "Not ready to migrate".
+	 *     @type string $summary  One sentence saying what that means.
+	 *     @type string $meta     Optional supporting line.
+	 *     @type array  $actions  List of links or forms.
+	 *     @type array  $facts    Optional list of `label`/`value` pairs shown beside the gauge.
+	 * }
+	 * @return void
+	 */
+	public static function render_verdict( array $args ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'score'    => -1,
+				'tier'     => Taxonomy::TIER_INFO,
+				'headline' => '',
+				'summary'  => '',
+				'meta'     => '',
+				'actions'  => array(),
+				'facts'    => array(),
+			)
+		);
+
+		$scored      = $args['score'] >= 0;
+		$radius      = 54;
+		$circumfence = 2 * M_PI * $radius;
+		?>
+		<section class="wvc-verdict wvc-verdict--<?php echo esc_attr( $args['tier'] ); ?>" aria-labelledby="wvc-verdict-title">
+			<div class="wvc-verdict__gauge">
+				<div class="wvc-gauge" role="img" aria-label="<?php echo esc_attr( $scored ? sprintf( /* translators: %d: Percentage. */ __( '%d%% ready', 'wp-vip-compatibility' ), (int) $args['score'] ) : __( 'Not scanned yet', 'wp-vip-compatibility' ) ); ?>">
+					<svg viewBox="0 0 128 128" aria-hidden="true" focusable="false">
+						<circle class="wvc-gauge__track" cx="64" cy="64" r="<?php echo esc_attr( (string) $radius ); ?>"></circle>
+						<?php if ( $scored ) : ?>
+							<circle
+								class="wvc-gauge__value"
+								cx="64" cy="64" r="<?php echo esc_attr( (string) $radius ); ?>"
+								style="stroke-dasharray: <?php echo esc_attr( ( ( (int) $args['score'] / 100 ) * $circumfence ) . ' ' . $circumfence ); ?>"
+							></circle>
+						<?php endif; ?>
+					</svg>
+					<span class="wvc-gauge__readout">
+						<span class="wvc-gauge__score"><?php echo $scored ? esc_html( (string) (int) $args['score'] ) : '–'; ?><?php echo $scored ? '<span class="wvc-gauge__unit">%</span>' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?></span>
+						<span class="wvc-gauge__caption"><?php esc_html_e( 'Ready', 'wp-vip-compatibility' ); ?></span>
+					</span>
+				</div>
+			</div>
+
+			<div class="wvc-verdict__body">
+				<h3 class="wvc-verdict__headline" id="wvc-verdict-title"><?php echo esc_html( $args['headline'] ); ?></h3>
+				<p class="wvc-verdict__summary"><?php echo esc_html( $args['summary'] ); ?></p>
+
+				<?php if ( ! empty( $args['actions'] ) ) : ?>
+					<div class="wvc-verdict__actions">
+						<?php
+						foreach ( $args['actions'] as $action ) {
+							echo self::get_action_button( array_merge( $action, array( 'small' => false ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+						}
+						?>
+					</div>
+				<?php endif; ?>
+
+				<?php if ( '' !== $args['meta'] ) : ?>
+					<p class="wvc-verdict__meta"><?php echo esc_html( $args['meta'] ); ?></p>
+				<?php endif; ?>
+			</div>
+
+			<?php if ( ! empty( $args['facts'] ) ) : ?>
+				<ul class="wvc-verdict__facts">
+					<?php foreach ( $args['facts'] as $fact ) : ?>
+						<li class="wvc-verdict__fact wvc-verdict__fact--<?php echo esc_attr( $fact['tone'] ?? 'neutral' ); ?>">
+							<?php if ( ! empty( $fact['url'] ) ) : ?>
+								<a href="<?php echo esc_url( $fact['url'] ); ?>">
+									<span class="wvc-verdict__fact-value"><?php echo esc_html( $fact['value'] ); ?></span>
+									<span class="wvc-verdict__fact-label"><?php echo esc_html( $fact['label'] ); ?></span>
+								</a>
+							<?php else : ?>
+								<span class="wvc-verdict__fact-value"><?php echo esc_html( $fact['value'] ); ?></span>
+								<span class="wvc-verdict__fact-label"><?php echo esc_html( $fact['label'] ); ?></span>
+							<?php endif; ?>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			<?php endif; ?>
+		</section>
+		<?php
 	}
 
 	/**
@@ -458,7 +837,7 @@ class UI {
 	 *
 	 * Totals describe a site; this describes a plan. Each row states the work,
 	 * how much of it there is, why it matters in one line, and carries the link
-	 * to the place it gets done — which is the whole reason the overview exists.
+	 * to the place it gets done.
 	 *
 	 * @param array<int, array<string, mixed>> $actions Actions from Report::next_actions().
 	 * @return void
@@ -469,20 +848,21 @@ class UI {
 		}
 		?>
 		<ol class="wvc-actions">
-			<?php foreach ( $actions as $action ) : ?>
+			<?php foreach ( $actions as $position => $action ) : ?>
 				<li class="wvc-actions__item wvc-actions__item--<?php echo esc_attr( $action['tier'] ); ?>">
-					<span class="wvc-actions__tier" title="<?php echo esc_attr( self::get_tier_label( $action['tier'] ) ); ?>">
-						<span class="wvc-tierdot wvc-tierdot--<?php echo esc_attr( $action['tier'] ); ?>" aria-hidden="true"></span>
-						<span class="screen-reader-text"><?php echo esc_html( self::get_tier_label( $action['tier'] ) ); ?></span>
-					</span>
+					<span class="wvc-actions__rank" aria-hidden="true"><?php echo esc_html( (string) ( $position + 1 ) ); ?></span>
 
 					<span class="wvc-actions__text">
 						<strong class="wvc-actions__title"><?php echo esc_html( $action['title'] ); ?></strong>
 						<span class="wvc-actions__detail"><?php echo esc_html( $action['detail'] ); ?></span>
 					</span>
 
+					<span class="wvc-actions__tier">
+						<?php echo self::get_tier_pill( $action['tier'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
+					</span>
+
 					<a class="wvc-btn wvc-btn--ghost wvc-btn--sm wvc-actions__cta" href="<?php echo esc_url( $action['url'] ); ?>">
-						<?php echo esc_html( $action['action'] ); ?>
+						<span><?php echo esc_html( $action['action'] ); ?></span>
 						<?php echo self::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 					</a>
 				</li>
@@ -492,11 +872,7 @@ class UI {
 	}
 
 	/**
-	 * Builds a stacked proportion bar with an accessible text equivalent.
-	 *
-	 * This replaces the five doughnut charts the overview used to draw. Each one
-	 * cost an AJAX round trip and a 200 KB charting library to display three
-	 * numbers that were already on the page in three other places.
+	 * Builds a stacked proportion bar.
 	 *
 	 * @param array<string, int> $counts Counts keyed `ready`, `review`, `blocked`, `pending`.
 	 * @return string The bar markup.
@@ -537,51 +913,133 @@ class UI {
 	}
 
 	/**
-	 * Builds the text equivalent of a meter, e.g. "2 blocked · 5 review · 31 ready".
+	 * Builds the legend of a meter as a set of counted chips.
 	 *
 	 * @param array<string, int> $counts Counts keyed `ready`, `review`, `blocked`, `pending`.
-	 * @return string The sentence.
+	 * @param string             $url    Optional base URL; chips link to it filtered by status.
+	 * @return string The legend markup.
 	 */
-	public static function get_meter_legend( array $counts ) {
+	public static function get_meter_legend( array $counts, $url = '' ) {
 		$labels = array(
-			/* translators: %s: Number of items. */
-			'blocked' => __( '%s blocked', 'wp-vip-compatibility' ),
-			/* translators: %s: Number of items. */
-			'review'  => __( '%s to review', 'wp-vip-compatibility' ),
-			/* translators: %s: Number of items. */
-			'pending' => __( '%s not scanned', 'wp-vip-compatibility' ),
-			/* translators: %s: Number of items. */
-			'ready'   => __( '%s ready', 'wp-vip-compatibility' ),
+			'blocked' => array( __( 'Blocked', 'wp-vip-compatibility' ), 'bad', 'not-compatible' ),
+			'review'  => array( __( 'Review', 'wp-vip-compatibility' ), 'warn', 'review' ),
+			'pending' => array( __( 'Not scanned', 'wp-vip-compatibility' ), 'pending', 'pending' ),
+			'ready'   => array( __( 'Ready', 'wp-vip-compatibility' ), 'ok', 'compatible' ),
 		);
 
-		$parts = array();
+		$parts = '';
 
-		foreach ( $labels as $key => $template ) {
+		foreach ( $labels as $key => $definition ) {
 			$value = (int) ( $counts[ $key ] ?? 0 );
 
-			if ( $value > 0 ) {
-				$parts[] = sprintf( $template, number_format_i18n( $value ) );
+			if ( 0 === $value ) {
+				continue;
 			}
+
+			$body = sprintf(
+				'<span class="wvc-dot wvc-dot--%1$s" aria-hidden="true"></span><span class="wvc-legend__value">%2$s</span><span class="wvc-legend__label">%3$s</span>',
+				esc_attr( $definition[1] ),
+				esc_html( number_format_i18n( $value ) ),
+				esc_html( $definition[0] )
+			);
+
+			$parts .= ( '' === $url )
+				? '<li class="wvc-legend__item">' . $body . '</li>'
+				: sprintf(
+					'<li class="wvc-legend__item"><a href="%1$s">%2$s</a></li>',
+					esc_url( add_query_arg( 'status', $definition[2], $url ) ),
+					$body
+				);
 		}
 
-		return empty( $parts ) ? __( 'Nothing to check', 'wp-vip-compatibility' ) : implode( ' · ', $parts );
+		if ( '' === $parts ) {
+			return '<p class="wvc-legend wvc-legend--empty">' . esc_html__( 'Nothing to check', 'wp-vip-compatibility' ) . '</p>';
+		}
+
+		return '<ul class="wvc-legend">' . $parts . '</ul>';
 	}
+
+	/**
+	 * Renders the per-area cards used by the overview.
+	 *
+	 * @param array<int, array<string, mixed>> $areas Areas from Report::areas().
+	 * @return void
+	 */
+	public static function render_area_cards( array $areas ) {
+		?>
+		<ul class="wvc-areas">
+			<?php foreach ( $areas as $area ) : ?>
+				<?php
+				$counts    = $area['counts'];
+				$url       = self::get_screen_url( $area['screen'] );
+				$attention = (int) $counts['blocked'] + (int) $counts['review'];
+				$tone      = ( $counts['blocked'] > 0 ) ? 'bad' : ( ( $counts['review'] > 0 ) ? 'warn' : 'ok' );
+				?>
+				<li class="wvc-area wvc-area--<?php echo esc_attr( $tone ); ?>">
+					<div class="wvc-area__head">
+						<span class="wvc-area__icon" aria-hidden="true">
+							<?php echo self::get_icon( $area['icon'], array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						</span>
+						<h4 class="wvc-area__title">
+							<a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $area['label'] ); ?></a>
+						</h4>
+						<span class="wvc-area__total">
+							<?php
+							printf(
+								/* translators: %s: Number of items. */
+								esc_html( _n( '%s item', '%s items', (int) $counts['total'], 'wp-vip-compatibility' ) ),
+								esc_html( number_format_i18n( (int) $counts['total'] ) )
+							);
+							?>
+						</span>
+					</div>
+
+					<?php echo self::get_meter( $counts ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
+					<?php echo self::get_meter_legend( $counts, $url ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
+
+					<p class="wvc-area__verdict">
+						<?php if ( $attention > 0 ) : ?>
+							<a class="wvc-link" href="<?php echo esc_url( $url ); ?>">
+								<?php
+								printf(
+									/* translators: %s: Number of items. */
+									esc_html( _n( 'Work through %s item', 'Work through %s items', $attention, 'wp-vip-compatibility' ) ),
+									esc_html( number_format_i18n( $attention ) )
+								);
+								?>
+								<?php echo self::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+							</a>
+						<?php else : ?>
+							<span class="wvc-area__clear">
+								<?php echo self::get_icon( 'check', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+								<?php esc_html_e( 'Nothing outstanding', 'wp-vip-compatibility' ); ?>
+							</span>
+						<?php endif; ?>
+					</p>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+		<?php
+	}
+
+	/* ---------------------------------------------------------------------
+	 * Toolbar and tables
+	 * ------------------------------------------------------------------ */
 
 	/**
 	 * Renders a table toolbar: filter groups, search and a live result count.
 	 *
 	 * Filter groups are declared rather than hard-coded, and their counts are
-	 * derived by the browser from the rows themselves. That is deliberate: the
-	 * screens used to print a stats strip, a chart legend and a filter tab with
-	 * the same three numbers, which then disagreed with each other whenever an
-	 * asynchronous scan was still running.
+	 * derived by the browser from the rows themselves — so a count in a filter
+	 * always agrees with the rows behind it, including while an async scan is
+	 * still resolving verdicts.
 	 *
 	 * @param array $args {
 	 *     Optional. Toolbar arguments.
 	 *
 	 *     @type array  $groups        Filter groups: `name`, `label`, `active` and `options`.
 	 *     @type string $search_label  Accessible label for the search field.
-	 *     @type string $scope         Selector-free identifier tying the toolbar to its table.
+	 *     @type string $placeholder   Search placeholder.
 	 *     @type bool   $show_search   Whether to render the search field.
 	 *     @type bool   $show_progress Whether to render the scan progress bar.
 	 * }
@@ -593,56 +1051,62 @@ class UI {
 			array(
 				'groups'        => array(),
 				'search_label'  => __( 'Search results', 'wp-vip-compatibility' ),
+				'placeholder'   => __( 'Search…', 'wp-vip-compatibility' ),
 				'show_search'   => true,
 				'show_progress' => false,
 			)
 		);
 
-		$search_id = 'wvc-search-' . wp_rand( 1000, 9999 );
+		++self::$sequence;
+		$search_id = 'wvc-search-' . self::$sequence;
 		?>
 		<div class="wvc-toolbar">
-			<?php foreach ( $args['groups'] as $group ) : ?>
-				<div
-					class="wvc-segmented"
-					role="group"
-					data-filter-group="<?php echo esc_attr( $group['name'] ); ?>"
-					aria-label="<?php echo esc_attr( $group['label'] ); ?>"
-				>
-					<?php foreach ( $group['options'] as $option ) : ?>
-						<?php $is_active = ( ( $group['active'] ?? 'all' ) === $option['value'] ); ?>
-						<button
-							type="button"
-							class="<?php echo $is_active ? 'active' : ''; ?>"
-							data-filter-value="<?php echo esc_attr( $option['value'] ); ?>"
-							aria-pressed="<?php echo $is_active ? 'true' : 'false'; ?>"
-						>
-							<?php if ( ! empty( $option['dot'] ) ) : ?>
-								<span class="wvc-dot wvc-dot--<?php echo esc_attr( $option['dot'] ); ?>" aria-hidden="true"></span>
-							<?php endif; ?>
-							<span><?php echo esc_html( $option['label'] ); ?></span>
-							<span class="wvc-segmented__count" data-count="<?php echo esc_attr( $option['value'] ); ?>"></span>
-						</button>
-					<?php endforeach; ?>
-				</div>
-			<?php endforeach; ?>
+			<div class="wvc-toolbar__filters">
+				<?php foreach ( $args['groups'] as $group ) : ?>
+					<div
+						class="wvc-segmented"
+						role="group"
+						data-filter-group="<?php echo esc_attr( $group['name'] ); ?>"
+						aria-label="<?php echo esc_attr( $group['label'] ); ?>"
+					>
+						<?php foreach ( $group['options'] as $option ) : ?>
+							<?php $is_active = ( ( $group['active'] ?? 'all' ) === $option['value'] ); ?>
+							<button
+								type="button"
+								class="<?php echo $is_active ? 'active' : ''; ?>"
+								data-filter-value="<?php echo esc_attr( $option['value'] ); ?>"
+								aria-pressed="<?php echo $is_active ? 'true' : 'false'; ?>"
+							>
+								<?php if ( ! empty( $option['dot'] ) ) : ?>
+									<span class="wvc-dot wvc-dot--<?php echo esc_attr( $option['dot'] ); ?>" aria-hidden="true"></span>
+								<?php endif; ?>
+								<span><?php echo esc_html( $option['label'] ); ?></span>
+								<span class="wvc-segmented__count" data-count="<?php echo esc_attr( $option['value'] ); ?>"></span>
+							</button>
+						<?php endforeach; ?>
+					</div>
+				<?php endforeach; ?>
+			</div>
 
-			<?php if ( $args['show_search'] ) : ?>
-				<div class="wvc-search">
-					<?php echo self::get_icon( 'search', array( 'class' => 'wvc-icon wvc-icon--sm wvc-search__icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-					<label class="screen-reader-text" for="<?php echo esc_attr( $search_id ); ?>"><?php echo esc_html( $args['search_label'] ); ?></label>
-					<input
-						type="search"
-						id="<?php echo esc_attr( $search_id ); ?>"
-						class="wvc-search__input"
-						data-role="table-search"
-						placeholder="<?php esc_attr_e( 'Search…', 'wp-vip-compatibility' ); ?>"
-						autocomplete="off"
-						spellcheck="false"
-					/>
-				</div>
-			<?php endif; ?>
+			<div class="wvc-toolbar__tools">
+				<?php if ( $args['show_search'] ) : ?>
+					<div class="wvc-search">
+						<?php echo self::get_icon( 'search', array( 'class' => 'wvc-icon wvc-icon--sm wvc-search__icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<label class="screen-reader-text" for="<?php echo esc_attr( $search_id ); ?>"><?php echo esc_html( $args['search_label'] ); ?></label>
+						<input
+							type="search"
+							id="<?php echo esc_attr( $search_id ); ?>"
+							class="wvc-search__input"
+							data-role="table-search"
+							placeholder="<?php echo esc_attr( $args['placeholder'] ); ?>"
+							autocomplete="off"
+							spellcheck="false"
+						/>
+					</div>
+				<?php endif; ?>
 
-			<p class="wvc-result-count" data-role="result-count" role="status" aria-live="polite"></p>
+				<p class="wvc-result-count" data-role="result-count" role="status" aria-live="polite"></p>
+			</div>
 		</div>
 
 		<?php if ( $args['show_progress'] ) : ?>
@@ -663,7 +1127,7 @@ class UI {
 	 * Renders a table head from a column definition list.
 	 *
 	 * @param array $columns List of columns. Each column accepts `label`, `class`,
-	 *                       `sortable` and `sort` (text|number) keys.
+	 *                       `sortable`, `sort` (text|number) and `hint` keys.
 	 * @return void
 	 */
 	public static function render_table_head( $columns ) {
@@ -683,13 +1147,16 @@ class UI {
 			}
 
 			printf(
-				'<th scope="col" class="%1$s"%2$s%3$s>',
+				'<th scope="col" class="%1$s"%2$s%3$s%4$s>',
 				esc_attr( implode( ' ', $classes ) ),
 				$sortable ? ' aria-sort="none"' : '',
-				$sortable ? ' data-sort-type="' . esc_attr( $column['sort'] ?? 'text' ) . '" data-sort-index="' . esc_attr( (string) $index ) . '"' : ''
+				$sortable ? ' data-sort-type="' . esc_attr( $column['sort'] ?? 'text' ) . '" data-sort-index="' . esc_attr( (string) $index ) . '"' : '',
+				empty( $column['hint'] ) ? '' : ' title="' . esc_attr( $column['hint'] ) . '"'
 			);
 
-			if ( $sortable ) {
+			if ( '' === ( $column['label'] ?? '' ) ) {
+				echo '<span class="screen-reader-text">' . esc_html__( 'Details', 'wp-vip-compatibility' ) . '</span>';
+			} elseif ( $sortable ) {
 				printf(
 					'<button type="button" class="wvc-th__sort"><span>%1$s</span>%2$s</button>',
 					esc_html( $column['label'] ),
@@ -706,6 +1173,38 @@ class UI {
 	}
 
 	/**
+	 * Returns the next unique disclosure id.
+	 *
+	 * @param string $prefix An identifier prefix.
+	 * @return string The id.
+	 */
+	public static function next_id( $prefix = 'wvc' ) {
+		++self::$sequence;
+
+		return $prefix . '-' . self::$sequence;
+	}
+
+	/**
+	 * Builds the cell holding a row's expand control.
+	 *
+	 * @param string $target_id The id of the detail row it controls.
+	 * @param string $label     Accessible label.
+	 * @return string The cell markup.
+	 */
+	public static function get_row_toggle( $target_id, $label ) {
+		return sprintf(
+			'<td class="wvc-col-toggle"><button type="button" class="wvc-rowtoggle" data-role="row-toggle" aria-expanded="false" aria-controls="%1$s"><span class="screen-reader-text">%2$s</span>%3$s</button></td>',
+			esc_attr( $target_id ),
+			esc_html( $label ),
+			self::get_icon( 'chevron', array( 'class' => 'wvc-icon wvc-icon--xs' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+		);
+	}
+
+	/* ---------------------------------------------------------------------
+	 * Status vocabulary
+	 * ------------------------------------------------------------------ */
+
+	/**
 	 * Builds a status pill.
 	 *
 	 * @param string $state One of `compatible`, `review`, `not-compatible`, `pending`.
@@ -715,7 +1214,7 @@ class UI {
 	public static function get_status_pill( $state, $label ) {
 		if ( 'pending' === $state ) {
 			return sprintf(
-				'<span class="wvc-status wvc-status--pending"><span class="wvc-spinner wvc-spinner--xs" aria-hidden="true"></span>%s</span>',
+				'<span class="wvc-status wvc-status--pending"><span class="wvc-spinner wvc-spinner--xs" aria-hidden="true"></span><span>%s</span></span>',
 				esc_html( $label )
 			);
 		}
@@ -733,7 +1232,7 @@ class UI {
 		);
 
 		return sprintf(
-			'<span class="wvc-status wvc-status--%1$s">%2$s%3$s</span>',
+			'<span class="wvc-status wvc-status--%1$s">%2$s<span>%3$s</span></span>',
 			esc_attr( $modifiers[ $state ] ?? 'warn' ),
 			self::get_icon( $icons[ $state ] ?? 'info', array( 'class' => 'wvc-icon wvc-icon--xs' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
 			esc_html( $label )
@@ -767,19 +1266,62 @@ class UI {
 	/**
 	 * Builds the verdict cell for a scanned target.
 	 *
-	 * @param array<string, mixed> $verdict A verdict from Report::verdict().
+	 * @param array<string, mixed> $verdict    A verdict from Report::verdict().
 	 * @param string               $target_key The target key, for the async scanner.
 	 * @return string The cell markup.
 	 */
 	public static function get_verdict_cell( array $verdict, $target_key ) {
-		$label = $verdict['label'];
+		return self::get_status_cell( $verdict['state'], $verdict['label'], array( 'data-target' => $target_key ) );
+	}
 
-		if ( 'pending' !== $verdict['state'] && $verdict['total'] > 0 ) {
-			/* translators: 1: Verdict label. 2: Number of findings. */
-			$label = sprintf( __( '%1$s (%2$d)', 'wp-vip-compatibility' ), $label, $verdict['total'] );
+	/**
+	 * Builds the severity breakdown shown next to a verdict.
+	 *
+	 * The tier dots are the same vocabulary as the findings report, so a row can
+	 * be read as "two blocking, five important" without opening anything.
+	 *
+	 * @param array<string, int> $by_severity Counts keyed by severity.
+	 * @param string             $target_key  Optional target key, to link each tier.
+	 * @return string The markup, or an empty string when there is nothing to show.
+	 */
+	public static function get_severity_bar( array $by_severity, $target_key = '' ) {
+		$parts = '';
+
+		foreach ( self::get_tiers() as $tier => $definition ) {
+			$count = 0;
+
+			foreach ( $definition['severities'] as $severity ) {
+				$count += (int) ( $by_severity[ $severity ] ?? 0 );
+			}
+
+			if ( 0 === $count ) {
+				continue;
+			}
+
+			$body = sprintf(
+				'<span class="wvc-tierdot wvc-tierdot--%1$s" aria-hidden="true"></span>%2$s',
+				esc_attr( $tier ),
+				esc_html( number_format_i18n( $count ) )
+			);
+
+			$title = sprintf(
+				/* translators: 1: Number of findings. 2: Tier label, e.g. "blocking". */
+				_n( '%1$s %2$s finding', '%1$s %2$s findings', $count, 'wp-vip-compatibility' ),
+				number_format_i18n( $count ),
+				strtolower( self::get_tier_label( $tier ) )
+			);
+
+			$parts .= ( '' === $target_key )
+				? sprintf( '<span class="wvc-sev" title="%1$s">%2$s</span>', esc_attr( $title ), $body )
+				: sprintf(
+					'<a class="wvc-sev" href="%1$s" title="%2$s">%3$s</a>',
+					esc_url( self::get_findings_url( $target_key, $tier ) ),
+					esc_attr( $title ),
+					$body
+				);
 		}
 
-		return self::get_status_cell( $verdict['state'], $label, array( 'data-target' => $target_key ) );
+		return ( '' === $parts ) ? '' : '<span class="wvc-sevbar">' . $parts . '</span>';
 	}
 
 	/**
@@ -878,6 +1420,27 @@ class UI {
 	}
 
 	/**
+	 * Builds a plain badge.
+	 *
+	 * @param string $label The label.
+	 * @param string $tone  One of `neutral`, `ok`, `warn`, `bad`, `accent`.
+	 * @param string $title Optional tooltip.
+	 * @return string The badge markup.
+	 */
+	public static function get_badge( $label, $tone = 'neutral', $title = '' ) {
+		return sprintf(
+			'<span class="wvc-badge wvc-badge--%1$s"%3$s>%2$s</span>',
+			esc_attr( $tone ),
+			esc_html( $label ),
+			'' === $title ? '' : ' title="' . esc_attr( $title ) . '"'
+		);
+	}
+
+	/* ---------------------------------------------------------------------
+	 * Findings
+	 * ------------------------------------------------------------------ */
+
+	/**
 	 * Renders one rule's findings as a single expandable card.
 	 *
 	 * A rule that fires twenty times in a plugin is one decision with twenty
@@ -926,6 +1489,7 @@ class UI {
 				<span class="wvc-finding__pills">
 					<?php echo self::get_type_pill( $group['type'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
 					<span class="screen-reader-text"><?php echo esc_html( self::get_tier_label( $tier ) ); ?></span>
+					<?php echo self::get_icon( 'chevron-down', array( 'class' => 'wvc-icon wvc-icon--xs wvc-finding__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 				</span>
 			</summary>
 
@@ -1058,19 +1622,25 @@ class UI {
 		<?php
 	}
 
+	/* ---------------------------------------------------------------------
+	 * Snippets, notices and empty states
+	 * ------------------------------------------------------------------ */
+
 	/**
 	 * Builds a copyable code snippet.
 	 *
-	 * @param string $code The snippet contents.
+	 * @param string $code  The snippet contents.
+	 * @param bool   $block Whether to render it as a block rather than inline.
 	 * @return string The snippet markup.
 	 */
-	public static function get_code_snippet( $code ) {
+	public static function get_code_snippet( $code, $block = false ) {
 		return sprintf(
-			'<span class="wvc-snippet"><code>%1$s</code><button type="button" class="wvc-snippet__copy" data-role="copy" data-clipboard="%2$s" aria-label="%3$s" title="%3$s">%4$s</button></span>',
+			'<span class="wvc-snippet%5$s"><code>%1$s</code><button type="button" class="wvc-snippet__copy" data-role="copy" data-clipboard="%2$s" aria-label="%3$s" title="%3$s">%4$s</button></span>',
 			esc_html( $code ),
 			esc_attr( $code ),
 			esc_attr__( 'Copy to clipboard', 'wp-vip-compatibility' ),
-			self::get_icon( 'copy', array( 'class' => 'wvc-icon wvc-icon--xs' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+			self::get_icon( 'copy', array( 'class' => 'wvc-icon wvc-icon--xs' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+			$block ? ' wvc-snippet--block' : ''
 		);
 	}
 
@@ -1078,7 +1648,7 @@ class UI {
 	 * Renders an inline notice.
 	 *
 	 * @param string $message Notice body (may contain limited HTML).
-	 * @param string $type    One of `info`, `success`, `warning`.
+	 * @param string $type    One of `info`, `success`, `warning`, `error`.
 	 * @param string $title   Optional bold lead-in.
 	 * @return string The notice markup.
 	 */
@@ -1087,6 +1657,7 @@ class UI {
 			'info'    => 'info',
 			'success' => 'check',
 			'warning' => 'alert',
+			'error'   => 'alert',
 		);
 
 		return sprintf(
@@ -1112,10 +1683,11 @@ class UI {
 	 */
 	public static function get_guidance( $message, $title ) {
 		return sprintf(
-			'<details class="wvc-notice wvc-notice--info wvc-notice--collapsible"><summary class="wvc-notice__summary">%1$s<span class="wvc-notice__title">%2$s</span></summary><div class="wvc-notice__body">%3$s</div></details>',
-			self::get_icon( 'info', array( 'class' => 'wvc-icon wvc-icon--sm wvc-notice__icon' ) ),
+			'<details class="wvc-guidance"><summary class="wvc-guidance__summary">%1$s<span class="wvc-guidance__title">%2$s</span>%4$s</summary><div class="wvc-guidance__body">%3$s</div></details>',
+			self::get_icon( 'book', array( 'class' => 'wvc-icon wvc-icon--sm wvc-guidance__icon' ) ),
 			esc_html( $title ),
-			wp_kses_post( $message )
+			wp_kses_post( $message ),
+			self::get_icon( 'chevron-down', array( 'class' => 'wvc-icon wvc-icon--xs wvc-guidance__caret' ) )
 		);
 	}
 
@@ -1139,7 +1711,7 @@ class UI {
 			<?php endif; ?>
 			<?php if ( ! empty( $action ) ) : ?>
 				<p class="wvc-empty__action">
-					<?php echo self::get_action_button( $action ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
+					<?php echo self::get_action_button( array_merge( $action, array( 'small' => false ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
 				</p>
 			<?php endif; ?>
 		</div>
