@@ -116,7 +116,7 @@ class Findings_Settings {
 		if ( 0 === $aggregate['targets'] ) {
 			UI::render_empty_state(
 				__( 'No scan results yet', 'wp-vip-compatibility' ),
-				__( 'Run a scan to analyse every plugin, theme and must-use plugin against the VIP Platform requirements.', 'wp-vip-compatibility' ),
+				__( 'Run a scan to analyse every plugin, theme and must-use plugin against the WordPress VIP Platform requirements.', 'wp-vip-compatibility' ),
 				array(
 					'label'   => __( 'Run the first scan', 'wp-vip-compatibility' ),
 					'submit'  => 'wvc_rescan',
@@ -353,14 +353,16 @@ class Findings_Settings {
 
 		UI::render_chip_row(
 			array(
-				'label' => __( 'Filter by what to do about it', 'wp-vip-compatibility' ),
-				'chips' => $this->get_tier_chips( $filters, $scope, $other, $base ),
+				'label'   => __( 'Filter by what to do about it', 'wp-vip-compatibility' ),
+				'caption' => __( 'What to do', 'wp-vip-compatibility' ),
+				'chips'   => $this->get_tier_chips( $filters, $scope, $other, $base ),
 			)
 		);
 
 		UI::render_chip_row(
 			array(
 				'label'    => __( 'Filter by what the issue is about', 'wp-vip-compatibility' ),
+				'caption'  => __( 'Area', 'wp-vip-compatibility' ),
 				'chips'    => $this->get_category_chips( $filters, $tier_scoped, $base ),
 				'modifier' => 'wvc-chiprow--secondary',
 			)
@@ -412,6 +414,7 @@ class Findings_Settings {
 				'count'  => $total,
 				'active' => ( '' === $filters['tier'] ),
 				'empty'  => ( 0 === $total ),
+				'reset'  => true,
 			),
 		);
 
@@ -471,6 +474,7 @@ class Findings_Settings {
 				'label'  => __( 'All areas', 'wp-vip-compatibility' ),
 				'url'    => add_query_arg( $this->query_args( $filters, 'category' ), $base ),
 				'active' => ( '' === $filters['category'] ),
+				'reset'  => true,
 			),
 		);
 
@@ -566,6 +570,21 @@ class Findings_Settings {
 						</li>
 					<?php endforeach; ?>
 				</ul>
+			<?php endif; ?>
+
+			<?php
+			/*
+			 * One control that undoes everything. The chips each toggle
+			 * themselves off and every pill has its own cross, but a reader four
+			 * filters deep had to find and click four separate things to get
+			 * back to the whole list.
+			 */
+			$narrowed = ( '' !== $filters['tier'] ) || ( '' !== $filters['category'] ) || ! empty( $pills );
+			?>
+			<?php if ( $narrowed ) : ?>
+				<a class="wvc-listbar__clear" href="<?php echo esc_url( $base ); ?>">
+					<?php esc_html_e( 'Clear all', 'wp-vip-compatibility' ); ?>
+				</a>
 			<?php endif; ?>
 
 			<form class="wvc-search wvc-search--form" method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>">

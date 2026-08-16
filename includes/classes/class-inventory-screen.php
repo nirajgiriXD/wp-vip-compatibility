@@ -281,7 +281,7 @@ abstract class Inventory_Screen {
 			array(
 				'label' => __( 'Blocked', 'wp-vip-compatibility' ),
 				'value' => number_format_i18n( $counts['blocked'] ),
-				'meta'  => __( 'Expected to fail on VIP', 'wp-vip-compatibility' ),
+				'meta'  => __( 'Expected to fail on WordPress VIP', 'wp-vip-compatibility' ),
 				'tone'  => $counts['blocked'] > 0 ? 'bad' : 'neutral',
 				'url'   => $counts['blocked'] > 0 ? add_query_arg( 'status', 'not-compatible', $url ) : '',
 			),
@@ -414,7 +414,7 @@ abstract class Inventory_Screen {
 
 		echo '<div class="wvc-detail">';
 
-		echo UI::get_defs( $this->get_detail_rows( $target, $verdict, $context, $entry ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_defs( $this->get_detail_rows( $target, $verdict, $context, $entry ), 'wvc-defs--boxed' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
 		$categories = array_filter( (array) ( $summary['by_category'] ?? array() ) );
 
@@ -455,7 +455,7 @@ abstract class Inventory_Screen {
 
 		if ( is_array( $verdict['known'] ) && ! empty( $verdict['known']['doc'] ) ) {
 			$actions[] = array(
-				'label'    => __( 'VIP documentation', 'wp-vip-compatibility' ),
+				'label'    => __( 'WordPress VIP documentation', 'wp-vip-compatibility' ),
 				'url'      => $verdict['known']['doc'],
 				'icon'     => 'external',
 				'external' => true,
@@ -530,7 +530,7 @@ abstract class Inventory_Screen {
 
 		if ( is_array( $verdict['known'] ) ) {
 			$rows[] = array(
-				'label' => __( 'On the VIP list', 'wp-vip-compatibility' ),
+				'label' => __( 'On the WordPress VIP list', 'wp-vip-compatibility' ),
 				'value' => $verdict['known']['label'] ?? '',
 				'hint'  => $verdict['known']['reason'] ?? ( $verdict['known']['note'] ?? '' ),
 				'tone'  => ( Known_Plugins::INCOMPATIBLE === ( $verdict['known']['classification'] ?? '' ) ) ? 'bad' : 'warn',
@@ -607,7 +607,7 @@ abstract class Inventory_Screen {
 		if ( '' !== $available ) {
 			printf(
 				'<span class="wvc-version__update" title="%1$s">%2$s</span>',
-				esc_attr__( 'An update is available. Update before you migrate, so VIP reviews the code you will actually ship.', 'wp-vip-compatibility' ),
+				esc_attr__( 'An update is available. Update before you migrate, so WordPress VIP reviews the code you will actually ship.', 'wp-vip-compatibility' ),
 				esc_html(
 					sprintf(
 						/* translators: %s: Version number. */
@@ -706,7 +706,7 @@ abstract class Inventory_Screen {
 	 * Joins a curated classification to its reason without repeating it.
 	 *
 	 * Several entries in the curated list spell the classification out again in
-	 * their reason — "Provided by the VIP platform — Provided by the VIP platform
+	 * their reason — "Provided by the WordPress VIP platform — Provided by the WordPress VIP platform
 	 * as a must-use plugin" — so the label is dropped whenever the reason already
 	 * carries it.
 	 *

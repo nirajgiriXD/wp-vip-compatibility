@@ -4,7 +4,7 @@ Analyse a WordPress site against the [WordPress VIP Platform](https://docs.wpvip
 
 ## What it does
 
-The plugin scans every plugin, theme and must-use plugin on the site and reports what has to change before the site can move to VIP — and what to change it to.
+The plugin scans every plugin, theme and must-use plugin on the site and reports what has to change before the site can move to WordPress VIP — and what to change it to.
 
 Analysis is done with the PHP tokeniser rather than by matching patterns against raw text. That distinction matters: a function name in a comment, a docblock or a string literal is not a call, `$pdo->exec()` is not a shell command, and `fopen( $path, 'r' )` is not a filesystem write. Where a value cannot be resolved statically, the finding records its confidence rather than asserting an incompatibility it cannot prove.
 
@@ -14,7 +14,7 @@ Four independent axes, because collapsing them is what makes a deprecated functi
 
 | Axis | Values |
 | --- | --- |
-| **Type** | Incompatible · Potentially incompatible · Performance · Security · Redundant on VIP · Coding standard · Recommendation · Informational |
+| **Type** | Incompatible · Potentially incompatible · Performance · Security · Redundant on WordPress VIP · Coding standard · Recommendation · Informational |
 | **Severity** | Critical · High · Medium · Low · Info |
 | **Confidence** | Definitive · High · Medium · Low |
 | **Fixability** | Automatic · Manual · Configuration · Architectural |
@@ -26,7 +26,7 @@ A target ends up in one of three states: **ready**, **needs review** (work to do
 ## What every finding tells you
 
 - The issue title and what was detected
-- Why it matters **on VIP specifically**, not as generic WordPress advice
+- Why it matters **on WordPress VIP specifically**, not as generic WordPress advice
 - File, line and enclosing function, with the line of code as evidence
 - The recommended fix, and an alternative approach where one exists
 - The matching `WordPress-VIP-Go` PHPCS sniff, where there is one
@@ -36,7 +36,7 @@ A target ends up in one of three states: **ready**, **needs review** (work to do
 
 | Area | Examples |
 | --- | --- |
-| **Filesystem and media** | Writes outside `/tmp/` and uploads, directory traversal over the VIP File System object store, hard-coded upload paths, generated PHP/CSS/JS, `.htaccess` and Apache assumptions, local image processing |
+| **Filesystem and media** | Writes outside `/tmp/` and uploads, directory traversal over the WordPress VIP File System object store, hard-coded upload paths, generated PHP/CSS/JS, `.htaccess` and Apache assumptions, local image processing |
 | **Database** | Storage engine, collation and prefix, unprepared SQL, uncached queries, unbounded result sets, runtime schema changes |
 | **Caching** | Cache-busting headers, full object-cache flushes, custom caching layers |
 | **Cron** | WP-Cron constants and manual invocation that conflict with Cron Control |
@@ -45,7 +45,7 @@ A target ends up in one of three states: **ready**, **needs review** (work to do
 | **Environment** | PHP sessions, runtime `ini_set()`, server-layout assumptions, redefined core constants |
 | **Platform overlap** | Plugins WordPress VIP documents as incompatible, plugins needing testing, plugins duplicating platform capabilities |
 
-`wp-content` and the database schema are audited separately against the VIP application structure and the VIP collation and engine requirements.
+`wp-content` and the database schema are audited separately against the WordPress VIP application structure and the WordPress VIP collation and engine requirements.
 
 ## Screens
 
@@ -57,7 +57,7 @@ Navigation is the WordPress admin menu itself. The menu carries a count of what 
 - **Themes** — the active theme in detail, plus every other theme that still ships in the repository.
 - **Must-use** — everything in `wp-content/mu-plugins`, separated into what to relocate and what to drop.
 - **Database** — the schema's shape, the work grouped by requirement with copyable SQL, and every table's engine, collation, rows, size and owner.
-- **wp-content** — every entry measured against the VIP application structure.
+- **wp-content** — every entry measured against the WordPress VIP application structure.
 
 ## Export
 
@@ -124,4 +124,4 @@ WordPress 6.0+, PHP 7.4+.
 
 ## Limitations
 
-This reads code without running it. It cannot see behaviour that only appears under real traffic, real data, or a real VIP environment, and it does not replace VIP code review. Treat it as the thing that tells you where to look.
+This reads code without running it. It cannot see behaviour that only appears under real traffic, real data, or a real WordPress VIP environment, and it does not replace WordPress VIP code review. Treat it as the thing that tells you where to look.

@@ -6,7 +6,7 @@
  * that way: the active theme gets a panel of its own with everything a migration
  * needs to know about it, and every installed theme — including that one — stays
  * in the table below, because inactive themes still ship in the repository and
- * are still read by VIP's code review.
+ * are still read by WordPress VIP's code review.
  *
  * @package wp-vip-compatibility
  */
@@ -19,7 +19,7 @@ use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Lists every installed theme with its VIP verdict.
+ * Lists every installed theme with its WordPress VIP verdict.
  */
 class Themes_Settings extends Inventory_Screen {
 
@@ -60,7 +60,7 @@ class Themes_Settings extends Inventory_Screen {
 	protected function get_empty_state() {
 		return array(
 			__( 'No themes are installed', 'wp-vip-compatibility' ),
-			__( 'There is nothing here to check against the VIP Platform.', 'wp-vip-compatibility' ),
+			__( 'There is nothing here to check against the WordPress VIP Platform.', 'wp-vip-compatibility' ),
 		);
 	}
 
@@ -71,9 +71,9 @@ class Themes_Settings extends Inventory_Screen {
 	 */
 	protected function get_guidance_notes() {
 		return array(
-			__( '<strong>Inactive themes.</strong> They are still committed to the VIP repository and still scanned by the Code Analysis Bot. Unless a theme is a live parent or a planned redesign, leaving it out of the repository removes its findings entirely.', 'wp-vip-compatibility' ),
+			__( '<strong>Inactive themes.</strong> They are still committed to the WordPress VIP repository and still scanned by the Code Analysis Bot. Unless a theme is a live parent or a planned redesign, leaving it out of the repository removes its findings entirely.', 'wp-vip-compatibility' ),
 			__( '<strong>Parent themes.</strong> A child theme is only as portable as the parent it inherits from, so a parent is listed and scanned in its own right even when it is never activated directly.', 'wp-vip-compatibility' ),
-			__( '<strong>Themes are where most filesystem findings come from.</strong> Writing generated CSS, caching markup to disk or resizing images at request time all work locally and none of them work on VIP.', 'wp-vip-compatibility' ),
+			__( '<strong>Themes are where most filesystem findings come from.</strong> Writing generated CSS, caching markup to disk or resizing images at request time all work locally and none of them work on WordPress VIP.', 'wp-vip-compatibility' ),
 		);
 	}
 
@@ -99,7 +99,7 @@ class Themes_Settings extends Inventory_Screen {
 				'sortable' => true,
 			),
 			array(
-				'label'    => __( 'VIP verdict', 'wp-vip-compatibility' ),
+				'label'    => __( 'WordPress VIP verdict', 'wp-vip-compatibility' ),
 				'class'    => 'wvc-col-status',
 				'sortable' => true,
 			),
@@ -287,7 +287,7 @@ class Themes_Settings extends Inventory_Screen {
 		$labels = array(
 			'active'   => array( __( 'Active', 'wp-vip-compatibility' ), 'accent', __( 'The site renders through this theme.', 'wp-vip-compatibility' ) ),
 			'parent'   => array( __( 'Parent', 'wp-vip-compatibility' ), 'accent', __( 'The active theme inherits from this one.', 'wp-vip-compatibility' ) ),
-			'inactive' => array( __( 'Inactive', 'wp-vip-compatibility' ), 'neutral', __( 'Not in use, but still committed to the repository and still reviewed by VIP.', 'wp-vip-compatibility' ) ),
+			'inactive' => array( __( 'Inactive', 'wp-vip-compatibility' ), 'neutral', __( 'Not in use, but still committed to the repository and still reviewed by WordPress VIP.', 'wp-vip-compatibility' ) ),
 		);
 
 		echo '<td class="wvc-col-state" data-label="' . esc_attr__( 'Role', 'wp-vip-compatibility' ) . '">';

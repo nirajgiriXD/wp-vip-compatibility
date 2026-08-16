@@ -3,7 +3,7 @@
  * Context-aware guards for the rule set.
  *
  * A guard is the difference between "this file calls file_put_contents" and
- * "this file writes to a path that cannot exist on VIP". Rules describe what to
+ * "this file writes to a path that cannot exist on WordPress VIP". Rules describe what to
  * look for; guards decide whether a particular occurrence is actually a
  * problem, and how confident the report should sound about it.
  *
@@ -45,7 +45,7 @@ class Guards {
 	private static $destination_second = array( 'rename', 'copy', 'move_uploaded_file', 'symlink', 'link' );
 
 	/**
-	 * Expressions that resolve to a path VIP allows writes to.
+	 * Expressions that resolve to a path WordPress VIP allows writes to.
 	 *
 	 * @var string[]
 	 */
@@ -64,7 +64,7 @@ class Guards {
 	);
 
 	/**
-	 * Expressions that resolve to a path VIP does not allow writes to.
+	 * Expressions that resolve to a path WordPress VIP does not allow writes to.
 	 *
 	 * @var string[]
 	 */
@@ -133,7 +133,7 @@ class Guards {
 	public static function fopen_writes_outside_writable( $occurrence ) {
 		$mode = self::literal( $occurrence['args'][1] ?? '' );
 
-		// A read-only handle is perfectly fine on the VIP filesystem.
+		// A read-only handle is perfectly fine on the WordPress VIP filesystem.
 		if ( null !== $mode && ! preg_match( '/[waxc+]/i', $mode ) ) {
 			return false;
 		}
@@ -155,7 +155,7 @@ class Guards {
 	/**
 	 * Reports directory traversal aimed at the uploads directory.
 	 *
-	 * Listing a plugin's own directory is fine on VIP: application files are
+	 * Listing a plugin's own directory is fine on WordPress VIP: application files are
 	 * present and readable, they are just not writable. Only the uploads object
 	 * store lacks a real directory tree, so only that case is reported.
 	 *
@@ -172,11 +172,11 @@ class Guards {
 		if ( self::mentions( $target, self::$writable_markers ) || false !== stripos( $target, 'uploads' ) ) {
 			return array(
 				'confidence' => Taxonomy::CONFIDENCE_HIGH,
-				'note'       => __( 'The traversal target resolves to the uploads directory, which has no real directory structure on VIP.', 'wp-vip-compatibility' ),
+				'note'       => __( 'The traversal target resolves to the uploads directory, which has no real directory structure on WordPress VIP.', 'wp-vip-compatibility' ),
 			);
 		}
 
-		// A path anchored to the application directory lists normally on VIP.
+		// A path anchored to the application directory lists normally on WordPress VIP.
 		if ( self::mentions( $target, self::$unwritable_markers ) ) {
 			return false;
 		}
@@ -467,7 +467,7 @@ class Guards {
 		return array(
 			'severity'   => Taxonomy::SEVERITY_LOW,
 			'confidence' => Taxonomy::CONFIDENCE_LOW,
-			'note'       => __( 'A cache header is set by hand. Confirm the value matches what the VIP edge cache should do with this response.', 'wp-vip-compatibility' ),
+			'note'       => __( 'A cache header is set by hand. Confirm the value matches what the WordPress VIP edge cache should do with this response.', 'wp-vip-compatibility' ),
 		);
 	}
 
@@ -617,7 +617,7 @@ class Guards {
 	}
 
 	/**
-	 * Classifies a write target expression against the VIP writable paths.
+	 * Classifies a write target expression against the WordPress VIP writable paths.
 	 *
 	 * @param string $target The raw argument source.
 	 * @return bool|array<string, mixed> False when the target is writable, or reporting overrides.
@@ -648,7 +648,7 @@ class Guards {
 		if ( self::mentions( $target, self::$unwritable_markers ) ) {
 			return array(
 				'confidence' => Taxonomy::CONFIDENCE_HIGH,
-				'note'       => __( 'The path is built from the application directory, which is read-only on VIP.', 'wp-vip-compatibility' ),
+				'note'       => __( 'The path is built from the application directory, which is read-only on WordPress VIP.', 'wp-vip-compatibility' ),
 			);
 		}
 

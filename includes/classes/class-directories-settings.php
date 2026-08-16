@@ -2,11 +2,11 @@
 /**
  * The wp-content layout screen.
  *
- * VIP's application structure is narrower than a standard WordPress install:
+ * WordPress VIP's application structure is narrower than a standard WordPress install:
  * plugins, themes and client-mu-plugins are committed, uploads is imported
  * separately, and nothing else has a home. The point of this screen is to make
- * clear which of those three an entry falls into — because "not part of the VIP
- * structure" and "incompatible with VIP" are different things, and treating them
+ * clear which of those three an entry falls into — because "not part of the WordPress VIP
+ * structure" and "incompatible with WordPress VIP" are different things, and treating them
  * the same is what made this audit misleading before.
  *
  * @package wp-vip-compatibility
@@ -62,7 +62,7 @@ class Directories_Settings {
 				array(
 					'label' => __( 'Remove or relocate', 'wp-vip-compatibility' ),
 					'value' => number_format_i18n( (int) $summary['unsupported'] ),
-					'meta'  => __( 'Conflicts with the VIP structure', 'wp-vip-compatibility' ),
+					'meta'  => __( 'Conflicts with the WordPress VIP structure', 'wp-vip-compatibility' ),
 					'tone'  => $summary['unsupported'] > 0 ? 'bad' : 'ok',
 					'url'   => $summary['unsupported'] > 0
 						? UI::get_screen_url( 'directories', array( 'status' => 'not-compatible' ) )
@@ -80,7 +80,7 @@ class Directories_Settings {
 				array(
 					'label' => __( 'Part of the structure', 'wp-vip-compatibility' ),
 					'value' => number_format_i18n( (int) $summary['supported'] ),
-					'meta'  => __( 'Committed to the VIP repository', 'wp-vip-compatibility' ),
+					'meta'  => __( 'Committed to the WordPress VIP repository', 'wp-vip-compatibility' ),
 					'tone'  => 'ok',
 				),
 				array(
@@ -100,8 +100,8 @@ class Directories_Settings {
 	 */
 	private function render_guidance() {
 		$notes = array(
-			__( '<strong>"Not deployed" is not a problem.</strong> It marks what WordPress or the local environment maintains — <code>uploads/</code> above all, which is the one path under wp-content that application code may write to on VIP. It is imported with the VIP CLI rather than committed.', 'wp-vip-compatibility' ),
-			__( '<strong>"Remove or relocate" is.</strong> Those entries either conflict with the VIP application structure or duplicate a drop-in the platform installs itself, where a shipped copy is at best ignored and at worst fights the platform.', 'wp-vip-compatibility' ),
+			__( '<strong>"Not deployed" is not a problem.</strong> It marks what WordPress or the local environment maintains — <code>uploads/</code> above all, which is the one path under wp-content that application code may write to on WordPress VIP. It is imported with the WordPress VIP CLI rather than committed.', 'wp-vip-compatibility' ),
+			__( '<strong>"Remove or relocate" is.</strong> Those entries either conflict with the WordPress VIP application structure or duplicate a drop-in the platform installs itself, where a shipped copy is at best ignored and at worst fights the platform.', 'wp-vip-compatibility' ),
 			__( '<strong>"Needs review" means unrecognised.</strong> Work out what created it: if the codebase reads from it, move the contents into <code>uploads/</code> and update the stored paths; if nothing uses it, leave it out of the repository.', 'wp-vip-compatibility' ),
 		);
 
@@ -172,7 +172,7 @@ class Directories_Settings {
 					'sortable' => true,
 				),
 				array(
-					'label'    => __( 'VIP verdict', 'wp-vip-compatibility' ),
+					'label'    => __( 'WordPress VIP verdict', 'wp-vip-compatibility' ),
 					'class'    => 'wvc-col-status',
 					'sortable' => true,
 				),
@@ -214,7 +214,7 @@ class Directories_Settings {
 		printf( '<tr class="wvc-row" data-status="%s">', esc_attr( $state ) );
 
 		// The description was a column of its own, repeating "Directory that is
-		// not part of the VIP application structure" down the page. It belongs
+		// not part of the WordPress VIP application structure" down the page. It belongs
 		// with the path it describes.
 		echo '<td class="wvc-col-name" data-label="' . esc_attr__( 'Path', 'wp-vip-compatibility' ) . '">';
 		echo '<span class="wvc-item">';

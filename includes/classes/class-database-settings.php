@@ -2,7 +2,7 @@
 /**
  * The database screen.
  *
- * VIP states three requirements for a database it will import — the InnoDB
+ * WordPress VIP states three requirements for a database it will import — the InnoDB
  * storage engine, a supported utf8mb4 collation, and the standard wp_ prefix —
  * and every one of them is fixed by running a statement. The screen is built
  * around that: the shape of the schema first, then the work grouped by the
@@ -84,7 +84,7 @@ class Database_Settings {
 				array(
 					'label' => __( 'Needs changes', 'wp-vip-compatibility' ),
 					'value' => number_format_i18n( (int) $summary['incompatible'] ),
-					'meta'  => __( 'Tables VIP will not import as they are', 'wp-vip-compatibility' ),
+					'meta'  => __( 'Tables WordPress VIP will not import as they are', 'wp-vip-compatibility' ),
 					'tone'  => $summary['incompatible'] > 0 ? 'bad' : 'ok',
 					'url'   => $summary['incompatible'] > 0
 						? UI::get_screen_url( 'database', array( 'status' => 'not-compatible' ) )
@@ -140,7 +140,7 @@ class Database_Settings {
 		);
 
 		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-			esc_html__( 'Run these against a backup first, and convert collations before the final export rather than after the import. Table prefixes are the exception: report a non-standard prefix to VIP and only rename tables if VIP confirms it, because the prefix is also embedded in option names and user meta keys that control roles and capabilities.', 'wp-vip-compatibility' ),
+			esc_html__( 'Run these against a backup first, and convert collations before the final export rather than after the import. Table prefixes are the exception: report a non-standard prefix to WordPress VIP and only rename tables if WordPress VIP confirms it, because the prefix is also embedded in option names and user meta keys that control roles and capabilities.', 'wp-vip-compatibility' ),
 			'warning',
 			esc_html__( 'Before you run any SQL', 'wp-vip-compatibility' )
 		);
@@ -186,7 +186,7 @@ class Database_Settings {
 				<?php if ( ! empty( $group['sql'] ) ) : ?>
 					<details class="wvc-sql" id="<?php echo esc_attr( $id ); ?>">
 						<summary class="wvc-sql__summary">
-							<?php echo UI::get_icon( 'chevron', array( 'class' => 'wvc-icon wvc-icon--xs wvc-sql__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+							<?php echo UI::get_icon( 'chevron-down', array( 'class' => 'wvc-icon wvc-icon--xs wvc-sql__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 							<span>
 								<?php
 								printf(
@@ -447,7 +447,7 @@ class Database_Settings {
 					'sort'     => 'number',
 				),
 				array(
-					'label'    => __( 'VIP verdict', 'wp-vip-compatibility' ),
+					'label'    => __( 'WordPress VIP verdict', 'wp-vip-compatibility' ),
 					'class'    => 'wvc-col-status',
 					'sortable' => true,
 				),

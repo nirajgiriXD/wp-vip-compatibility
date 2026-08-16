@@ -148,8 +148,8 @@ class Settings {
 		// The overview is also the first submenu entry, so the menu never shows a
 		// duplicate of the parent under a different name.
 		add_menu_page(
-			__( 'VIP Compatibility', 'wp-vip-compatibility' ),
-			__( 'VIP Compatibility', 'wp-vip-compatibility' ) . $this->get_menu_badge(),
+			__( 'WordPress VIP Compatibility', 'wp-vip-compatibility' ),
+			__( 'WordPress VIP Compatibility', 'wp-vip-compatibility' ) . $this->get_menu_badge(),
 			'manage_options',
 			$screens['overview']['slug'],
 			fn() => $this->render_settings_page( 'overview' ),
@@ -178,7 +178,7 @@ class Settings {
 			add_submenu_page(
 				$screens['overview']['slug'],
 				/* translators: %s: Submenu title */
-				sprintf( __( 'VIP Compatibility — %s', 'wp-vip-compatibility' ), $screen['title'] ),
+				sprintf( __( 'WordPress VIP Compatibility — %s', 'wp-vip-compatibility' ), $screen['title'] ),
 				$label,
 				'manage_options',
 				$screen['slug'],

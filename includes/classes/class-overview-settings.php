@@ -82,11 +82,11 @@ class Overview_Settings {
 			array(
 				array(
 					'title' => __( 'Scan', 'wp-vip-compatibility' ),
-					'body'  => __( 'Every plugin, theme and must-use plugin is read against the VIP Platform requirements, along with the database schema and the wp-content layout. The code is read, never run, so this is safe on a live site.', 'wp-vip-compatibility' ),
+					'body'  => __( 'Every plugin, theme and must-use plugin is read against the WordPress VIP Platform requirements, along with the database schema and the wp-content layout. The code is read, never run, so this is safe on a live site.', 'wp-vip-compatibility' ),
 				),
 				array(
 					'title' => __( 'Work through the findings', 'wp-vip-compatibility' ),
-					'body'  => __( 'Findings are ranked, must-fix first. Each one names the file and line, says why it matters on VIP specifically, and gives you the change to make.', 'wp-vip-compatibility' ),
+					'body'  => __( 'Findings are ranked, must-fix first. Each one names the file and line, says why it matters on WordPress VIP specifically, and gives you the change to make.', 'wp-vip-compatibility' ),
 				),
 				array(
 					'title' => __( 'Rescan', 'wp-vip-compatibility' ),
@@ -192,7 +192,7 @@ class Overview_Settings {
 			return array(
 				'tier'     => 'ready',
 				'headline' => __( 'Nothing has been scanned yet', 'wp-vip-compatibility' ),
-				'summary'  => __( 'Run a scan to check every plugin, theme and must-use plugin against the VIP Platform requirements. It reads code without running it, so it is safe to run on a live site.', 'wp-vip-compatibility' ),
+				'summary'  => __( 'Run a scan to check every plugin, theme and must-use plugin against the WordPress VIP Platform requirements. It reads code without running it, so it is safe to run on a live site.', 'wp-vip-compatibility' ),
 				'actions'  => array(
 					array_merge(
 						$rescan,
@@ -216,8 +216,8 @@ class Overview_Settings {
 				'summary'  => sprintf(
 					/* translators: 1: Number of blocked targets. 2: Total number of targets. */
 					_n(
-						'%1$d of %2$d scanned items is expected to fail on the VIP Platform and has to be resolved first.',
-						'%1$d of %2$d scanned items are expected to fail on the VIP Platform and have to be resolved first.',
+						'%1$d of %2$d scanned items is expected to fail on the WordPress VIP Platform and has to be resolved first.',
+						'%1$d of %2$d scanned items are expected to fail on the WordPress VIP Platform and have to be resolved first.',
 						$blocked,
 						'wp-vip-compatibility'
 					),
@@ -343,7 +343,7 @@ class Overview_Settings {
 		UI::render_panel_open(
 			array(
 				'title'   => __( 'Environment', 'wp-vip-compatibility' ),
-				'summary' => __( 'What this site runs on today, measured against what it will run on at VIP. None of this is visible to a code scan.', 'wp-vip-compatibility' ),
+				'summary' => __( 'What this site runs on today, measured against what it will run on at WordPress VIP. None of this is visible to a code scan.', 'wp-vip-compatibility' ),
 			)
 		);
 
@@ -463,37 +463,64 @@ class Overview_Settings {
 	}
 
 	/**
-	 * Renders the collapsed "about" disclosure.
+	 * Renders what the plugin checks and what its answer is worth.
+	 *
+	 * This is a panel rather than the collapsed disclosure it used to be. What
+	 * the scan covers, and the fact that a clean report is not a guarantee, are
+	 * the two things that qualify every number above it — and a reader who has
+	 * to open something to find that out is a reader who never finds it.
+	 *
+	 * The five areas are a definition grid for the same reason the environment
+	 * summary is: as a bullet list they were five long sentences stacked down
+	 * the left edge of a very wide column, and as labelled pairs they lay out
+	 * across it and can be scanned for the one that matters.
 	 *
 	 * @return void
 	 */
 	private function render_about() {
 		$checks = array(
-			__( 'Filesystem and media — writes outside /tmp/ and uploads, traversal over the object store, generated PHP/CSS/JS, .htaccess assumptions and local image processing.', 'wp-vip-compatibility' ),
-			__( 'Database — storage engines, collations and prefixes, plus unprepared SQL, uncached queries, unbounded result sets and runtime schema changes.', 'wp-vip-compatibility' ),
-			__( 'Caching, cron and requests — cache-busting headers, full object-cache flushes, custom cache layers, Cron Control conflicts and uncached or untimed outbound requests.', 'wp-vip-compatibility' ),
-			__( 'Security and environment — shell execution, dynamic code, unescaped request data, PHP sessions, runtime ini changes and redefined core constants.', 'wp-vip-compatibility' ),
-			__( 'Platform overlap — plugins VIP lists as incompatible, plugins that need testing, and plugins duplicating something the platform already provides.', 'wp-vip-compatibility' ),
+			array(
+				'label' => __( 'Filesystem and media', 'wp-vip-compatibility' ),
+				'value' => __( 'Writes outside /tmp/ and uploads, traversal over the object store, generated PHP/CSS/JS, .htaccess assumptions and local image processing.', 'wp-vip-compatibility' ),
+			),
+			array(
+				'label' => __( 'Database', 'wp-vip-compatibility' ),
+				'value' => __( 'Storage engines, collations and prefixes, plus unprepared SQL, uncached queries, unbounded result sets and runtime schema changes.', 'wp-vip-compatibility' ),
+			),
+			array(
+				'label' => __( 'Caching, cron and requests', 'wp-vip-compatibility' ),
+				'value' => __( 'Cache-busting headers, full object-cache flushes, custom cache layers, Cron Control conflicts and uncached or untimed outbound requests.', 'wp-vip-compatibility' ),
+			),
+			array(
+				'label' => __( 'Security and environment', 'wp-vip-compatibility' ),
+				'value' => __( 'Shell execution, dynamic code, unescaped request data, PHP sessions, runtime ini changes and redefined core constants.', 'wp-vip-compatibility' ),
+			),
+			array(
+				'label' => __( 'Platform overlap', 'wp-vip-compatibility' ),
+				'value' => __( 'Plugins WordPress VIP lists as incompatible, plugins that need testing, and plugins duplicating something the platform already provides.', 'wp-vip-compatibility' ),
+			),
 		);
 
-		$body  = '<p>' . esc_html__( 'This plugin analyses a standard WordPress site against the requirements of the WordPress VIP Platform, so that the work needed to migrate is known before the migration starts rather than discovered during it.', 'wp-vip-compatibility' ) . '</p>';
-		$body .= '<p>' . esc_html__( 'It is a starting point, not a certificate. It reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Where static analysis cannot resolve a value, a finding records its confidence rather than asserting an incompatibility it cannot prove.', 'wp-vip-compatibility' ) . '</p>';
-		$body .= '<p>' . esc_html__( 'What gets checked:', 'wp-vip-compatibility' ) . '</p><ul>';
-
-		foreach ( $checks as $check ) {
-			$body .= '<li>' . esc_html( $check ) . '</li>';
-		}
-
-		$body .= '</ul>';
-		$body .= '<p>' . esc_html(
-			sprintf(
-				/* translators: 1: Rule set version. 2: Number of rules. */
-				__( 'Rule set %1$s — %2$d rules, each mapped to the VIP requirement it comes from.', 'wp-vip-compatibility' ),
-				Rules::VERSION,
-				count( Rules::all() )
+		UI::render_panel_open(
+			array(
+				'title'   => __( 'About this plugin and what it checks', 'wp-vip-compatibility' ),
+				'summary' => sprintf(
+					/* translators: 1: Rule set version. 2: Number of rules. */
+					__( 'Rule set %1$s — %2$d rules, each mapped to the WordPress VIP requirement it comes from.', 'wp-vip-compatibility' ),
+					Rules::VERSION,
+					count( Rules::all() )
+				),
 			)
-		) . '</p>';
+		);
 
-		echo UI::get_guidance( $body, __( 'About this plugin and what it checks', 'wp-vip-compatibility' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo '<p class="wvc-about__lead">' . esc_html__( 'This plugin analyses a standard WordPress site against the requirements of the WordPress VIP Platform, so that the work needed to migrate is known before the migration starts rather than discovered during it.', 'wp-vip-compatibility' ) . '</p>';
+		echo '<p class="wvc-about__lead">' . esc_html__( 'It is a starting point, not a certificate. It reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Where static analysis cannot resolve a value, a finding records its confidence rather than asserting an incompatibility it cannot prove.', 'wp-vip-compatibility' ) . '</p>';
+
+		echo '<div class="wvc-detail__block">';
+		echo '<h4 class="wvc-detail__title">' . esc_html__( 'What gets checked', 'wp-vip-compatibility' ) . '</h4>';
+		echo UI::get_defs( $checks, 'wvc-defs--cards' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo '</div>';
+
+		UI::render_panel_close();
 	}
 }

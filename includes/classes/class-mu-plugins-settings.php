@@ -3,9 +3,9 @@
  * The must-use plugins screen.
  *
  * This is the one inventory screen where the verdict is not really about the
- * code. VIP reserves wp-content/mu-plugins for its own platform code, so every
+ * code. WordPress VIP reserves wp-content/mu-plugins for its own platform code, so every
  * entry here needs a decision regardless of what the scanner finds in it: move
- * it to client-mu-plugins/, or drop it because VIP already provides it.
+ * it to client-mu-plugins/, or drop it because WordPress VIP already provides it.
  *
  * Loose PHP files and directories are distinguished because WordPress only
  * auto-loads files at the root of mu-plugins — a directory sitting there is
@@ -22,7 +22,7 @@ use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Lists every must-use plugin with its VIP verdict.
+ * Lists every must-use plugin with its WordPress VIP verdict.
  */
 class Mu_Plugins_Settings extends Inventory_Screen {
 
@@ -63,7 +63,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 	protected function get_empty_state() {
 		return array(
 			__( 'No must-use plugins', 'wp-vip-compatibility' ),
-			__( 'wp-content/mu-plugins is empty, which is exactly what the VIP Platform expects.', 'wp-vip-compatibility' ),
+			__( 'wp-content/mu-plugins is empty, which is exactly what the WordPress VIP Platform expects.', 'wp-vip-compatibility' ),
 		);
 	}
 
@@ -79,9 +79,9 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 			wp_kses_post(
 				sprintf(
-					/* translators: %s: Link to the VIP documentation. */
-					__( 'On the VIP Platform, <code>wp-content/mu-plugins</code> holds platform code and is overwritten on every deploy. Everything listed here belongs in <code>client-mu-plugins/</code> instead — except the plugins VIP preinstalls, which should simply be dropped. %s', 'wp-vip-compatibility' ),
-					'<a href="https://docs.wpvip.com/vip-go-mu-plugins/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'How VIP loads must-use code', 'wp-vip-compatibility' ) . '</a>'
+					/* translators: %s: Link to the WordPress VIP documentation. */
+					__( 'On the WordPress VIP Platform, <code>wp-content/mu-plugins</code> holds platform code and is overwritten on every deploy. Everything listed here belongs in <code>client-mu-plugins/</code> instead — except the plugins WordPress VIP preinstalls, which should simply be dropped. %s', 'wp-vip-compatibility' ),
+					'<a href="https://docs.wpvip.com/vip-go-mu-plugins/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'How WordPress VIP loads must-use code', 'wp-vip-compatibility' ) . '</a>'
 				)
 			),
 			'warning',
@@ -97,7 +97,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 	protected function get_guidance_notes() {
 		return array(
 			__( '<strong>Files and directories are listed separately.</strong> WordPress only auto-loads PHP files sitting at the root of mu-plugins. A directory here is either loaded by one of those files or not loaded at all — worth confirming before you move it.', 'wp-vip-compatibility' ),
-			__( '<strong>"Do not migrate" is not a code verdict.</strong> It marks entries VIP already provides, or that a previous host installed. Copying them into client-mu-plugins/ duplicates platform behaviour rather than preserving it.', 'wp-vip-compatibility' ),
+			__( '<strong>"Do not migrate" is not a code verdict.</strong> It marks entries WordPress VIP already provides, or that a previous host installed. Copying them into client-mu-plugins/ duplicates platform behaviour rather than preserving it.', 'wp-vip-compatibility' ),
 			__( '<strong>Load order changes.</strong> Files in client-mu-plugins/ load alphabetically after the platform\'s own must-use plugins, so code that assumed it ran first may need an explicit hook priority.', 'wp-vip-compatibility' ),
 		);
 	}
@@ -124,7 +124,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 				'class' => 'wvc-col-version',
 			),
 			array(
-				'label'    => __( 'VIP verdict', 'wp-vip-compatibility' ),
+				'label'    => __( 'WordPress VIP verdict', 'wp-vip-compatibility' ),
 				'class'    => 'wvc-col-status',
 				'sortable' => true,
 			),
@@ -192,7 +192,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 	 * Replaces the shared statistics with ones that fit the actual decision.
 	 *
 	 * Everything here has to move, so "ready / blocked" is the wrong split. What
-	 * matters is how much there is, how much of it VIP already provides, and how
+	 * matters is how much there is, how much of it WordPress VIP already provides, and how
 	 * much code comes with it.
 	 *
 	 * @param array<string, mixed> $context The context.
@@ -231,7 +231,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 			array(
 				'label' => __( 'Drop instead', 'wp-vip-compatibility' ),
 				'value' => number_format_i18n( $known ),
-				'meta'  => __( 'Preinstalled by VIP or left by a host', 'wp-vip-compatibility' ),
+				'meta'  => __( 'Preinstalled by WordPress VIP or left by a host', 'wp-vip-compatibility' ),
 				'tone'  => 'neutral',
 			),
 			array(
@@ -302,7 +302,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 		$parts = array(
 			is_array( $known )
 				? $this->get_known_note( $known['note'] ?? '', $known['doc'] ?? '' )
-				: esc_html__( 'Move it into client-mu-plugins/ in the VIP repository.', 'wp-vip-compatibility' ),
+				: esc_html__( 'Move it into client-mu-plugins/ in the WordPress VIP repository.', 'wp-vip-compatibility' ),
 			UI::get_findings_link( $target['key'], $verdict ),
 		);
 

@@ -2,12 +2,12 @@
 /**
  * wp-content directory audit.
  *
- * Compares what is in wp-content against the VIP application structure.
+ * Compares what is in wp-content against the WordPress VIP application structure.
  *
  * The important correction over the original implementation is that "not part
- * of the VIP repository structure" and "incompatible with VIP" are not the same
+ * of the WordPress VIP repository structure" and "incompatible with WordPress VIP" are not the same
  * thing. `uploads/` was previously reported as incompatible, which is exactly
- * backwards: it is the one directory under wp-content that VIP *does* let
+ * backwards: it is the one directory under wp-content that WordPress VIP *does* let
  * application code write to. It is simply imported separately rather than
  * committed. `upgrade/` and `index.php` were flagged the same way, and are
  * ordinary WordPress artefacts.
@@ -127,7 +127,7 @@ class Directory_Audit {
 				array(
 					'status'      => self::STATUS_UNSUPPORTED,
 					'description' => __( 'WordPress drop-in.', 'wp-vip-compatibility' ),
-					'guidance'    => __( 'VIP installs its own drop-ins. A drop-in shipped with the application either has no effect or conflicts with the platform.', 'wp-vip-compatibility' ),
+					'guidance'    => __( 'WordPress VIP installs its own drop-ins. A drop-in shipped with the application either has no effect or conflicts with the platform.', 'wp-vip-compatibility' ),
 					'doc'         => 'https://docs.wpvip.com/technical-references/wordpress-on-vip/',
 				)
 			);
@@ -137,8 +137,8 @@ class Directory_Audit {
 			$defaults,
 			array(
 				'description' => $is_dir
-					? __( 'Directory that is not part of the VIP application structure.', 'wp-vip-compatibility' )
-					: __( 'File that is not part of the VIP application structure.', 'wp-vip-compatibility' ),
+					? __( 'Directory that is not part of the WordPress VIP application structure.', 'wp-vip-compatibility' )
+					: __( 'File that is not part of the WordPress VIP application structure.', 'wp-vip-compatibility' ),
 				'guidance'    => __( 'Work out what created it. If the codebase reads from it, move the contents into uploads/ and update the stored paths; if nothing uses it, leave it out of the repository.', 'wp-vip-compatibility' ),
 				'doc'         => 'https://docs.wpvip.com/wordpress-skeleton/',
 			)

@@ -4,7 +4,7 @@
  *
  * A plugin is the unit most migration decisions are actually made about — keep
  * it, replace it, or drop it — so it gets a screen where that decision can be
- * made from one row: what it is, whether the site runs it, whether VIP has
+ * made from one row: what it is, whether the site runs it, whether WordPress VIP has
  * already ruled on it, how serious the findings are, and the one action to take.
  *
  * @package wp-vip-compatibility
@@ -18,7 +18,7 @@ use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Lists every installed plugin with its VIP verdict.
+ * Lists every installed plugin with its WordPress VIP verdict.
  */
 class Plugins_Settings extends Inventory_Screen {
 
@@ -59,7 +59,7 @@ class Plugins_Settings extends Inventory_Screen {
 	protected function get_empty_state() {
 		return array(
 			__( 'No plugins are installed', 'wp-vip-compatibility' ),
-			__( 'There is nothing here to check against the VIP Platform.', 'wp-vip-compatibility' ),
+			__( 'There is nothing here to check against the WordPress VIP Platform.', 'wp-vip-compatibility' ),
 		);
 	}
 
@@ -72,11 +72,11 @@ class Plugins_Settings extends Inventory_Screen {
 		return array(
 			sprintf(
 				/* translators: %s: Link to the findings report. */
-				__( '<strong>Verdicts.</strong> "Blocked" means at least one finding is expected to fail on VIP. "Review" means there is work to do that will not by itself stop a migration. %s for the detail behind every verdict.', 'wp-vip-compatibility' ),
+				__( '<strong>Verdicts.</strong> "Blocked" means at least one finding is expected to fail on WordPress VIP. "Review" means there is work to do that will not by itself stop a migration. %s for the detail behind every verdict.', 'wp-vip-compatibility' ),
 				'<a href="' . esc_url( UI::get_findings_url() ) . '">' . esc_html__( 'Open the findings report', 'wp-vip-compatibility' ) . '</a>'
 			),
-			__( '<strong>Inactive plugins still count.</strong> They ship in the repository and are still read by the VIP Code Analysis Bot. Removing the ones you do not use is the quickest way to shorten this list.', 'wp-vip-compatibility' ),
-			__( '<strong>Updates.</strong> An arrow next to a version means WordPress has a newer release. Update before you migrate, so VIP reviews the code you will actually ship.', 'wp-vip-compatibility' ),
+			__( '<strong>Inactive plugins still count.</strong> They ship in the repository and are still read by the WordPress VIP Code Analysis Bot. Removing the ones you do not use is the quickest way to shorten this list.', 'wp-vip-compatibility' ),
+			__( '<strong>Updates.</strong> An arrow next to a version means WordPress has a newer release. Update before you migrate, so WordPress VIP reviews the code you will actually ship.', 'wp-vip-compatibility' ),
 		);
 	}
 
@@ -102,7 +102,7 @@ class Plugins_Settings extends Inventory_Screen {
 				'sortable' => true,
 			),
 			array(
-				'label'    => __( 'VIP verdict', 'wp-vip-compatibility' ),
+				'label'    => __( 'WordPress VIP verdict', 'wp-vip-compatibility' ),
 				'class'    => 'wvc-col-status',
 				'sortable' => true,
 			),
@@ -203,7 +203,7 @@ class Plugins_Settings extends Inventory_Screen {
 			$stats[] = array(
 				'label' => __( 'Updates available', 'wp-vip-compatibility' ),
 				'value' => number_format_i18n( $updates ),
-				'meta'  => __( 'Update before VIP reviews the code', 'wp-vip-compatibility' ),
+				'meta'  => __( 'Update before WordPress VIP reviews the code', 'wp-vip-compatibility' ),
 				'tone'  => 'accent',
 				'url'   => admin_url( 'plugins.php?plugin_status=upgrade' ),
 			);
@@ -232,7 +232,7 @@ class Plugins_Settings extends Inventory_Screen {
 			$active ? 'accent' : 'neutral',
 			$active
 				? __( 'WordPress loads this plugin on every request.', 'wp-vip-compatibility' )
-				: __( 'Not loaded, but still shipped in the repository and still reviewed by VIP.', 'wp-vip-compatibility' )
+				: __( 'Not loaded, but still shipped in the repository and still reviewed by WordPress VIP.', 'wp-vip-compatibility' )
 		);
 		echo '</td>';
 

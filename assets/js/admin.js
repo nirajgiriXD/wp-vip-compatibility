@@ -166,6 +166,27 @@ jQuery(document).ready(function ($) {
 	})();
 
 	/* ---------------------------------------------------------------------
+	 * Submitting state
+	 * ------------------------------------------------------------------ */
+
+	(function submitting() {
+		/*
+		 * A full rescan is a normal form post that can take several seconds
+		 * before the browser starts painting the new page, and until now
+		 * nothing acknowledged the click — so the button looked ignored and
+		 * invited a second press.
+		 *
+		 * The busy class rather than the `disabled` attribute: disabling a
+		 * submit button during its own submit event stops some browsers from
+		 * sending it at all. The class carries a spinner and takes the button
+		 * out of the pointer's reach, which is all that is needed.
+		 */
+		$(document).on("submit", ".wvc-inline-form", function () {
+			$(this).find("button[type='submit']").addClass("is-busy");
+		});
+	})();
+
+	/* ---------------------------------------------------------------------
 	 * Clipboard
 	 * ------------------------------------------------------------------ */
 
@@ -256,8 +277,12 @@ jQuery(document).ready(function ($) {
 	 * ------------------------------------------------------------------ */
 
 	(function rows() {
-		$(document).on("click", "[data-role='row-toggle']", function () {
-			var $button = $(this);
+		/**
+		 * Opens or closes the drawer belonging to one row.
+		 *
+		 * @param {jQuery} $button The row's toggle button.
+		 */
+		function toggle($button) {
 			var $row = $button.closest("tr");
 			var $detail = $row.next(".wvc-row-detail");
 			var open = $button.attr("aria-expanded") !== "true";
@@ -273,6 +298,44 @@ jQuery(document).ready(function ($) {
 			// whatever filtering has done to the row above it, which would
 			// otherwise leave a `display: none` behind on the way back open.
 			$detail.prop("hidden", !open).toggle(open);
+		}
+
+		$(document).on("click", "[data-role='row-toggle']", function () {
+			toggle($(this));
+		});
+
+		/*
+		 * The whole row is a target too, because a 22px chevron is a small
+		 * thing to ask someone to hit for every plugin on the list.
+		 *
+		 * The button is still the control: it owns `aria-expanded` and
+		 * `aria-controls` and it is what the keyboard reaches. This is a
+		 * pointer convenience layered on top, which is why the row itself gets
+		 * no tabindex — a second tab stop onto the row would make every list
+		 * twice as long to walk through for no extra reach.
+		 *
+		 * Two things have to keep working inside a clickable row: the links in
+		 * it, and selecting text out of it.
+		 */
+		$(document).on("click", ".wvc-table--expandable tbody tr.wvc-row", function (event) {
+			// A click that landed on its own control belongs to that control.
+			// This also covers the toggle button, whose own handler already ran.
+			if ($(event.target).closest("a, button, input, select, textarea, label, summary").length) {
+				return;
+			}
+
+			// Finishing a drag-selection inside the row is not a click on it.
+			var selection = window.getSelection ? String(window.getSelection()) : "";
+
+			if (selection.length) {
+				return;
+			}
+
+			var $button = $(this).find("[data-role='row-toggle']").first();
+
+			if ($button.length) {
+				toggle($button);
+			}
 		});
 	})();
 

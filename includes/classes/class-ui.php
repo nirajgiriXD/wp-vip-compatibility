@@ -83,7 +83,7 @@ class UI {
 				'slug'        => 'wp-vip-compatibility',
 				'label'       => __( 'Overview', 'wp-vip-compatibility' ),
 				'title'       => __( 'Overview', 'wp-vip-compatibility' ),
-				'description' => __( 'How ready this site is for the VIP Platform, where the work is, and what to do first.', 'wp-vip-compatibility' ),
+				'description' => __( 'How ready this site is for the WordPress VIP Platform, where the work is, and what to do first.', 'wp-vip-compatibility' ),
 				'icon'        => 'gauge',
 				'group'       => 'summary',
 			),
@@ -99,7 +99,7 @@ class UI {
 				'slug'        => 'wvc-plugins',
 				'label'       => __( 'Plugins', 'wp-vip-compatibility' ),
 				'title'       => __( 'Plugins', 'wp-vip-compatibility' ),
-				'description' => __( 'Every installed plugin with its VIP verdict, update state and the work it implies.', 'wp-vip-compatibility' ),
+				'description' => __( 'Every installed plugin with its WordPress VIP verdict, update state and the work it implies.', 'wp-vip-compatibility' ),
 				'icon'        => 'plug',
 				'group'       => 'code',
 			),
@@ -115,7 +115,7 @@ class UI {
 				'slug'        => 'wvc-mu-plugins',
 				'label'       => __( 'Must-use', 'wp-vip-compatibility' ),
 				'title'       => __( 'Must-use plugins', 'wp-vip-compatibility' ),
-				'description' => __( 'VIP reserves wp-content/mu-plugins for platform code, so everything here needs a decision.', 'wp-vip-compatibility' ),
+				'description' => __( 'WordPress VIP reserves wp-content/mu-plugins for platform code, so everything here needs a decision.', 'wp-vip-compatibility' ),
 				'icon'        => 'bolt',
 				'group'       => 'code',
 			),
@@ -123,7 +123,7 @@ class UI {
 				'slug'        => 'wvc-database',
 				'label'       => __( 'Database', 'wp-vip-compatibility' ),
 				'title'       => __( 'Database', 'wp-vip-compatibility' ),
-				'description' => __( 'The schema measured against the storage engine, collation and prefix VIP requires on import.', 'wp-vip-compatibility' ),
+				'description' => __( 'The schema measured against the storage engine, collation and prefix WordPress VIP requires on import.', 'wp-vip-compatibility' ),
 				'icon'        => 'database',
 				'group'       => 'site',
 			),
@@ -131,7 +131,7 @@ class UI {
 				'slug'        => 'wvc-directories',
 				'label'       => __( 'wp-content', 'wp-vip-compatibility' ),
 				'title'       => __( 'wp-content layout', 'wp-vip-compatibility' ),
-				'description' => __( 'What sits in wp-content today, and how each entry maps onto the VIP application structure.', 'wp-vip-compatibility' ),
+				'description' => __( 'What sits in wp-content today, and how each entry maps onto the WordPress VIP application structure.', 'wp-vip-compatibility' ),
 				'icon'        => 'folder',
 				'group'       => 'site',
 			),
@@ -296,13 +296,7 @@ class UI {
 			'download'    => '<path d="M12 3v12"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4 19.5h16"/>',
 			'refresh'     => '<path d="M20 6v5h-5"/><path d="M4 18v-5h5"/><path d="M19.5 11a7.5 7.5 0 0 0-13-3.5L4 10"/><path d="M4.5 13a7.5 7.5 0 0 0 13 3.5L20 14"/>',
 			'book'        => '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 1 4 16.5Z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h4.5a1.5 1.5 0 0 0 1.5-1.5Z"/>',
-			'wrench'      => '<path d="M15.5 3.5a5 5 0 0 0-6 6.6L3.6 16a2 2 0 0 0 2.8 2.8l5.9-5.9a5 5 0 0 0 6.6-6l-3 3-2.8-2.8Z"/>',
 			'clock'       => '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/>',
-			'trend'       => '<path d="m4 16 5-5 3.5 3.5L20 7"/><path d="M15 7h5v5"/>',
-			'filter'      => '<path d="M3 5h18"/><path d="M6.5 12h11"/><path d="M10 19h4"/>',
-			'server'      => '<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01"/><path d="M7 16.5h.01"/>',
-			'layers'      => '<path d="m12 3 9 5-9 5-9-5Z"/><path d="m3 13 9 5 9-5"/>',
-			'sparkle'     => '<path d="M12 3v5"/><path d="M12 16v5"/><path d="M3 12h5"/><path d="M16 12h5"/><path d="m6 6 3 3"/><path d="m15 15 3 3"/><path d="m18 6-3 3"/><path d="m9 15-3 3"/>',
 		);
 
 		if ( ! isset( $paths[ $name ] ) ) {
@@ -443,7 +437,7 @@ class UI {
 
 				<a class="wvc-btn wvc-btn--ghost wvc-btn--sm" href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">
 					<?php echo self::get_icon( 'book', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-					<span><?php esc_html_e( 'VIP docs', 'wp-vip-compatibility' ); ?></span>
+					<span><?php esc_html_e( 'WordPress VIP docs', 'wp-vip-compatibility' ); ?></span>
 					<span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'wp-vip-compatibility' ); ?></span>
 				</a>
 			</div>
@@ -1157,6 +1151,7 @@ class UI {
 			$args,
 			array(
 				'label'    => '',
+				'caption'  => '',
 				'chips'    => array(),
 				'modifier' => '',
 			)
@@ -1167,6 +1162,21 @@ class UI {
 		}
 		?>
 		<div class="<?php echo esc_attr( trim( 'wvc-chiprow ' . $args['modifier'] ) ); ?>" role="group" aria-label="<?php echo esc_attr( $args['label'] ); ?>">
+			<?php if ( '' !== $args['caption'] ) : ?>
+				<?php
+				/*
+				 * The row says what it filters on, in a fixed gutter that both
+				 * rows share. Without it the two rows were an undifferentiated
+				 * field of pills, and the only way to learn that the first was
+				 * consequence and the second was subject was to click one.
+				 * Hidden from assistive technology because the group already
+				 * carries the same thing as its accessible name.
+				 */
+				?>
+				<span class="wvc-chiprow__caption" aria-hidden="true"><?php echo esc_html( $args['caption'] ); ?></span>
+			<?php endif; ?>
+
+			<div class="wvc-chiprow__chips">
 			<?php foreach ( $args['chips'] as $chip ) : ?>
 				<?php
 				$chip = wp_parse_args(
@@ -1180,6 +1190,7 @@ class UI {
 						'tier'   => '',
 						'title'  => '',
 						'empty'  => false,
+						'reset'  => false,
 					)
 				);
 
@@ -1187,6 +1198,16 @@ class UI {
 
 				if ( '' !== $chip['tier'] ) {
 					$classes .= ' wvc-chiplink--' . $chip['tier'];
+				}
+
+				/*
+				 * The chip that clears the row is marked so it can be styled as
+				 * the resting state rather than as a choice. Selected, it is
+				 * saying "not filtered" — the quietest thing on the bar — where
+				 * a selected narrowing chip is the loudest.
+				 */
+				if ( $chip['reset'] ) {
+					$classes .= ' wvc-chiplink--reset';
 				}
 
 				if ( $chip['active'] ) {
@@ -1221,6 +1242,7 @@ class UI {
 					<?php endif; ?>
 				</<?php echo esc_html( $tag ); ?>>
 			<?php endforeach; ?>
+			</div>
 		</div>
 		<?php
 	}
@@ -1360,7 +1382,7 @@ class UI {
 			'<td class="wvc-col-status is-%1$s"%2$s data-label="%3$s">%4$s</td>',
 			esc_attr( $state ),
 			$attr_string,
-			esc_attr__( 'VIP verdict', 'wp-vip-compatibility' ),
+			esc_attr__( 'WordPress VIP verdict', 'wp-vip-compatibility' ),
 			self::get_status_pill( $state, $label )
 		);
 	}
@@ -1684,7 +1706,7 @@ class UI {
 
 			<div class="wvc-fix__body">
 				<dl class="wvc-fix__answer">
-					<dt><?php esc_html_e( 'Why it matters on VIP', 'wp-vip-compatibility' ); ?></dt>
+					<dt><?php esc_html_e( 'Why it matters on WordPress VIP', 'wp-vip-compatibility' ); ?></dt>
 					<dd><?php echo esc_html( $group['why'] ); ?></dd>
 
 					<?php if ( '' !== $group['alternative'] ) : ?>
@@ -1737,15 +1759,25 @@ class UI {
 				<?php if ( '' !== $group['doc'] ) : ?>
 					<p class="wvc-fix__doc">
 						<a class="wvc-link" href="<?php echo esc_url( $group['doc'] ); ?>" target="_blank" rel="noopener noreferrer">
-							<?php esc_html_e( 'Read the VIP documentation for this', 'wp-vip-compatibility' ); ?>
+							<?php esc_html_e( 'Read the WordPress VIP documentation for this', 'wp-vip-compatibility' ); ?>
 							<?php echo self::get_icon( 'external', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 							<span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'wp-vip-compatibility' ); ?></span>
 						</a>
 					</p>
 				<?php endif; ?>
 
+				<?php
+				/*
+				 * Every disclosure in the interface opens the same way and says so
+				 * the same way: a caret that rotates. This one used to be the
+				 * exception — bare text that gave no sign it was a control at all.
+				 */
+				?>
 				<details class="wvc-subdetails">
-					<summary class="wvc-subdetails__summary"><?php esc_html_e( 'How this was detected', 'wp-vip-compatibility' ); ?></summary>
+					<summary class="wvc-subdetails__summary">
+						<?php echo self::get_icon( 'chevron-down', array( 'class' => 'wvc-icon wvc-icon--xs wvc-subdetails__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<span><?php esc_html_e( 'How this was detected', 'wp-vip-compatibility' ); ?></span>
+					</summary>
 
 					<div class="wvc-subdetails__body">
 						<dl class="wvc-fix__answer">
@@ -1871,10 +1903,10 @@ class UI {
 	public static function get_guidance( $message, $title ) {
 		return sprintf(
 			'<details class="wvc-guidance"><summary class="wvc-guidance__summary">%1$s<span class="wvc-guidance__title">%2$s</span>%4$s</summary><div class="wvc-guidance__body">%3$s</div></details>',
-			self::get_icon( 'book', array( 'class' => 'wvc-icon wvc-icon--sm wvc-guidance__icon' ) ),
+			self::get_icon( 'book', array( 'class' => 'wvc-icon wvc-guidance__icon' ) ),
 			esc_html( $title ),
 			wp_kses_post( $message ),
-			self::get_icon( 'chevron-down', array( 'class' => 'wvc-icon wvc-icon--xs wvc-guidance__caret' ) )
+			self::get_icon( 'chevron-down', array( 'class' => 'wvc-icon wvc-icon--sm wvc-guidance__caret' ) )
 		);
 	}
 

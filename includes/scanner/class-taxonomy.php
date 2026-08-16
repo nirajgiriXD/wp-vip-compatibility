@@ -96,7 +96,7 @@ class Taxonomy {
 		return array(
 			self::TYPE_INCOMPATIBLE             => array(
 				'label'       => __( 'Incompatible', 'wp-vip-compatibility' ),
-				'description' => __( 'Expected to fail or behave incorrectly on the VIP Platform.', 'wp-vip-compatibility' ),
+				'description' => __( 'Expected to fail or behave incorrectly on the WordPress VIP Platform.', 'wp-vip-compatibility' ),
 				'blocking'    => true,
 			),
 			self::TYPE_POTENTIALLY_INCOMPATIBLE => array(
@@ -106,22 +106,22 @@ class Taxonomy {
 			),
 			self::TYPE_PERFORMANCE              => array(
 				'label'       => __( 'Performance concern', 'wp-vip-compatibility' ),
-				'description' => __( 'Works on VIP, but can create unacceptable performance characteristics at scale.', 'wp-vip-compatibility' ),
+				'description' => __( 'Works on WordPress VIP, but can create unacceptable performance characteristics at scale.', 'wp-vip-compatibility' ),
 				'blocking'    => false,
 			),
 			self::TYPE_SECURITY                 => array(
 				'label'       => __( 'Security concern', 'wp-vip-compatibility' ),
-				'description' => __( 'Flagged by the VIP code review process as a security risk.', 'wp-vip-compatibility' ),
+				'description' => __( 'Flagged by the WordPress VIP code review process as a security risk.', 'wp-vip-compatibility' ),
 				'blocking'    => false,
 			),
 			self::TYPE_REDUNDANT                => array(
-				'label'       => __( 'Redundant on VIP', 'wp-vip-compatibility' ),
+				'label'       => __( 'Redundant on WordPress VIP', 'wp-vip-compatibility' ),
 				'description' => __( 'The platform already provides this capability; the local implementation can conflict with it.', 'wp-vip-compatibility' ),
 				'blocking'    => false,
 			),
 			self::TYPE_STANDARDS                => array(
 				'label'       => __( 'Coding-standard violation', 'wp-vip-compatibility' ),
-				'description' => __( 'Reported by the WordPress-VIP-Go PHPCS standard used in VIP code review.', 'wp-vip-compatibility' ),
+				'description' => __( 'Reported by the WordPress-VIP-Go PHPCS standard used in WordPress VIP code review.', 'wp-vip-compatibility' ),
 				'blocking'    => false,
 			),
 			self::TYPE_RECOMMENDATION           => array(
@@ -176,7 +176,7 @@ class Taxonomy {
 		return array(
 			self::TIER_BLOCKING  => array(
 				'label'      => __( 'Must fix', 'wp-vip-compatibility' ),
-				'summary'    => __( 'Expected to fail on the VIP Platform. The migration waits on these.', 'wp-vip-compatibility' ),
+				'summary'    => __( 'Expected to fail on the WordPress VIP Platform. The migration waits on these.', 'wp-vip-compatibility' ),
 				'severities' => array( self::SEVERITY_CRITICAL ),
 			),
 			self::TIER_IMPORTANT => array(

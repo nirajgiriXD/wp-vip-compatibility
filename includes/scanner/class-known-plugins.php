@@ -10,7 +10,7 @@
  * - caution      : works, but has a documented failure mode to test for.
  * - redundant    : the platform already provides it. Shipping it duplicates
  *                  or fights platform code.
- * - verified     : checked against VIP and found to behave.
+ * - verified     : checked against WordPress VIP and found to behave.
  *
  * @package wp-vip-compatibility
  */
@@ -62,7 +62,7 @@ class Known_Plugins {
 		if ( in_array( $slug, $verified, true ) ) {
 			return array(
 				'classification' => self::VERIFIED,
-				'reason'         => __( 'Tested against the VIP Platform and found to behave correctly.', 'wp-vip-compatibility' ),
+				'reason'         => __( 'Tested against the WordPress VIP Platform and found to behave correctly.', 'wp-vip-compatibility' ),
 				'label'          => self::label( self::VERIFIED ),
 				'severity'       => Taxonomy::SEVERITY_INFO,
 				'doc'            => '',
@@ -110,13 +110,13 @@ class Known_Plugins {
 	public static function label( $classification ) {
 		switch ( $classification ) {
 			case self::INCOMPATIBLE:
-				return __( 'Listed incompatible by VIP', 'wp-vip-compatibility' );
+				return __( 'Listed incompatible by WordPress VIP', 'wp-vip-compatibility' );
 			case self::CAUTION:
-				return __( 'Needs testing on VIP', 'wp-vip-compatibility' );
+				return __( 'Needs testing on WordPress VIP', 'wp-vip-compatibility' );
 			case self::REDUNDANT:
-				return __( 'Provided by the VIP platform', 'wp-vip-compatibility' );
+				return __( 'Provided by the WordPress VIP platform', 'wp-vip-compatibility' );
 			default:
-				return __( 'Verified on VIP', 'wp-vip-compatibility' );
+				return __( 'Verified on WordPress VIP', 'wp-vip-compatibility' );
 		}
 	}
 

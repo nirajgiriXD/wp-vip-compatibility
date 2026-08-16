@@ -184,7 +184,7 @@ class Report {
 			);
 		}
 
-		// Neither a VIP-preinstalled nor a previous host's must-use plugin is
+		// Neither a WordPress VIP-preinstalled nor a previous host's must-use plugin is
 		// "incompatible code" — both are "do not ship this", which is review work.
 		if ( 'mu-plugin' === $target['type'] && is_array( $known ) ) {
 			return array_merge(
@@ -336,14 +336,14 @@ class Report {
 				'label' => __( 'PHP', 'wp-vip-compatibility' ),
 				'value' => PHP_VERSION,
 				'hint'  => $php_ok
-					? __( 'Within the range VIP runs.', 'wp-vip-compatibility' )
-					: __( 'VIP runs PHP 8.0 and above. Test on a supported version first.', 'wp-vip-compatibility' ),
+					? __( 'Within the range WordPress VIP runs.', 'wp-vip-compatibility' )
+					: __( 'WordPress VIP runs PHP 8.0 and above. Test on a supported version first.', 'wp-vip-compatibility' ),
 				'tone'  => $php_ok ? 'ok' : 'warn',
 			),
 			array(
 				'label' => __( 'WordPress', 'wp-vip-compatibility' ),
 				'value' => get_bloginfo( 'version' ),
-				'hint'  => __( 'VIP tracks the latest release closely.', 'wp-vip-compatibility' ),
+				'hint'  => __( 'WordPress VIP tracks the latest release closely.', 'wp-vip-compatibility' ),
 			),
 			array(
 				'label' => __( 'Object cache', 'wp-vip-compatibility' ),
@@ -351,8 +351,8 @@ class Report {
 					? __( 'Persistent', 'wp-vip-compatibility' )
 					: __( 'Not persistent', 'wp-vip-compatibility' ),
 				'hint'  => $cache_ok
-					? __( 'Matches the VIP environment, where the object cache is always persistent.', 'wp-vip-compatibility' )
-					: __( 'VIP always has a persistent object cache. Uncached queries behave differently there.', 'wp-vip-compatibility' ),
+					? __( 'Matches the WordPress VIP environment, where the object cache is always persistent.', 'wp-vip-compatibility' )
+					: __( 'WordPress VIP always has a persistent object cache. Uncached queries behave differently there.', 'wp-vip-compatibility' ),
 				'tone'  => $cache_ok ? 'ok' : 'warn',
 			),
 			array(
@@ -361,7 +361,7 @@ class Report {
 					? __( 'Multisite', 'wp-vip-compatibility' )
 					: __( 'Single site', 'wp-vip-compatibility' ),
 				'hint'  => is_multisite()
-					? __( 'A multisite migration needs the network layout agreed with VIP up front.', 'wp-vip-compatibility' )
+					? __( 'A multisite migration needs the network layout agreed with WordPress VIP up front.', 'wp-vip-compatibility' )
 					: '',
 			),
 			array(
@@ -378,7 +378,7 @@ class Report {
 				'value' => Rules::VERSION,
 				'hint'  => sprintf(
 					/* translators: %s: Number of rules. */
-					_n( '%s rule, each mapped to a VIP requirement.', '%s rules, each mapped to a VIP requirement.', count( Rules::all() ), 'wp-vip-compatibility' ),
+					_n( '%s rule, each mapped to a WordPress VIP requirement.', '%s rules, each mapped to a WordPress VIP requirement.', count( Rules::all() ), 'wp-vip-compatibility' ),
 					number_format_i18n( count( Rules::all() ) )
 				),
 			),
@@ -481,7 +481,7 @@ class Report {
 				'tier'   => 'blocking',
 				'title'  => sprintf(
 					/* translators: %d: Number of plugins. */
-					_n( 'Replace %d plugin VIP lists as incompatible', 'Replace %d plugins VIP lists as incompatible', $listed, 'wp-vip-compatibility' ),
+					_n( 'Replace %d plugin WordPress VIP lists as incompatible', 'Replace %d plugins WordPress VIP lists as incompatible', $listed, 'wp-vip-compatibility' ),
 					$listed
 				),
 				'detail' => __( 'WordPress VIP documents these as incompatible with the platform. No code change makes them work.', 'wp-vip-compatibility' ),
@@ -499,7 +499,7 @@ class Report {
 					_n( 'Relocate %d must-use plugin', 'Relocate %d must-use plugins', $mu_to_move, 'wp-vip-compatibility' ),
 					$mu_to_move
 				),
-				'detail' => __( 'VIP reserves wp-content/mu-plugins for platform code. Anything you ship belongs in client-mu-plugins/.', 'wp-vip-compatibility' ),
+				'detail' => __( 'WordPress VIP reserves wp-content/mu-plugins for platform code. Anything you ship belongs in client-mu-plugins/.', 'wp-vip-compatibility' ),
 				'url'    => admin_url( 'admin.php?page=wvc-mu-plugins' ),
 				'action' => __( 'Open must-use', 'wp-vip-compatibility' ),
 				'source' => __( 'Must-use plugins', 'wp-vip-compatibility' ),
@@ -528,7 +528,7 @@ class Report {
 					_n( 'Convert %d table to InnoDB and utf8mb4', 'Convert %d tables to InnoDB and utf8mb4', $schema, 'wp-vip-compatibility' ),
 					$schema
 				),
-				'detail' => __( 'VIP will not import a database with an unsupported storage engine or collation.', 'wp-vip-compatibility' ),
+				'detail' => __( 'WordPress VIP will not import a database with an unsupported storage engine or collation.', 'wp-vip-compatibility' ),
 				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=wvc-database' ) ),
 				'action' => __( 'Show the SQL', 'wp-vip-compatibility' ),
 				'source' => __( 'Database', 'wp-vip-compatibility' ),
@@ -540,10 +540,10 @@ class Report {
 				'tier'   => 'warning',
 				'title'  => sprintf(
 					/* translators: %d: Number of tables. */
-					_n( 'Report %d non-standard table prefix to VIP', 'Report %d non-standard table prefixes to VIP', (int) $database['issues']['prefix'], 'wp-vip-compatibility' ),
+					_n( 'Report %d non-standard table prefix to WordPress VIP', 'Report %d non-standard table prefixes to WordPress VIP', (int) $database['issues']['prefix'], 'wp-vip-compatibility' ),
 					(int) $database['issues']['prefix']
 				),
-				'detail' => __( 'The prefix is embedded in option names and user meta keys, so renaming tables without VIP confirming it breaks roles and capabilities.', 'wp-vip-compatibility' ),
+				'detail' => __( 'The prefix is embedded in option names and user meta keys, so renaming tables without WordPress VIP confirming it breaks roles and capabilities.', 'wp-vip-compatibility' ),
 				'url'    => admin_url( 'admin.php?page=wvc-database' ),
 				'action' => __( 'Open the audit', 'wp-vip-compatibility' ),
 				'source' => __( 'Database', 'wp-vip-compatibility' ),
@@ -558,7 +558,7 @@ class Report {
 					_n( 'Remove or relocate %d path in wp-content', 'Remove or relocate %d paths in wp-content', (int) $content['unsupported'], 'wp-vip-compatibility' ),
 					(int) $content['unsupported']
 				),
-				'detail' => __( 'These conflict with the VIP application structure, or with drop-ins the platform installs itself.', 'wp-vip-compatibility' ),
+				'detail' => __( 'These conflict with the WordPress VIP application structure, or with drop-ins the platform installs itself.', 'wp-vip-compatibility' ),
 				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=wvc-directories' ) ),
 				'action' => __( 'Open the audit', 'wp-vip-compatibility' ),
 				'source' => __( 'wp-content', 'wp-vip-compatibility' ),
