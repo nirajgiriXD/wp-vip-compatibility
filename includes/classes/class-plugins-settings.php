@@ -109,7 +109,7 @@ class Plugins_Settings extends Inventory_Screen {
 			array(
 				'label' => __( 'Findings', 'wp-vip-compatibility' ),
 				'class' => 'wvc-col-findings',
-				'hint'  => __( 'Findings grouped by how much they matter: blocking, important, warning, informational.', 'wp-vip-compatibility' ),
+				'hint'  => __( 'Findings grouped by what to do about them: must fix, should fix, worth checking, FYI.', 'wp-vip-compatibility' ),
 			),
 			array(
 				'label' => __( 'What to do', 'wp-vip-compatibility' ),

@@ -697,7 +697,7 @@ abstract class Inventory_Screen {
 			);
 		}
 
-		$parts[] = UI::get_findings_link( $target['key'], $verdict['total'] );
+		$parts[] = UI::get_findings_link( $target['key'], $verdict );
 
 		return $parts;
 	}

@@ -19,6 +19,8 @@ Four independent axes, because collapsing them is what makes a deprecated functi
 | **Confidence** | Definitive · High · Medium · Low |
 | **Fixability** | Automatic · Manual · Configuration · Architectural |
 
+Those four are the scanner's reasoning, and they stay behind a disclosure on each finding. The interface itself uses one vocabulary and one only, derived from severity and phrased as an instruction — **must fix**, **should fix**, **worth checking**, **FYI** — so nobody has to learn that "critical", "incompatible" and "blocked" are three different scales.
+
 A target ends up in one of three states: **ready**, **needs review** (work to do that will not by itself stop a migration), or **blocked** (something is expected to fail on the platform).
 
 ## What every finding tells you
@@ -47,10 +49,10 @@ A target ends up in one of three states: **ready**, **needs review** (work to do
 
 ## Screens
 
-Navigation is the WordPress admin menu itself; the screens fall into three groups — readiness, the code you ship, and the site's own infrastructure — and each page names the group it belongs to. Where the outstanding work sits is answered by the Overview's per-area breakdown.
+Navigation is the WordPress admin menu itself. The menu carries a count of what must be fixed before migrating, and the seven entries are split under headings into three groups — readiness, the code you ship, and the site's own infrastructure — so the order to work in is visible before anything is opened.
 
 - **Overview** — readiness score, the ranked list of what to do next, a per-area breakdown, the environment the site runs on, and how the report has moved over recent scans.
-- **Findings** — every issue banded by consequence and grouped by target, with severity/type/category filters and search.
+- **Findings** — one flat list of fixes, worst first, each card carrying the recommended fix on its face. Filtering is chips that are links: what to do about it, then what it is about, applied on click and reflected in the URL.
 - **Plugins** — every installed plugin with its verdict, activation state, available update and severity split; each row expands to its evidence.
 - **Themes** — the active theme in detail, plus every other theme that still ships in the repository.
 - **Must-use** — everything in `wp-content/mu-plugins`, separated into what to relocate and what to drop.

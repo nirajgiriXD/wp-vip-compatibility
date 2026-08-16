@@ -1,16 +1,22 @@
 <?php
 /**
- * The findings report screen.
+ * The fix list.
  *
  * The other screens answer "is this ready?". This one answers "what exactly is
- * wrong, and what do I do about it?".
+ * wrong, and what do I do about it?" — and it is the screen the whole plugin
+ * points at, so it is built to be read top to bottom with no instructions.
  *
- * The report is organised by consequence rather than by inventory. Blocking and
- * important findings are laid out first and open; warnings and informational
- * findings are present but folded away, because a hundred coding-standard notes
- * should never be what a migration lead reads first. Within a target, findings
- * from the same rule are collapsed into one entry with its locations attached:
- * a rule that fires twenty times is one decision, not twenty.
+ * It is one flat list, ranked. It used to be three levels of nesting — a tier
+ * band containing a target section containing a rule card — which meant the
+ * reader had to open two things before reaching a sentence they could act on,
+ * and had to hold the tier they were inside in their head while reading it.
+ * Ranking the same cards and putting the tier on each one says everything the
+ * bands said, without asking anyone to navigate a hierarchy to get at it.
+ *
+ * Filtering is chips that are links: one click, no Apply button, and the result
+ * is a URL that can be bookmarked or pasted into a migration ticket. Every count
+ * on a chip is measured against the filters that would still apply after
+ * clicking it, so a chip that says 4 always yields 4 cards.
  *
  * @package wp-vip-compatibility
  */
@@ -20,14 +26,13 @@ namespace WP_VIP_COMPATIBILITY\Includes\Classes;
 use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Results_Store;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Scanner;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Renders the findings report.
+ * Renders the fix list.
  */
 class Findings_Settings {
 
@@ -71,9 +76,9 @@ class Findings_Settings {
 	 * Resolves the screen a rescan should return to.
 	 *
 	 * Rescanning is a masthead action available from every screen, so sending
-	 * everyone to the findings report would take a reader looking at the database
-	 * audit somewhere they did not ask to go. The referring screen is used when it
-	 * is one of ours, and the report is the fallback.
+	 * everyone to the fix list would take a reader looking at the database audit
+	 * somewhere they did not ask to go. The referring screen is used when it is
+	 * one of ours, and the fix list is the fallback.
 	 *
 	 * @return string The admin URL.
 	 */
@@ -105,7 +110,7 @@ class Findings_Settings {
 	 */
 	public function render_settings_page() {
 		// The "scan complete" confirmation belongs to the shell, because a rescan
-		// can now be started from — and returns to — any screen.
+		// can be started from — and returns to — any screen.
 		$aggregate = Report::aggregate();
 
 		if ( 0 === $aggregate['targets'] ) {
@@ -126,16 +131,44 @@ class Findings_Settings {
 
 		$filters = $this->read_filters();
 
-		$this->render_filters( $filters, $aggregate );
+		/*
+		 * This screen shows two kinds of work: findings, which come from reading
+		 * code, and the database, must-use and wp-content audits, which do not.
+		 * Both are real migration work and both carry a tier, so the tier chips
+		 * count both — a counter that ignored half of what the page lists would
+		 * read "Must fix 0" directly above a row badged "Must fix".
+		 *
+		 * Each chip's count therefore equals the number of items clicking it
+		 * leaves on screen. The two rows are counted against progressively
+		 * narrower sets: tiers against everything the item, type and search allow;
+		 * categories against that set once the tier is applied.
+		 */
+		$scope = Report::findings(
+			array_merge(
+				$filters,
+				array(
+					'tier'     => '',
+					'category' => '',
+				)
+			)
+		);
 
-		$findings = Report::findings( $filters );
+		$tier_scoped = $this->filter_by_tier( $scope, $filters['tier'] );
+		$findings    = $this->filter_by_category( $tier_scoped, $filters['category'] );
 
-		$this->render_result_line( $findings, $aggregate );
+		// Category, item, type and search are properties of a code finding. While
+		// one of them is narrowing the page, work that cannot have such a property
+		// is out of scope entirely rather than filtered to nothing — so it leaves
+		// the counts as well as the list.
+		$other = $this->other_work_applies( $filters ) ? Report::other_work() : array();
+		$shown = $this->filter_other_by_tier( $other, $filters['tier'] );
 
-		if ( empty( $findings ) ) {
+		$this->render_controls( $filters, $scope, $tier_scoped, $findings, $other, $shown );
+
+		if ( empty( $findings ) && empty( $shown ) ) {
 			UI::render_empty_state(
-				__( 'No findings match these filters', 'wp-vip-compatibility' ),
-				__( 'Clear the filters to see everything the last scan reported.', 'wp-vip-compatibility' ),
+				__( 'Nothing matches these filters', 'wp-vip-compatibility' ),
+				__( 'Clear them to see everything the last scan reported.', 'wp-vip-compatibility' ),
 				array(
 					'label' => __( 'Clear filters', 'wp-vip-compatibility' ),
 					'url'   => UI::get_screen_url( 'findings' ),
@@ -145,8 +178,48 @@ class Findings_Settings {
 			return;
 		}
 
-		$this->render_tiers( $findings, $filters );
+		$this->render_truncation_notice( $findings );
+		$this->render_fix_list( Report::fix_list( $findings ), $shown );
 	}
+
+	/**
+	 * Whether the non-finding work belongs on screen under the active filters.
+	 *
+	 * @param array<string, string> $filters The active filters.
+	 * @return bool True when it is in scope.
+	 */
+	private function other_work_applies( array $filters ) {
+		return '' === $filters['category']
+			&& '' === $filters['target']
+			&& '' === $filters['search']
+			&& '' === $filters['type'];
+	}
+
+	/**
+	 * Narrows the non-finding work to one tier.
+	 *
+	 * @param array<int, array<string, mixed>> $work The actions.
+	 * @param string                           $tier The tier slug, or an empty string.
+	 * @return array<int, array<string, mixed>> The matching actions.
+	 */
+	private function filter_other_by_tier( array $work, $tier ) {
+		if ( '' === $tier ) {
+			return $work;
+		}
+
+		return array_values(
+			array_filter(
+				$work,
+				static function ( $action ) use ( $tier ) {
+					return $action['tier'] === $tier;
+				}
+			)
+		);
+	}
+
+	/* ---------------------------------------------------------------------
+	 * Filters
+	 * ------------------------------------------------------------------ */
 
 	/**
 	 * Reads and validates the filter parameters from the query string.
@@ -185,184 +258,49 @@ class Findings_Settings {
 	}
 
 	/**
-	 * Renders the line that says what is currently on screen.
+	 * Narrows findings to one tier.
 	 *
-	 * The filter control above it carries the counts per tier; this says how much
-	 * of the report those filters are showing, which is the one number the
-	 * control cannot express.
-	 *
-	 * @param array<int, array<string, mixed>> $findings  The filtered findings.
-	 * @param array<string, mixed>             $aggregate The aggregate.
-	 * @return void
+	 * @param array<int, array<string, mixed>> $findings The findings.
+	 * @param string                           $tier     The tier slug, or an empty string.
+	 * @return array<int, array<string, mixed>> The matching findings.
 	 */
-	private function render_result_line( array $findings, array $aggregate ) {
-		$total    = (int) $aggregate['totals']['findings'];
-		$shown    = count( $findings );
-		$filtered = ( $shown !== $total );
-		?>
-		<p class="wvc-resultline">
-			<?php
-			if ( $filtered ) {
-				printf(
-					/* translators: 1: Number of findings shown. 2: Total number of findings. */
-					esc_html__( 'Showing %1$s of %2$s findings', 'wp-vip-compatibility' ),
-					esc_html( number_format_i18n( $shown ) ),
-					esc_html( number_format_i18n( $total ) )
-				);
-			} else {
-				printf(
-					/* translators: %s: Total number of findings. */
-					esc_html( _n( '%s finding in total', '%s findings in total', $total, 'wp-vip-compatibility' ) ),
-					esc_html( number_format_i18n( $total ) )
-				);
-			}
-			?>
+	private function filter_by_tier( array $findings, $tier ) {
+		if ( '' === $tier ) {
+			return $findings;
+		}
 
-			<?php if ( $filtered ) : ?>
-				<a class="wvc-link" href="<?php echo esc_url( UI::get_screen_url( 'findings' ) ); ?>"><?php esc_html_e( 'Clear filters', 'wp-vip-compatibility' ); ?></a>
-			<?php endif; ?>
-		</p>
-		<?php
-		unset( $filters );
+		$severities = Taxonomy::get_tier_severities( $tier );
+
+		return array_values(
+			array_filter(
+				$findings,
+				static function ( $finding ) use ( $severities ) {
+					return in_array( $finding['severity'], $severities, true );
+				}
+			)
+		);
 	}
 
 	/**
-	 * Renders the filter bar.
+	 * Narrows findings to one category.
 	 *
-	 * The tier control is the primary filter and is always visible. Type,
-	 * category, target and free text are secondary and stay folded away until
-	 * they are needed — they used to occupy a four-field form above the report on
-	 * every visit, alongside a separate row of severity cards that did the same
-	 * job as the control below.
-	 *
-	 * @param array<string, string> $filters   The active filters.
-	 * @param array<string, mixed>  $aggregate The aggregate.
-	 * @return void
+	 * @param array<int, array<string, mixed>> $findings The findings.
+	 * @param string                           $category The category slug, or an empty string.
+	 * @return array<int, array<string, mixed>> The matching findings.
 	 */
-	private function render_filters( array $filters, array $aggregate ) {
-		$base      = UI::get_screen_url( 'findings' );
-		$secondary = (int) ( '' !== $filters['type'] ) + (int) ( '' !== $filters['category'] ) + (int) ( '' !== $filters['target'] ) + (int) ( '' !== $filters['search'] );
-		$total     = (int) $aggregate['totals']['findings'];
-		?>
-		<div class="wvc-filterbar">
-			<div class="wvc-segmented wvc-segmented--links" role="group" aria-label="<?php esc_attr_e( 'Filter findings by importance', 'wp-vip-compatibility' ); ?>">
-				<a
-					class="<?php echo ( '' === $filters['tier'] ) ? 'active' : ''; ?>"
-					href="<?php echo esc_url( add_query_arg( $this->query_args( $filters, 'tier' ), $base ) ); ?>"
-					<?php echo ( '' === $filters['tier'] ) ? 'aria-current="true"' : ''; ?>
-				>
-					<span><?php esc_html_e( 'All', 'wp-vip-compatibility' ); ?></span>
-					<span class="wvc-segmented__count"><?php echo esc_html( number_format_i18n( $total ) ); ?></span>
-				</a>
+	private function filter_by_category( array $findings, $category ) {
+		if ( '' === $category ) {
+			return $findings;
+		}
 
-				<?php foreach ( UI::get_tiers() as $tier => $definition ) : ?>
-					<?php
-					$count = 0;
-
-					foreach ( $definition['severities'] as $severity ) {
-						$count += (int) ( $aggregate['by_severity'][ $severity ] ?? 0 );
-					}
-
-					if ( 0 === $count ) {
-						continue;
-					}
-
-					$is_active = ( $filters['tier'] === $tier );
-					$url       = $is_active
-						? add_query_arg( $this->query_args( $filters, 'tier' ), $base )
-						: add_query_arg( array_merge( $this->query_args( $filters, 'tier' ), array( 'tier' => $tier ) ), $base );
-					?>
-					<a
-						class="<?php echo $is_active ? 'active' : ''; ?>"
-						href="<?php echo esc_url( $url ); ?>"
-						title="<?php echo esc_attr( $definition['summary'] ); ?>"
-						<?php echo $is_active ? 'aria-current="true"' : ''; ?>
-					>
-						<span class="wvc-tierdot wvc-tierdot--<?php echo esc_attr( $tier ); ?>" aria-hidden="true"></span>
-						<span><?php echo esc_html( $definition['label'] ); ?></span>
-						<span class="wvc-segmented__count"><?php echo esc_html( number_format_i18n( $count ) ); ?></span>
-					</a>
-				<?php endforeach; ?>
-			</div>
-
-			<details class="wvc-morefilters"<?php echo ( $secondary > 0 ) ? ' open' : ''; ?>>
-				<summary class="wvc-morefilters__summary">
-					<?php echo UI::get_icon( 'filter', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-					<span>
-						<?php
-						if ( $secondary > 0 ) {
-							printf(
-								/* translators: %d: Number of active filters. */
-								esc_html( _n( '%d more filter', '%d more filters', $secondary, 'wp-vip-compatibility' ) ),
-								$secondary
-							);
-						} else {
-							esc_html_e( 'More filters', 'wp-vip-compatibility' );
-						}
-						?>
-					</span>
-				</summary>
-
-				<form class="wvc-filters" method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>">
-					<input type="hidden" name="page" value="wvc-findings" />
-
-					<?php if ( '' !== $filters['tier'] ) : ?>
-						<input type="hidden" name="tier" value="<?php echo esc_attr( $filters['tier'] ); ?>" />
-					<?php endif; ?>
-
-					<label class="wvc-filters__field">
-						<span><?php esc_html_e( 'Type', 'wp-vip-compatibility' ); ?></span>
-						<select name="type">
-							<option value=""><?php esc_html_e( 'All types', 'wp-vip-compatibility' ); ?></option>
-							<?php foreach ( Taxonomy::get_types() as $type => $definition ) : ?>
-								<?php if ( ! empty( $aggregate['by_type'][ $type ] ) ) : ?>
-									<option value="<?php echo esc_attr( $type ); ?>" <?php selected( $filters['type'], $type ); ?>>
-										<?php echo esc_html( sprintf( '%s (%d)', $definition['label'], $aggregate['by_type'][ $type ] ) ); ?>
-									</option>
-								<?php endif; ?>
-							<?php endforeach; ?>
-						</select>
-					</label>
-
-					<label class="wvc-filters__field">
-						<span><?php esc_html_e( 'Category', 'wp-vip-compatibility' ); ?></span>
-						<select name="category">
-							<option value=""><?php esc_html_e( 'All categories', 'wp-vip-compatibility' ); ?></option>
-							<?php foreach ( Taxonomy::get_categories() as $category => $label ) : ?>
-								<?php if ( ! empty( $aggregate['by_category'][ $category ] ) ) : ?>
-									<option value="<?php echo esc_attr( $category ); ?>" <?php selected( $filters['category'], $category ); ?>>
-										<?php echo esc_html( sprintf( '%s (%d)', $label, $aggregate['by_category'][ $category ] ) ); ?>
-									</option>
-								<?php endif; ?>
-							<?php endforeach; ?>
-						</select>
-					</label>
-
-					<label class="wvc-filters__field">
-						<span><?php esc_html_e( 'Item', 'wp-vip-compatibility' ); ?></span>
-						<select name="target">
-							<option value=""><?php esc_html_e( 'Everything', 'wp-vip-compatibility' ); ?></option>
-							<?php foreach ( Results_Store::get_index() as $key => $entry ) : ?>
-								<?php if ( ! empty( $entry['summary']['total'] ) ) : ?>
-									<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $filters['target'], $key ); ?>>
-										<?php echo esc_html( sprintf( '%s (%d)', $entry['label'], $entry['summary']['total'] ) ); ?>
-									</option>
-								<?php endif; ?>
-							<?php endforeach; ?>
-						</select>
-					</label>
-
-					<label class="wvc-filters__field wvc-filters__field--grow">
-						<span><?php esc_html_e( 'Search', 'wp-vip-compatibility' ); ?></span>
-						<input type="search" name="s" value="<?php echo esc_attr( $filters['search'] ); ?>" placeholder="<?php esc_attr_e( 'Rule, file, function…', 'wp-vip-compatibility' ); ?>" />
-					</label>
-
-					<button type="submit" class="wvc-btn wvc-btn--primary wvc-btn--sm"><?php esc_html_e( 'Apply', 'wp-vip-compatibility' ); ?></button>
-					<a class="wvc-btn wvc-btn--ghost wvc-btn--sm" href="<?php echo esc_url( $base ); ?>"><?php esc_html_e( 'Reset all', 'wp-vip-compatibility' ); ?></a>
-				</form>
-			</details>
-		</div>
-		<?php
+		return array_values(
+			array_filter(
+				$findings,
+				static function ( $finding ) use ( $category ) {
+					return $finding['category'] === $category;
+				}
+			)
+		);
 	}
 
 	/**
@@ -392,133 +330,350 @@ class Findings_Settings {
 		return $args;
 	}
 
+	/* ---------------------------------------------------------------------
+	 * Controls
+	 * ------------------------------------------------------------------ */
+
 	/**
-	 * Renders the findings, banded by tier and grouped by item within each band.
+	 * Renders everything above the list: the two chip rows, the count, the
+	 * removable pills and the search field.
 	 *
-	 * @param array<int, array<string, mixed>> $findings The findings.
-	 * @param array<string, string>            $filters  The active filters.
+	 * @param array<string, string>            $filters     The active filters.
+	 * @param array<int, array<string, mixed>> $scope       Findings before tier and category.
+	 * @param array<int, array<string, mixed>> $tier_scoped Findings after tier, before category.
+	 * @param array<int, array<string, mixed>> $findings    Findings after everything.
 	 * @return void
 	 */
-	private function render_tiers( array $findings, array $filters ) {
-		$banded = array();
+	private function render_controls( array $filters, array $scope, array $tier_scoped, array $findings, array $other, array $shown ) {
+		$base = UI::get_screen_url( 'findings' );
 
-		foreach ( $findings as $finding ) {
-			$banded[ UI::get_tier( $finding['severity'] ) ][] = $finding;
+		// The three sit in one sticky block so that the filters, and the count of
+		// what they are showing, stay on screen while the list scrolls under them.
+		echo '<div class="wvc-controls">';
+
+		UI::render_chip_row(
+			array(
+				'label' => __( 'Filter by what to do about it', 'wp-vip-compatibility' ),
+				'chips' => $this->get_tier_chips( $filters, $scope, $other, $base ),
+			)
+		);
+
+		UI::render_chip_row(
+			array(
+				'label'    => __( 'Filter by what the issue is about', 'wp-vip-compatibility' ),
+				'chips'    => $this->get_category_chips( $filters, $tier_scoped, $base ),
+				'modifier' => 'wvc-chiprow--secondary',
+			)
+		);
+
+		$this->render_list_bar( $filters, $findings, $shown, $base );
+
+		echo '</div>';
+	}
+
+	/**
+	 * Builds the primary chip row: what to do about it.
+	 *
+	 * The counts cover both populations the page lists — findings, and the audit
+	 * work that has no file and line — because a chip filters the page, so it has
+	 * to count the page. Counting only findings is what produced a row reading
+	 * "Must fix 0" directly above a row badged "Must fix".
+	 *
+	 * Every tier is rendered, including the ones with nothing in them. A zero
+	 * here is the answer to the question the whole plugin exists for — "is there
+	 * anything that must be fixed?" — so hiding it would be hiding good news. An
+	 * empty tier renders as a count rather than as a link, because a filter that
+	 * leads nowhere is not a choice worth offering.
+	 *
+	 * @param array<string, string>            $filters The active filters.
+	 * @param array<int, array<string, mixed>> $scope   Findings the tiers are counted against.
+	 * @param array<int, array<string, mixed>> $other   Non-finding work in scope, or empty.
+	 * @param string                           $base    The screen URL.
+	 * @return array<int, array<string, mixed>> Chips.
+	 */
+	private function get_tier_chips( array $filters, array $scope, array $other, $base ) {
+		$counts = array();
+
+		foreach ( $scope as $finding ) {
+			$tier            = UI::get_tier( $finding['severity'] );
+			$counts[ $tier ] = ( $counts[ $tier ] ?? 0 ) + 1;
 		}
 
+		foreach ( $other as $action ) {
+			$counts[ $action['tier'] ] = ( $counts[ $action['tier'] ] ?? 0 ) + 1;
+		}
+
+		$total = count( $scope ) + count( $other );
+
+		$chips = array(
+			array(
+				'label'  => __( 'Everything', 'wp-vip-compatibility' ),
+				'url'    => add_query_arg( $this->query_args( $filters, 'tier' ), $base ),
+				'count'  => $total,
+				'active' => ( '' === $filters['tier'] ),
+				'empty'  => ( 0 === $total ),
+			),
+		);
+
 		foreach ( UI::get_tiers() as $tier => $definition ) {
-			if ( empty( $banded[ $tier ] ) ) {
+			$count = (int) ( $counts[ $tier ] ?? 0 );
+
+			// A tier that is empty but currently selected keeps its link, so the
+			// reason the list below is empty stays visible and undoable.
+			$is_active = ( $filters['tier'] === $tier );
+			$is_empty  = ( 0 === $count && ! $is_active );
+
+			$chips[] = array(
+				'label'  => $definition['label'],
+				// Clicking the tier you are already in clears it, so every chip is
+				// its own off switch and nothing needs a separate reset.
+				'url'    => $is_active
+					? add_query_arg( $this->query_args( $filters, 'tier' ), $base )
+					: add_query_arg( array_merge( $this->query_args( $filters, 'tier' ), array( 'tier' => $tier ) ), $base ),
+				'count'  => $count,
+				'active' => $is_active,
+				'dot'    => $tier,
+				'tier'   => $tier,
+				'title'  => $definition['summary'],
+				'empty'  => $is_empty,
+			);
+		}
+
+		return $chips;
+	}
+
+	/**
+	 * Builds the secondary chip row: what the issue is about.
+	 *
+	 * Only categories with something in them are offered, so the row is a map of
+	 * this site's problems rather than a list of everything the scanner knows how
+	 * to look for.
+	 *
+	 * @param array<string, string>            $filters The active filters.
+	 * @param array<int, array<string, mixed>> $scope   Findings the categories are counted against.
+	 * @param string                           $base    The screen URL.
+	 * @return array<int, array<string, mixed>> Chips.
+	 */
+	private function get_category_chips( array $filters, array $scope, $base ) {
+		$counts = array();
+
+		foreach ( $scope as $finding ) {
+			$counts[ $finding['category'] ] = ( $counts[ $finding['category'] ] ?? 0 ) + 1;
+		}
+
+		// One category holding everything is not a choice worth rendering.
+		if ( count( $counts ) < 2 ) {
+			return array();
+		}
+
+		$chips = array(
+			array(
+				'label'  => __( 'All areas', 'wp-vip-compatibility' ),
+				'url'    => add_query_arg( $this->query_args( $filters, 'category' ), $base ),
+				'active' => ( '' === $filters['category'] ),
+			),
+		);
+
+		foreach ( Taxonomy::get_categories() as $category => $label ) {
+			if ( empty( $counts[ $category ] ) ) {
 				continue;
 			}
 
-			// A band the user asked for is never folded away, and neither are the
-			// two that represent work. The rest open on demand.
-			$open = $definition['open'] || ( $filters['tier'] === $tier );
+			$is_active = ( $filters['category'] === $category );
 
-			$this->render_tier( $tier, $definition, $banded[ $tier ], $open );
+			$chips[] = array(
+				'label'  => $label,
+				'url'    => $is_active
+					? add_query_arg( $this->query_args( $filters, 'category' ), $base )
+					: add_query_arg( array_merge( $this->query_args( $filters, 'category' ), array( 'category' => $category ) ), $base ),
+				'count'  => $counts[ $category ],
+				'active' => $is_active,
+			);
 		}
+
+		return $chips;
 	}
 
 	/**
-	 * Renders one tier band.
+	 * Renders the count, the removable filter pills and the search field.
 	 *
-	 * @param string                           $tier       The tier slug.
-	 * @param array<string, mixed>             $definition The tier definition.
-	 * @param array<int, array<string, mixed>> $findings   The findings in this tier.
-	 * @param bool                             $open       Whether the band starts open.
+	 * A target filter arrives by following "Review N findings" from a plugin or a
+	 * theme rather than by being chosen here, so it is shown as something you were
+	 * given, and its only control is the one that takes it off again. That is also
+	 * why there is no item dropdown: the inventory screens are the place where you
+	 * pick an item, and they already link here.
+	 *
+	 * @param array<string, string>            $filters  The active filters.
+	 * @param array<int, array<string, mixed>> $findings The findings on screen.
+	 * @param array<int, array<string, mixed>> $shown    The non-finding work on screen.
+	 * @param string                           $base     The screen URL.
 	 * @return void
 	 */
-	private function render_tier( $tier, array $definition, array $findings, $open ) {
-		$by_target = Report::group( $findings, 'target_key' );
-		$count     = count( $findings );
+	private function render_list_bar( array $filters, array $findings, array $shown, $base ) {
+		$pills = array();
+
+		if ( '' !== $filters['target'] ) {
+			$target = Targets::get( $filters['target'] );
+
+			$pills[] = array(
+				'label' => $target['label'] ?? $filters['target'],
+				'url'   => add_query_arg( $this->query_args( $filters, 'target' ), $base ),
+			);
+		}
+
+		if ( '' !== $filters['type'] ) {
+			$pills[] = array(
+				'label' => Taxonomy::get_label( 'type', $filters['type'] ),
+				'url'   => add_query_arg( $this->query_args( $filters, 'type' ), $base ),
+			);
+		}
+
+		if ( '' !== $filters['search'] ) {
+			$pills[] = array(
+				'label' => sprintf(
+					/* translators: %s: The search term. */
+					__( 'Matching “%s”', 'wp-vip-compatibility' ),
+					$filters['search']
+				),
+				'url'   => add_query_arg( $this->query_args( $filters, 'search' ), $base ),
+			);
+		}
 		?>
-		<details class="wvc-band wvc-band--<?php echo esc_attr( $tier ); ?>"<?php echo $open ? ' open' : ''; ?>>
-			<summary class="wvc-band__summary">
-				<span class="wvc-tierdot wvc-tierdot--<?php echo esc_attr( $tier ); ?>" aria-hidden="true"></span>
-				<span class="wvc-band__title"><?php echo esc_html( $definition['label'] ); ?></span>
-				<span class="wvc-band__count">
-					<?php
-					printf(
-						/* translators: 1: Number of findings. 2: Number of items. */
-						esc_html( _n( '%1$s finding in %2$s item', '%1$s findings in %2$s items', $count, 'wp-vip-compatibility' ) ),
-						esc_html( number_format_i18n( $count ) ),
-						esc_html( number_format_i18n( count( $by_target ) ) )
-					);
-					?>
-				</span>
-				<span class="wvc-band__summary-text"><?php echo esc_html( $definition['summary'] ); ?></span>
-			</summary>
-
-			<div class="wvc-band__body">
+		<div class="wvc-listbar">
+			<p class="wvc-listbar__count">
 				<?php
-				// Worst-affected item first, so the biggest job is at the top.
-				uasort(
-					$by_target,
-					static function ( $a, $b ) {
-						return count( $b ) <=> count( $a );
-					}
-				);
+				// The list holds findings and site-audit work together, so the
+				// count names neither and simply counts what is on screen.
+				$total = count( $findings ) + count( $shown );
 
-				$index = Results_Store::get_index();
-
-				foreach ( $by_target as $target_key => $target_findings ) {
-					$this->render_target_group( $target_key, $target_findings, $index );
-				}
-				?>
-			</div>
-		</details>
-		<?php
-	}
-
-	/**
-	 * Renders the findings of one item within a tier band.
-	 *
-	 * @param string                              $target_key      The target key.
-	 * @param array<int, array<string, mixed>>    $target_findings The findings.
-	 * @param array<string, array<string, mixed>> $index           The stored result index.
-	 * @return void
-	 */
-	private function render_target_group( $target_key, array $target_findings, array $index ) {
-		$entry  = $index[ $target_key ] ?? array();
-		$status = $entry['status'] ?? Scanner::STATUS_REVIEW;
-		$states = array(
-			Scanner::STATUS_PASS    => 'compatible',
-			Scanner::STATUS_REVIEW  => 'review',
-			Scanner::STATUS_BLOCKED => 'not-compatible',
-		);
-		$groups = Report::group_by_rule( $target_findings );
-		?>
-		<section class="wvc-group">
-			<header class="wvc-group__head">
-				<h4 class="wvc-group__title"><?php echo esc_html( $target_findings[0]['target_label'] ); ?></h4>
-				<span class="wvc-group__kind"><?php echo esc_html( $target_findings[0]['target_type'] ); ?></span>
-				<?php echo UI::get_status_pill( $states[ $status ] ?? 'review', Scanner::status_label( $status ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-				<span class="wvc-group__count">
-					<?php
-					printf(
-						/* translators: %d: Number of distinct issues. */
-						esc_html( _n( '%d issue', '%d issues', count( $groups ), 'wp-vip-compatibility' ) ),
-						count( $groups )
-					);
-					?>
-				</span>
-			</header>
-
-			<?php if ( ! empty( $entry['truncated'] ) ) : ?>
-				<?php
-				echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-					esc_html__( 'This item is large enough that the scan stopped early. Fix what is listed and rescan to see the rest.', 'wp-vip-compatibility' ),
-					'info'
+				printf(
+					/* translators: %s: Number of issues on screen. */
+					esc_html( _n( '%s issue', '%s issues', $total, 'wp-vip-compatibility' ) ),
+					esc_html( number_format_i18n( $total ) )
 				);
 				?>
+			</p>
+
+			<?php if ( ! empty( $pills ) ) : ?>
+				<ul class="wvc-activefilters">
+					<?php foreach ( $pills as $pill ) : ?>
+						<li>
+							<a class="wvc-activefilter" href="<?php echo esc_url( $pill['url'] ); ?>">
+								<span><?php echo esc_html( $pill['label'] ); ?></span>
+								<span class="wvc-activefilter__remove" aria-hidden="true">&times;</span>
+								<span class="screen-reader-text"><?php esc_html_e( 'Remove this filter', 'wp-vip-compatibility' ); ?></span>
+							</a>
+						</li>
+					<?php endforeach; ?>
+				</ul>
 			<?php endif; ?>
 
-			<div class="wvc-findings">
-				<?php foreach ( $groups as $group ) : ?>
-					<?php UI::render_finding_group( $group ); ?>
+			<form class="wvc-search wvc-search--form" method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>">
+				<input type="hidden" name="page" value="wvc-findings" />
+				<?php foreach ( $this->query_args( $filters, 'search' ) as $name => $value ) : ?>
+					<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
 				<?php endforeach; ?>
-			</div>
-		</section>
+
+				<?php echo UI::get_icon( 'search', array( 'class' => 'wvc-icon wvc-icon--sm wvc-search__icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+				<label class="screen-reader-text" for="wvc-findings-search"><?php esc_html_e( 'Search findings by rule, file or function', 'wp-vip-compatibility' ); ?></label>
+				<input
+					type="search"
+					id="wvc-findings-search"
+					class="wvc-search__input"
+					name="s"
+					value="<?php echo esc_attr( $filters['search'] ); ?>"
+					placeholder="<?php esc_attr_e( 'Search rule, file, function…', 'wp-vip-compatibility' ); ?>"
+					autocomplete="off"
+					spellcheck="false"
+				/>
+			</form>
+		</div>
 		<?php
+	}
+
+	/* ---------------------------------------------------------------------
+	 * The list
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Warns when a target on screen was too large to finish scanning.
+	 *
+	 * This used to sit inside each target's section. With the sections gone it is
+	 * hoisted to the top of the list, because it qualifies everything below it:
+	 * an incomplete scan means the absence of a finding proves nothing.
+	 *
+	 * @param array<int, array<string, mixed>> $findings The findings on screen.
+	 * @return void
+	 */
+	private function render_truncation_notice( array $findings ) {
+		$index     = Results_Store::get_index();
+		$truncated = array();
+
+		foreach ( $findings as $finding ) {
+			if ( ! empty( $index[ $finding['target_key'] ]['truncated'] ) ) {
+				$truncated[ $finding['target_key'] ] = $finding['target_label'];
+			}
+		}
+
+		if ( empty( $truncated ) ) {
+			return;
+		}
+
+		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			esc_html(
+				sprintf(
+					/* translators: %s: Comma-separated item names. */
+					__( 'The scan stopped early on %s because of their size, so this list is not complete for them. Fix what is here and rescan to see the rest.', 'wp-vip-compatibility' ),
+					implode( ', ', $truncated )
+				)
+			),
+			'info',
+			esc_html__( 'Partial results', 'wp-vip-compatibility' )
+		);
+	}
+
+	/**
+	 * Renders the ranked list of everything that needs doing.
+	 *
+	 * Code findings and site-audit work are interleaved by tier rather than kept
+	 * in separate sections, because the reader's question is "what do I do first",
+	 * and that question does not care which half of the plugin found the answer.
+	 * Walking the tiers in order rather than sorting a merged array keeps the
+	 * within-tier order Report::fix_list() already established.
+	 *
+	 * Within a tier the audit work comes first. It is site-wide — the schema, the
+	 * layout of wp-content — so it tends to be a precondition for the code work
+	 * beside it rather than the other way round.
+	 *
+	 * @param array<int, array<string, mixed>> $fixes Rule groups from Report::fix_list().
+	 * @param array<int, array<string, mixed>> $tasks Actions from Report::other_work().
+	 * @return void
+	 */
+	private function render_fix_list( array $fixes, array $tasks ) {
+		$fixes_by_tier = array();
+
+		foreach ( $fixes as $fix ) {
+			$fixes_by_tier[ UI::get_tier( $fix['severity'] ) ][] = $fix;
+		}
+
+		$tasks_by_tier = array();
+
+		foreach ( $tasks as $task ) {
+			$tasks_by_tier[ $task['tier'] ][] = $task;
+		}
+
+		echo '<div class="wvc-fixlist">';
+
+		foreach ( array_keys( UI::get_tiers() ) as $tier ) {
+			foreach ( $tasks_by_tier[ $tier ] ?? array() as $task ) {
+				UI::render_task_card( $task );
+			}
+
+			foreach ( $fixes_by_tier[ $tier ] ?? array() as $fix ) {
+				UI::render_fix_card( $fix );
+			}
+		}
+
+		echo '</div>';
 	}
 }

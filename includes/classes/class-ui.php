@@ -8,14 +8,22 @@
  * the work is; and a content column that every screen fills through the same
  * primitives — stat rows, panels, tables, disclosures.
  *
- * Three rules hold the whole thing together:
+ * Four rules hold the whole thing together:
  *
- * - One vocabulary for severity. Tiers (blocking, important, warning, info) are
- *   the only words used for consequence, on every screen.
+ * - One vocabulary for consequence. The four tiers — must fix, should fix,
+ *   worth checking, FYI — are the only words used for it, on every screen. The
+ *   axes they are derived from (severity, type, confidence) are the plugin's
+ *   reasoning, so they live inside a finding's technical disclosure and nowhere
+ *   else. A reader should never have to learn that "critical", "incompatible"
+ *   and "blocked" are three different scales.
+ * - The words are instructions. A label that says what to do needs no legend,
+ *   which is why the tiers are verbs rather than classifications.
  * - One place per number. A count is rendered where it is acted on — in the
  *   filter that selects it, or the tile that links to it — never three times.
- * - Depth through disclosure, not through deletion. Primary facts are always
- *   visible, evidence sits one interaction away, and diagnostics two.
+ *   Where a filter shows a count, that count is what clicking it yields.
+ * - Depth through disclosure, not through deletion. What to do is always
+ *   visible, the evidence for it sits one interaction away, and how the scanner
+ *   reached it sits two.
  *
  * @package wp-vip-compatibility
  */
@@ -24,6 +32,7 @@ namespace WP_VIP_COMPATIBILITY\Includes\Classes;
 
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Rules;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Scanner;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
@@ -82,7 +91,7 @@ class UI {
 				'slug'        => 'wvc-findings',
 				'label'       => __( 'Findings', 'wp-vip-compatibility' ),
 				'title'       => __( 'Findings', 'wp-vip-compatibility' ),
-				'description' => __( 'Every issue the scanner found, worst first, with why it matters and how to fix it.', 'wp-vip-compatibility' ),
+				'description' => __( 'Everything that needs doing before this site moves, worst first, with why it matters and how to fix it.', 'wp-vip-compatibility' ),
 				'icon'        => 'list',
 				'group'       => 'summary',
 			),
@@ -812,6 +821,16 @@ class UI {
 			</div>
 
 			<?php if ( ! empty( $args['facts'] ) ) : ?>
+				<?php
+				/*
+				 * These four are the plugin's headline numbers, and they mean the
+				 * same thing everywhere they appear: all outstanding work, by what
+				 * to do about it. The caption names the unit so they can never be
+				 * read as a count of plugins, themes or files.
+				 */
+				?>
+				<div class="wvc-verdict__factsblock">
+				<p class="wvc-verdict__facts-caption"><?php esc_html_e( 'Outstanding work', 'wp-vip-compatibility' ); ?></p>
 				<ul class="wvc-verdict__facts">
 					<?php foreach ( $args['facts'] as $fact ) : ?>
 						<li class="wvc-verdict__fact wvc-verdict__fact--<?php echo esc_attr( $fact['tone'] ?? 'neutral' ); ?>">
@@ -827,49 +846,42 @@ class UI {
 						</li>
 					<?php endforeach; ?>
 				</ul>
+				</div>
 			<?php endif; ?>
 		</section>
 		<?php
 	}
 
 	/**
-	 * Renders the ranked "what to do next" list.
+	 * Renders a numbered strip of steps.
 	 *
-	 * Totals describe a site; this describes a plan. Each row states the work,
-	 * how much of it there is, why it matters in one line, and carries the link
-	 * to the place it gets done.
+	 * Used once, on a site that has never been scanned, where the interface has
+	 * no data to explain itself with. Three sentences about how the plugin is
+	 * meant to be used are worth more at that moment than any amount of empty
+	 * chrome, and they disappear the moment there is a real report to show.
 	 *
-	 * @param array<int, array<string, mixed>> $actions Actions from Report::next_actions().
+	 * @param array<int, array<string, string>> $steps Each with `title` and `body`.
 	 * @return void
 	 */
-	public static function render_action_list( array $actions ) {
-		if ( empty( $actions ) ) {
+	public static function render_steps( array $steps ) {
+		if ( empty( $steps ) ) {
 			return;
 		}
 		?>
-		<ol class="wvc-actions">
-			<?php foreach ( $actions as $position => $action ) : ?>
-				<li class="wvc-actions__item wvc-actions__item--<?php echo esc_attr( $action['tier'] ); ?>">
-					<span class="wvc-actions__rank" aria-hidden="true"><?php echo esc_html( (string) ( $position + 1 ) ); ?></span>
-
-					<span class="wvc-actions__text">
-						<strong class="wvc-actions__title"><?php echo esc_html( $action['title'] ); ?></strong>
-						<span class="wvc-actions__detail"><?php echo esc_html( $action['detail'] ); ?></span>
+		<ol class="wvc-steps">
+			<?php foreach ( $steps as $position => $step ) : ?>
+				<li class="wvc-step">
+					<span class="wvc-step__rank" aria-hidden="true"><?php echo esc_html( (string) ( $position + 1 ) ); ?></span>
+					<span class="wvc-step__text">
+						<strong class="wvc-step__title"><?php echo esc_html( $step['title'] ); ?></strong>
+						<span class="wvc-step__body"><?php echo esc_html( $step['body'] ); ?></span>
 					</span>
-
-					<span class="wvc-actions__tier">
-						<?php echo self::get_tier_pill( $action['tier'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-					</span>
-
-					<a class="wvc-btn wvc-btn--ghost wvc-btn--sm wvc-actions__cta" href="<?php echo esc_url( $action['url'] ); ?>">
-						<span><?php echo esc_html( $action['action'] ); ?></span>
-						<?php echo self::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-					</a>
 				</li>
 			<?php endforeach; ?>
 		</ol>
 		<?php
 	}
+
 
 	/**
 	 * Builds a stacked proportion bar.
@@ -1124,6 +1136,96 @@ class UI {
 	}
 
 	/**
+	 * Renders a row of filter chips as links.
+	 *
+	 * The link form of the segmented control: every chip applies on click, with
+	 * no Apply button and no form to submit, so a filter costs one interaction
+	 * and the result is a URL that can be bookmarked or pasted into a ticket.
+	 *
+	 * @param array $args {
+	 *     Chip row arguments.
+	 *
+	 *     @type string $label Accessible label for the group.
+	 *     @type array  $chips Each with `label`, `url`, and optional `count`,
+	 *                         `active`, `dot`, `tier`, `title` and `empty`.
+	 *     @type string $modifier Optional extra class.
+	 * }
+	 * @return void
+	 */
+	public static function render_chip_row( array $args ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'label'    => '',
+				'chips'    => array(),
+				'modifier' => '',
+			)
+		);
+
+		if ( empty( $args['chips'] ) ) {
+			return;
+		}
+		?>
+		<div class="<?php echo esc_attr( trim( 'wvc-chiprow ' . $args['modifier'] ) ); ?>" role="group" aria-label="<?php echo esc_attr( $args['label'] ); ?>">
+			<?php foreach ( $args['chips'] as $chip ) : ?>
+				<?php
+				$chip = wp_parse_args(
+					$chip,
+					array(
+						'label'  => '',
+						'url'    => '',
+						'count'  => null,
+						'active' => false,
+						'dot'    => '',
+						'tier'   => '',
+						'title'  => '',
+						'empty'  => false,
+					)
+				);
+
+				$classes = 'wvc-chiplink';
+
+				if ( '' !== $chip['tier'] ) {
+					$classes .= ' wvc-chiplink--' . $chip['tier'];
+				}
+
+				if ( $chip['active'] ) {
+					$classes .= ' is-active';
+				}
+
+				if ( $chip['empty'] ) {
+					$classes .= ' is-empty';
+				}
+
+				// A chip with nothing behind it stays in place but stops being a
+				// control: it is reporting a zero, and a filter that leads to an
+				// empty list is a dead end rather than a choice.
+				$tag        = $chip['empty'] ? 'span' : 'a';
+				$attributes = $chip['empty'] ? '' : ' href="' . esc_url( $chip['url'] ) . '"';
+
+				if ( $chip['active'] ) {
+					$attributes .= ' aria-current="true"';
+				}
+
+				if ( '' !== $chip['title'] ) {
+					$attributes .= ' title="' . esc_attr( $chip['title'] ) . '"';
+				}
+				?>
+				<<?php echo esc_html( $tag ); ?> class="<?php echo esc_attr( $classes ); ?>"<?php echo $attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?>>
+					<?php if ( '' !== $chip['dot'] ) : ?>
+						<span class="wvc-tierdot wvc-tierdot--<?php echo esc_attr( $chip['dot'] ); ?>" aria-hidden="true"></span>
+					<?php endif; ?>
+					<span class="wvc-chiplink__label"><?php echo esc_html( $chip['label'] ); ?></span>
+					<?php if ( null !== $chip['count'] ) : ?>
+						<span class="wvc-chiplink__count"><?php echo esc_html( number_format_i18n( (int) $chip['count'] ) ); ?></span>
+					<?php endif; ?>
+				</<?php echo esc_html( $tag ); ?>>
+			<?php endforeach; ?>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Renders a table head from a column definition list.
 	 *
 	 * @param array $columns List of columns. Each column accepts `label`, `class`,
@@ -1325,27 +1427,43 @@ class UI {
 	}
 
 	/**
-	 * Builds a "Review N findings" link to the findings screen.
+	 * Builds the link into the fix list for one target.
 	 *
-	 * @param string $target_key The target key.
-	 * @param int    $total      The number of findings.
-	 * @return string The link markup, or an empty string when there is nothing to review.
+	 * The verb comes from the verdict rather than being "Review" in every row.
+	 * A column headed "What to do" that says "Review 12 findings" against a
+	 * blocked plugin and against a passing one is not telling anyone what to do;
+	 * "Fix 12 findings" and "Review 12 findings" are different instructions and
+	 * the row already knows which one applies.
+	 *
+	 * @param string               $target_key The target key.
+	 * @param array<string, mixed> $verdict    A verdict from Report::verdict().
+	 * @return string The link markup, or an empty string when there is nothing to open.
 	 */
-	public static function get_findings_link( $target_key, $total ) {
+	public static function get_findings_link( $target_key, array $verdict ) {
+		$total = (int) $verdict['total'];
+
 		if ( $total <= 0 ) {
 			return '';
+		}
+
+		if ( Scanner::STATUS_BLOCKED === ( $verdict['status'] ?? '' ) ) {
+			$label = sprintf(
+				/* translators: %d: Number of findings. */
+				_n( 'Fix %d finding', 'Fix %d findings', $total, 'wp-vip-compatibility' ),
+				$total
+			);
+		} else {
+			$label = sprintf(
+				/* translators: %d: Number of findings. */
+				_n( 'Review %d finding', 'Review %d findings', $total, 'wp-vip-compatibility' ),
+				$total
+			);
 		}
 
 		return sprintf(
 			'<a class="wvc-link" href="%1$s">%2$s%3$s</a>',
 			esc_url( self::get_findings_url( $target_key ) ),
-			esc_html(
-				sprintf(
-					/* translators: %d: Number of findings. */
-					_n( 'Review %d finding', 'Review %d findings', $total, 'wp-vip-compatibility' ),
-					$total
-				)
-			),
+			esc_html( $label ),
 			self::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--xs' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
 		);
 	}
@@ -1441,65 +1559,138 @@ class UI {
 	 * ------------------------------------------------------------------ */
 
 	/**
-	 * Renders one rule's findings as a single expandable card.
+	 * Renders one piece of non-code work as a card.
 	 *
-	 * A rule that fires twenty times in a plugin is one decision with twenty
-	 * locations. The card therefore leads with the decision — what this is, how
-	 * serious it is, and what to do — and keeps the locations, the code, and the
-	 * detection metadata behind a second disclosure, because those answer "prove
-	 * it" rather than "what do I do".
+	 * The database engine, the contents of mu-plugins and the shape of wp-content
+	 * are migration work exactly as much as a shell call in a plugin is, and they
+	 * carry the same four tiers. They used to sit in a separate panel above the
+	 * list, which meant a reader scanning for what to do first had two places to
+	 * look and no way to interleave them by urgency. So they are cards in the
+	 * same list, in the same shape, ranked with everything else.
 	 *
-	 * @param array<string, mixed> $group A rule group from Report::group_by_rule().
+	 * What differs is what a card can honestly offer. There is no file and line
+	 * behind "convert two tables", and the SQL to do it belongs on the database
+	 * screen where it can be copied in one go — so the card does not expand, and
+	 * carries a link to the screen that owns the job instead.
+	 *
+	 * @param array<string, mixed> $action An action from Report::other_work().
 	 * @return void
 	 */
-	public static function render_finding_group( array $group ) {
+	public static function render_task_card( array $action ) {
+		$tier = $action['tier'];
+		?>
+		<div class="wvc-fix wvc-fix--task wvc-fix--<?php echo esc_attr( $tier ); ?>" data-tier="<?php echo esc_attr( $tier ); ?>">
+			<div class="wvc-fix__summary">
+				<span class="wvc-fix__tier">
+					<?php echo self::get_tier_pill( $tier ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
+				</span>
+
+				<span class="wvc-fix__main">
+					<strong class="wvc-fix__title"><?php echo esc_html( $action['title'] ); ?></strong>
+
+					<span class="wvc-fix__where">
+						<?php if ( ! empty( $action['source'] ) ) : ?>
+							<span class="wvc-fix__target"><?php echo esc_html( $action['source'] ); ?></span>
+						<?php endif; ?>
+						<span class="wvc-fix__effort" title="<?php esc_attr_e( 'Found by auditing the site rather than by reading code, so there is no file and line to show.', 'wp-vip-compatibility' ); ?>">
+							<?php esc_html_e( 'Outside the code', 'wp-vip-compatibility' ); ?>
+						</span>
+					</span>
+
+					<span class="wvc-fix__lead">
+						<span class="wvc-fix__lead-label wvc-fix__lead-label--why"><?php esc_html_e( 'Why', 'wp-vip-compatibility' ); ?></span>
+						<span class="wvc-fix__lead-text"><?php echo esc_html( $action['detail'] ); ?></span>
+					</span>
+				</span>
+
+				<a class="wvc-btn wvc-btn--ghost wvc-btn--sm wvc-fix__cta" href="<?php echo esc_url( $action['url'] ); ?>">
+					<span><?php echo esc_html( $action['action'] ); ?></span>
+					<?php echo self::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+				</a>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Renders one rule's findings in one target as a single card.
+	 *
+	 * A rule that fires twenty times in a plugin is one decision with twenty
+	 * locations, so the card is built around the decision. What separates it from
+	 * the list it replaced is that the fix is on the outside: the collapsed card
+	 * already answers "what is wrong" and "what do I do about it", which is what
+	 * the reader came for. Opening it answers "why" and "where", and a second
+	 * disclosure answers "prove it" — the classification, the confidence and the
+	 * sniff, which are the plugin's reasoning rather than the reader's work.
+	 *
+	 * @param array<string, mixed> $group A rule group from Report::fix_list().
+	 * @return void
+	 */
+	public static function render_fix_card( array $group ) {
 		$confidences = Taxonomy::get_confidences();
 		$fixes       = Taxonomy::get_fixabilities();
 		$tier        = self::get_tier( $group['severity'] );
 		$occurrences = $group['occurrences'];
 		$count       = count( $occurrences );
+		$effort      = Taxonomy::get_fixability_short( $group['fixability'] );
 		?>
-		<details class="wvc-finding wvc-finding--<?php echo esc_attr( $tier ); ?>"
+		<details class="wvc-fix wvc-fix--<?php echo esc_attr( $tier ); ?>"
 			data-tier="<?php echo esc_attr( $tier ); ?>"
 			data-severity="<?php echo esc_attr( $group['severity'] ); ?>"
 			data-type="<?php echo esc_attr( $group['type'] ); ?>"
 			data-category="<?php echo esc_attr( $group['category'] ); ?>"
 			data-target="<?php echo esc_attr( $group['target_key'] ); ?>">
 
-			<summary class="wvc-finding__summary">
-				<span class="wvc-tierdot wvc-tierdot--<?php echo esc_attr( $tier ); ?>" aria-hidden="true"></span>
+			<summary class="wvc-fix__summary">
+				<span class="wvc-fix__tier">
+					<?php echo self::get_tier_pill( $tier ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
+				</span>
 
-				<span class="wvc-finding__headline">
-					<strong class="wvc-finding__title"><?php echo esc_html( $group['title'] ); ?></strong>
-					<span class="wvc-finding__where">
-						<?php if ( 1 === $count ) : ?>
-							<code><?php echo esc_html( $occurrences[0]['file'] . ':' . $occurrences[0]['line'] ); ?></code>
-						<?php else : ?>
-							<?php
-							printf(
-								/* translators: %d: Number of occurrences. */
-								esc_html( _n( '%d occurrence', '%d occurrences', $count, 'wp-vip-compatibility' ) ),
-								$count
-							);
-							?>
+				<span class="wvc-fix__main">
+					<strong class="wvc-fix__title"><?php echo esc_html( $group['title'] ); ?></strong>
+
+					<span class="wvc-fix__where">
+						<span class="wvc-fix__target"><?php echo esc_html( $group['target_label'] ); ?></span>
+
+						<span class="wvc-fix__places">
+							<?php if ( 1 === $count ) : ?>
+								<code><?php echo esc_html( $occurrences[0]['file'] . ':' . $occurrences[0]['line'] ); ?></code>
+							<?php else : ?>
+								<?php
+								printf(
+									/* translators: %d: Number of places in the code. */
+									esc_html( _n( '%d place', '%d places', $count, 'wp-vip-compatibility' ) ),
+									$count
+								);
+								?>
+							<?php endif; ?>
+						</span>
+
+						<?php if ( '' !== $effort ) : ?>
+							<span class="wvc-fix__effort" title="<?php echo esc_attr( $fixes[ $group['fixability'] ]['description'] ?? '' ); ?>">
+								<?php echo esc_html( $effort ); ?>
+							</span>
 						<?php endif; ?>
+					</span>
+
+					<span class="wvc-fix__lead">
+						<span class="wvc-fix__lead-label"><?php esc_html_e( 'Fix', 'wp-vip-compatibility' ); ?></span>
+						<span class="wvc-fix__lead-text"><?php echo esc_html( $group['remediation'] ); ?></span>
 					</span>
 				</span>
 
-				<span class="wvc-finding__pills">
-					<?php echo self::get_type_pill( $group['type'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-					<span class="screen-reader-text"><?php echo esc_html( self::get_tier_label( $tier ) ); ?></span>
-					<?php echo self::get_icon( 'chevron-down', array( 'class' => 'wvc-icon wvc-icon--xs wvc-finding__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-				</span>
+				<?php echo self::get_icon( 'chevron-down', array( 'class' => 'wvc-icon wvc-icon--xs wvc-fix__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 			</summary>
 
-			<div class="wvc-finding__body">
-				<dl class="wvc-finding__answer">
+			<div class="wvc-fix__body">
+				<dl class="wvc-fix__answer">
 					<dt><?php esc_html_e( 'Why it matters on VIP', 'wp-vip-compatibility' ); ?></dt>
 					<dd><?php echo esc_html( $group['why'] ); ?></dd>
 
-					<dt><?php esc_html_e( 'Recommended fix', 'wp-vip-compatibility' ); ?></dt>
-					<dd><?php echo esc_html( $group['remediation'] ); ?></dd>
+					<?php if ( '' !== $group['alternative'] ) : ?>
+						<dt><?php esc_html_e( 'Another way to do it', 'wp-vip-compatibility' ); ?></dt>
+						<dd><?php echo esc_html( $group['alternative'] ); ?></dd>
+					<?php endif; ?>
 				</dl>
 
 				<div class="wvc-occurrences">
@@ -1543,21 +1734,26 @@ class UI {
 					</ul>
 				</div>
 
+				<?php if ( '' !== $group['doc'] ) : ?>
+					<p class="wvc-fix__doc">
+						<a class="wvc-link" href="<?php echo esc_url( $group['doc'] ); ?>" target="_blank" rel="noopener noreferrer">
+							<?php esc_html_e( 'Read the VIP documentation for this', 'wp-vip-compatibility' ); ?>
+							<?php echo self::get_icon( 'external', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+							<span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'wp-vip-compatibility' ); ?></span>
+						</a>
+					</p>
+				<?php endif; ?>
+
 				<details class="wvc-subdetails">
-					<summary class="wvc-subdetails__summary"><?php esc_html_e( 'Technical details', 'wp-vip-compatibility' ); ?></summary>
+					<summary class="wvc-subdetails__summary"><?php esc_html_e( 'How this was detected', 'wp-vip-compatibility' ); ?></summary>
 
 					<div class="wvc-subdetails__body">
-						<dl class="wvc-finding__answer">
+						<dl class="wvc-fix__answer">
 							<dt><?php esc_html_e( 'What was detected', 'wp-vip-compatibility' ); ?></dt>
 							<dd><?php echo esc_html( $group['detected'] ); ?></dd>
-
-							<?php if ( '' !== $group['alternative'] ) : ?>
-								<dt><?php esc_html_e( 'Alternative approach', 'wp-vip-compatibility' ); ?></dt>
-								<dd><?php echo esc_html( $group['alternative'] ); ?></dd>
-							<?php endif; ?>
 						</dl>
 
-						<div class="wvc-finding__meta">
+						<div class="wvc-fix__meta">
 							<?php
 							$chips = array(
 								self::get_meta_chip(
@@ -1596,7 +1792,7 @@ class UI {
 						</div>
 
 						<?php if ( ! empty( $group['also_matched'] ) ) : ?>
-							<p class="wvc-finding__also">
+							<p class="wvc-fix__also">
 								<?php
 								printf(
 									/* translators: %s: Comma-separated list of rule identifiers. */
@@ -1604,15 +1800,6 @@ class UI {
 									esc_html( implode( ', ', $group['also_matched'] ) )
 								);
 								?>
-							</p>
-						<?php endif; ?>
-
-						<?php if ( '' !== $group['doc'] ) : ?>
-							<p class="wvc-finding__doc">
-								<a class="wvc-link" href="<?php echo esc_url( $group['doc'] ); ?>" target="_blank" rel="noopener noreferrer">
-									<?php esc_html_e( 'WordPress VIP documentation for this rule', 'wp-vip-compatibility' ); ?>
-									<?php echo self::get_icon( 'external', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-								</a>
 							</p>
 						<?php endif; ?>
 					</div>

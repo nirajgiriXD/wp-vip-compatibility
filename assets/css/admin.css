@@ -20,7 +20,7 @@
  *  6. Stat tiles
  *  7. Panels, definition grids, columns
  *  8. Verdict hero and gauge
- *  9. Action list and area cards
+ *  9. Area cards
  * 10. Toolbar: segmented filters, search, scan progress
  * 11. Tables
  * 12. Row detail drawers
@@ -650,6 +650,29 @@
 	white-space: nowrap;
 }
 
+/* The tier label is the one thing a reader sorts by, so it carries its hue
+   rather than leaving all the work to a 6px dot beside it. The dot stays: it
+   is what keeps the tier legible to anyone who cannot separate these hues. */
+.wvc-tier--blocking {
+	border-color: var(--wvc-tier-blocking);
+	color: var(--wvc-tier-blocking);
+}
+
+.wvc-tier--important {
+	border-color: var(--wvc-tier-important);
+	color: var(--wvc-tier-important);
+}
+
+.wvc-tier--warning {
+	border-color: var(--wvc-tier-warning);
+	color: var(--wvc-tier-warning);
+}
+
+.wvc-tier--info {
+	border-color: var(--wvc-border-strong);
+	color: var(--wvc-tier-info);
+}
+
 .wvc-tag {
 	display: inline-flex;
 	align-items: center;
@@ -1232,13 +1255,27 @@ a.wvc-sev:hover {
 	color: var(--wvc-ink-3);
 }
 
-.wvc-verdict__facts {
+/* The caption and the counts are one block, because the caption says what unit
+   the counts are in and the two must never be separated by the grid. */
+.wvc-verdict__factsblock {
 	grid-column: 1 / -1;
+	padding-top: var(--wvc-4);
+	border-top: 1px solid var(--wvc-border);
+}
+
+.wvc-verdict__facts-caption {
+	margin-bottom: var(--wvc-2);
+	font-size: 10.5px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--wvc-ink-3);
+}
+
+.wvc-verdict__facts {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
 	gap: var(--wvc-1);
-	padding-top: var(--wvc-4);
-	border-top: 1px solid var(--wvc-border);
 }
 
 .wvc-verdict__fact {
@@ -1296,82 +1333,9 @@ a.wvc-sev:hover {
 }
 
 /* -------------------------------------------------------------------------
- * 9. Action list and area cards
+ * 9. Area cards
  * ---------------------------------------------------------------------- */
 
-.wvc-actions {
-	display: flex;
-	flex-direction: column;
-	counter-reset: wvc-step;
-}
-
-.wvc-actions__item {
-	display: grid;
-	grid-template-columns: 26px minmax(0, 1fr) auto auto;
-	align-items: center;
-	gap: var(--wvc-3);
-	padding: var(--wvc-3) 0;
-	border-bottom: 1px solid var(--wvc-border);
-}
-
-.wvc-actions__item:first-child {
-	padding-top: 0;
-}
-
-.wvc-actions__item:last-child {
-	padding-bottom: 0;
-	border-bottom: 0;
-}
-
-.wvc-actions__rank {
-	display: grid;
-	place-items: center;
-	width: 24px;
-	height: 24px;
-	border-radius: 50%;
-	font-size: 11px;
-	font-weight: 700;
-	color: var(--wvc-ink-3);
-	background: var(--wvc-sunken);
-	border: 1px solid var(--wvc-border);
-}
-
-.wvc-actions__item--blocking .wvc-actions__rank {
-	color: #fff;
-	background: var(--wvc-tier-blocking);
-	border-color: var(--wvc-tier-blocking);
-}
-
-.wvc-actions__item--important .wvc-actions__rank {
-	color: #fff;
-	background: var(--wvc-tier-important);
-	border-color: var(--wvc-tier-important);
-}
-
-.wvc-actions__text {
-	min-width: 0;
-}
-
-.wvc-actions__title {
-	display: block;
-	font-size: 13.5px;
-	font-weight: 600;
-	color: var(--wvc-ink);
-}
-
-.wvc-actions__detail {
-	display: block;
-	font-size: 12px;
-	line-height: 1.45;
-	color: var(--wvc-ink-3);
-	max-width: 78ch;
-}
-
-.wvc-actions__cta {
-	justify-self: end;
-}
-
-/* Area cards. */
 .wvc-areas {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -1666,12 +1630,10 @@ a.wvc-sev:hover {
 	white-space: nowrap;
 }
 
-.wvc-resultline {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-3);
-	font-size: 12px;
-	color: var(--wvc-ink-3);
+/* The search field is a bare input in a table toolbar and a one-field form on
+   the fix list; both are the same control, so both wear the same shell. */
+.wvc-search--form {
+	margin: 0;
 }
 
 /* Scan progress. */
@@ -2421,10 +2383,13 @@ a.wvc-sev:hover {
 }
 
 /* -------------------------------------------------------------------------
- * 15. Findings report
+ * 15. The fix list
  * ---------------------------------------------------------------------- */
 
-.wvc-filterbar {
+/* The controls stay put while the list scrolls beneath them, so the filters —
+   and the count of what they are showing — are reachable from anywhere in a
+   list that can run to hundreds of cards. */
+.wvc-controls {
 	position: sticky;
 	top: 42px;
 	z-index: 5;
@@ -2434,273 +2399,357 @@ a.wvc-sev:hover {
 	padding: var(--wvc-3);
 	border: 1px solid var(--wvc-border);
 	border-radius: var(--wvc-r);
-	background: rgba(255, 255, 255, 0.92);
+	background: rgba(255, 255, 255, 0.94);
 	backdrop-filter: blur(8px);
 	box-shadow: var(--wvc-shadow-xs);
 }
 
-.wvc-morefilters {
-	font-size: 12px;
+/* Chip rows. The link form of the segmented control: one click applies, the
+   result is a URL, and there is no Apply button to go looking for. */
+.wvc-chiprow {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-1);
+	flex-wrap: wrap;
 }
 
-.wvc-morefilters__summary {
+.wvc-chiplink {
 	display: inline-flex;
 	align-items: center;
-	gap: 5px;
-	padding: 3px 0;
-	font-weight: 600;
-	color: var(--wvc-ink-2);
-	cursor: pointer;
-	list-style: none;
-}
-
-.wvc-morefilters__summary::-webkit-details-marker {
-	display: none;
-}
-
-.wvc-morefilters__summary:hover {
-	color: var(--wvc-accent);
-}
-
-.wvc-filters {
-	display: flex;
-	align-items: flex-end;
-	gap: var(--wvc-3);
-	flex-wrap: wrap;
-	margin-top: var(--wvc-2);
-	padding-top: var(--wvc-3);
-	border-top: 1px solid var(--wvc-border);
-}
-
-.wvc-filters__field {
-	display: flex;
-	flex-direction: column;
-	gap: 3px;
-	min-width: 150px;
-}
-
-.wvc-filters__field--grow {
-	flex: 1 1 200px;
-}
-
-.wvc-filters__field > span {
-	font-size: 10.5px;
-	font-weight: 700;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-	color: var(--wvc-ink-3);
-}
-
-.wvc-wrap .wvc-filters select,
-.wvc-wrap .wvc-filters input[type="search"] {
-	min-height: 30px;
-	padding: 3px 8px;
+	gap: 6px;
+	padding: 5px 11px;
 	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-r-sm);
-	background: var(--wvc-surface);
-	font-family: inherit;
-	font-size: 12px;
-	color: var(--wvc-ink);
-	box-shadow: var(--wvc-shadow-xs);
-	max-width: 100%;
-}
-
-.wvc-band {
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-r-lg);
-	background: var(--wvc-surface);
-	box-shadow: var(--wvc-shadow-xs);
-	overflow: hidden;
-}
-
-.wvc-band + .wvc-band {
-	margin-top: var(--wvc-4);
-}
-
-.wvc-band__summary {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-2);
-	flex-wrap: wrap;
-	padding: var(--wvc-3) var(--wvc-4);
-	cursor: pointer;
-	list-style: none;
-	background: linear-gradient(180deg, #fcfdfe, var(--wvc-surface));
-	transition: background-color var(--wvc-ease);
-}
-
-.wvc-band__summary::-webkit-details-marker {
-	display: none;
-}
-
-.wvc-band__summary:hover {
-	background: var(--wvc-sunken);
-}
-
-.wvc-band__title {
-	font-size: 14px;
-	font-weight: 650;
-	color: var(--wvc-ink);
-}
-
-.wvc-band__count {
-	padding: 0 7px;
 	border-radius: var(--wvc-r-pill);
-	border: 1px solid var(--wvc-border);
-	background: var(--wvc-sunken);
-	font-size: 11px;
-	font-weight: 650;
-	line-height: 18px;
-	color: var(--wvc-ink-2);
-	white-space: nowrap;
-}
-
-.wvc-band__summary-text {
-	flex: 1 1 100%;
+	background: var(--wvc-surface);
 	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.4;
+	color: var(--wvc-ink-2);
+	text-decoration: none;
+	box-shadow: var(--wvc-shadow-xs);
+	transition: background-color var(--wvc-ease), border-color var(--wvc-ease), color var(--wvc-ease);
+}
+
+.wvc-chiplink:hover,
+.wvc-chiplink:focus {
+	border-color: var(--wvc-accent);
+	color: var(--wvc-accent);
+	box-shadow: none;
+}
+
+.wvc-chiplink.is-active {
+	border-color: var(--wvc-ink);
+	background: var(--wvc-ink);
+	color: #fff;
+}
+
+/* A tier with nothing in it still holds its place, so the row stays the same
+   four counts as the overview and never reshuffles between visits. It is a
+   reading, not a control, so it does not respond to the pointer. */
+.wvc-chiplink.is-empty {
+	border-style: dashed;
+	border-color: var(--wvc-border);
+	background: transparent;
 	color: var(--wvc-ink-3);
+	box-shadow: none;
+	cursor: default;
+	opacity: 0.75;
 }
 
-.wvc-band--blocking {
-	border-top: 3px solid var(--wvc-tier-blocking);
+.wvc-chiplink.is-empty .wvc-chiplink__count {
+	background: transparent;
 }
 
-.wvc-band--important {
-	border-top: 3px solid var(--wvc-tier-important);
+.wvc-chiplink.is-empty .wvc-tierdot {
+	opacity: 0.4;
 }
 
-.wvc-band--warning {
-	border-top: 3px solid var(--wvc-tier-warning);
+/* A tier chip carries the same hue as the card's left edge and the overview
+   tile, so the three places a tier appears agree without being compared. */
+.wvc-chiplink--blocking:not(.is-active):not(.is-empty) {
+	border-color: var(--wvc-tier-blocking);
+	color: var(--wvc-tier-blocking);
 }
 
-.wvc-band--info {
-	border-top: 3px solid var(--wvc-tier-info);
+.wvc-chiplink--important:not(.is-active):not(.is-empty) {
+	border-color: var(--wvc-tier-important);
+	color: var(--wvc-tier-important);
 }
 
-.wvc-band__body {
-	padding: var(--wvc-4);
-	border-top: 1px solid var(--wvc-border);
-	background: var(--wvc-sunken);
-	display: flex;
-	flex-direction: column;
-	gap: var(--wvc-4);
+.wvc-chiplink--warning:not(.is-active):not(.is-empty) {
+	border-color: var(--wvc-tier-warning);
+	color: var(--wvc-tier-warning);
 }
 
-.wvc-group {
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-r);
-	background: var(--wvc-surface);
-	overflow: hidden;
+.wvc-chiplink--info:not(.is-active):not(.is-empty) {
+	border-color: var(--wvc-border-strong);
+	color: var(--wvc-tier-info);
 }
 
-.wvc-group__head {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-2);
-	flex-wrap: wrap;
-	padding: var(--wvc-2) var(--wvc-3);
-	border-bottom: 1px solid var(--wvc-border);
-	background: var(--wvc-sunken);
-}
-
-.wvc-wrap .wvc-group__title {
-	font-size: 13px;
-	font-weight: 650;
-}
-
-.wvc-group__kind {
-	padding: 0 6px;
-	border-radius: var(--wvc-r-sm);
-	border: 1px solid var(--wvc-border);
-	background: var(--wvc-surface);
-	font-size: 10.5px;
-	font-weight: 650;
-	line-height: 17px;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	color: var(--wvc-ink-3);
-}
-
-.wvc-group__count {
-	margin-left: auto;
-	font-size: 11.5px;
-	color: var(--wvc-ink-3);
-}
-
-.wvc-findings {
-	display: flex;
-	flex-direction: column;
-}
-
-.wvc-finding {
-	border-bottom: 1px solid var(--wvc-border);
-}
-
-.wvc-finding:last-child {
-	border-bottom: 0;
-}
-
-.wvc-finding__summary {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-2);
-	padding: var(--wvc-2) var(--wvc-3);
-	cursor: pointer;
-	list-style: none;
-	transition: background-color var(--wvc-ease);
-}
-
-.wvc-finding__summary::-webkit-details-marker {
-	display: none;
-}
-
-.wvc-finding__summary:hover {
+/* The tier rules above outrank the shared hover, so hover feedback moves to
+   the background rather than fighting them for the border. */
+.wvc-chiplink[class*="wvc-chiplink--"]:not(.is-active):not(.is-empty):hover {
 	background: var(--wvc-hover);
 }
 
-.wvc-finding__headline {
+.wvc-chiplink.is-active .wvc-chiplink__count {
+	background: rgba(255, 255, 255, 0.22);
+	color: #fff;
+}
+
+.wvc-chiplink__count {
+	padding: 0 6px;
+	border-radius: var(--wvc-r-pill);
+	background: var(--wvc-sunken);
+	font-size: 11px;
+	font-weight: 650;
+	line-height: 17px;
+	color: var(--wvc-ink-3);
+}
+
+/* The second row is quieter than the first, so the two read as primary and
+   secondary rather than as two equal sets of choices. */
+.wvc-chiprow--secondary .wvc-chiplink {
+	padding: 4px 9px;
+	background: transparent;
+	font-size: 11.5px;
+	font-weight: 550;
+	box-shadow: none;
+}
+
+.wvc-chiprow--secondary .wvc-chiplink.is-active {
+	background: var(--wvc-ink);
+}
+
+/* The bar between the filters and the list: how much is on screen, what is
+   narrowing it, and the search field. */
+.wvc-listbar {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-2);
+	flex-wrap: wrap;
+	padding-top: var(--wvc-2);
+	border-top: 1px solid var(--wvc-border);
+}
+
+.wvc-listbar__count {
+	font-size: 12px;
+	font-weight: 650;
+	color: var(--wvc-ink-2);
+}
+
+.wvc-listbar .wvc-search {
+	margin-left: auto;
+}
+
+.wvc-activefilters {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-1);
+	flex-wrap: wrap;
+}
+
+/* A filter that arrived from another screen, shown as something you were
+   given rather than something you chose, with the one control that undoes it. */
+.wvc-activefilter {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 3px 8px;
+	border: 1px solid var(--wvc-accent-line);
+	border-radius: var(--wvc-r-pill);
+	background: var(--wvc-accent-soft);
+	font-size: 11.5px;
+	font-weight: 600;
+	color: var(--wvc-accent);
+	text-decoration: none;
+}
+
+.wvc-activefilter:hover,
+.wvc-activefilter:focus {
+	background: var(--wvc-accent);
+	color: #fff;
+}
+
+.wvc-activefilter__remove {
+	font-size: 14px;
+	line-height: 1;
+	opacity: 0.7;
+}
+
+/* The list itself. */
+.wvc-fixlist {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-2);
+}
+
+.wvc-fix {
+	border: 1px solid var(--wvc-border);
+	border-left: 3px solid var(--wvc-border);
+	border-radius: var(--wvc-r);
+	background: var(--wvc-surface);
+	box-shadow: var(--wvc-shadow-xs);
+	overflow: hidden;
+	transition: border-color var(--wvc-ease), box-shadow var(--wvc-ease);
+}
+
+/* The tier is the card's left edge as well as its label, so the shape of the
+   backlog stays legible from the margin alone while scrolling past it. */
+.wvc-fix--blocking {
+	border-left-color: var(--wvc-tier-blocking);
+}
+
+.wvc-fix--important {
+	border-left-color: var(--wvc-tier-important);
+}
+
+.wvc-fix--warning {
+	border-left-color: var(--wvc-tier-warning);
+}
+
+.wvc-fix--info {
+	border-left-color: var(--wvc-tier-info);
+}
+
+.wvc-fix__summary {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wvc-3);
+	padding: var(--wvc-3);
+	cursor: pointer;
+	list-style: none;
+	transition: background-color var(--wvc-ease);
+}
+
+.wvc-fix__summary::-webkit-details-marker {
+	display: none;
+}
+
+/* A task card wears the card shape but has nothing to disclose: the work it
+   points at lives on another screen, so it carries a link instead of a caret
+   and must not look clickable as a whole. */
+.wvc-fix--task .wvc-fix__summary {
+	cursor: default;
+}
+
+.wvc-fix--task .wvc-fix__summary:hover {
+	background: transparent;
+}
+
+.wvc-fix__cta {
+	flex: 0 0 auto;
+	align-self: center;
+}
+
+/* "Why" rather than "Fix": on a task the title already states the action, so
+   the line beneath it carries the reason instead of the remedy. */
+.wvc-fix__lead-label--why {
+	background: var(--wvc-accent-soft);
+	color: var(--wvc-accent);
+}
+
+.wvc-fix__summary:hover {
+	background: var(--wvc-hover);
+}
+
+/* A fixed column for the tier keeps every title on one left edge, so the list
+   scans as a list instead of as a ragged stack of cards. */
+.wvc-fix__tier {
+	flex: 0 0 auto;
+	width: 122px;
+	padding-top: 1px;
+}
+
+.wvc-fix__main {
 	flex: 1 1 auto;
 	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+
+.wvc-fix__title {
+	font-size: 13px;
+	font-weight: 650;
+	color: var(--wvc-ink);
+}
+
+.wvc-fix__where {
 	display: flex;
 	align-items: baseline;
 	gap: var(--wvc-2);
 	flex-wrap: wrap;
-}
-
-.wvc-finding__title {
-	font-size: 12.5px;
-	font-weight: 600;
-	color: var(--wvc-ink);
-}
-
-.wvc-finding__where {
-	font-size: 11px;
+	font-size: 11.5px;
 	color: var(--wvc-ink-3);
 }
 
-.wvc-finding__where code {
+.wvc-fix__target {
+	font-weight: 650;
+	color: var(--wvc-ink-2);
+}
+
+.wvc-fix__places code {
 	font-size: 11px;
 	overflow-wrap: anywhere;
 }
 
-.wvc-finding__pills {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-2);
-	flex: 0 0 auto;
+.wvc-fix__effort {
+	padding: 0 6px;
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-r-sm);
+	background: var(--wvc-sunken);
+	font-size: 10.5px;
+	font-weight: 650;
+	line-height: 16px;
+	letter-spacing: 0.02em;
+	color: var(--wvc-ink-3);
+	white-space: nowrap;
 }
 
-.wvc-finding__caret {
+/* The recommended fix, on the outside of the card. This is the sentence the
+   reader came for, so it is never behind a disclosure. */
+.wvc-fix__lead {
+	display: flex;
+	align-items: baseline;
+	gap: 7px;
+	margin-top: 3px;
+	font-size: 12px;
+	line-height: 1.55;
+	color: var(--wvc-ink-2);
+}
+
+.wvc-fix__lead-label {
+	flex: 0 0 auto;
+	padding: 0 6px;
+	border-radius: var(--wvc-r-sm);
+	background: var(--wvc-ok-soft);
+	font-size: 10px;
+	font-weight: 700;
+	line-height: 16px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--wvc-ok);
+}
+
+.wvc-fix__lead-text {
+	min-width: 0;
+	max-width: 92ch;
+}
+
+.wvc-fix__caret {
+	flex: 0 0 auto;
+	margin-top: 3px;
 	color: var(--wvc-ink-3);
 	transition: transform var(--wvc-ease);
 }
 
-.wvc-finding[open] .wvc-finding__caret {
+.wvc-fix[open] .wvc-fix__caret {
 	transform: rotate(180deg);
 }
 
-.wvc-finding__body {
-	padding: var(--wvc-3) var(--wvc-4) var(--wvc-4) var(--wvc-6);
+.wvc-fix__body {
+	padding: var(--wvc-3) var(--wvc-4) var(--wvc-4);
 	border-top: 1px dashed var(--wvc-border);
 	background: #fcfdfe;
 	display: flex;
@@ -2708,14 +2757,14 @@ a.wvc-sev:hover {
 	gap: var(--wvc-4);
 }
 
-.wvc-finding__answer {
+.wvc-fix__answer {
 	display: grid;
 	grid-template-columns: minmax(140px, 180px) minmax(0, 1fr);
 	gap: var(--wvc-1) var(--wvc-4);
 	font-size: 12.5px;
 }
 
-.wvc-finding__answer dt {
+.wvc-fix__answer dt {
 	font-size: 10.5px;
 	font-weight: 700;
 	letter-spacing: 0.06em;
@@ -2724,7 +2773,7 @@ a.wvc-sev:hover {
 	padding-top: 2px;
 }
 
-.wvc-finding__answer dd {
+.wvc-fix__answer dd {
 	margin: 0;
 	color: var(--wvc-ink-2);
 	max-width: 88ch;
@@ -2812,16 +2861,68 @@ a.wvc-sev:hover {
 	margin-top: var(--wvc-3);
 }
 
-.wvc-finding__meta {
+.wvc-fix__meta {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--wvc-1);
 }
 
-.wvc-finding__also,
-.wvc-finding__doc {
+.wvc-fix__also {
 	font-size: 11.5px;
 	color: var(--wvc-ink-3);
+}
+
+.wvc-fix__doc {
+	font-size: 12px;
+}
+
+/* -------------------------------------------------------------------------
+ * 15b. Getting started
+ * ---------------------------------------------------------------------- */
+
+.wvc-steps {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-3);
+}
+
+.wvc-step {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wvc-3);
+}
+
+.wvc-step__rank {
+	flex: 0 0 auto;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background: var(--wvc-ink);
+	color: #fff;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 26px;
+	text-align: center;
+}
+
+.wvc-step__text {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.wvc-step__title {
+	font-size: 13px;
+	font-weight: 650;
+	color: var(--wvc-ink);
+}
+
+.wvc-step__body {
+	font-size: 12.5px;
+	line-height: 1.6;
+	color: var(--wvc-ink-2);
+	max-width: 82ch;
 }
 
 /* -------------------------------------------------------------------------
@@ -2856,24 +2957,26 @@ a.wvc-sev:hover {
 		font-size: 27px;
 	}
 
-	.wvc-actions__item {
-		grid-template-columns: 26px minmax(0, 1fr);
-		row-gap: var(--wvc-2);
-	}
-
-	.wvc-actions__tier,
-	.wvc-actions__cta {
-		grid-column: 2;
-		justify-self: start;
-	}
-
-	.wvc-finding__answer {
+	.wvc-fix__answer {
 		grid-template-columns: minmax(0, 1fr);
 		gap: 1px;
 	}
 
-	.wvc-finding__answer dd {
+	.wvc-fix__answer dd {
 		margin-bottom: var(--wvc-2);
+	}
+
+	/* The tier column stops paying for itself once the title has to wrap. */
+	.wvc-fix__summary {
+		flex-wrap: wrap;
+	}
+
+	.wvc-fix__tier {
+		width: auto;
+	}
+
+	.wvc-fix__main {
+		flex-basis: 100%;
 	}
 }
 
@@ -3032,13 +3135,18 @@ a.wvc-sev:hover {
 		max-width: 260px;
 	}
 
-	.wvc-filterbar {
+	/* Sticky controls would eat most of a phone screen, so they scroll away. */
+	.wvc-controls {
 		position: static;
 	}
 
-	.wvc-band__body,
-	.wvc-finding__body {
+	.wvc-fix__body {
 		padding: var(--wvc-3);
+	}
+
+	.wvc-listbar .wvc-search {
+		margin-left: 0;
+		width: 100%;
 	}
 
 	.wvc-verdict__facts {
@@ -3076,8 +3184,13 @@ a.wvc-sev:hover {
 @media print {
 	.wvc-masthead__actions,
 	.wvc-toolbar,
-	.wvc-filterbar {
+	.wvc-controls {
 		display: none !important;
+	}
+
+	/* A printed fix list is only useful with the fixes on it. */
+	.wvc-fix__body {
+		display: flex !important;
 	}
 
 	.wvc-panel,

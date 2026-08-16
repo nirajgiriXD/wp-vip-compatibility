@@ -386,58 +386,60 @@ class Report {
 	}
 
 	/**
-	 * Builds the ranked list of things to do next.
+	 * Returns the outstanding work that did not come from reading code.
 	 *
-	 * The overview's job is to answer "what should I do?", which a set of totals
-	 * does not do. Each entry names the work, says how much of it there is, and
-	 * links to the screen that shows it — ordered worst first, and capped so the
-	 * list stays a plan rather than another report.
+	 * The schema's storage engine, the contents of mu-plugins and the shape of
+	 * wp-content are all migration blockers, and none of them is a finding: they
+	 * come from three audits that inspect the site rather than its source. That
+	 * distinction is invisible on the overview, where they sit in the same plan
+	 * under the same tier labels as everything else — so the fix list has to be
+	 * able to name them too, or it silently contradicts the plan that sent you
+	 * there.
 	 *
-	 * @return array<int, array<string, mixed>> Actions, each with `tier`, `title`, `detail`, `url` and `action`.
+	 * @return array<int, array<string, mixed>> Actions, worst first.
 	 */
-	public static function next_actions() {
-		$aggregate = self::aggregate();
-		$actions   = array();
+	public static function other_work() {
+		// Both the plan and the tier counts ask for this within one request, and
+		// building it walks wp-content and the schema. Once per request is enough.
+		static $work = null;
 
-		// Informational findings are context, not work, so they never become a
-		// step in the plan.
-		foreach ( Taxonomy::get_tiers() as $tier => $definition ) {
-			if ( Taxonomy::TIER_INFO === $tier ) {
-				continue;
-			}
-
-			$count = 0;
-
-			foreach ( $definition['severities'] as $severity ) {
-				$count += (int) ( $aggregate['by_severity'][ $severity ] ?? 0 );
-			}
-
-			if ( 0 === $count ) {
-				continue;
-			}
-
-			$actions[] = array(
-				'tier'   => $tier,
-				'title'  => sprintf(
-					/* translators: 1: Number of findings. 2: Tier label, e.g. "blocking". */
-					_n( 'Resolve %1$d %2$s finding', 'Resolve %1$d %2$s findings', $count, 'wp-vip-compatibility' ),
-					$count,
-					strtolower( $definition['label'] )
-				),
-				'detail' => $definition['summary'],
-				'url'    => add_query_arg( 'tier', $tier, admin_url( 'admin.php?page=wvc-findings' ) ),
-				'action' => __( 'Review findings', 'wp-vip-compatibility' ),
-			);
+		if ( null === $work ) {
+			$work = self::sort_by_tier( array_merge( self::inventory_actions(), self::site_actions() ) );
 		}
 
-		$actions = array_merge( $actions, self::inventory_actions(), self::site_actions() );
+		return $work;
+	}
 
-		// Worst first, and short enough to read in one pass.
+	/**
+	 * Counts the non-finding work in one tier.
+	 *
+	 * @param string $tier A tier slug.
+	 * @return int How many actions sit in it.
+	 */
+	public static function other_work_in_tier( $tier ) {
+		$count = 0;
+
+		foreach ( self::other_work() as $action ) {
+			if ( $action['tier'] === $tier ) {
+				++$count;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Orders actions worst tier first.
+	 *
+	 * @param array<int, array<string, mixed>> $actions The actions.
+	 * @return array<int, array<string, mixed>> The ordered actions.
+	 */
+	private static function sort_by_tier( array $actions ) {
 		$order = array(
-			'blocking'  => 0,
-			'important' => 1,
-			'warning'   => 2,
-			'info'      => 3,
+			Taxonomy::TIER_BLOCKING  => 0,
+			Taxonomy::TIER_IMPORTANT => 1,
+			Taxonomy::TIER_WARNING   => 2,
+			Taxonomy::TIER_INFO      => 3,
 		);
 
 		usort(
@@ -447,8 +449,9 @@ class Report {
 			}
 		);
 
-		return array_slice( $actions, 0, 6 );
+		return $actions;
 	}
+
 
 	/**
 	 * Builds the actions that come from the plugin, theme and must-use inventory.
@@ -484,6 +487,7 @@ class Report {
 				'detail' => __( 'WordPress VIP documents these as incompatible with the platform. No code change makes them work.', 'wp-vip-compatibility' ),
 				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=wvc-plugins' ) ),
 				'action' => __( 'Open plugins', 'wp-vip-compatibility' ),
+				'source' => __( 'Plugins', 'wp-vip-compatibility' ),
 			);
 		}
 
@@ -498,6 +502,7 @@ class Report {
 				'detail' => __( 'VIP reserves wp-content/mu-plugins for platform code. Anything you ship belongs in client-mu-plugins/.', 'wp-vip-compatibility' ),
 				'url'    => admin_url( 'admin.php?page=wvc-mu-plugins' ),
 				'action' => __( 'Open must-use', 'wp-vip-compatibility' ),
+				'source' => __( 'Must-use plugins', 'wp-vip-compatibility' ),
 			);
 		}
 
@@ -526,6 +531,7 @@ class Report {
 				'detail' => __( 'VIP will not import a database with an unsupported storage engine or collation.', 'wp-vip-compatibility' ),
 				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=wvc-database' ) ),
 				'action' => __( 'Show the SQL', 'wp-vip-compatibility' ),
+				'source' => __( 'Database', 'wp-vip-compatibility' ),
 			);
 		}
 
@@ -540,6 +546,7 @@ class Report {
 				'detail' => __( 'The prefix is embedded in option names and user meta keys, so renaming tables without VIP confirming it breaks roles and capabilities.', 'wp-vip-compatibility' ),
 				'url'    => admin_url( 'admin.php?page=wvc-database' ),
 				'action' => __( 'Open the audit', 'wp-vip-compatibility' ),
+				'source' => __( 'Database', 'wp-vip-compatibility' ),
 			);
 		}
 
@@ -554,6 +561,7 @@ class Report {
 				'detail' => __( 'These conflict with the VIP application structure, or with drop-ins the platform installs itself.', 'wp-vip-compatibility' ),
 				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=wvc-directories' ) ),
 				'action' => __( 'Open the audit', 'wp-vip-compatibility' ),
+				'source' => __( 'wp-content', 'wp-vip-compatibility' ),
 			);
 		}
 
@@ -618,6 +626,52 @@ class Report {
 		);
 
 		return $groups;
+	}
+
+	/**
+	 * Builds the flat, ranked list of fixes the findings screen is made of.
+	 *
+	 * The unit is one rule in one target, because that is the unit of work: the
+	 * same rule firing in two plugins is two jobs for two owners, while the same
+	 * rule firing twenty times in one plugin is one job with twenty locations.
+	 *
+	 * The list is then ordered the way it should be worked through — worst first,
+	 * and within a tier all of one target's jobs together, so a reader who opens
+	 * a plugin's cards is not sent back and forth between plugins.
+	 *
+	 * @param array<int, array<string, mixed>> $findings Findings from findings().
+	 * @return array<int, array<string, mixed>> Rule groups, worst first.
+	 */
+	public static function fix_list( array $findings ) {
+		$list = array();
+
+		foreach ( self::group( $findings, 'target_key' ) as $target_findings ) {
+			$list = array_merge( $list, self::group_by_rule( $target_findings ) );
+		}
+
+		usort(
+			$list,
+			static function ( $a, $b ) {
+				// Worst tier first.
+				$severity = Taxonomy::get_severity_weight( $b['severity'] ) <=> Taxonomy::get_severity_weight( $a['severity'] );
+
+				if ( 0 !== $severity ) {
+					return $severity;
+				}
+
+				// Then keep one target's work together.
+				$target = strcasecmp( (string) $a['target_label'], (string) $b['target_label'] );
+
+				if ( 0 !== $target ) {
+					return $target;
+				}
+
+				// Then the biggest job in that target first.
+				return count( $b['occurrences'] ) <=> count( $a['occurrences'] );
+			}
+		);
+
+		return $list;
 	}
 
 	/**

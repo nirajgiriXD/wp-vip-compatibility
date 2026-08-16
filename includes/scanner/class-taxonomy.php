@@ -68,10 +68,16 @@ class Taxonomy {
 	/**
 	 * Consequence tiers.
 	 *
-	 * A severity says how bad a rule hit is; a tier says what that means for the
-	 * person reading it, which is what the interface leads with. Every screen
-	 * uses these four words and only these four, so "critical", "blocker",
-	 * "needs attention" and "warning" cannot drift apart between screens.
+	 * A severity says how bad a rule hit is; a tier says what the reader should
+	 * do about it, which is what the interface leads with. Every screen uses
+	 * these four labels and only these four, so "critical", "blocker", "needs
+	 * attention" and "warning" cannot drift apart between screens.
+	 *
+	 * The labels are instructions rather than classifications — "Must fix", not
+	 * "Blocking" — because a label that says what to do needs no legend, and the
+	 * classification it came from is still one disclosure away on every finding.
+	 * The slugs stay as they were: they are in stored results, bookmarked URLs
+	 * and CSS, none of which should move because the wording did.
 	 */
 	const TIER_BLOCKING  = 'blocking';
 	const TIER_IMPORTANT = 'important';
@@ -169,23 +175,23 @@ class Taxonomy {
 	public static function get_tiers() {
 		return array(
 			self::TIER_BLOCKING  => array(
-				'label'      => __( 'Blocking', 'wp-vip-compatibility' ),
-				'summary'    => __( 'Expected to fail on the VIP Platform. Resolve these before migrating.', 'wp-vip-compatibility' ),
+				'label'      => __( 'Must fix', 'wp-vip-compatibility' ),
+				'summary'    => __( 'Expected to fail on the VIP Platform. The migration waits on these.', 'wp-vip-compatibility' ),
 				'severities' => array( self::SEVERITY_CRITICAL ),
 			),
 			self::TIER_IMPORTANT => array(
-				'label'      => __( 'Important', 'wp-vip-compatibility' ),
-				'summary'    => __( 'Will not stop the migration, but needs attention before it.', 'wp-vip-compatibility' ),
+				'label'      => __( 'Should fix', 'wp-vip-compatibility' ),
+				'summary'    => __( 'Will not stop the migration, but should be dealt with before it.', 'wp-vip-compatibility' ),
 				'severities' => array( self::SEVERITY_HIGH ),
 			),
 			self::TIER_WARNING   => array(
-				'label'      => __( 'Warning', 'wp-vip-compatibility' ),
-				'summary'    => __( 'A potential concern. Review it and decide.', 'wp-vip-compatibility' ),
+				'label'      => __( 'Worth checking', 'wp-vip-compatibility' ),
+				'summary'    => __( 'A possible concern. Read it, decide, and move on.', 'wp-vip-compatibility' ),
 				'severities' => array( self::SEVERITY_MEDIUM ),
 			),
 			self::TIER_INFO      => array(
-				'label'      => __( 'Informational', 'wp-vip-compatibility' ),
-				'summary'    => __( 'Context that helps plan the migration. No action necessarily required.', 'wp-vip-compatibility' ),
+				'label'      => __( 'FYI', 'wp-vip-compatibility' ),
+				'summary'    => __( 'Context that helps plan the migration. Nothing to do.', 'wp-vip-compatibility' ),
 				'severities' => array( self::SEVERITY_LOW, self::SEVERITY_INFO ),
 			),
 		);
@@ -254,21 +260,41 @@ class Taxonomy {
 		return array(
 			self::FIX_AUTOMATIC     => array(
 				'label'       => __( 'Automatically fixable', 'wp-vip-compatibility' ),
+				'short'       => __( 'Quick fix', 'wp-vip-compatibility' ),
 				'description' => __( 'A mechanical substitution resolves it.', 'wp-vip-compatibility' ),
 			),
 			self::FIX_MANUAL        => array(
 				'label'       => __( 'Manually fixable', 'wp-vip-compatibility' ),
+				'short'       => __( 'Code change', 'wp-vip-compatibility' ),
 				'description' => __( 'A developer must rewrite the affected code.', 'wp-vip-compatibility' ),
 			),
 			self::FIX_CONFIGURATION => array(
 				'label'       => __( 'Configurable', 'wp-vip-compatibility' ),
+				'short'       => __( 'Config change', 'wp-vip-compatibility' ),
 				'description' => __( 'Resolved through configuration, a constant, or a filter rather than a code change.', 'wp-vip-compatibility' ),
 			),
 			self::FIX_ARCHITECTURAL => array(
 				'label'       => __( 'Requires architectural change', 'wp-vip-compatibility' ),
+				'short'       => __( 'Redesign', 'wp-vip-compatibility' ),
 				'description' => __( 'The feature has to be redesigned around the platform.', 'wp-vip-compatibility' ),
 			),
 		);
+	}
+
+	/**
+	 * Returns the short form of a fixability, for use as a chip.
+	 *
+	 * The full labels are sentences — "Requires architectural change" — which is
+	 * right in a definition list and wrong on a card that already carries a title
+	 * and a target. This is the two-word answer to "how much work is this?".
+	 *
+	 * @param string $fixability A fixability slug.
+	 * @return string The short label, or an empty string when unknown.
+	 */
+	public static function get_fixability_short( $fixability ) {
+		$fixabilities = self::get_fixabilities();
+
+		return $fixabilities[ $fixability ]['short'] ?? '';
 	}
 
 	/**

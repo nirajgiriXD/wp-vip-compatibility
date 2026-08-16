@@ -46,8 +46,9 @@ class Overview_Settings {
 		$this->render_verdict( $aggregate, $scanned );
 
 		if ( $scanned ) {
-			$this->render_next_steps();
 			$this->render_areas();
+		} else {
+			$this->render_getting_started();
 		}
 
 		$this->render_environment();
@@ -57,6 +58,44 @@ class Overview_Settings {
 		}
 
 		$this->render_about();
+	}
+
+	/**
+	 * Explains the loop, on a site that has never been scanned.
+	 *
+	 * At that point every screen in the plugin is empty, so this is the only
+	 * moment where the interface has to describe itself instead of showing
+	 * something. It says what the three things are that this plugin is for, and
+	 * then never appears again.
+	 *
+	 * @return void
+	 */
+	private function render_getting_started() {
+		UI::render_panel_open(
+			array(
+				'title'   => __( 'How this works', 'wp-vip-compatibility' ),
+				'summary' => __( 'Three steps, repeated until the list is empty.', 'wp-vip-compatibility' ),
+			)
+		);
+
+		UI::render_steps(
+			array(
+				array(
+					'title' => __( 'Scan', 'wp-vip-compatibility' ),
+					'body'  => __( 'Every plugin, theme and must-use plugin is read against the VIP Platform requirements, along with the database schema and the wp-content layout. The code is read, never run, so this is safe on a live site.', 'wp-vip-compatibility' ),
+				),
+				array(
+					'title' => __( 'Work through the findings', 'wp-vip-compatibility' ),
+					'body'  => __( 'Findings are ranked, must-fix first. Each one names the file and line, says why it matters on VIP specifically, and gives you the change to make.', 'wp-vip-compatibility' ),
+				),
+				array(
+					'title' => __( 'Rescan', 'wp-vip-compatibility' ),
+					'body'  => __( 'Run it again to see the list shrink and the readiness score climb. Export it as JSON, CSV or Markdown whenever the work needs to move into a ticket or a pull request.', 'wp-vip-compatibility' ),
+				),
+			)
+		);
+
+		UI::render_panel_close();
 	}
 
 	/* ---------------------------------------------------------------------
@@ -90,8 +129,24 @@ class Overview_Settings {
 	 * Builds the counted facts shown beside the gauge.
 	 *
 	 * These are the four numbers the whole report reduces to, each linking into
-	 * the report filtered to exactly that band — so the top of the screen is also
-	 * the fastest way into it.
+	 * the fix list filtered to exactly that tier — so the top of the screen is
+	 * also the fastest way into it.
+	 *
+	 * They count everything outstanding, not just the findings: the database,
+	 * must-use and wp-content audits produce migration work that has no file and
+	 * line, and it appears in the plan directly below under these same four
+	 * labels. Counting only findings here would put "Must fix 0" immediately
+	 * above a step badged "Must fix", and would disagree with the identical row
+	 * of chips on the fix list.
+	 *
+	 * Every tier is listed even at zero, because "nothing must be fixed" is the
+	 * answer this screen exists to give, and it can only be read off a row that
+	 * always has four entries in it.
+	 *
+	 * There was a fifth entry here, "Passed", which counted plugins and themes
+	 * rather than work. One row mixing two units, with nothing naming either,
+	 * made all five ambiguous — and the number it carried is already in the
+	 * gauge, in the headline beside it, and in the per-area cards below.
 	 *
 	 * @param array<string, mixed> $aggregate The aggregate.
 	 * @return array<int, array<string, mixed>> Facts.
@@ -100,7 +155,7 @@ class Overview_Settings {
 		$facts = array();
 
 		foreach ( UI::get_tiers() as $tier => $definition ) {
-			$count = 0;
+			$count = Report::other_work_in_tier( $tier );
 
 			foreach ( $definition['severities'] as $severity ) {
 				$count += (int) ( $aggregate['by_severity'][ $severity ] ?? 0 );
@@ -113,12 +168,6 @@ class Overview_Settings {
 				'url'   => ( 0 === $count ) ? '' : UI::get_findings_url( '', $tier ),
 			);
 		}
-
-		$facts[] = array(
-			'label' => __( 'Passed', 'wp-vip-compatibility' ),
-			'value' => number_format_i18n( (int) $aggregate['statuses'][ Scanner::STATUS_PASS ] ),
-			'tone'  => 'ok',
-		);
 
 		return $facts;
 	}
@@ -268,36 +317,6 @@ class Overview_Settings {
 	 * ------------------------------------------------------------------ */
 
 	/**
-	 * Renders the ranked list of next steps.
-	 *
-	 * @return void
-	 */
-	private function render_next_steps() {
-		$actions = Report::next_actions();
-
-		if ( empty( $actions ) ) {
-			echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-				esc_html__( 'The scanner found nothing that needs doing before this site moves to VIP. Test on a VIP environment before you rely on that: static analysis cannot see behaviour that only appears under real traffic or real data.', 'wp-vip-compatibility' ),
-				'success',
-				esc_html__( 'Nothing outstanding', 'wp-vip-compatibility' )
-			);
-
-			return;
-		}
-
-		UI::render_panel_open(
-			array(
-				'title'   => __( 'Do this next', 'wp-vip-compatibility' ),
-				'summary' => __( 'Ordered by how much each item stands between this site and the platform.', 'wp-vip-compatibility' ),
-			)
-		);
-
-		UI::render_action_list( $actions );
-
-		UI::render_panel_close();
-	}
-
-	/**
 	 * Renders the per-area breakdown.
 	 *
 	 * @return void
@@ -376,7 +395,7 @@ class Overview_Settings {
 					'class' => 'wvc-col-number',
 				),
 				array(
-					'label' => __( 'Blocking', 'wp-vip-compatibility' ),
+					'label' => __( 'Must fix', 'wp-vip-compatibility' ),
 					'class' => 'wvc-col-number',
 				),
 				array(
@@ -413,7 +432,7 @@ class Overview_Settings {
 				. esc_html( number_format_i18n( (int) $snapshot['total'] ) )
 				. '</td>';
 
-			echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Blocking', 'wp-vip-compatibility' ) . '">'
+			echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Must fix', 'wp-vip-compatibility' ) . '">'
 				. esc_html( number_format_i18n( (int) $snapshot['blocking'] ) )
 				. '</td>';
 

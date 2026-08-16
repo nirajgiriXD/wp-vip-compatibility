@@ -131,7 +131,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 			array(
 				'label' => __( 'Findings', 'wp-vip-compatibility' ),
 				'class' => 'wvc-col-findings',
-				'hint'  => __( 'Findings grouped by how much they matter: blocking, important, warning, informational.', 'wp-vip-compatibility' ),
+				'hint'  => __( 'Findings grouped by what to do about them: must fix, should fix, worth checking, FYI.', 'wp-vip-compatibility' ),
 			),
 			array(
 				'label' => __( 'What to do', 'wp-vip-compatibility' ),
@@ -303,7 +303,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 			is_array( $known )
 				? $this->get_known_note( $known['note'] ?? '', $known['doc'] ?? '' )
 				: esc_html__( 'Move it into client-mu-plugins/ in the VIP repository.', 'wp-vip-compatibility' ),
-			UI::get_findings_link( $target['key'], $verdict['total'] ),
+			UI::get_findings_link( $target['key'], $verdict ),
 		);
 
 		return $parts;

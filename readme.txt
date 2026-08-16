@@ -28,6 +28,8 @@ It scans every plugin, theme and must-use plugin with a PHP tokeniser rather tha
 
 Each is scored independently for severity, detection confidence, and the kind of work the fix needs (automatic, manual, configuration, or architectural).
 
+That is the scanner's reasoning, and it stays one click away on each finding. What the interface leads with is a single instruction derived from it — **must fix**, **should fix**, **worth checking** or **FYI** — used on every screen, so there is no vocabulary to learn before the report can be read.
+
 = What every finding tells you =
 
 The issue title, what was detected, why it matters on the VIP Platform specifically, the file, line and function, the line of code as evidence, the recommended fix, an alternative approach where one exists, the matching WordPress-VIP-Go PHPCS sniff, and a link to the WordPress VIP documentation the rule came from.
@@ -45,7 +47,9 @@ The issue title, what was detected, why it matters on the VIP Platform specifica
 
 = Reporting =
 
-An overall readiness score, counts by severity, type and category, findings grouped by target with filters and search, scan history with a change summary between runs, and export to JSON, CSV or Markdown for CI, an analysis sheet or a pull request.
+An overall readiness score and a ranked list of what to do next; one flat list of fixes with the recommended change on the face of every card, filtered by one-click chips; per-plugin, per-theme and per-table breakdowns; scan history with a change summary between runs; and export to JSON, CSV or Markdown for CI, an analysis sheet or a pull request.
+
+The admin menu carries a count of what must be fixed before migrating, so the work is visible from anywhere in wp-admin without opening the plugin.
 
 = Accuracy =
 
@@ -65,7 +69,7 @@ The plugin holds itself to the same standard: its own source passes `phpcs --sta
 
 Open **VIP Compatibility** in the admin menu and run a scan from the header. Results are stored, so screens load without re-analysing the codebase; a target is only re-scanned when its files change or the rule set is updated.
 
-**Overview** answers how ready the site is and what to do first. **Findings** lists every issue with its remediation. **Plugins**, **Themes** and **Must-use** give a per-target verdict, with each row expanding to the evidence behind it. **Database** and **wp-content** check the schema and the application structure against what VIP requires.
+**Overview** answers how ready the site is and what to do first. **Findings** is one ranked list of fixes, worst first, with the recommended change visible on every card. **Plugins**, **Themes** and **Must-use** give a per-target verdict, with each row expanding to the evidence behind it. **Database** and **wp-content** check the schema and the application structure against what VIP requires.
 
 Scan results are stored in the options table and are only readable by users who can `manage_options`. They are removed when the plugin is uninstalled.
 
@@ -73,7 +77,7 @@ Scan results are stored in the options table and are only readable by users who 
 
 = Does a "Blocked" verdict mean the plugin cannot be migrated? =
 
-It means at least one finding is expected to fail on the platform as written. Most are fixable — open the findings report for the specific change required.
+It means at least one finding is expected to fail on the platform as written. Most are fixable — open Findings for the specific change required.
 
 = Why is `uploads/` not reported as incompatible? =
 
@@ -118,6 +122,6 @@ No. It reads code without running it, so it cannot see behaviour that only appea
 == Screenshots ==
 
 1. Overview with the migration readiness score and per-category breakdown.
-2. The findings report, grouped by target with severity filters.
+2. The fix list, ranked worst first, with one-click filters.
 3. An expanded finding showing evidence, rationale and remediation.
 4. The database audit with per-table verdicts and the SQL to fix them.

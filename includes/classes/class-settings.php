@@ -8,6 +8,8 @@
 namespace WP_VIP_COMPATIBILITY\Includes\Classes;
 
 use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
+use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -130,30 +132,54 @@ class Settings {
 	/**
 	 * Adds the plugin menus in the WordPress admin panel.
 	 *
+	 * The admin menu is the plugin's only navigation, so it has to carry what a
+	 * flat list of seven links cannot: how much work is outstanding, and which
+	 * part of the job each screen belongs to. The first gets the same count
+	 * bubble WordPress uses for pending updates — a number there is read without
+	 * being explained. The second is a heading rendered above the first entry of
+	 * each group, which turns seven equal-looking links into three short lists.
+	 *
 	 * @return void
 	 */
 	public function add_plugin_menus() {
 		$screens = UI::get_screens();
+		$groups  = UI::get_groups();
 
 		// The overview is also the first submenu entry, so the menu never shows a
 		// duplicate of the parent under a different name.
 		add_menu_page(
 			__( 'VIP Compatibility', 'wp-vip-compatibility' ),
-			__( 'VIP Compatibility', 'wp-vip-compatibility' ),
+			__( 'VIP Compatibility', 'wp-vip-compatibility' ) . $this->get_menu_badge(),
 			'manage_options',
 			$screens['overview']['slug'],
 			fn() => $this->render_settings_page( 'overview' ),
 			'dashicons-shield-alt'
 		);
 
+		$headed = array();
+
 		foreach ( $screens as $key => $screen ) {
 			$is_parent = ( $screen['slug'] === $screens['overview']['slug'] );
+			$group     = $screen['group'];
+			$label     = esc_html( $screen['label'] );
+
+			// WordPress renders submenu titles through wptexturize() alone, so
+			// this is markup rather than a hack around escaping. The heading is
+			// hidden from assistive technology because it sits inside the link,
+			// where it would otherwise become part of the link's name.
+			if ( ! isset( $headed[ $group ] ) && isset( $groups[ $group ] ) ) {
+				// The first heading sits directly under the menu title, where a
+				// separator above it would divide nothing.
+				$modifier         = empty( $headed ) ? ' wvc-menu-group--first' : '';
+				$headed[ $group ] = true;
+				$label            = '<span class="wvc-menu-group' . $modifier . '" aria-hidden="true">' . esc_html( $groups[ $group ] ) . '</span>' . $label;
+			}
 
 			add_submenu_page(
 				$screens['overview']['slug'],
 				/* translators: %s: Submenu title */
 				sprintf( __( 'VIP Compatibility — %s', 'wp-vip-compatibility' ), $screen['title'] ),
-				$screen['label'],
+				$label,
 				'manage_options',
 				$screen['slug'],
 				/*
@@ -167,5 +193,40 @@ class Settings {
 				$is_parent ? null : fn() => $this->render_settings_page( $key )
 			);
 		}
+	}
+
+	/**
+	 * Builds the count bubble shown on the top-level menu entry.
+	 *
+	 * It counts the findings in the must-fix tier and nothing else. A bubble is a
+	 * claim that something needs doing, so counting anything advisory in it would
+	 * leave a site that is ready to migrate wearing a permanent red badge.
+	 *
+	 * @return string The bubble markup, or an empty string when there is nothing to flag.
+	 */
+	private function get_menu_badge() {
+		$aggregate = Report::aggregate();
+		$count     = 0;
+
+		foreach ( Taxonomy::get_tier_severities( Taxonomy::TIER_BLOCKING ) as $severity ) {
+			$count += (int) ( $aggregate['by_severity'][ $severity ] ?? 0 );
+		}
+
+		if ( $count < 1 ) {
+			return '';
+		}
+
+		return sprintf(
+			' <span class="update-plugins count-%1$d"><span class="plugin-count" aria-hidden="true">%2$s</span><span class="screen-reader-text">%3$s</span></span>',
+			$count,
+			esc_html( number_format_i18n( $count ) ),
+			esc_html(
+				sprintf(
+					/* translators: %s: Number of findings. */
+					_n( '%s finding must be fixed before migrating', '%s findings must be fixed before migrating', $count, 'wp-vip-compatibility' ),
+					number_format_i18n( $count )
+				)
+			)
+		);
 	}
 }
