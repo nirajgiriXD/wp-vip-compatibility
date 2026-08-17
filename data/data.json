@@ -3,7 +3,7 @@
     "directories": {
         "client-mu-plugins": {
             "status": "supported",
-            "description": "Client must-use plugins. This is where the contents of mu-plugins belong on VIP.",
+            "description": "Client must-use plugins. This is where the contents of mu-plugins belong on WordPress VIP.",
             "guidance": "",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/client-mu-plugins-directory/"
         },
@@ -15,7 +15,7 @@
         },
         "languages": {
             "status": "supported",
-            "description": "Translation files. On VIP these are committed rather than generated at runtime.",
+            "description": "Translation files. On WordPress VIP these are committed rather than generated at runtime.",
             "guidance": "Plugins that write .mo files at runtime, such as WPML, cannot generate them here. Build them locally and commit the result.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/"
         },
@@ -39,7 +39,7 @@
         },
         "vip-config": {
             "status": "supported",
-            "description": "VIP platform configuration, including vip-config.php.",
+            "description": "WordPress VIP platform configuration, including vip-config.php.",
             "guidance": "",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/"
         },
@@ -51,68 +51,68 @@
         },
         "mu-plugins": {
             "status": "unsupported",
-            "description": "VIP reserves mu-plugins for its own platform code.",
+            "description": "WordPress VIP reserves mu-plugins for its own platform code.",
             "guidance": "Move the contents into client-mu-plugins/. Drop anything supplied by a previous host, such as the WP Engine mu-plugins.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/client-mu-plugins-directory/"
         },
         "blogs.dir": {
             "status": "unsupported",
             "description": "Pre-3.5 multisite media directory.",
-            "guidance": "Move the media into uploads/, search-and-replace the stored paths, and add redirects for the old URLs. VIP only serves media from uploads/.",
+            "guidance": "Move the media into uploads/, search-and-replace the stored paths, and add redirects for the old URLs. WordPress VIP only serves media from uploads/.",
             "doc": "https://docs.wpvip.com/vip-file-system/"
         },
         "advanced-cache.php": {
             "status": "unsupported",
             "description": "Page-cache drop-in.",
-            "guidance": "Remove it. VIP installs its own drop-ins and provides a globally distributed edge cache.",
+            "guidance": "Remove it. WordPress VIP installs its own drop-ins and provides a globally distributed edge cache.",
             "doc": "https://docs.wpvip.com/caching/"
         },
         "object-cache.php": {
             "status": "unsupported",
             "description": "Object-cache drop-in.",
-            "guidance": "Remove it. VIP supplies a managed object cache backed by Memcached.",
+            "guidance": "Remove it. WordPress VIP supplies a managed object cache backed by Memcached.",
             "doc": "https://docs.wpvip.com/caching/"
         },
         "db.php": {
             "status": "unsupported",
             "description": "Database drop-in.",
-            "guidance": "Remove it. VIP runs HyperDB and does not permit alternative database drop-ins.",
+            "guidance": "Remove it. WordPress VIP runs HyperDB and does not permit alternative database drop-ins.",
             "doc": "https://docs.wpvip.com/databases/"
         },
         "debug.log": {
             "status": "unsupported",
             "description": "WordPress debug log.",
-            "guidance": "Do not commit it. The application directory is read-only on VIP, so nothing can append to it there.",
+            "guidance": "Do not commit it. The application directory is read-only on WordPress VIP, so nothing can append to it there.",
             "doc": "https://docs.wpvip.com/vip-file-system/"
         },
         "wflogs": {
             "status": "unsupported",
             "description": "Wordfence log directory.",
-            "guidance": "Remove it along with Wordfence. VIP provides platform-level security monitoring, and Wordfence is on the VIP incompatibility list.",
+            "guidance": "Remove it along with Wordfence. WordPress VIP provides platform-level security monitoring, and Wordfence is on the WordPress VIP incompatibility list.",
             "doc": "https://docs.wpvip.com/plugins/incompatibilities/"
         },
         "w3tc-config": {
             "status": "unsupported",
             "description": "W3 Total Cache configuration.",
-            "guidance": "Remove it along with W3 Total Cache, which is on the VIP incompatibility list.",
+            "guidance": "Remove it along with W3 Total Cache, which is on the WordPress VIP incompatibility list.",
             "doc": "https://docs.wpvip.com/plugins/incompatibilities/"
         },
         "ai1wm-backups": {
             "status": "unsupported",
             "description": "All-in-One WP Migration backup directory.",
-            "guidance": "Remove it. VIP takes platform-level backups and All-in-One WP Migration is on the VIP incompatibility list.",
+            "guidance": "Remove it. WordPress VIP takes platform-level backups and All-in-One WP Migration is on the WordPress VIP incompatibility list.",
             "doc": "https://docs.wpvip.com/plugins/incompatibilities/"
         },
         "uploads": {
             "status": "informational",
-            "description": "Media library. On VIP this is mapped to the VIP File System object store.",
-            "guidance": "Do not commit it. Media is imported separately with the VIP CLI. This is the one path under wp-content that application code may write to.",
+            "description": "Media library. On WordPress VIP this is mapped to the WordPress VIP File System object store.",
+            "guidance": "Do not commit it. Media is imported separately with the WordPress VIP CLI. This is the one path under wp-content that application code may write to.",
             "doc": "https://docs.wpvip.com/vip-file-system/"
         },
         "upgrade": {
             "status": "informational",
             "description": "Temporary directory WordPress uses while installing updates.",
-            "guidance": "Local only. It is not deployed, and VIP applies updates through the repository instead.",
+            "guidance": "Local only. It is not deployed, and WordPress VIP applies updates through the repository instead.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/"
         },
         "upgrade-temp-backup": {
@@ -124,7 +124,7 @@
         "cache": {
             "status": "informational",
             "description": "Cache directory written by a caching or optimisation plugin.",
-            "guidance": "Nothing can write here on VIP. Identify the plugin that owns it and remove or reconfigure it; the platform edge cache replaces it.",
+            "guidance": "Nothing can write here on WordPress VIP. Identify the plugin that owns it and remove or reconfigure it; the platform edge cache replaces it.",
             "doc": "https://docs.wpvip.com/caching/"
         },
         "fonts": {
@@ -136,13 +136,13 @@
         "index.php": {
             "status": "informational",
             "description": "Empty index file WordPress ships to prevent directory listing.",
-            "guidance": "Harmless. VIP serves through NGINX and does not rely on it.",
+            "guidance": "Harmless. WordPress VIP serves through NGINX and does not rely on it.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/"
         },
         ".htaccess": {
             "status": "unsupported",
             "description": "Apache configuration.",
-            "guidance": "VIP serves requests through NGINX, so this file is ignored. Re-express redirects in vip-config.php or a redirect plugin, and access rules in application code.",
+            "guidance": "WordPress VIP serves requests through NGINX, so this file is ignored. Re-express redirects in vip-config.php or a redirect plugin, and access rules in application code.",
             "doc": "https://docs.wpvip.com/technical-references/wordpress-on-vip/"
         },
         ".editorconfig": {
@@ -159,13 +159,13 @@
         },
         ".phpcs.xml.dist": {
             "status": "supported",
-            "description": "PHP_CodeSniffer configuration, used by the VIP Code Analysis Bot.",
+            "description": "PHP_CodeSniffer configuration, used by the WordPress VIP Code Analysis Bot.",
             "guidance": "",
             "doc": "https://docs.wpvip.com/vip-code-analysis-bot/customize-phpcs/"
         },
         ".vipgoci_phpcs_skip_folders": {
             "status": "supported",
-            "description": "Folders excluded from the VIP Code Analysis Bot PHPCS scan.",
+            "description": "Folders excluded from the WordPress VIP Code Analysis Bot PHPCS scan.",
             "guidance": "",
             "doc": "https://docs.wpvip.com/vip-code-analysis-bot/customize-phpcs/"
         },
@@ -228,265 +228,237 @@
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "akismet": {
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "block-api-data": {
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "cron-control": {
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "elasticpress": {
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "elasticpress-next": {
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "es-wp-query": {
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "debug-bar-elasticpress": {
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "jetpack": {
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "lightweight-term-count-update": {
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "nginx-http-concat": {
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "query-monitor": {
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "rewrite-rules-inspector": {
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "two-factor": {
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "wp-parsely": {
             "source": "automattic",
             "status": "provided_by_vip",
             "compatible": false,
-            "note": "Preinstalled by the VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
+            "note": "Preinstalled by the WordPress VIP platform. Remove the bundled copy to avoid shipping a second, divergent version.",
             "doc": "https://docs.wpvip.com/vip-go-mu-plugins/"
         },
         "force-strong-passwords": {
             "source": "wp-engine",
             "status": "not_required",
             "compatible": false,
-            "note": "Installed by WP Engine. It has no purpose on VIP and should be removed rather than migrated.",
+            "note": "Installed by WP Engine. It has no purpose on WordPress VIP and should be removed rather than migrated.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/client-mu-plugins-directory/"
         },
         "mu-plugin.php": {
             "source": "wp-engine",
             "status": "not_required",
             "compatible": false,
-            "note": "Installed by WP Engine. It has no purpose on VIP and should be removed rather than migrated.",
+            "note": "Installed by WP Engine. It has no purpose on WordPress VIP and should be removed rather than migrated.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/client-mu-plugins-directory/"
         },
         "slt-force-strong-passwords.php": {
             "source": "wp-engine",
             "status": "not_required",
             "compatible": false,
-            "note": "Installed by WP Engine. It has no purpose on VIP and should be removed rather than migrated.",
+            "note": "Installed by WP Engine. It has no purpose on WordPress VIP and should be removed rather than migrated.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/client-mu-plugins-directory/"
         },
         "wpe-cache-plugin": {
             "source": "wp-engine",
             "status": "not_required",
             "compatible": false,
-            "note": "Installed by WP Engine. It has no purpose on VIP and should be removed rather than migrated.",
+            "note": "Installed by WP Engine. It has no purpose on WordPress VIP and should be removed rather than migrated.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/client-mu-plugins-directory/"
         },
         "wpe-cache-plugin.php": {
             "source": "wp-engine",
             "status": "not_required",
             "compatible": false,
-            "note": "Installed by WP Engine. It has no purpose on VIP and should be removed rather than migrated.",
+            "note": "Installed by WP Engine. It has no purpose on WordPress VIP and should be removed rather than migrated.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/client-mu-plugins-directory/"
         },
         "wpe-wp-sign-on-plugin": {
             "source": "wp-engine",
             "status": "not_required",
             "compatible": false,
-            "note": "Installed by WP Engine. It has no purpose on VIP and should be removed rather than migrated.",
+            "note": "Installed by WP Engine. It has no purpose on WordPress VIP and should be removed rather than migrated.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/client-mu-plugins-directory/"
         },
         "wpe-wp-sign-on-plugin.php": {
             "source": "wp-engine",
             "status": "not_required",
             "compatible": false,
-            "note": "Installed by WP Engine. It has no purpose on VIP and should be removed rather than migrated.",
+            "note": "Installed by WP Engine. It has no purpose on WordPress VIP and should be removed rather than migrated.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/client-mu-plugins-directory/"
         },
         "wpengine-common": {
             "source": "wp-engine",
             "status": "not_required",
             "compatible": false,
-            "note": "Installed by WP Engine. It has no purpose on VIP and should be removed rather than migrated.",
+            "note": "Installed by WP Engine. It has no purpose on WordPress VIP and should be removed rather than migrated.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/client-mu-plugins-directory/"
         },
         "wpengine-security-auditor.php": {
             "source": "wp-engine",
             "status": "not_required",
             "compatible": false,
-            "note": "Installed by WP Engine. It has no purpose on VIP and should be removed rather than migrated.",
+            "note": "Installed by WP Engine. It has no purpose on WordPress VIP and should be removed rather than migrated.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/client-mu-plugins-directory/"
         },
         "wpe-elasticpress-autosuggest-logger": {
             "source": "wp-engine",
             "status": "not_required",
             "compatible": false,
-            "note": "Installed by WP Engine. It has no purpose on VIP and should be removed rather than migrated.",
+            "note": "Installed by WP Engine. It has no purpose on WordPress VIP and should be removed rather than migrated.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/client-mu-plugins-directory/"
         },
         "stop-long-comments.php": {
             "source": "wp-engine",
             "status": "not_required",
             "compatible": false,
-            "note": "Installed by WP Engine. It has no purpose on VIP and should be removed rather than migrated.",
+            "note": "Installed by WP Engine. It has no purpose on WordPress VIP and should be removed rather than migrated.",
             "doc": "https://docs.wpvip.com/wordpress-skeleton/client-mu-plugins-directory/"
         }
     },
     "known_plugins": {
         "incompatible": {
-            "all-in-one-wp-migration": "Backup and migration plugin. VIP performs platform-level backups, and this plugin writes archives into wp-content.",
-            "wp-all-import": "Import tooling that conflicts with the VIP import pipeline and needs write access outside uploads.",
-            "wp-all-import-pro": "Import tooling that conflicts with the VIP import pipeline and needs write access outside uploads.",
-            "wp-all-export": "Export tooling that conflicts with the VIP backup infrastructure.",
-            "wp-all-export-pro": "Export tooling that conflicts with the VIP backup infrastructure.",
-            "w3-total-cache": "Page caching plugin. Not designed for the VIP globally distributed edge cache, and it writes config and cache files into wp-content.",
+            "all-in-one-wp-migration": "Backup and migration plugin. WordPress VIP performs platform-level backups, and this plugin writes archives into wp-content.",
+            "wp-all-import": "Import tooling that conflicts with the WordPress VIP import pipeline and needs write access outside uploads.",
+            "wp-all-import-pro": "Import tooling that conflicts with the WordPress VIP import pipeline and needs write access outside uploads.",
+            "wp-all-export": "Export tooling that conflicts with the WordPress VIP backup infrastructure.",
+            "wp-all-export-pro": "Export tooling that conflicts with the WordPress VIP backup infrastructure.",
+            "w3-total-cache": "Page caching plugin. Not designed for the WordPress VIP globally distributed edge cache, and it writes config and cache files into wp-content.",
             "wp-fastest-cache": "Page caching plugin that writes cache files to a read-only filesystem.",
-            "wp-rocket": "Page caching plugin built around Apache and .htaccess. VIP serves through NGINX.",
-            "wp-super-cache": "Page caching plugin that conflicts with the built-in VIP page cache.",
-            "wp-smushit": "Image optimisation plugin with observed incompatibilities against the VIP File System.",
-            "sucuri-scanner": "Security plugin that conflicts with VIP security infrastructure.",
-            "wordfence": "Security plugin that requires filesystem writes and conflicts with VIP security infrastructure.",
-            "wp-file-manager": "Browses and edits files in the WordPress install. The VIP application filesystem is read-only, so edits silently fail."
+            "wp-rocket": "Page caching plugin built around Apache and .htaccess. WordPress VIP serves through NGINX.",
+            "wp-super-cache": "Page caching plugin that conflicts with the built-in WordPress VIP page cache.",
+            "wp-smushit": "Image optimisation plugin with observed incompatibilities against the WordPress VIP File System.",
+            "sucuri-scanner": "Security plugin that conflicts with WordPress VIP security infrastructure.",
+            "wordfence": "Security plugin that requires filesystem writes and conflicts with WordPress VIP security infrastructure.",
+            "wp-file-manager": "Browses and edits files in the WordPress install. The WordPress VIP application filesystem is read-only, so edits silently fail."
         },
         "caution": {
             "contact-form-7": "Versions before 5.8.1 require filesystem write access. Confirm the installed version and test file uploads.",
-            "gravityforms": "Attempts filesystem writes outside uploads. Widely used on VIP in practice — test entry storage and file uploads before deciding.",
-            "sitepress-multilingual-cms": "WPML writes .mo files into wp-content/languages, which is read-only on VIP. Generate the language files locally and commit them.",
+            "gravityforms": "Attempts filesystem writes outside uploads. Widely used on WordPress VIP in practice — test entry storage and file uploads before deciding.",
+            "sitepress-multilingual-cms": "WPML writes .mo files into wp-content/languages, which is read-only on WordPress VIP. Generate the language files locally and commit them.",
             "tablepress": "Needs write access for imports and exports. Verify against the uploads directory.",
             "ninja-tables": "Needs write access for imports and exports. Verify against the uploads directory.",
             "wpdatatables": "Needs write access for imports and exports. Verify against the uploads directory.",
             "wpforms": "Writes uploads and logs. Confirm every path resolves inside the uploads directory.",
             "wpforms-lite": "Writes uploads and logs. Confirm every path resolves inside the uploads directory.",
-            "elementor": "Generates per-page CSS files and makes heavy use of the object cache. Both are performance risks on VIP.",
-            "elementor-pro": "Generates per-page CSS files and makes heavy use of the object cache. Both are performance risks on VIP.",
+            "elementor": "Generates per-page CSS files and makes heavy use of the object cache. Both are performance risks on WordPress VIP.",
+            "elementor-pro": "Generates per-page CSS files and makes heavy use of the object cache. Both are performance risks on WordPress VIP.",
             "advanced-custom-fields": "Supported, but field groups should be stored as JSON committed with the theme rather than in the database.",
             "advanced-custom-fields-pro": "Supported, but field groups should be stored as JSON committed with the theme rather than in the database.",
-            "buddypress": "Avatar and cover-photo handling iterates upload directories and calls opendir()/closedir(), which fatals on the VIP File System.",
-            "buddyboss-platform": "Shares the BuddyPress avatar handling that fatals on the VIP File System.",
-            "amazon-s3-and-cloudfront": "WP Offload Media diverts uploads away from the VIP File System, which produces broken or empty thumbnails."
+            "buddypress": "Avatar and cover-photo handling iterates upload directories and calls opendir()/closedir(), which fatals on the WordPress VIP File System.",
+            "buddyboss-platform": "Shares the BuddyPress avatar handling that fatals on the WordPress VIP File System.",
+            "amazon-s3-and-cloudfront": "WP Offload Media diverts uploads away from the WordPress VIP File System, which produces broken or empty thumbnails."
         },
         "redundant": {
-            "jetpack": "Provided by the VIP platform as a must-use plugin.",
-            "akismet": "Provided by the VIP platform as a must-use plugin.",
-            "query-monitor": "Provided by the VIP platform as a must-use plugin.",
-            "two-factor": "Provided by the VIP platform as a must-use plugin.",
-            "elasticpress": "Provided by the VIP platform; VIP Search is the supported search layer.",
-            "wp-parsely": "Provided by the VIP platform as a must-use plugin.",
-            "redis-cache": "VIP supplies a managed object cache. A second object-cache drop-in conflicts with it.",
-            "litespeed-cache": "Page caching is handled by the VIP edge cache.",
-            "autoptimize": "VIP concatenates and minifies CSS and JavaScript at the platform level.",
-            "wp-optimize": "Combines caching and database optimisation, both of which VIP manages.",
-            "breeze": "Page caching is handled by the VIP edge cache.",
-            "comet-cache": "Page caching is handled by the VIP edge cache.",
-            "cache-enabler": "Page caching is handled by the VIP edge cache.",
-            "hummingbird-performance": "Page caching and asset optimisation are handled by the VIP platform.",
-            "wp-crontrol": "VIP runs scheduled events through Cron Control.",
+            "jetpack": "Provided by the WordPress VIP platform as a must-use plugin.",
+            "akismet": "Provided by the WordPress VIP platform as a must-use plugin.",
+            "query-monitor": "Provided by the WordPress VIP platform as a must-use plugin.",
+            "two-factor": "Provided by the WordPress VIP platform as a must-use plugin.",
+            "elasticpress": "Provided by the WordPress VIP platform; WordPress VIP Search is the supported search layer.",
+            "wp-parsely": "Provided by the WordPress VIP platform as a must-use plugin.",
+            "redis-cache": "WordPress VIP supplies a managed object cache. A second object-cache drop-in conflicts with it.",
+            "litespeed-cache": "Page caching is handled by the WordPress VIP edge cache.",
+            "autoptimize": "WordPress VIP concatenates and minifies CSS and JavaScript at the platform level.",
+            "wp-optimize": "Combines caching and database optimisation, both of which WordPress VIP manages.",
+            "breeze": "Page caching is handled by the WordPress VIP edge cache.",
+            "comet-cache": "Page caching is handled by the WordPress VIP edge cache.",
+            "cache-enabler": "Page caching is handled by the WordPress VIP edge cache.",
+            "hummingbird-performance": "Page caching and asset optimisation are handled by the WordPress VIP platform.",
+            "wp-crontrol": "WordPress VIP runs scheduled events through Cron Control.",
             "application-passwords": "Merged into WordPress core in 5.6 and no longer needed as a plugin."
         },
         "verified": [
-            "wp-vip-compatibility",
-            "aryo-activity-log",
-            "memberpress-importer",
-            "memberpress-pdf-invoice",
-            "memberpress",
-            "miniorange-2-factor-authentication",
-            "miniorange-saml-20-single-sign-on",
-            "post-smtp",
-            "cc-post-to-pdf",
-            "tiny-compress-images",
-            "zoom-meeting"
-        ],
-        "vip_disallowed_plugins": [
-            "all-in-one-wp-migration",
-            "wp-all-import",
-            "wp-all-import-pro",
-            "wp-all-export",
-            "wp-all-export-pro",
-            "w3-total-cache",
-            "wp-fastest-cache",
-            "wp-rocket",
-            "wp-super-cache",
-            "wp-smushit",
-            "sucuri-scanner",
-            "wordfence",
-            "wp-file-manager"
-        ],
-        "tested_compatible_plugins": [
             "wp-vip-compatibility",
             "aryo-activity-log",
             "memberpress-importer",

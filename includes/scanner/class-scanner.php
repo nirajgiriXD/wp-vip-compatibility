@@ -176,7 +176,7 @@ class Scanner {
 	 * Returns the directory names skipped during a scan.
 	 *
 	 * These hold third-party or generated code that the site owner does not
-	 * maintain, which is the same set VIP lets you exclude from its own PHPCS
+	 * maintain, which is the same set WordPress VIP lets you exclude from its own PHPCS
 	 * scans through `.vipgoci_phpcs_skip_folders`.
 	 *
 	 * @return string[] Lower-case directory names.

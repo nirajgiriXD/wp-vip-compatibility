@@ -2,25 +2,59 @@
  * WordPress VIP Compatibility — admin design system.
  *
  * Everything is scoped under `.wvc-wrap` so the plugin never leaks styles into
- * WordPress core screens or other plugins. Tokens are declared once and reused
- * by every component to keep typography, spacing and colour consistent.
+ * WordPress core screens or other plugins, and every component is built from the
+ * tokens in section 1 so typography, spacing, colour and elevation stay in step.
  *
- * 1.  Tokens
- * 2.  Shell & layout
- * 3.  Masthead & sub navigation
- * 4.  Page head
- * 5.  Buttons & links
- * 6.  Badges, dots & status pills
- * 7.  Toolbar: segmented filters, search, scan progress
- * 8.  Tables
- * 9.  Snippets & notes
- * 10. Notices
- * 11. Empty states & skeletons
- * 12. Overview: verdict, next steps, area breakdown
- * 13. Prose inside notices
- * 14. Responsive
- * 15. Motion & accessibility
- * 16. Findings report
+ * The layout is an application shell: a dark masthead for identity and the two
+ * global actions, then a single content column of stat rows, panels and tables
+ * running the full width. Navigation is WordPress's own admin menu — a second
+ * list of the same links alongside it would cost a fifth of every screen to say
+ * what is already on the left. Density comes from a tight vertical rhythm and a
+ * small type scale, not from shrinking things until they touch.
+ *
+ * Four rules keep the components from drifting apart:
+ *
+ * - One type scale, one weight scale. Every size is a `--wvc-t-*` token and
+ *   every weight is 400/500/600/700. Nothing is set in half pixels, and no
+ *   component invents a size of its own.
+ * - Text fills its container. Prose is not capped to a reading measure: the
+ *   panel it sits in is already the column, and a paragraph stopping short of
+ *   the panel edge reads as a layout that failed rather than as a considered
+ *   line length. The only survivors are structural — a table column that would
+ *   otherwise swallow the row, and centred copy in an empty state, which needs
+ *   a bound to stay centred against.
+ * - Colour means one thing at a time. A tinted surface with a matching border
+ *   and a coloured icon is a *notice*: something that just happened, or a
+ *   standing caveat. A left accent bar on a neutral surface is *rank*: how
+ *   serious this row is relative to the ones around it. The two are never mixed
+ *   on the same element, because an element wearing both reads as neither.
+ * - Text colour is never the vivid tier hue. The tier hues are tuned for 8px
+ *   dots and 3px edges, where saturation is all that separates them; at 11px
+ *   they fall under 4.5:1. Every place a tier tints text uses the `-ink`
+ *   variant, which is the same hue taken down to a legible value.
+ * - One control language. Segmented tracks and chip links do the same job —
+ *   narrow the list, show what you would get — so they share a shape, a type
+ *   size, a count badge and an active state. What differs between them is only
+ *   what differs in behaviour: a track is one exclusive choice, chips are links.
+ *
+ *  1. Tokens
+ *  2. Base and primitives
+ *  3. Shell: wrap, masthead, content column
+ *  4. Page head
+ *  5. Buttons, links, menus
+ *  6. Status vocabulary: badges, dots, pills, tags, chips
+ *  7. Metrics: stat tiles
+ *  8. Panels, definition grids, columns, spotlight
+ *  9. Verdict hero and gauge
+ * 10. Area cards and proportion meters
+ * 11. Filters, search, toolbar, scan progress
+ * 12. Tables
+ * 13. Row detail drawers
+ * 14. Snippets, notes, SQL groups
+ * 15. Notices, guidance, empty states, steps
+ * 16. The fix list
+ * 17. Responsive
+ * 18. Motion, accessibility and print
  */
 
 /* -------------------------------------------------------------------------
@@ -31,37 +65,82 @@
 	--wvc-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	--wvc-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 
+	/* Type scale. Eight steps, whole pixels, one job each. */
+	--wvc-t-2xs: 10px;   /* uppercase micro labels */
+	--wvc-t-xs: 11px;    /* counts, captions, meta lines */
+	--wvc-t-sm: 12px;    /* secondary body, table cells, chips */
+	--wvc-t-md: 13px;    /* base body */
+	--wvc-t-lg: 14px;    /* panel titles, emphasised item names */
+	--wvc-t-xl: 16px;    /* card headlines */
+	--wvc-t-2xl: 18px;   /* verdict headline */
+	--wvc-t-3xl: 22px;   /* page title */
+	--wvc-t-metric: 27px; /* stat tile values */
+	--wvc-t-gauge: 33px;  /* the readiness score */
+
+	/* Line heights. */
+	--wvc-lh-tight: 1.25;
+	--wvc-lh: 1.55;
+	--wvc-lh-loose: 1.6;
+
 	/* Neutrals. */
-	--wvc-canvas: #f0f0f1;
 	--wvc-surface: #ffffff;
-	--wvc-surface-sunken: #f7f8fa;
-	--wvc-surface-hover: #f2f5f9;
-	--wvc-border: #e3e6eb;
-	--wvc-border-strong: #cfd4dc;
+	--wvc-sunken: #f7f8fa;
+	--wvc-hover: #f1f4f9;
+	--wvc-border: #e4e7ec;
+	--wvc-border-strong: #cfd4dd;
 
-	/* Text. */
-	--wvc-text: #14181f;
-	--wvc-text-secondary: #4b5563;
-	--wvc-text-muted: #6b7280;
+	/* Ink. */
+	--wvc-ink: #101828;
+	--wvc-ink-2: #475467;
+	--wvc-ink-3: #667085;
 
-	/* Accent — aligned with the WordPress admin blue. */
-	--wvc-accent: #2271b1;
-	--wvc-accent-hover: #135e96;
-	--wvc-accent-soft: #eaf2fa;
-	--wvc-accent-border: #c3dbf0;
+	/* Shell. */
+	--wvc-shell: #14203a;
+	--wvc-shell-2: #1d2d4c;
+	--wvc-shell-ink: #eef2f8;
+	--wvc-shell-ink-2: #a3b3cb;
+	--wvc-shell-line: rgba(255, 255, 255, 0.14);
+	--wvc-shell-alert: #ffd7a8;
 
-	/* Semantic. */
-	--wvc-ok: #12805c;
-	--wvc-ok-soft: #e7f5ef;
-	--wvc-ok-border: #bde3d3;
-	--wvc-bad: #b32d2e;
-	--wvc-bad-soft: #fdefef;
-	--wvc-bad-border: #f3c9c9;
-	--wvc-warn: #996800;
-	--wvc-warn-soft: #fdf6e6;
-	--wvc-warn-border: #f0dfae;
+	/* Accent. `-lift` is the hover value on a dark ground, where the darker
+	   `-hover` would read as the button receding rather than responding. */
+	--wvc-accent: #2a63c4;
+	--wvc-accent-hover: #1e4d9e;
+	--wvc-accent-lift: #3b78de;
+	--wvc-accent-soft: #eef3fc;
+	--wvc-accent-line: #c6d8f2;
 
-	/* Spacing scale. */
+	/* Semantic. Every one of these clears 4.5:1 on white and on --wvc-sunken. */
+	--wvc-ok: #0f7b55;
+	--wvc-ok-soft: #e8f6f0;
+	--wvc-ok-line: #b6e0cd;
+	--wvc-warn: #a15c00;
+	--wvc-warn-soft: #fdf4e5;
+	--wvc-warn-line: #f0dcae;
+	--wvc-bad: #bb2f26;
+	--wvc-bad-soft: #fdefee;
+	--wvc-bad-line: #f4c8c4;
+
+	/*
+	 * Consequence tiers — one hue per tier, used everywhere severity appears.
+	 * The plain token is the graphic value: dots, card edges, gauge strokes,
+	 * meter segments. The `-ink` token is the same hue darkened until it is
+	 * legible as text, which the graphic value is not at 11px.
+	 */
+	--wvc-tier-blocking: #cf3a2b;
+	--wvc-tier-blocking-ink: #b42318;
+	--wvc-tier-important: #d97706;
+	--wvc-tier-important-ink: #b54708;
+	--wvc-tier-warning: #b78103;
+	--wvc-tier-warning-ink: #8a6407;
+	--wvc-tier-info: #64748b;
+	--wvc-tier-info-ink: #5a6577;
+
+	/* Code surfaces. */
+	--wvc-code-bg: #0f172a;
+	--wvc-code-ink: #d7e3f4;
+
+	/* Space. */
 	--wvc-1: 4px;
 	--wvc-2: 8px;
 	--wvc-3: 12px;
@@ -72,35 +151,51 @@
 	--wvc-8: 40px;
 
 	/* Radii. */
-	--wvc-radius-sm: 6px;
-	--wvc-radius: 10px;
-	--wvc-radius-lg: 14px;
-	--wvc-radius-pill: 999px;
+	--wvc-r-xs: 4px;
+	--wvc-r-sm: 6px;
+	--wvc-r: 10px;
+	--wvc-r-lg: 14px;
+	--wvc-r-pill: 999px;
+
+	/* Control heights, so anything sitting in one row lines up by construction. */
+	--wvc-ctl: 32px;
+	--wvc-ctl-sm: 28px;
 
 	/* Elevation — restrained, single light source. */
 	--wvc-shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
-	--wvc-shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.07), 0 1px 2px rgba(16, 24, 40, 0.04);
-	--wvc-shadow-md: 0 4px 14px rgba(16, 24, 40, 0.07), 0 1px 3px rgba(16, 24, 40, 0.04);
+	--wvc-shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.04);
+	--wvc-shadow-md: 0 6px 18px rgba(16, 24, 40, 0.08), 0 2px 4px rgba(16, 24, 40, 0.04);
+	--wvc-shadow-lg: 0 18px 40px rgba(16, 24, 40, 0.12), 0 3px 8px rgba(16, 24, 40, 0.05);
 
-	--wvc-ring: 0 0 0 2px #fff, 0 0 0 4px var(--wvc-accent);
-	--wvc-transition: 120ms cubic-bezier(0.4, 0, 0.2, 1);
+	/*
+	 * A two-tone focus ring: an inner halo in the element's own ground, then the
+	 * accent. It stays visible on white, on the sunken toolbar and on the dark
+	 * masthead alike, which a single outline does not.
+	 */
+	--wvc-focus-halo: #ffffff;
+	--wvc-focus: 0 0 0 2px var(--wvc-focus-halo), 0 0 0 4px var(--wvc-accent);
 
-	font-family: var(--wvc-font);
-	color: var(--wvc-text);
+	/* The WordPress admin bar is fixed, so anything sticky has to clear it. */
+	--wvc-sticky: 32px;
+
+	--wvc-ease: 160ms cubic-bezier(0.2, 0, 0.15, 1);
 }
 
 /* -------------------------------------------------------------------------
- * 2. Shell & layout
+ * 2. Base and primitives
  * ---------------------------------------------------------------------- */
 
 .wvc-wrap {
 	margin: 0 20px 0 2px;
-	padding: var(--wvc-6) 0 var(--wvc-8);
-	max-width: 1600px;
+	padding: var(--wvc-4) 0 var(--wvc-8);
+	max-width: 1680px;
 	box-sizing: border-box;
-	font-size: 13px;
-	line-height: 1.55;
+	font-family: var(--wvc-font);
+	font-size: var(--wvc-t-md);
+	line-height: var(--wvc-lh);
+	color: var(--wvc-ink);
 	-webkit-font-smoothing: antialiased;
+	font-variant-numeric: tabular-nums;
 }
 
 .wvc-wrap *,
@@ -109,28 +204,90 @@
 	box-sizing: border-box;
 }
 
-.wvc-wrap .wvc-container {
-	display: block;
-}
-
-/* Stack every direct child of a screen with one rhythm. */
-.wvc-container > * + * {
-	margin-top: var(--wvc-5);
-}
-
-.wvc-wrap :focus-visible {
-	outline: 2px solid var(--wvc-accent);
-	outline-offset: 2px;
-	border-radius: var(--wvc-radius-sm);
-}
-
 /* The UA `[hidden]` rule loses to any component that sets `display`, so make
    the attribute authoritative for everything inside the plugin. */
 .wvc-wrap [hidden] {
 	display: none !important;
 }
 
-/* Icons inherit colour and come in three sizes. */
+/* One ring for everything focusable that has not been given a component ring
+   of its own. Keyboard only: `:focus-visible` keeps it off mouse clicks. */
+.wvc-wrap :focus-visible {
+	outline: 2px solid var(--wvc-accent);
+	outline-offset: 2px;
+	border-radius: var(--wvc-r-sm);
+}
+
+.wvc-wrap p {
+	margin: 0;
+	font-size: var(--wvc-t-md);
+}
+
+.wvc-wrap h1,
+.wvc-wrap h2,
+.wvc-wrap h3,
+.wvc-wrap h4,
+.wvc-wrap h5 {
+	margin: 0;
+	padding: 0;
+	color: inherit;
+	font-weight: 600;
+	line-height: var(--wvc-lh-tight);
+}
+
+.wvc-wrap ul,
+.wvc-wrap ol,
+.wvc-wrap dl {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/*
+ * A note about the three resets above, because they are a trap.
+ *
+ * `.wvc-wrap p` is one class plus one element, which outranks a bare component
+ * class like `.wvc-panel__summary`. So a component rule that sets a margin on
+ * anything that is a `p`, `ul`, `ol`, `dl` or heading loses to the reset and
+ * silently does nothing — which is how a stack of paragraphs ends up with no
+ * space between them and a card's `margin-top: auto` stops pushing.
+ *
+ * Every such rule therefore carries the `.wvc-wrap` prefix, which takes it to
+ * two classes and back in front. Prefix, rather than wrapping the resets in
+ * `:where()` to drop their specificity: this element also carries WordPress's
+ * own `wrap` class, and a zero-specificity reset would start losing to core
+ * admin styles instead.
+ *
+ * Rule of thumb: setting a margin on a `p`, `ul`, `ol`, `dl` or heading?
+ * Prefix the selector with `.wvc-wrap`.
+ */
+
+.wvc-wrap code {
+	font-family: var(--wvc-font-mono);
+	font-size: 0.92em;
+	padding: 0;
+	background: none;
+}
+
+/* The one micro-label treatment, shared by every uppercase caption in the
+   interface: stat labels, definition labels, table heads, section titles. */
+.wvc-wrap .wvc-stat__label,
+.wvc-wrap .wvc-def__label,
+.wvc-wrap .wvc-detail__title,
+.wvc-wrap .wvc-page-head__eyebrow,
+.wvc-wrap .wvc-menu__title,
+.wvc-wrap .wvc-gauge__caption,
+.wvc-wrap .wvc-verdict__facts-caption,
+.wvc-wrap .wvc-occurrences__title,
+.wvc-wrap .wvc-fix__answer dt,
+.wvc-wrap .wvc-th {
+	font-size: var(--wvc-t-2xs);
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--wvc-ink-3);
+}
+
 .wvc-wrap .wvc-icon {
 	display: inline-block;
 	flex: 0 0 auto;
@@ -149,23 +306,36 @@
 	height: 13px;
 }
 
+.wvc-app {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-4);
+}
+
 /* -------------------------------------------------------------------------
- * 3. Masthead & sub navigation
+ * 3. Shell
  * ---------------------------------------------------------------------- */
 
 .wvc-masthead {
 	display: flex;
-	align-items: flex-start;
+	align-items: center;
 	justify-content: space-between;
-	gap: var(--wvc-5);
+	gap: var(--wvc-4);
 	flex-wrap: wrap;
-	margin-bottom: var(--wvc-5);
+	padding: var(--wvc-3) var(--wvc-4);
+	border-radius: var(--wvc-r-lg);
+	color: var(--wvc-shell-ink);
+	background: linear-gradient(115deg, var(--wvc-shell) 0%, var(--wvc-shell-2) 100%);
+	box-shadow: var(--wvc-shadow-sm);
+
+	/* Inside the masthead the ground is dark, so the focus halo has to be too. */
+	--wvc-focus-halo: var(--wvc-shell);
 }
 
 .wvc-masthead__identity {
 	display: flex;
 	align-items: center;
-	gap: var(--wvc-4);
+	gap: var(--wvc-3);
 	min-width: 0;
 }
 
@@ -173,84 +343,131 @@
 	display: grid;
 	place-items: center;
 	flex: 0 0 auto;
-	width: 44px;
-	height: 44px;
-	border-radius: var(--wvc-radius);
+	width: 34px;
+	height: 34px;
+	border-radius: var(--wvc-r-sm);
 	color: #fff;
-	background: linear-gradient(140deg, #2f7fc4, #1d5f96);
-	box-shadow: var(--wvc-shadow-sm);
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid var(--wvc-shell-line);
 }
 
 .wvc-masthead__mark .wvc-icon {
-	width: 24px;
-	height: 24px;
+	width: 19px;
+	height: 19px;
+}
+
+.wvc-masthead__text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
 }
 
 .wvc-wrap .wvc-masthead__title {
+	margin: 0;
+	padding: 0;
+	font-size: var(--wvc-t-lg);
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	line-height: 1.3;
+	color: var(--wvc-shell-ink);
+}
+
+.wvc-masthead__meta {
+	font-size: var(--wvc-t-xs);
+	line-height: 1.4;
+	color: var(--wvc-shell-ink-2);
+}
+
+.wvc-masthead__actions {
 	display: flex;
 	align-items: center;
 	gap: var(--wvc-2);
 	flex-wrap: wrap;
-	margin: 0;
-	padding: 0;
-	font-size: 20px;
-	line-height: 1.3;
-	font-weight: 650;
-	letter-spacing: -0.01em;
-	color: var(--wvc-text);
 }
 
-.wvc-subnav {
-	margin-bottom: var(--wvc-5);
-	border-bottom: 1px solid var(--wvc-border);
-}
-
-.wvc-subnav__list {
-	display: flex;
-	align-items: stretch;
-	gap: var(--wvc-1);
-	margin: 0;
-	padding: 4px;
-	list-style: none;
-	overflow-x: auto;
-	scrollbar-width: thin;
-}
-
-.wvc-subnav__item {
-	display: flex;
+.wvc-scanstate {
+	display: inline-flex;
 	align-items: center;
-	gap: var(--wvc-2);
-	padding: 10px var(--wvc-3) 11px;
-	border-bottom: 2px solid transparent;
-	font-size: 13px;
+	gap: var(--wvc-1);
+	min-height: var(--wvc-ctl-sm);
+	padding: 0 10px;
+	margin-right: var(--wvc-1);
+	border-radius: var(--wvc-r-pill);
+	border: 1px solid var(--wvc-shell-line);
+	background: rgba(255, 255, 255, 0.06);
+	font-size: var(--wvc-t-xs);
 	font-weight: 500;
+	color: var(--wvc-shell-ink-2);
 	white-space: nowrap;
-	text-decoration: none;
-	color: var(--wvc-text-secondary);
-	transition: color var(--wvc-transition), border-color var(--wvc-transition), background-color var(--wvc-transition);
 }
 
-.wvc-subnav__item:hover,
-.wvc-subnav__item:focus {
-	color: var(--wvc-accent);
-	background: var(--wvc-surface-hover);
-	border-radius: var(--wvc-radius-sm) var(--wvc-radius-sm) 0 0;
+/* Never scanned is the one state that asks for something, so it is the one
+   state that is allowed to carry colour up here. */
+.wvc-scanstate.is-empty {
+	color: var(--wvc-shell-alert);
+	border-color: rgba(255, 190, 120, 0.35);
+	background: rgba(255, 190, 120, 0.1);
 }
 
-.wvc-subnav__item .wvc-icon {
-	opacity: 0.7;
-	transition: opacity var(--wvc-transition);
+/*
+ * Buttons inside the masthead invert onto the dark ground. Rescan, Export and
+ * the documentation link are one set of peers, so they carry one treatment,
+ * and their label is plain white — anything below it reads as disabled against
+ * a ground this dark.
+ *
+ * These carry the `.wvc-wrap` prefix deliberately. Without it they tie with
+ * the light-ground button rules further down the file, which then win on source
+ * order and paint dark grey text onto the dark masthead.
+ */
+.wvc-wrap .wvc-masthead .wvc-btn,
+.wvc-wrap .wvc-masthead .wvc-btn--ghost {
+	color: #fff;
+	border-color: var(--wvc-shell-line);
+	background: rgba(255, 255, 255, 0.08);
+	box-shadow: none;
 }
 
-.wvc-subnav__item:hover .wvc-icon,
-.wvc-subnav__item.is-active .wvc-icon {
-	opacity: 1;
+/* Hover fills the button solid white and flips the label to ink — the sharpest
+   response available on a ground this dark, and the same treatment the export
+   menu wears while it is open, so "hovered" and "open" read as one state. */
+.wvc-wrap .wvc-masthead .wvc-btn:hover,
+.wvc-wrap .wvc-masthead .wvc-btn--ghost:hover,
+.wvc-wrap .wvc-masthead .wvc-menu[open] > .wvc-btn--ghost {
+	color: var(--wvc-ink);
+	background: #fff;
+	border-color: #fff;
 }
 
-.wvc-subnav__item.is-active {
-	color: var(--wvc-accent);
-	font-weight: 600;
-	border-bottom-color: var(--wvc-accent);
+.wvc-wrap .wvc-masthead .wvc-btn--primary {
+	color: #fff;
+	background: var(--wvc-accent);
+	border-color: var(--wvc-accent);
+}
+
+/* The primary action keeps its own hover: it is the one button up here that is
+   not a peer of the others, and turning it white would throw that away. The
+   colour is restated because the shared hover rule above outranks the base
+   primary rule and would otherwise put ink on top of the accent fill. */
+.wvc-wrap .wvc-masthead .wvc-btn--primary:hover {
+	color: #fff;
+	background: var(--wvc-accent-lift);
+	border-color: var(--wvc-accent-lift);
+}
+
+/* --- Content column ---------------------------------------------------- */
+
+.wvc-main {
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-4);
+}
+
+.wvc-container {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-4);
+	min-width: 0;
 }
 
 /* -------------------------------------------------------------------------
@@ -258,68 +475,121 @@
  * ---------------------------------------------------------------------- */
 
 .wvc-page-head {
-	margin-bottom: var(--wvc-5);
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: var(--wvc-5);
+	flex-wrap: wrap;
+	padding-bottom: var(--wvc-3);
+	border-bottom: 1px solid var(--wvc-border);
+}
+
+.wvc-page-head__text {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.wvc-wrap .wvc-page-head__eyebrow {
+	margin: 0 0 3px;
 }
 
 .wvc-wrap .wvc-page-head__title {
 	margin: 0;
-	padding: 0;
-	font-size: 17px;
-	font-weight: 650;
-	line-height: 1.35;
-	letter-spacing: -0.005em;
-	color: var(--wvc-text);
+	font-size: var(--wvc-t-3xl);
+	line-height: 1.2;
+	font-weight: 600;
+	letter-spacing: -0.02em;
 }
 
-.wvc-page-head__description {
-	margin: var(--wvc-1) 0 0;
-	max-width: 76ch;
-	font-size: 13px;
-	color: var(--wvc-text-muted);
+.wvc-wrap .wvc-page-head__description {
+	margin-top: 3px;
+	color: var(--wvc-ink-2);
 }
 
 /* -------------------------------------------------------------------------
- * 5. Buttons & links
+ * 5. Buttons, links, menus
  * ---------------------------------------------------------------------- */
 
 .wvc-wrap .wvc-btn {
 	display: inline-flex;
 	align-items: center;
-	gap: var(--wvc-2);
-	padding: 7px var(--wvc-3);
+	justify-content: center;
+	gap: 6px;
+	min-height: var(--wvc-ctl);
+	padding: 0 14px;
 	border: 1px solid var(--wvc-border-strong);
-	border-radius: var(--wvc-radius-sm);
+	border-radius: var(--wvc-r-sm);
 	background: var(--wvc-surface);
-	color: var(--wvc-text-secondary);
+	color: var(--wvc-ink);
 	font-family: inherit;
-	font-size: 13px;
+	font-size: var(--wvc-t-md);
 	font-weight: 500;
-	line-height: 1.4;
+	line-height: 1.3;
 	text-decoration: none;
+	white-space: nowrap;
 	cursor: pointer;
 	box-shadow: var(--wvc-shadow-xs);
-	transition: background-color var(--wvc-transition), border-color var(--wvc-transition), color var(--wvc-transition), box-shadow var(--wvc-transition);
+	transition: background-color var(--wvc-ease), border-color var(--wvc-ease), color var(--wvc-ease), box-shadow var(--wvc-ease), transform var(--wvc-ease);
 }
 
 .wvc-wrap .wvc-btn:hover {
-	background: var(--wvc-surface-hover);
+	background: var(--wvc-hover);
 	border-color: var(--wvc-border-strong);
-	color: var(--wvc-accent);
+	color: var(--wvc-ink);
 }
 
 .wvc-wrap .wvc-btn:active {
-	box-shadow: none;
 	transform: translateY(1px);
+	box-shadow: none;
 }
 
-/* The primary action is the one thing on a screen that is filled rather than
-   outlined. It had no rule of its own and fell back to the default button, so
-   "Start with the blockers" carried exactly as much weight as "Rescan". */
+/* Last, so that pressing the button with the keyboard does not take the ring
+   away at the moment the ring is doing its job. */
+.wvc-wrap .wvc-btn:focus-visible {
+	outline: none;
+	box-shadow: var(--wvc-focus);
+}
+
+/* Disabled and busy are the two states a button can be in that mean "do not
+   click this yet", so they look alike and neither responds to the pointer. */
+.wvc-wrap .wvc-btn:disabled,
+.wvc-wrap .wvc-btn[aria-disabled="true"],
+.wvc-wrap .wvc-btn.is-busy {
+	opacity: 0.55;
+	cursor: default;
+	box-shadow: none;
+	pointer-events: none;
+}
+
+/* The spinner takes the icon's place rather than sitting next to it, so the
+   button keeps its width and does not jump as it starts working. */
+.wvc-wrap .wvc-btn.is-busy::before {
+	content: "";
+	width: 13px;
+	height: 13px;
+	border: 2px solid currentColor;
+	border-top-color: transparent;
+	border-radius: 50%;
+	opacity: 0.7;
+	animation: wvc-spin 700ms linear infinite;
+}
+
+.wvc-wrap .wvc-btn.is-busy > .wvc-icon {
+	display: none;
+}
+
+.wvc-wrap .wvc-btn--sm {
+	min-height: var(--wvc-ctl-sm);
+	padding: 0 10px;
+	font-size: var(--wvc-t-sm);
+}
+
 .wvc-wrap .wvc-btn--primary {
 	background: var(--wvc-accent);
 	border-color: var(--wvc-accent);
 	color: #fff;
 	font-weight: 600;
+	box-shadow: var(--wvc-shadow-sm);
 }
 
 .wvc-wrap .wvc-btn--primary:hover {
@@ -328,965 +598,20 @@
 	color: #fff;
 }
 
+/* Ghost is the quiet peer of the default button: same shape and height, no
+   fill and no shadow, so a row of secondary actions does not read as a row of
+   equal claims on attention. */
 .wvc-wrap .wvc-btn--ghost {
 	background: transparent;
-	box-shadow: none;
 	border-color: var(--wvc-border);
+	box-shadow: none;
+	color: var(--wvc-ink-2);
 }
 
 .wvc-wrap .wvc-btn--ghost:hover {
-	background: var(--wvc-surface);
-	box-shadow: var(--wvc-shadow-xs);
-}
-
-.wvc-wrap .wvc-btn--sm {
-	padding: 4px var(--wvc-2);
-	font-size: 12px;
-}
-
-.wvc-wrap .wvc-link {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--wvc-1);
-	color: var(--wvc-accent);
-	font-weight: 500;
-	text-decoration: none;
-	border-radius: 3px;
-}
-
-.wvc-wrap .wvc-link:hover {
-	color: var(--wvc-accent-hover);
-	text-decoration: underline;
-	text-underline-offset: 2px;
-}
-
-/* Anything the plugin renders inside a cell inherits the link treatment. */
-.wvc-table td a {
-	color: var(--wvc-accent);
-	text-decoration: none;
-	border-radius: 3px;
-}
-
-.wvc-table td a:hover {
-	color: var(--wvc-accent-hover);
-	text-decoration: underline;
-	text-underline-offset: 2px;
-}
-
-/* -------------------------------------------------------------------------
- * 6. Badges, dots & status pills
- * ---------------------------------------------------------------------- */
-
-.wvc-badge {
-	display: inline-flex;
-	align-items: center;
-	padding: 1px 7px;
-	border-radius: var(--wvc-radius-pill);
-	font-size: 11px;
-	font-weight: 600;
-	letter-spacing: 0.01em;
-	font-variant-numeric: tabular-nums;
-}
-
-.wvc-badge--neutral {
-	color: var(--wvc-text-muted);
-	background: var(--wvc-surface-sunken);
-	border: 1px solid var(--wvc-border);
-}
-
-.wvc-dot {
-	display: inline-block;
-	flex: 0 0 auto;
-	width: 7px;
-	height: 7px;
-	border-radius: 50%;
-	background: var(--wvc-border-strong);
-}
-
-.wvc-dot--ok {
-	background: var(--wvc-ok);
-}
-
-.wvc-dot--bad {
-	background: var(--wvc-bad);
-}
-
-.wvc-dot--warn {
-	background: var(--wvc-warn);
-}
-
-.wvc-status {
-	display: inline-flex;
-	align-items: center;
-	gap: 5px;
-	max-width: 100%;
-	padding: 3px 9px 3px 7px;
-	border-radius: var(--wvc-radius-pill);
-	border: 1px solid transparent;
-	font-size: 12px;
-	font-weight: 600;
-	line-height: 1.45;
-	white-space: nowrap;
-}
-
-.wvc-status--ok {
-	color: var(--wvc-ok);
-	background: var(--wvc-ok-soft);
-	border-color: var(--wvc-ok-border);
-}
-
-.wvc-status--bad {
-	color: var(--wvc-bad);
-	background: var(--wvc-bad-soft);
-	border-color: var(--wvc-bad-border);
-}
-
-.wvc-status--warn {
-	color: var(--wvc-warn);
-	background: var(--wvc-warn-soft);
-	border-color: var(--wvc-warn-border);
-}
-
-.wvc-status--pending {
-	color: var(--wvc-text-muted);
-	background: var(--wvc-surface-sunken);
-	border-color: var(--wvc-border);
-	font-weight: 500;
-}
-
-.wvc-status--neutral {
-	color: var(--wvc-text-secondary);
-	background: var(--wvc-surface-sunken);
-	border-color: var(--wvc-border);
-	white-space: normal;
-}
-
-.wvc-status .wvc-icon {
-	flex: 0 0 auto;
-}
-
-/* A verdict cell carries its state so a row can be tinted at its leading edge.
-   Filtering reads `data-status` on the row instead, so these are purely
-   presentational — the state no longer has to double as a filter hook. */
-.wvc-wrap .wvc-table td.wvc-col-status {
-	box-shadow: inset 2px 0 0 transparent;
-}
-
-.wvc-wrap .wvc-table td.wvc-col-status.is-not-compatible {
-	box-shadow: inset 2px 0 0 var(--wvc-bad);
-}
-
-.wvc-wrap .wvc-table td.wvc-col-status.is-review {
-	box-shadow: inset 2px 0 0 var(--wvc-warn);
-}
-
-.wvc-wrap .wvc-table td.wvc-col-status.is-compatible {
-	box-shadow: inset 2px 0 0 var(--wvc-ok);
-}
-
-.wvc-status__link {
-	display: block;
-	margin-top: 3px;
-	font-size: 11.5px;
-}
-
-/* -------------------------------------------------------------------------
- * 7. Toolbar: segmented filters, search, scan progress
- * ---------------------------------------------------------------------- */
-
-.wvc-toolbar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--wvc-3);
-	flex-wrap: wrap;
-	margin-bottom: var(--wvc-3);
-}
-
-/* The segmented control is the plugin's one filter idiom. It was tied to a
-   single `#wvc-filter-tabs` id, so a screen could only ever have one filter;
-   as a class it serves the inventory's two groups, the findings tiers and the
-   site screen's section switch with the same look and the same affordance. */
-.wvc-wrap .wvc-segmented {
-	display: inline-flex;
-	align-items: stretch;
-	gap: 2px;
-	padding: 3px;
-	background: var(--wvc-surface-sunken);
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-radius);
-}
-
-.wvc-wrap .wvc-segmented > button,
-.wvc-wrap .wvc-segmented > a {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	margin: 0;
-	padding: 5px 11px;
-	border: 0;
-	border-radius: var(--wvc-radius-sm);
-	background: transparent;
-	color: var(--wvc-text-secondary);
-	font-family: inherit;
-	font-size: 13px;
-	font-weight: 500;
-	line-height: 1.5;
-	text-decoration: none;
-	cursor: pointer;
-	white-space: nowrap;
-	transition: background-color var(--wvc-transition), color var(--wvc-transition), box-shadow var(--wvc-transition);
-}
-
-.wvc-wrap .wvc-segmented > button:hover:not(:disabled):not(.active),
-.wvc-wrap .wvc-segmented > a:hover:not(.active) {
-	background: rgba(255, 255, 255, 0.75);
-	color: var(--wvc-text);
-}
-
-.wvc-wrap .wvc-segmented > button.active,
-.wvc-wrap .wvc-segmented > a.active {
-	background: var(--wvc-surface);
-	color: var(--wvc-text);
-	font-weight: 600;
-	box-shadow: var(--wvc-shadow-xs);
-}
-
-.wvc-wrap .wvc-segmented > button:disabled {
-	opacity: 0.55;
-	cursor: progress;
-}
-
-/* Server-rendered variants: the findings tiers and the site sections filter by
-   navigating, so they hold five options and have to be free to wrap. */
-.wvc-wrap .wvc-segmented--links {
-	flex-wrap: wrap;
-}
-
-/* A section switch is navigation rather than a filter, so it reads larger. */
-.wvc-wrap .wvc-segmented--sections > a {
-	padding: 6px 14px;
-}
-
-.wvc-segmented__count {
-	min-width: 18px;
-	padding: 0 5px;
-	border-radius: var(--wvc-radius-pill);
-	background: rgba(16, 24, 40, 0.06);
-	color: var(--wvc-text-muted);
-	font-size: 11px;
-	font-weight: 600;
-	font-variant-numeric: tabular-nums;
-	text-align: center;
-}
-
-.wvc-segmented__count:empty {
-	display: none;
-}
-
-.wvc-segmented > button.active .wvc-segmented__count,
-.wvc-segmented > a.active .wvc-segmented__count {
-	background: var(--wvc-accent-soft);
-	color: var(--wvc-accent);
-}
-
-.wvc-search {
-	position: relative;
-	display: flex;
-	align-items: center;
-	min-width: 240px;
-	flex: 0 1 320px;
-}
-
-.wvc-search__icon {
-	position: absolute;
-	left: 10px;
-	pointer-events: none;
-	color: var(--wvc-text-muted);
-}
-
-.wvc-wrap .wvc-search__input {
-	width: 100%;
-	margin: 0;
-	padding: 6px 10px 6px 34px;
-	min-height: 34px;
-	border: 1px solid var(--wvc-border-strong);
-	border-radius: var(--wvc-radius-sm);
-	background: var(--wvc-surface);
-	box-shadow: var(--wvc-shadow-xs);
-	font-family: inherit;
-	font-size: 13px;
-	line-height: 1.5;
-	color: var(--wvc-text);
-	transition: border-color var(--wvc-transition), box-shadow var(--wvc-transition);
-}
-
-.wvc-wrap .wvc-search__input::placeholder {
-	color: var(--wvc-text-muted);
-}
-
-.wvc-wrap .wvc-search__input:focus {
-	border-color: var(--wvc-accent);
-	box-shadow: 0 0 0 3px var(--wvc-accent-soft);
-	outline: none;
-}
-
-.wvc-result-count {
-	margin: 0 0 var(--wvc-3);
-	font-size: 12px;
-	color: var(--wvc-text-muted);
-	font-variant-numeric: tabular-nums;
-}
-
-.wvc-result-count:empty {
-	display: none;
-}
-
-.wvc-scan {
-	margin-bottom: var(--wvc-3);
-	padding: var(--wvc-3) var(--wvc-4);
-	background: var(--wvc-accent-soft);
-	border: 1px solid var(--wvc-accent-border);
-	border-radius: var(--wvc-radius);
-}
-
-.wvc-scan__head {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-2);
-	margin-bottom: var(--wvc-2);
-	font-size: 12.5px;
-	font-weight: 500;
-	color: var(--wvc-accent-hover);
-	font-variant-numeric: tabular-nums;
-}
-
-.wvc-scan__track {
-	height: 4px;
-	border-radius: var(--wvc-radius-pill);
-	background: rgba(34, 113, 177, 0.18);
-	overflow: hidden;
-}
-
-.wvc-scan__bar {
-	height: 100%;
-	width: 0;
-	border-radius: inherit;
-	background: var(--wvc-accent);
-	transition: width 240ms ease;
-}
-
-.wvc-spinner {
-	display: inline-block;
-	flex: 0 0 auto;
-	width: 13px;
-	height: 13px;
-	border: 2px solid currentColor;
-	border-right-color: transparent;
-	border-radius: 50%;
-	opacity: 0.75;
-	animation: wvc-spin 700ms linear infinite;
-}
-
-.wvc-spinner--xs {
-	width: 10px;
-	height: 10px;
-	border-width: 1.5px;
-}
-
-@keyframes wvc-spin {
-	to {
-		transform: rotate(360deg);
-	}
-}
-
-/* -------------------------------------------------------------------------
- * 8. Tables
- * ---------------------------------------------------------------------- */
-
-.wvc-table-wrap {
-	background: var(--wvc-surface);
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-radius-lg);
-	box-shadow: var(--wvc-shadow-sm);
-	overflow: auto;
-	max-height: min(70vh, 900px);
-}
-
-.wvc-wrap .wvc-table {
-	width: 100%;
-	border-collapse: separate;
-	border-spacing: 0;
-	background: transparent;
-	text-align: left;
-	font-size: 13px;
-}
-
-.wvc-wrap .wvc-table th,
-.wvc-wrap .wvc-table td {
-	padding: 10px var(--wvc-4);
-	border: 0;
-	border-bottom: 1px solid var(--wvc-border);
-	vertical-align: top;
-	text-align: left;
-}
-
-.wvc-wrap .wvc-table thead th {
-	position: sticky;
-	top: 0;
-	z-index: 2;
-	padding: 0;
-	background: var(--wvc-surface-sunken);
-	border-bottom: 1px solid var(--wvc-border);
-	font-size: 11px;
-	font-weight: 650;
-	letter-spacing: 0.045em;
-	text-transform: uppercase;
-	color: var(--wvc-text-muted);
-	white-space: nowrap;
-	vertical-align: middle;
-}
-
-.wvc-wrap .wvc-table thead th > span {
-	display: block;
-	padding: 10px var(--wvc-4);
-}
-
-.wvc-wrap .wvc-table thead th.is-sortable {
-	padding: 0;
-}
-
-.wvc-wrap .wvc-table .wvc-th__sort {
-	display: inline-flex;
-	align-items: center;
-	gap: 5px;
-	width: 100%;
-	margin: 0;
-	padding: 10px var(--wvc-4);
-	border: 0;
-	background: transparent;
-	color: inherit;
-	font: inherit;
-	letter-spacing: inherit;
-	text-transform: inherit;
-	text-align: left;
-	cursor: pointer;
-	transition: color var(--wvc-transition), background-color var(--wvc-transition);
-}
-
-.wvc-wrap .wvc-table .wvc-th__sort:hover {
-	color: var(--wvc-accent);
-	background: var(--wvc-surface-hover);
-}
-
-.wvc-th__icon {
-	opacity: 0.35;
-	transition: opacity var(--wvc-transition), transform var(--wvc-transition);
-}
-
-.wvc-wrap .wvc-table .wvc-th__sort:hover .wvc-th__icon {
-	opacity: 0.7;
-}
-
-.wvc-wrap .wvc-table th[aria-sort="ascending"],
-.wvc-wrap .wvc-table th[aria-sort="descending"] {
-	color: var(--wvc-accent);
-}
-
-.wvc-wrap .wvc-table th[aria-sort="ascending"] .wvc-th__icon,
-.wvc-wrap .wvc-table th[aria-sort="descending"] .wvc-th__icon {
-	opacity: 1;
-}
-
-.wvc-wrap .wvc-table th[aria-sort="descending"] .wvc-th__icon {
-	transform: rotate(180deg);
-}
-
-.wvc-wrap .wvc-table tbody tr {
-	background: var(--wvc-surface);
-	transition: background-color var(--wvc-transition);
-}
-
-.wvc-wrap .wvc-table tbody tr:hover {
-	background: var(--wvc-surface-hover);
-}
-
-.wvc-wrap .wvc-table tbody tr:last-child td {
-	border-bottom: 0;
-}
-
-/* Serial numbers are rendered from a counter so they always read 1..n for
-   whatever rows are currently visible after filtering, searching or sorting. */
-.wvc-wrap .wvc-table tbody {
-	counter-reset: wvc-row;
-}
-
-.wvc-col-name {
-	font-weight: 600;
-	color: var(--wvc-text);
-}
-
-/* Override the core admin `code` chip: its background fragments into separate
-   boxes when a long path wraps. Plain monospace reads better in a table. */
-.wvc-wrap .wvc-table code {
-	padding: 0;
-	margin: 0;
-	background: none;
-	font-family: var(--wvc-font-mono);
-	font-size: 12px;
-	line-height: 1.5;
-	color: var(--wvc-text-secondary);
-	word-break: break-word;
-}
-
-/* Names are single tokens — keep them whole and let the wrapper scroll.
-   Paths may be long, so those stay breakable. */
-.wvc-wrap .wvc-table td.wvc-col-name code {
-	color: var(--wvc-text);
-	font-weight: 500;
-	white-space: nowrap;
-	word-break: normal;
-}
-
-.wvc-col-mono {
-	font-family: var(--wvc-font-mono);
-	font-size: 12px;
-	color: var(--wvc-text-secondary);
-	white-space: nowrap;
-}
-
-.wvc-wrap .wvc-table td.wvc-col-status {
-	white-space: nowrap;
-}
-
-.wvc-col-muted {
-	color: var(--wvc-text-muted);
-}
-
-.wvc-version {
-	display: inline-block;
-	font-family: var(--wvc-font-mono);
-	font-size: 12px;
-	font-variant-numeric: tabular-nums;
-	color: var(--wvc-text-secondary);
-}
-
-/* An available update is a marker beside the current version rather than a
-   column of its own, so "Up to date" is no longer repeated down the page. */
-.wvc-version__update {
-	display: inline-block;
-	margin-left: var(--wvc-1);
-	padding: 0 5px;
-	border-radius: var(--wvc-radius-sm);
-	background: var(--wvc-accent-soft);
-	color: var(--wvc-accent-hover);
-	font-family: var(--wvc-font-mono);
-	font-size: 11px;
-	font-variant-numeric: tabular-nums;
-}
-
-/* A name cell carries its own secondary line — the path, the source, or the
-   description — instead of each of those occupying a column. */
-.wvc-item {
-	display: flex;
-	flex-direction: column;
-	gap: 1px;
-	min-width: 0;
-}
-
-.wvc-item__name {
-	font-weight: 600;
-	color: var(--wvc-text);
-}
-
-.wvc-wrap .wvc-table .wvc-item__path,
-.wvc-wrap .wvc-table code.wvc-item__name {
-	font-family: var(--wvc-font-mono);
-	font-size: 11.5px;
-	font-weight: 400;
-	color: var(--wvc-text-muted);
-	word-break: break-all;
-}
-
-.wvc-wrap .wvc-table code.wvc-item__name {
-	font-weight: 600;
-	color: var(--wvc-text);
-}
-
-.wvc-item__meta {
-	font-size: 11.5px;
-	font-weight: 400;
-	color: var(--wvc-text-muted);
-}
-
-.wvc-col-kind {
-	white-space: nowrap;
-	color: var(--wvc-text-muted);
-	font-size: 12px;
-}
-
-.wvc-col-version {
-	white-space: nowrap;
-}
-
-/* Give the inventory's five columns a stable rhythm: the name and the action
-   take the room, and the three middle columns stay as narrow as their content. */
-.wvc-wrap .wvc-table--inventory .wvc-col-name {
-	width: 28%;
-}
-
-.wvc-wrap .wvc-table--inventory .wvc-col-kind,
-.wvc-wrap .wvc-table--inventory .wvc-col-version,
-.wvc-wrap .wvc-table--inventory .wvc-col-status {
-	width: 1%;
-}
-
-.wvc-wrap .wvc-table--inventory .wvc-col-notes {
-	width: auto;
-}
-
-.wvc-table .wvc-no-results td {
-	padding: var(--wvc-8) var(--wvc-4);
-	text-align: center;
-	color: var(--wvc-text-muted);
-}
-
-.wvc-table .wvc-table__empty td {
-	padding: var(--wvc-8) var(--wvc-4);
-	text-align: center;
-	color: var(--wvc-text-muted);
-}
-
-/* -------------------------------------------------------------------------
- * 9. Snippets & notes
- * ---------------------------------------------------------------------- */
-
-.wvc-notes {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-	display: grid;
-	gap: var(--wvc-2);
-	min-width: 260px;
-}
-
-.wvc-notes li {
-	margin: 0;
-	font-size: 12.5px;
-	color: var(--wvc-text-secondary);
-}
-
-.wvc-note__label {
-	display: block;
-	margin-bottom: var(--wvc-1);
-	color: var(--wvc-text-secondary);
-}
-
-.wvc-snippet {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--wvc-1);
-	max-width: 100%;
-	padding: 2px 2px 2px 8px;
-	background: var(--wvc-surface-sunken);
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-radius-sm);
-}
-
-.wvc-wrap .wvc-snippet code {
-	padding: 0;
-	background: none;
-	font-family: var(--wvc-font-mono);
-	font-size: 11.5px;
-	line-height: 1.6;
-	color: var(--wvc-text);
-	white-space: pre-wrap;
-	word-break: break-word;
-}
-
-.wvc-wrap .wvc-snippet__copy {
-	display: inline-grid;
-	place-items: center;
-	flex: 0 0 auto;
-	width: 24px;
-	height: 24px;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	border-radius: var(--wvc-radius-sm);
-	background: transparent;
-	color: var(--wvc-text-muted);
-	cursor: pointer;
-	transition: background-color var(--wvc-transition), color var(--wvc-transition);
-}
-
-.wvc-wrap .wvc-snippet__copy:hover {
-	background: var(--wvc-surface);
-	color: var(--wvc-accent);
-}
-
-.wvc-wrap .wvc-snippet__copy.is-copied {
-	color: var(--wvc-ok);
-}
-
-.wvc-dash {
-	color: var(--wvc-border-strong);
-}
-
-/* -------------------------------------------------------------------------
- * 10. Notices
- * ---------------------------------------------------------------------- */
-
-.wvc-notice {
-	display: flex;
-	align-items: flex-start;
-	gap: var(--wvc-3);
-	padding: var(--wvc-3) var(--wvc-4);
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-radius);
-	background: var(--wvc-surface-sunken);
-	font-size: 13px;
-	color: var(--wvc-text-secondary);
-}
-
-.wvc-notice__icon {
-	flex: 0 0 auto;
-	margin-top: 2px;
-}
-
-.wvc-notice__body {
-	min-width: 0;
-}
-
-.wvc-notice__body > *:first-child {
-	margin-top: 0;
-}
-
-.wvc-notice__body > *:last-child {
-	margin-bottom: 0;
-}
-
-.wvc-notice__title {
-	display: block;
-	margin-bottom: 2px;
-	color: var(--wvc-text);
-	font-weight: 600;
-}
-
-.wvc-notice--info {
-	background: var(--wvc-accent-soft);
-	border-color: var(--wvc-accent-border);
-	color: #29506f;
-}
-
-.wvc-notice--info .wvc-notice__icon {
-	color: var(--wvc-accent);
-}
-
-.wvc-notice--success {
-	background: var(--wvc-ok-soft);
-	border-color: var(--wvc-ok-border);
-	color: #16694f;
-}
-
-.wvc-notice--success .wvc-notice__icon {
-	color: var(--wvc-ok);
-}
-
-.wvc-notice--warning {
-	background: var(--wvc-warn-soft);
-	border-color: var(--wvc-warn-border);
-	color: #7a5400;
-}
-
-.wvc-notice--warning .wvc-notice__icon {
-	color: var(--wvc-warn);
-}
-
-/* Collapsed-by-default reference notices (native <details>/<summary>). */
-
-.wvc-notice--collapsible {
-	display: block;
-	padding: 0;
-}
-
-.wvc-notice__summary {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-3);
-	padding: var(--wvc-3) var(--wvc-4);
-	cursor: pointer;
-	list-style: none;
-}
-
-.wvc-notice__summary::-webkit-details-marker {
-	display: none;
-}
-
-.wvc-notice__summary::after {
-	content: "";
-	flex: 0 0 auto;
-	width: 7px;
-	height: 7px;
-	margin-left: auto;
-	border-right: 1.5px solid currentColor;
-	border-bottom: 1.5px solid currentColor;
-	opacity: 0.55;
-	transform: rotate(45deg);
-	transition: transform 0.15s ease;
-}
-
-.wvc-notice--collapsible[open] .wvc-notice__summary::after {
-	transform: rotate(-135deg);
-}
-
-.wvc-notice__summary:focus-visible {
-	outline: 2px solid var(--wvc-accent);
-	outline-offset: -2px;
-	border-radius: var(--wvc-radius);
-}
-
-.wvc-notice--collapsible .wvc-notice__body {
-	padding: 0 var(--wvc-4) var(--wvc-3) calc(16px + var(--wvc-3) + var(--wvc-4));
-}
-
-#wvc-log-note-container:empty {
-	display: none;
-}
-
-/* -------------------------------------------------------------------------
- * 11. Empty states & skeletons
- * ---------------------------------------------------------------------- */
-
-.wvc-empty {
-	display: grid;
-	justify-items: center;
-	gap: var(--wvc-1);
-	padding: var(--wvc-8) var(--wvc-5);
-	text-align: center;
-	background: var(--wvc-surface);
-	border: 1px dashed var(--wvc-border-strong);
-	border-radius: var(--wvc-radius-lg);
-}
-
-.wvc-empty__icon {
-	display: grid;
-	place-items: center;
-	width: 44px;
-	height: 44px;
-	margin-bottom: var(--wvc-2);
-	border-radius: 50%;
-	background: var(--wvc-surface-sunken);
-	color: var(--wvc-text-muted);
-}
-
-.wvc-empty__title {
-	margin: 0;
-	font-size: 14px;
-	font-weight: 600;
-	color: var(--wvc-text);
-}
-
-.wvc-empty__message {
-	margin: 0;
-	max-width: 46ch;
-	font-size: 13px;
-	color: var(--wvc-text-muted);
-}
-
-/* An empty state that can be resolved says how, rather than only reporting
-   that there is nothing here. */
-.wvc-empty__action {
-	margin: var(--wvc-4) 0 0;
-}
-
-.wvc-skeleton {
-	border-radius: var(--wvc-radius-sm);
-	background: linear-gradient(90deg, #eef0f3 25%, #f6f7f9 50%, #eef0f3 75%);
-	background-size: 200% 100%;
-	animation: wvc-shimmer 1.4s ease-in-out infinite;
-}
-
-@keyframes wvc-shimmer {
-	to {
-		background-position: -200% 0;
-	}
-}
-
-/* -------------------------------------------------------------------------
- * 12. Overview: verdict, next steps, area breakdown
- *
- * This replaces the old dashboard: a nested tab bar, a readiness panel, a
- * four-item stats strip and five doughnut cards with their own legends. Between
- * them they rendered the same three counts four times over. What remains is one
- * verdict, one ranked plan, and one proportion bar per area.
- * ---------------------------------------------------------------------- */
-
-/* Verdict card. */
-.wvc-verdict {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-7);
-	flex-wrap: wrap;
-	padding: var(--wvc-6);
-	background: linear-gradient(180deg, #ffffff, #fbfcfd);
-	border: 1px solid var(--wvc-border);
-	border-left: 4px solid var(--wvc-border-strong);
-	border-radius: var(--wvc-radius-lg);
-	box-shadow: var(--wvc-shadow-sm);
-}
-
-/* The tone comes from one border, not a wash of colour over the whole card:
-   the number and the sentence should be what draws the eye. */
-.wvc-verdict--blocking {
-	border-left-color: var(--wvc-bad);
-}
-
-.wvc-verdict--important {
-	border-left-color: #d97706;
-}
-
-.wvc-verdict--warning {
-	border-left-color: var(--wvc-warn);
-}
-
-.wvc-verdict--ready {
-	border-left-color: var(--wvc-ok);
-}
-
-.wvc-verdict--info {
-	border-left-color: var(--wvc-accent);
-}
-
-.wvc-verdict__body {
-	flex: 1 1 420px;
-	min-width: 0;
-}
-
-.wvc-wrap .wvc-verdict__headline {
-	margin: 0;
-	padding: 0;
-	font-size: 19px;
-	font-weight: 680;
-	line-height: 1.3;
-	letter-spacing: -0.012em;
-	color: var(--wvc-text);
-}
-
-.wvc-verdict__summary {
-	margin: var(--wvc-2) 0 0;
-	max-width: 72ch;
-	font-size: 13.5px;
-	line-height: 1.6;
-	color: var(--wvc-text-secondary);
-}
-
-.wvc-verdict__actions {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-2);
-	flex-wrap: wrap;
-	margin-top: var(--wvc-4);
+	background: var(--wvc-hover);
+	border-color: var(--wvc-border-strong);
+	color: var(--wvc-ink);
 }
 
 .wvc-inline-form {
@@ -1294,22 +619,899 @@
 	margin: 0;
 }
 
-.wvc-verdict__meta {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-1);
-	margin: var(--wvc-4) 0 0;
-	font-size: 12px;
-	color: var(--wvc-text-muted);
-	font-variant-numeric: tabular-nums;
+/* A default action with variants behind a caret. The two halves are separate
+   controls — a form and a disclosure — joined into one shape, so the common
+   press stays a single press and the rarer choices cost one more. */
+.wvc-split {
+	display: inline-flex;
+	align-items: stretch;
+	position: relative;
 }
 
-/* Gauge. */
+.wvc-wrap .wvc-split .wvc-inline-form .wvc-btn {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+.wvc-wrap .wvc-split__caret {
+	padding: 0 7px;
+	margin-left: -1px;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+/* The caret follows the main button's hover so the pair reads as one control
+   under the pointer, without the two halves lighting up independently. */
+.wvc-split:hover .wvc-split__caret,
+.wvc-split__more[open] .wvc-split__caret {
+	background: var(--wvc-hover);
+	border-color: var(--wvc-border-strong);
+}
+
+.wvc-split__more[open] .wvc-split__caret .wvc-icon {
+	transform: rotate(180deg);
+}
+
+.wvc-split__caret .wvc-icon {
+	transition: transform var(--wvc-ease);
+}
+
+.wvc-wrap .wvc-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	color: var(--wvc-accent);
+	text-decoration: none;
+	font-weight: 500;
+	border-bottom: 1px solid transparent;
+	transition: color var(--wvc-ease), border-color var(--wvc-ease);
+}
+
+.wvc-wrap .wvc-link:hover {
+	color: var(--wvc-accent-hover);
+	border-bottom-color: currentColor;
+}
+
+/* Export menu. */
+.wvc-menu {
+	position: relative;
+}
+
+.wvc-menu > summary {
+	list-style: none;
+	cursor: pointer;
+}
+
+.wvc-menu > summary::-webkit-details-marker {
+	display: none;
+}
+
+.wvc-menu__panel {
+	position: absolute;
+	right: 0;
+	top: calc(100% + 6px);
+	z-index: 30;
+	width: 300px;
+	max-width: calc(100vw - 40px);
+	padding: var(--wvc-2);
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-r);
+	background: var(--wvc-surface);
+	box-shadow: var(--wvc-shadow-lg);
+	animation: wvc-pop var(--wvc-ease);
+
+	/* The panel is a light island hanging off the dark masthead. */
+	--wvc-focus-halo: var(--wvc-surface);
+}
+
+.wvc-wrap .wvc-menu__title {
+	margin: var(--wvc-1) var(--wvc-2) var(--wvc-2);
+}
+
+.wvc-menu__item {
+	display: block;
+	padding: var(--wvc-2);
+	border-radius: var(--wvc-r-sm);
+	text-decoration: none;
+	color: var(--wvc-ink);
+	transition: background-color var(--wvc-ease);
+}
+
+/* A menu whose items submit rather than navigate. Block, not the inline-flex of
+   wvc-inline-form: the items are a stacked list, not a row of controls. */
+.wvc-menu__form {
+	display: block;
+	margin: 0;
+}
+
+/* An item can be a link (export, which reads) or a submit button (rescan, which
+   writes). The button is stripped back to the link's shape so the two read as
+   the same control rather than as two kinds of row in one menu. */
+.wvc-wrap button.wvc-menu__item {
+	width: 100%;
+	border: 0;
+	background: none;
+	font-family: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.wvc-menu__item:hover {
+	background: var(--wvc-hover);
+	color: var(--wvc-ink);
+}
+
+/* One row is working; the others stop responding rather than queueing a second
+   scan behind the first. */
+.wvc-wrap button.wvc-menu__item.is-busy {
+	background: var(--wvc-hover);
+}
+
+.wvc-wrap .wvc-menu__form.is-submitting button.wvc-menu__item {
+	pointer-events: none;
+}
+
+.wvc-wrap .wvc-menu__form.is-submitting button.wvc-menu__item:not(.is-busy) {
+	opacity: 0.5;
+}
+
+.wvc-wrap button.wvc-menu__item.is-busy .wvc-menu__label::after {
+	content: "";
+	display: inline-block;
+	width: 11px;
+	height: 11px;
+	margin-left: 7px;
+	vertical-align: -1px;
+	border: 2px solid currentColor;
+	border-top-color: transparent;
+	border-radius: 50%;
+	opacity: 0.7;
+	animation: wvc-spin 700ms linear infinite;
+}
+
+.wvc-menu__label {
+	display: block;
+	font-size: var(--wvc-t-md);
+	font-weight: 600;
+}
+
+.wvc-menu__hint {
+	display: block;
+	font-size: var(--wvc-t-xs);
+	line-height: 1.45;
+	color: var(--wvc-ink-3);
+}
+
+@keyframes wvc-pop {
+	from {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+}
+
+/* -------------------------------------------------------------------------
+ * 6. Status vocabulary: badges, dots, pills, tags, chips
+ * ---------------------------------------------------------------------- */
+
+.wvc-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 0 7px;
+	border-radius: var(--wvc-r-xs);
+	border: 1px solid var(--wvc-border);
+	background: var(--wvc-sunken);
+	font-size: var(--wvc-t-xs);
+	font-weight: 600;
+	line-height: 18px;
+	color: var(--wvc-ink-2);
+	white-space: nowrap;
+}
+
+.wvc-badge--accent {
+	color: var(--wvc-accent);
+	background: var(--wvc-accent-soft);
+	border-color: var(--wvc-accent-line);
+}
+
+.wvc-badge--ok {
+	color: var(--wvc-ok);
+	background: var(--wvc-ok-soft);
+	border-color: var(--wvc-ok-line);
+}
+
+.wvc-badge--warn {
+	color: var(--wvc-warn);
+	background: var(--wvc-warn-soft);
+	border-color: var(--wvc-warn-line);
+}
+
+.wvc-badge--bad {
+	color: var(--wvc-bad);
+	background: var(--wvc-bad-soft);
+	border-color: var(--wvc-bad-line);
+}
+
+.wvc-dot {
+	display: inline-block;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	flex: 0 0 auto;
+	background: var(--wvc-ink-3);
+}
+
+.wvc-dot--ok {
+	background: var(--wvc-ok);
+}
+
+.wvc-dot--warn {
+	background: var(--wvc-warn);
+}
+
+.wvc-dot--bad {
+	background: var(--wvc-bad);
+}
+
+.wvc-dot--pending {
+	background: var(--wvc-border-strong);
+}
+
+.wvc-tierdot {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	flex: 0 0 auto;
+}
+
+.wvc-tierdot--blocking {
+	background: var(--wvc-tier-blocking);
+}
+
+.wvc-tierdot--important {
+	background: var(--wvc-tier-important);
+}
+
+.wvc-tierdot--warning {
+	background: var(--wvc-tier-warning);
+}
+
+.wvc-tierdot--info {
+	background: var(--wvc-tier-info);
+}
+
+/* The verdict pill. The one place a status is stated in words. */
+.wvc-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 1px 9px 1px 7px;
+	border-radius: var(--wvc-r-pill);
+	border: 1px solid transparent;
+	font-size: var(--wvc-t-xs);
+	font-weight: 600;
+	line-height: 18px;
+	white-space: nowrap;
+}
+
+.wvc-status--ok {
+	color: var(--wvc-ok);
+	background: var(--wvc-ok-soft);
+	border-color: var(--wvc-ok-line);
+}
+
+.wvc-status--warn {
+	color: var(--wvc-warn);
+	background: var(--wvc-warn-soft);
+	border-color: var(--wvc-warn-line);
+}
+
+.wvc-status--bad {
+	color: var(--wvc-bad);
+	background: var(--wvc-bad-soft);
+	border-color: var(--wvc-bad-line);
+}
+
+.wvc-status--pending {
+	color: var(--wvc-ink-3);
+	background: var(--wvc-sunken);
+	border-color: var(--wvc-border);
+}
+
+/* The tier pill. The label carries the hue rather than leaving all the work to
+   an 8px dot — but it carries the readable `-ink` value, not the graphic one.
+   The dot stays: it is what keeps the tier legible to anyone who cannot
+   separate these hues at all. */
+.wvc-tier {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 0 8px;
+	border-radius: var(--wvc-r-pill);
+	border: 1px solid var(--wvc-border);
+	background: var(--wvc-surface);
+	font-size: var(--wvc-t-xs);
+	font-weight: 600;
+	line-height: 18px;
+	color: var(--wvc-ink-2);
+	white-space: nowrap;
+}
+
+.wvc-tier--blocking {
+	border-color: var(--wvc-bad-line);
+	background: var(--wvc-bad-soft);
+	color: var(--wvc-tier-blocking-ink);
+}
+
+.wvc-tier--important {
+	border-color: var(--wvc-warn-line);
+	background: var(--wvc-warn-soft);
+	color: var(--wvc-tier-important-ink);
+}
+
+.wvc-tier--warning {
+	border-color: var(--wvc-border);
+	color: var(--wvc-tier-warning-ink);
+}
+
+.wvc-tier--info {
+	border-color: var(--wvc-border);
+	color: var(--wvc-tier-info-ink);
+}
+
+.wvc-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wvc-1);
+}
+
+/* A labelled key/value chip: the split fill is what tells the two halves
+   apart without a colon or a second type size. */
+.wvc-chip {
+	display: inline-flex;
+	align-items: center;
+	border-radius: var(--wvc-r-xs);
+	border: 1px solid var(--wvc-border);
+	overflow: hidden;
+	font-size: var(--wvc-t-xs);
+	line-height: 19px;
+	background: var(--wvc-surface);
+}
+
+.wvc-chip__label {
+	padding: 0 6px;
+	color: var(--wvc-ink-3);
+	background: var(--wvc-sunken);
+	border-right: 1px solid var(--wvc-border);
+	white-space: nowrap;
+}
+
+.wvc-chip__value {
+	padding: 0 7px;
+	font-weight: 600;
+	color: var(--wvc-ink);
+	white-space: nowrap;
+}
+
+/* Severity split, shown wherever a verdict has findings behind it. */
+.wvc-sevbar {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wvc-1);
+	flex-wrap: wrap;
+}
+
+.wvc-sev {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 0 7px;
+	border-radius: var(--wvc-r-xs);
+	border: 1px solid var(--wvc-border);
+	background: var(--wvc-surface);
+	font-size: var(--wvc-t-xs);
+	font-weight: 600;
+	line-height: 18px;
+	color: var(--wvc-ink-2);
+	text-decoration: none;
+	transition: border-color var(--wvc-ease), background-color var(--wvc-ease), color var(--wvc-ease);
+}
+
+a.wvc-sev:hover {
+	border-color: var(--wvc-border-strong);
+	background: var(--wvc-hover);
+	color: var(--wvc-ink);
+}
+
+.wvc-clear {
+	color: var(--wvc-ink-3);
+	font-size: var(--wvc-t-xs);
+}
+
+.wvc-dash {
+	color: var(--wvc-border-strong);
+}
+
+/* -------------------------------------------------------------------------
+ * 7. Metrics: stat tiles
+ * ---------------------------------------------------------------------- */
+
+.wvc-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+	gap: var(--wvc-3);
+}
+
+/*
+ * A tile and a verdict fact are the same idea at two sizes: a number, what it
+ * counts, and a left edge saying how much it matters. They share the edge, the
+ * label treatment and the hover, and differ only in scale.
+ */
+.wvc-stat {
+	position: relative;
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-r);
+	background: var(--wvc-surface);
+	box-shadow: var(--wvc-shadow-xs);
+	overflow: hidden;
+	transition: box-shadow var(--wvc-ease), border-color var(--wvc-ease), transform var(--wvc-ease);
+}
+
+.wvc-stat::before {
+	content: "";
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: 3px;
+	background: var(--wvc-border-strong);
+}
+
+.wvc-stat--ok::before {
+	background: var(--wvc-ok);
+}
+
+.wvc-stat--warn::before {
+	background: var(--wvc-warn);
+}
+
+.wvc-stat--bad::before {
+	background: var(--wvc-bad);
+}
+
+.wvc-stat--accent::before {
+	background: var(--wvc-accent);
+}
+
+.wvc-stat.is-linked:hover {
+	border-color: var(--wvc-border-strong);
+	box-shadow: var(--wvc-shadow-md);
+	transform: translateY(-1px);
+}
+
+.wvc-stat__inner {
+	display: block;
+	padding: var(--wvc-3) var(--wvc-4);
+	text-decoration: none;
+	color: inherit;
+}
+
+.wvc-stat.is-linked .wvc-stat__inner {
+	padding-right: var(--wvc-6);
+}
+
+.wvc-wrap .wvc-stat__label {
+	display: block;
+}
+
+.wvc-stat__value {
+	display: block;
+	margin-top: 3px;
+	font-size: var(--wvc-t-metric);
+	font-weight: 600;
+	line-height: 1.15;
+	letter-spacing: -0.02em;
+	color: var(--wvc-ink);
+}
+
+.wvc-stat--bad .wvc-stat__value {
+	color: var(--wvc-bad);
+}
+
+.wvc-stat--warn .wvc-stat__value {
+	color: var(--wvc-warn);
+}
+
+.wvc-stat--ok .wvc-stat__value {
+	color: var(--wvc-ok);
+}
+
+.wvc-stat--accent .wvc-stat__value {
+	color: var(--wvc-accent);
+}
+
+.wvc-stat__meta {
+	display: block;
+	margin-top: 2px;
+	font-size: var(--wvc-t-xs);
+	line-height: 1.45;
+	color: var(--wvc-ink-3);
+}
+
+.wvc-stat__chevron {
+	position: absolute;
+	top: var(--wvc-3);
+	right: var(--wvc-3);
+	color: var(--wvc-border-strong);
+	transition: transform var(--wvc-ease), color var(--wvc-ease);
+}
+
+.wvc-stat.is-linked:hover .wvc-stat__chevron {
+	color: var(--wvc-accent);
+	transform: translateX(2px);
+}
+
+/* The compact row: same tile, half the headline, for screens that lead with a
+   table rather than with the numbers above it. */
+.wvc-stats--compact .wvc-stat__inner {
+	padding: var(--wvc-2) var(--wvc-3);
+}
+
+.wvc-stats--compact .wvc-stat__value {
+	font-size: var(--wvc-t-2xl);
+}
+
+/* -------------------------------------------------------------------------
+ * 8. Panels, definition grids, columns, spotlight
+ * ---------------------------------------------------------------------- */
+
+.wvc-panel {
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-r-lg);
+	background: var(--wvc-surface);
+	box-shadow: var(--wvc-shadow-xs);
+	overflow: hidden;
+}
+
+/* Flat, not gradiented. The border below the head is what separates it from
+   the body; a two-stop gradient nobody can see is a rule that costs nothing
+   to read and nothing to keep. */
+.wvc-panel__head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--wvc-4);
+	flex-wrap: wrap;
+	padding: var(--wvc-3) var(--wvc-5);
+	border-bottom: 1px solid var(--wvc-border);
+	background: var(--wvc-surface);
+}
+
+.wvc-panel__heading {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.wvc-wrap .wvc-panel__title {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-2);
+	font-size: var(--wvc-t-lg);
+	font-weight: 600;
+	letter-spacing: -0.005em;
+}
+
+.wvc-panel__count {
+	padding: 0 7px;
+	border-radius: var(--wvc-r-pill);
+	border: 1px solid var(--wvc-border);
+	background: var(--wvc-sunken);
+	font-size: var(--wvc-t-xs);
+	font-weight: 600;
+	line-height: 18px;
+	color: var(--wvc-ink-2);
+}
+
+.wvc-wrap .wvc-panel__summary {
+	margin-top: 2px;
+	font-size: var(--wvc-t-sm);
+	line-height: var(--wvc-lh);
+	color: var(--wvc-ink-3);
+}
+
+.wvc-panel__actions {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-2);
+	flex-wrap: wrap;
+}
+
+.wvc-panel__body {
+	padding: var(--wvc-5);
+}
+
+.wvc-panel__body--flush {
+	padding: 0;
+}
+
+.wvc-wrap .wvc-panel__body > * + * {
+	margin-top: var(--wvc-4);
+}
+
+/* Definition grids. */
+.wvc-defs {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+	gap: var(--wvc-3) var(--wvc-5);
+}
+
+.wvc-defs--tight {
+	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+	gap: var(--wvc-2) var(--wvc-4);
+}
+
+.wvc-defs--grid {
+	grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+/*
+ * The card forms of a definition grid.
+ *
+ * The default `.wvc-def` marks itself with a rule down its left edge. That is
+ * the right weight when the pairs are a dense block read together, but a set of
+ * them reads as one indented quotation rather than as several separate facts —
+ * and inside a row drawer, sitting on the sunken ground, an indent is not much
+ * of an edge at all. Boxing each pair gives it a shape of its own.
+ *
+ * Two variants, because the pairs are not all the same shape:
+ *
+ * - `--boxed` keeps the default typography, where the label is a caption and
+ *   the value is the information. Author, location, files read.
+ * - `--cards` flips that for pairs whose value is a sentence: the label becomes
+ *   the card's title and the value drops to body prose. At 10px uppercase a
+ *   label was shouting a heading at a sentence it only introduced.
+ */
+.wvc-defs--boxed,
+.wvc-defs--cards {
+	gap: var(--wvc-3);
+}
+
+.wvc-defs--boxed {
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.wvc-defs--cards {
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.wvc-defs--boxed .wvc-def,
+.wvc-defs--cards .wvc-def {
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-r);
+	background: var(--wvc-surface);
+	box-shadow: var(--wvc-shadow-xs);
+}
+
+/* The box draws all four edges, which would otherwise erase the tone accent the
+   default `.wvc-def` carries on its left edge. Redraw it thicker, so a card that
+   is flagged still reads as flagged. */
+.wvc-defs--boxed .wvc-def--ok,
+.wvc-defs--cards .wvc-def--ok {
+	border-left: 3px solid var(--wvc-ok);
+}
+
+.wvc-defs--boxed .wvc-def--warn,
+.wvc-defs--cards .wvc-def--warn {
+	border-left: 3px solid var(--wvc-warn);
+}
+
+.wvc-defs--boxed .wvc-def--bad,
+.wvc-defs--cards .wvc-def--bad {
+	border-left: 3px solid var(--wvc-bad);
+}
+
+.wvc-defs--boxed .wvc-def {
+	padding: var(--wvc-3) var(--wvc-4);
+}
+
+.wvc-defs--cards .wvc-def {
+	padding: var(--wvc-4);
+}
+
+.wvc-defs--cards .wvc-def__label {
+	font-size: var(--wvc-t-md);
+	font-weight: 600;
+	letter-spacing: normal;
+	text-transform: none;
+	color: var(--wvc-ink);
+}
+
+.wvc-defs--cards .wvc-def__value {
+	margin-top: 3px;
+	font-size: var(--wvc-t-sm);
+	font-weight: 400;
+	line-height: var(--wvc-lh);
+	color: var(--wvc-ink-2);
+}
+
+.wvc-def {
+	min-width: 0;
+	padding-left: var(--wvc-3);
+	border-left: 2px solid var(--wvc-border);
+}
+
+.wvc-def--ok {
+	border-left-color: var(--wvc-ok);
+}
+
+.wvc-def--warn {
+	border-left-color: var(--wvc-warn);
+}
+
+.wvc-def--bad {
+	border-left-color: var(--wvc-bad);
+}
+
+.wvc-wrap .wvc-def__label {
+	margin: 0;
+}
+
+.wvc-def__value {
+	margin: 2px 0 0;
+	font-size: var(--wvc-t-md);
+	font-weight: 600;
+	color: var(--wvc-ink);
+	overflow-wrap: anywhere;
+}
+
+.wvc-def__hint {
+	display: block;
+	margin-top: 2px;
+	font-size: var(--wvc-t-xs);
+	font-weight: 400;
+	line-height: 1.45;
+	color: var(--wvc-ink-3);
+}
+
+/* The about panel's two opening paragraphs. */
+.wvc-wrap .wvc-about__lead {
+	color: var(--wvc-ink-2);
+}
+
+.wvc-columns {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+	gap: var(--wvc-5);
+}
+
+.wvc-columns__col {
+	min-width: 0;
+}
+
+.wvc-wrap .wvc-detail__title {
+	margin: 0 0 var(--wvc-2);
+}
+
+.wvc-ranklist {
+	display: flex;
+	flex-direction: column;
+}
+
+.wvc-ranklist li {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: var(--wvc-3);
+	padding: 4px 0;
+	border-bottom: 1px solid var(--wvc-border);
+	font-size: var(--wvc-t-sm);
+}
+
+.wvc-ranklist li:last-child {
+	border-bottom: 0;
+}
+
+.wvc-ranklist code {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--wvc-ink-2);
+}
+
+.wvc-ranklist span {
+	flex: 0 0 auto;
+	font-weight: 600;
+	color: var(--wvc-ink);
+}
+
+/* Theme spotlight. */
+.wvc-spotlight {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wvc-5);
+	flex-wrap: wrap;
+}
+
+.wvc-spotlight__shot {
+	flex: 0 0 auto;
+	width: 200px;
+	height: auto;
+	border-radius: var(--wvc-r);
+	border: 1px solid var(--wvc-border);
+	box-shadow: var(--wvc-shadow-sm);
+}
+
+.wvc-spotlight__body {
+	flex: 1 1 340px;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-3);
+}
+
+.wvc-wrap .wvc-spotlight__name {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-2);
+	flex-wrap: wrap;
+	font-size: var(--wvc-t-xl);
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+.wvc-spotlight__description {
+	color: var(--wvc-ink-2);
+}
+
+/* -------------------------------------------------------------------------
+ * 9. Verdict hero and gauge
+ * ---------------------------------------------------------------------- */
+
+.wvc-verdict {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	gap: var(--wvc-5) var(--wvc-6);
+	padding: var(--wvc-6);
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-r-lg);
+	background: var(--wvc-surface);
+	box-shadow: var(--wvc-shadow-sm);
+	position: relative;
+	overflow: hidden;
+}
+
+.wvc-verdict::before {
+	content: "";
+	position: absolute;
+	inset: 0 0 auto 0;
+	height: 3px;
+	background: var(--wvc-ink-3);
+}
+
+.wvc-verdict--blocking::before {
+	background: var(--wvc-tier-blocking);
+}
+
+.wvc-verdict--important::before {
+	background: var(--wvc-tier-important);
+}
+
+.wvc-verdict--warning::before {
+	background: var(--wvc-tier-warning);
+}
+
+.wvc-verdict--ready::before {
+	background: var(--wvc-ok);
+}
+
+.wvc-verdict__gauge {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 .wvc-gauge {
 	position: relative;
-	flex: 0 0 auto;
-	width: 116px;
-	height: 116px;
+	width: 132px;
+	height: 132px;
 }
 
 .wvc-gauge svg {
@@ -1321,31 +1523,27 @@
 .wvc-gauge__track {
 	fill: none;
 	stroke: var(--wvc-border);
-	stroke-width: 9;
+	stroke-width: 10;
 }
 
 .wvc-gauge__value {
 	fill: none;
-	stroke: var(--wvc-border-strong);
-	stroke-width: 9;
+	stroke: var(--wvc-ok);
+	stroke-width: 10;
 	stroke-linecap: round;
-	transition: stroke-dasharray 600ms cubic-bezier(0.4, 0, 0.2, 1);
+	transition: stroke-dasharray 600ms cubic-bezier(0.2, 0, 0.15, 1);
 }
 
 .wvc-verdict--blocking .wvc-gauge__value {
-	stroke: var(--wvc-bad);
+	stroke: var(--wvc-tier-blocking);
 }
 
 .wvc-verdict--important .wvc-gauge__value {
-	stroke: #d97706;
+	stroke: var(--wvc-tier-important);
 }
 
 .wvc-verdict--warning .wvc-gauge__value {
-	stroke: var(--wvc-warn);
-}
-
-.wvc-verdict--ready .wvc-gauge__value {
-	stroke: var(--wvc-ok);
+	stroke: var(--wvc-tier-warning);
 }
 
 .wvc-gauge__readout {
@@ -1355,227 +1553,245 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 1px;
 }
 
 .wvc-gauge__score {
-	font-size: 27px;
-	font-weight: 700;
+	font-size: var(--wvc-t-gauge);
+	font-weight: 600;
 	line-height: 1;
 	letter-spacing: -0.03em;
-	color: var(--wvc-text);
-	font-variant-numeric: tabular-nums;
+	color: var(--wvc-ink);
 }
 
 .wvc-gauge__unit {
-	margin-left: 1px;
-	font-size: 14px;
+	font-size: var(--wvc-t-xl);
 	font-weight: 600;
-	color: var(--wvc-text-muted);
+	color: var(--wvc-ink-3);
 }
 
-.wvc-gauge__caption {
-	font-size: 10.5px;
-	font-weight: 600;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-	color: var(--wvc-text-muted);
+.wvc-wrap .wvc-gauge__caption {
+	margin-top: 3px;
+	letter-spacing: 0.08em;
 }
 
-/* Section headings, shared by the overview and the site screen. */
-.wvc-section-head {
-	margin-bottom: var(--wvc-3);
-}
-
-.wvc-wrap .wvc-section-head__title {
-	display: flex;
-	align-items: baseline;
-	gap: var(--wvc-2);
-	margin: 0;
-	padding: 0;
-	font-size: 14px;
-	font-weight: 650;
-	color: var(--wvc-text);
-}
-
-.wvc-section-head__meta {
-	font-size: 12px;
-	font-weight: 500;
-	color: var(--wvc-text-muted);
-	font-variant-numeric: tabular-nums;
-}
-
-.wvc-section-head__summary {
-	margin: 3px 0 0;
-	max-width: 76ch;
-	font-size: 12.5px;
-	color: var(--wvc-text-muted);
-}
-
-/* Ranked next steps. */
-.wvc-wrap .wvc-actions {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-	background: var(--wvc-surface);
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-radius-lg);
-	box-shadow: var(--wvc-shadow-sm);
-	overflow: hidden;
-}
-
-.wvc-actions__item {
-	display: flex;
-	align-items: flex-start;
-	gap: var(--wvc-3);
-	margin: 0;
-	padding: var(--wvc-4) var(--wvc-5);
-	border-top: 1px solid var(--wvc-border);
-}
-
-.wvc-actions__item:first-child {
-	border-top: 0;
-}
-
-.wvc-actions__tier {
-	display: flex;
-	align-items: center;
-	flex: 0 0 auto;
-	padding-top: 5px;
-}
-
-.wvc-actions__text {
-	flex: 1 1 auto;
+.wvc-verdict__body {
 	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-2);
+	align-self: center;
 }
 
-.wvc-actions__title {
-	display: block;
-	font-size: 13.5px;
-	font-weight: 620;
-	line-height: 1.45;
-	color: var(--wvc-text);
-}
-
-.wvc-actions__detail {
-	display: block;
-	margin-top: 2px;
-	max-width: 84ch;
-	font-size: 12.5px;
-	line-height: 1.55;
-	color: var(--wvc-text-muted);
-}
-
-.wvc-wrap .wvc-actions__cta {
-	flex: 0 0 auto;
-	margin-top: 1px;
-}
-
-/* Tier indicator, shared by the action list, the filter bar and the bands. */
-.wvc-tierdot {
-	display: inline-block;
-	flex: 0 0 auto;
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: var(--wvc-border-strong);
-}
-
-.wvc-tierdot--blocking {
-	background: var(--wvc-bad);
-}
-
-.wvc-tierdot--important {
-	background: #d97706;
-}
-
-.wvc-tierdot--warning {
-	background: var(--wvc-warn);
-}
-
-.wvc-tierdot--info {
-	background: var(--wvc-text-muted);
-}
-
-.wvc-tier {
-	display: inline-flex;
-	align-items: center;
-	gap: 5px;
-	font-size: 11.5px;
+.wvc-wrap .wvc-verdict__headline {
+	font-size: var(--wvc-t-2xl);
 	font-weight: 600;
-	color: var(--wvc-text-secondary);
+	line-height: 1.3;
+	letter-spacing: -0.015em;
 }
 
-/* Area breakdown. */
-.wvc-wrap .wvc-areas {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-	background: var(--wvc-surface);
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-radius-lg);
-	box-shadow: var(--wvc-shadow-sm);
-	overflow: hidden;
+.wvc-verdict__summary {
+	color: var(--wvc-ink-2);
 }
 
-.wvc-areas__item + .wvc-areas__item {
+.wvc-verdict__actions {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-2);
+	flex-wrap: wrap;
+	margin-top: var(--wvc-2);
+}
+
+.wvc-verdict__meta {
+	font-size: var(--wvc-t-xs);
+	color: var(--wvc-ink-3);
+}
+
+/* The caption and the counts are one block, because the caption says what unit
+   the counts are in and the two must never be separated by the grid. */
+.wvc-verdict__factsblock {
+	grid-column: 1 / -1;
+	padding-top: var(--wvc-4);
 	border-top: 1px solid var(--wvc-border);
 }
 
-.wvc-wrap .wvc-areas__link {
+.wvc-wrap .wvc-verdict__facts-caption {
+	margin-bottom: var(--wvc-2);
+}
+
+.wvc-verdict__facts {
 	display: grid;
-	grid-template-columns: minmax(140px, 1.1fr) minmax(90px, 1fr) minmax(180px, 1.4fr) auto;
-	align-items: center;
-	gap: var(--wvc-4);
-	padding: var(--wvc-3) var(--wvc-5);
+	grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+	gap: var(--wvc-2);
+}
+
+/* The small sibling of a stat tile: same left edge, same label, same hover. */
+.wvc-verdict__fact {
+	padding: var(--wvc-2) var(--wvc-3);
+	border: 1px solid var(--wvc-border);
+	border-left-width: 3px;
+	border-left-color: var(--wvc-border-strong);
+	border-radius: var(--wvc-r-sm);
+	background: var(--wvc-surface);
+	transition: border-color var(--wvc-ease), box-shadow var(--wvc-ease);
+}
+
+.wvc-verdict__fact:has(a):hover {
+	box-shadow: var(--wvc-shadow-sm);
+}
+
+.wvc-verdict__fact a {
+	display: block;
 	text-decoration: none;
 	color: inherit;
-	transition: background-color var(--wvc-transition);
 }
 
-.wvc-wrap .wvc-areas__link:hover {
-	background: var(--wvc-surface-hover);
+.wvc-verdict__fact--bad {
+	border-left-color: var(--wvc-tier-blocking);
 }
 
-.wvc-areas__label {
-	font-size: 13px;
-	font-weight: 550;
-	color: var(--wvc-text);
+.wvc-verdict__fact--warn {
+	border-left-color: var(--wvc-tier-important);
 }
 
-.wvc-areas__legend {
-	font-size: 12px;
-	color: var(--wvc-text-muted);
-	font-variant-numeric: tabular-nums;
+.wvc-verdict__fact--notice {
+	border-left-color: var(--wvc-tier-warning);
 }
 
-.wvc-areas__chevron {
-	justify-self: end;
-	color: var(--wvc-text-muted);
-	transition: transform var(--wvc-transition), color var(--wvc-transition);
+.wvc-verdict__fact--ok {
+	border-left-color: var(--wvc-ok);
 }
 
-.wvc-areas__link:hover .wvc-areas__chevron {
+/* A tier with nothing in it is good news, not disabled chrome: it keeps its
+   place and its number, and only gives up its edge colour. */
+.wvc-verdict__fact--muted {
+	border-left-color: var(--wvc-border-strong);
+	background: var(--wvc-sunken);
+}
+
+.wvc-verdict__fact--muted .wvc-verdict__fact-value {
+	color: var(--wvc-ink-3);
+}
+
+.wvc-verdict__fact-value {
+	display: block;
+	font-size: var(--wvc-t-xl);
+	font-weight: 600;
+	line-height: 1.25;
+	letter-spacing: -0.02em;
+	color: var(--wvc-ink);
+}
+
+.wvc-verdict__fact-label {
+	display: block;
+	font-size: var(--wvc-t-xs);
+	font-weight: 500;
+	color: var(--wvc-ink-3);
+}
+
+.wvc-verdict__fact a:hover .wvc-verdict__fact-value {
 	color: var(--wvc-accent);
-	transform: translateX(2px);
 }
 
-/* Proportion bar. */
+/* -------------------------------------------------------------------------
+ * 10. Area cards and proportion meters
+ * ---------------------------------------------------------------------- */
+
+.wvc-areas {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: var(--wvc-3);
+}
+
+.wvc-area {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-2);
+	padding: var(--wvc-4);
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-r);
+	background: var(--wvc-surface);
+	transition: border-color var(--wvc-ease), box-shadow var(--wvc-ease);
+}
+
+.wvc-area:hover {
+	border-color: var(--wvc-border-strong);
+	box-shadow: var(--wvc-shadow-sm);
+}
+
+.wvc-area__head {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-2);
+}
+
+.wvc-area__icon {
+	display: grid;
+	place-items: center;
+	flex: 0 0 auto;
+	width: 26px;
+	height: 26px;
+	border-radius: var(--wvc-r-sm);
+	color: var(--wvc-ink-2);
+	background: var(--wvc-sunken);
+	border: 1px solid var(--wvc-border);
+}
+
+.wvc-area--bad .wvc-area__icon {
+	color: var(--wvc-bad);
+	background: var(--wvc-bad-soft);
+	border-color: var(--wvc-bad-line);
+}
+
+.wvc-area--warn .wvc-area__icon {
+	color: var(--wvc-warn);
+	background: var(--wvc-warn-soft);
+	border-color: var(--wvc-warn-line);
+}
+
+.wvc-area--ok .wvc-area__icon {
+	color: var(--wvc-ok);
+	background: var(--wvc-ok-soft);
+	border-color: var(--wvc-ok-line);
+}
+
+.wvc-wrap .wvc-area__title {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-size: var(--wvc-t-md);
+	font-weight: 600;
+}
+
+.wvc-area__title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.wvc-area__title a:hover {
+	color: var(--wvc-accent);
+}
+
+.wvc-area__total {
+	font-size: var(--wvc-t-xs);
+	color: var(--wvc-ink-3);
+	white-space: nowrap;
+}
+
 .wvc-meter {
 	display: flex;
+	width: 100%;
 	height: 6px;
-	border-radius: var(--wvc-radius-pill);
-	background: var(--wvc-surface-sunken);
+	border-radius: var(--wvc-r-pill);
 	overflow: hidden;
+	background: var(--wvc-border);
 }
 
 .wvc-meter--empty {
-	background: var(--wvc-border);
+	background: var(--wvc-sunken);
 }
 
 .wvc-meter__part {
 	height: 100%;
-	min-width: 3px;
+	transition: width 400ms var(--wvc-ease);
 }
 
 .wvc-meter__part--ok {
@@ -1594,117 +1810,1854 @@
 	background: var(--wvc-border-strong);
 }
 
+.wvc-legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wvc-1) var(--wvc-3);
+}
+
+.wvc-legend--empty {
+	font-size: var(--wvc-t-xs);
+	color: var(--wvc-ink-3);
+}
+
+.wvc-legend__item a,
+.wvc-legend__item {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: var(--wvc-t-xs);
+	text-decoration: none;
+	color: var(--wvc-ink-2);
+}
+
+.wvc-legend__item a:hover {
+	color: var(--wvc-accent);
+}
+
+.wvc-legend__value {
+	font-weight: 700;
+	color: var(--wvc-ink);
+}
+
+.wvc-legend__label {
+	color: var(--wvc-ink-3);
+}
+
+.wvc-wrap .wvc-area__verdict {
+	margin-top: auto;
+	padding-top: var(--wvc-1);
+	font-size: var(--wvc-t-sm);
+}
+
+.wvc-area__clear {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--wvc-ok);
+	font-weight: 500;
+}
+
 /* -------------------------------------------------------------------------
- * 13. Prose inside notices
- *
- * Reference copy used to live in a `.wvc-prose` panel on the overview's second
- * tab. It is now the body of a collapsed notice, so the prose rules belong to
- * the notice: several paragraphs and a list have to read properly in there.
+ * 11. Filters, search, toolbar, scan progress
  * ---------------------------------------------------------------------- */
 
-.wvc-notice__body {
-	max-width: 88ch;
-	line-height: 1.65;
+.wvc-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wvc-3);
+	flex-wrap: wrap;
+	padding: var(--wvc-2) var(--wvc-4);
+	border-bottom: 1px solid var(--wvc-border);
+	background: var(--wvc-sunken);
+
+	/* Focus rings inside the toolbar sit on the sunken ground. */
+	--wvc-focus-halo: var(--wvc-sunken);
 }
 
-.wvc-notice__body p {
-	margin: 0 0 var(--wvc-3);
-	font-size: 13px;
+.wvc-toolbar__filters,
+.wvc-toolbar__tools {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-2);
+	flex-wrap: wrap;
+	min-width: 0;
 }
 
-.wvc-notice__body ul {
-	margin: 0 0 var(--wvc-3);
-	padding-left: var(--wvc-5);
-	list-style: disc;
+/*
+ * The segmented track and the chip row are the same control in two forms — one
+ * exclusive choice inside a track, or a set of links — so they share a pill
+ * shape, a type size, a count badge and an active state. What is different
+ * between them is only what is different in behaviour.
+ */
+.wvc-segmented {
+	display: inline-flex;
+	align-items: stretch;
+	padding: 2px;
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-r-pill);
+	background: var(--wvc-surface);
+	box-shadow: var(--wvc-shadow-xs);
+	overflow-x: auto;
+	scrollbar-width: none;
+	max-width: 100%;
 }
 
-.wvc-notice__body li {
-	margin: 0 0 var(--wvc-1);
-	font-size: 12.5px;
+.wvc-segmented::-webkit-scrollbar {
+	display: none;
 }
 
-.wvc-notice__body a {
-	color: var(--wvc-accent);
-	text-decoration: underline;
-	text-underline-offset: 2px;
+.wvc-segmented button,
+.wvc-segmented a {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 3px 11px;
+	border: 0;
+	border-radius: var(--wvc-r-pill);
+	background: transparent;
+	font-family: inherit;
+	font-size: var(--wvc-t-sm);
+	font-weight: 500;
+	line-height: 18px;
+	white-space: nowrap;
+	color: var(--wvc-ink-2);
+	text-decoration: none;
+	cursor: pointer;
+	transition: background-color var(--wvc-ease), color var(--wvc-ease);
 }
 
-.wvc-notice__body a:hover {
+.wvc-segmented button:hover,
+.wvc-segmented a:hover {
+	background: var(--wvc-hover);
+	color: var(--wvc-ink);
+}
+
+.wvc-segmented button:focus-visible,
+.wvc-segmented a:focus-visible {
+	outline: none;
+	box-shadow: var(--wvc-focus);
+}
+
+.wvc-segmented button.active,
+.wvc-segmented a.active {
+	color: #fff;
+	background: var(--wvc-ink);
+	font-weight: 600;
+}
+
+/* Held while an async scan resolves the verdicts the filters read. */
+.wvc-segmented button[disabled] {
+	opacity: 0.45;
+	cursor: default;
+}
+
+.wvc-segmented button[disabled]:hover {
+	background: transparent;
+	color: var(--wvc-ink-2);
+}
+
+.wvc-segmented__count {
+	font-size: var(--wvc-t-2xs);
+	font-weight: 700;
+	color: var(--wvc-ink-3);
+	font-variant-numeric: tabular-nums;
+}
+
+.wvc-segmented__count:empty {
+	display: none;
+}
+
+.wvc-segmented button.active .wvc-segmented__count,
+.wvc-segmented a.active .wvc-segmented__count {
+	color: rgba(255, 255, 255, 0.75);
+}
+
+.wvc-search {
+	position: relative;
+	display: flex;
+	align-items: center;
+	min-width: 200px;
+}
+
+.wvc-search__icon {
+	position: absolute;
+	left: 9px;
+	color: var(--wvc-ink-3);
+	pointer-events: none;
+}
+
+.wvc-wrap .wvc-search__input {
+	width: 100%;
+	min-height: var(--wvc-ctl-sm);
+	margin: 0;
+	padding: 0 10px 0 30px;
+	border: 1px solid var(--wvc-border-strong);
+	border-radius: var(--wvc-r-pill);
+	background: var(--wvc-surface);
+	font-family: inherit;
+	font-size: var(--wvc-t-sm);
+	line-height: 20px;
+	color: var(--wvc-ink);
+	box-shadow: var(--wvc-shadow-xs);
+	transition: border-color var(--wvc-ease), box-shadow var(--wvc-ease);
+}
+
+.wvc-wrap .wvc-search__input::placeholder {
+	color: var(--wvc-ink-3);
+	opacity: 1;
+}
+
+.wvc-wrap .wvc-search__input:focus,
+.wvc-wrap .wvc-search__input:focus-visible {
+	border-color: var(--wvc-accent);
+	box-shadow: 0 0 0 3px var(--wvc-accent-soft);
+	outline: none;
+}
+
+.wvc-result-count {
+	font-size: var(--wvc-t-xs);
+	color: var(--wvc-ink-3);
+	white-space: nowrap;
+}
+
+.wvc-result-count:empty {
+	display: none;
+}
+
+/* The search field is a bare input in a table toolbar and a one-field form on
+   the fix list; both are the same control, so both wear the same shell. */
+.wvc-search--form {
+	margin: 0;
+}
+
+/* Scan progress. */
+.wvc-scan {
+	padding: var(--wvc-2) var(--wvc-4) var(--wvc-3);
+	border-bottom: 1px solid var(--wvc-accent-line);
+	background: var(--wvc-accent-soft);
+}
+
+.wvc-scan__head {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-2);
+	margin-bottom: 6px;
+	font-size: var(--wvc-t-sm);
+	font-weight: 600;
 	color: var(--wvc-accent-hover);
 }
 
-/* -------------------------------------------------------------------------
- * 14. Responsive
- * ---------------------------------------------------------------------- */
+.wvc-scan__track {
+	height: 4px;
+	border-radius: var(--wvc-r-pill);
+	background: var(--wvc-accent-line);
+	overflow: hidden;
+}
 
-@media screen and (max-width: 960px) {
-	.wvc-wrap {
-		margin-right: 12px;
-	}
+.wvc-scan__bar {
+	height: 100%;
+	background: var(--wvc-accent);
+	transition: width 240ms var(--wvc-ease);
+}
 
-	.wvc-verdict {
-		gap: var(--wvc-5);
-		padding: var(--wvc-5);
-	}
+.wvc-spinner {
+	display: inline-block;
+	width: 13px;
+	height: 13px;
+	border: 2px solid var(--wvc-accent-line);
+	border-top-color: var(--wvc-accent);
+	border-radius: 50%;
+	animation: wvc-spin 700ms linear infinite;
+	flex: 0 0 auto;
+}
 
-	/* The legend carries the same counts as the bar, so the bar is what gives
-	   way when the four-column area row runs out of width. */
-	.wvc-wrap .wvc-areas__link {
-		grid-template-columns: minmax(120px, 1fr) minmax(160px, 1.4fr) auto;
-	}
+.wvc-spinner--xs {
+	width: 10px;
+	height: 10px;
+	border-width: 1.5px;
+}
 
-	.wvc-areas__link .wvc-meter {
-		display: none;
+@keyframes wvc-spin {
+	to {
+		transform: rotate(360deg);
 	}
 }
 
-@media screen and (max-width: 782px) {
+/* -------------------------------------------------------------------------
+ * 12. Tables
+ * ---------------------------------------------------------------------- */
+
+.wvc-table-wrap {
+	width: 100%;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.wvc-wrap .wvc-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: var(--wvc-t-sm);
+}
+
+.wvc-wrap .wvc-table th,
+.wvc-wrap .wvc-table td {
+	text-align: left;
+	vertical-align: top;
+}
+
+/*
+ * `top` here must stay 0, and must NOT use `--wvc-sticky`.
+ *
+ * The wrapper above sets `overflow-x: auto`, which forces `overflow-y` to
+ * compute to `auto` as well, so the wrapper — not the viewport — is this
+ * header's scrolling ancestor. A non-zero `top` is then measured from the
+ * wrapper's own top edge, and because the wrapper never scrolls vertically the
+ * header is simply shoved that far down and paints its opaque background over
+ * the first row of the table.
+ *
+ * The admin-bar offset belongs to `.wvc-controls`, which sits in normal page
+ * flow and really does stick to the viewport.
+ */
+.wvc-wrap .wvc-th {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	padding: 0;
+	border-bottom: 1px solid var(--wvc-border-strong);
+	background: var(--wvc-surface);
+	white-space: nowrap;
+}
+
+.wvc-wrap .wvc-th > span {
+	display: block;
+	padding: 7px var(--wvc-3);
+}
+
+.wvc-th__sort {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	width: 100%;
+	padding: 7px var(--wvc-3);
+	border: 0;
+	background: transparent;
+	font: inherit;
+	letter-spacing: inherit;
+	text-transform: inherit;
+	color: inherit;
+	cursor: pointer;
+	transition: color var(--wvc-ease), background-color var(--wvc-ease);
+}
+
+.wvc-th__sort:hover {
+	color: var(--wvc-accent);
+	background: var(--wvc-hover);
+}
+
+.wvc-th__icon {
+	opacity: 0.45;
+}
+
+.wvc-th[aria-sort="ascending"],
+.wvc-th[aria-sort="descending"] {
+	color: var(--wvc-ink);
+}
+
+.wvc-th[aria-sort="ascending"] .wvc-th__icon,
+.wvc-th[aria-sort="descending"] .wvc-th__icon {
+	opacity: 1;
+	color: var(--wvc-accent);
+}
+
+.wvc-wrap .wvc-table tbody td {
+	padding: var(--wvc-3);
+	border-bottom: 1px solid var(--wvc-border);
+	color: var(--wvc-ink-2);
+}
+
+.wvc-wrap .wvc-table--compact tbody td {
+	padding: 7px var(--wvc-3);
+}
+
+.wvc-wrap .wvc-table tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+.wvc-wrap .wvc-table tbody tr.wvc-row:hover td {
+	background: var(--wvc-hover);
+}
+
+.wvc-wrap .wvc-table tbody tr.is-open td {
+	background: var(--wvc-accent-soft);
+}
+
+.wvc-col-toggle {
+	width: 34px;
+	padding-right: 0 !important;
+}
+
+/* On the three inventory screens the whole row opens its drawer, so the row
+   advertises that and the chevron lights up with it — the button is still the
+   keyboard control, but it is no longer the only thing worth aiming at. */
+.wvc-wrap .wvc-table--expandable tbody tr.wvc-row {
+	cursor: pointer;
+}
+
+.wvc-wrap .wvc-table--expandable tbody tr.wvc-row:hover .wvc-rowtoggle {
+	color: var(--wvc-accent);
+	background: var(--wvc-surface);
+	border-color: var(--wvc-border-strong);
+}
+
+/* Anything with its own behaviour keeps its own cursor, so a link in a
+   clickable row still reads as a link. */
+.wvc-wrap .wvc-table--expandable tbody tr.wvc-row a {
+	cursor: pointer;
+}
+
+.wvc-rowtoggle {
+	display: grid;
+	place-items: center;
+	width: 22px;
+	height: 22px;
+	border: 1px solid transparent;
+	border-radius: var(--wvc-r-sm);
+	background: transparent;
+	color: var(--wvc-ink-3);
+	cursor: pointer;
+	transition: background-color var(--wvc-ease), color var(--wvc-ease), border-color var(--wvc-ease);
+}
+
+.wvc-rowtoggle:hover {
+	color: var(--wvc-accent);
+	background: var(--wvc-surface);
+	border-color: var(--wvc-border-strong);
+}
+
+.wvc-rowtoggle .wvc-icon {
+	transition: transform var(--wvc-ease);
+}
+
+.wvc-rowtoggle[aria-expanded="true"] .wvc-icon {
+	transform: rotate(90deg);
+}
+
+.wvc-col-name {
+	min-width: 200px;
+}
+
+.wvc-col-status,
+.wvc-col-state,
+.wvc-col-version {
+	white-space: nowrap;
+}
+
+.wvc-col-findings {
+	min-width: 150px;
+}
+
+.wvc-col-notes {
+	min-width: 220px;
+	max-width: 420px;
+}
+
+.wvc-col-mono {
+	font-family: var(--wvc-font-mono);
+	font-size: var(--wvc-t-xs);
+}
+
+.wvc-col-number {
+	text-align: right !important;
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+}
+
+.wvc-item {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	min-width: 0;
+}
+
+.wvc-item__name {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-1);
+	flex-wrap: wrap;
+	font-size: var(--wvc-t-md);
+	font-weight: 600;
+	color: var(--wvc-ink);
+}
+
+.wvc-item__path,
+.wvc-item__meta {
+	font-size: var(--wvc-t-xs);
+	line-height: 1.45;
+	color: var(--wvc-ink-3);
+	overflow-wrap: anywhere;
+}
+
+.wvc-item__path {
+	font-family: var(--wvc-font-mono);
+}
+
+.wvc-version {
+	font-family: var(--wvc-font-mono);
+	font-size: var(--wvc-t-xs);
+	color: var(--wvc-ink);
+}
+
+.wvc-version__update {
+	display: inline-block;
+	margin-left: 5px;
+	padding: 0 5px;
+	border-radius: var(--wvc-r-xs);
+	background: var(--wvc-accent-soft);
+	border: 1px solid var(--wvc-accent-line);
+	font-family: var(--wvc-font-mono);
+	font-size: var(--wvc-t-2xs);
+	font-weight: 700;
+	color: var(--wvc-accent);
+	white-space: nowrap;
+}
+
+.wvc-status__link {
+	display: block;
+	margin-top: 3px;
+	font-size: var(--wvc-t-xs);
+	color: var(--wvc-accent);
+	text-decoration: none;
+}
+
+.wvc-status__link:hover {
+	text-decoration: underline;
+}
+
+.wvc-no-results td {
+	padding: var(--wvc-7) var(--wvc-4) !important;
+	text-align: center;
+	color: var(--wvc-ink-3);
+}
+
+.wvc-no-results strong {
+	display: block;
+	font-size: var(--wvc-t-md);
+	color: var(--wvc-ink);
+}
+
+.wvc-delta {
+	display: inline-flex;
+	align-items: center;
+	padding: 0 6px;
+	border-radius: var(--wvc-r-xs);
+	font-size: var(--wvc-t-xs);
+	font-weight: 700;
+	line-height: 18px;
+}
+
+.wvc-delta--down {
+	color: var(--wvc-ok);
+	background: var(--wvc-ok-soft);
+}
+
+.wvc-delta--up {
+	color: var(--wvc-bad);
+	background: var(--wvc-bad-soft);
+}
+
+/* -------------------------------------------------------------------------
+ * 13. Row detail drawers
+ * ---------------------------------------------------------------------- */
+
+.wvc-row-detail > td {
+	padding: 0 !important;
+	background: var(--wvc-sunken);
+	border-bottom: 1px solid var(--wvc-border) !important;
+}
+
+.wvc-detail {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-4);
+	padding: var(--wvc-4) var(--wvc-4) var(--wvc-4) var(--wvc-7);
+	border-left: 3px solid var(--wvc-accent-line);
+	animation: wvc-slide var(--wvc-ease);
+
+	--wvc-focus-halo: var(--wvc-sunken);
+}
+
+@keyframes wvc-slide {
+	from {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+}
+
+.wvc-detail__block {
+	min-width: 0;
+}
+
+.wvc-detail__actions {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-2);
+	flex-wrap: wrap;
+}
+
+/* -------------------------------------------------------------------------
+ * 14. Snippets, notes, SQL groups
+ * ---------------------------------------------------------------------- */
+
+.wvc-notes {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-2);
+}
+
+.wvc-notes > li {
+	margin: 0;
+	font-size: var(--wvc-t-sm);
+	line-height: var(--wvc-lh);
+}
+
+.wvc-note__label {
+	font-weight: 600;
+	color: var(--wvc-ink);
+}
+
+.wvc-snippet {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wvc-1);
+	max-width: 100%;
+	margin-top: var(--wvc-1);
+	padding: 2px 2px 2px 7px;
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-r-sm);
+	background: var(--wvc-surface);
+	vertical-align: middle;
+}
+
+.wvc-snippet--block {
+	display: flex;
+}
+
+.wvc-snippet code {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow-x: auto;
+	white-space: pre;
+	font-size: var(--wvc-t-xs);
+	color: var(--wvc-ink-2);
+	scrollbar-width: thin;
+}
+
+.wvc-snippet__copy {
+	flex: 0 0 auto;
+	display: grid;
+	place-items: center;
+	width: 22px;
+	height: 22px;
+	border: 0;
+	border-radius: var(--wvc-r-xs);
+	background: transparent;
+	color: var(--wvc-ink-3);
+	cursor: pointer;
+	transition: background-color var(--wvc-ease), color var(--wvc-ease);
+}
+
+.wvc-snippet__copy:hover {
+	background: var(--wvc-hover);
+	color: var(--wvc-accent);
+}
+
+.wvc-snippet__copy.is-copied {
+	color: var(--wvc-ok);
+}
+
+/* Grouped schema work: a card whose left edge carries rank, like every other
+   ranked row in the plugin. */
+.wvc-issues {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-3);
+}
+
+.wvc-issue {
+	padding: var(--wvc-4);
+	border: 1px solid var(--wvc-border);
+	border-left: 3px solid var(--wvc-border-strong);
+	border-radius: var(--wvc-r);
+	background: var(--wvc-surface);
+}
+
+.wvc-issue--bad {
+	border-left-color: var(--wvc-bad);
+}
+
+.wvc-issue--warn {
+	border-left-color: var(--wvc-warn);
+}
+
+.wvc-issue__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: var(--wvc-3);
+	flex-wrap: wrap;
+}
+
+.wvc-wrap .wvc-issue__title {
+	font-size: var(--wvc-t-lg);
+	font-weight: 600;
+}
+
+.wvc-issue__count {
+	font-size: var(--wvc-t-xs);
+	font-weight: 600;
+	color: var(--wvc-ink-3);
+}
+
+.wvc-wrap .wvc-issue__detail {
+	margin-top: var(--wvc-1);
+	color: var(--wvc-ink-2);
+}
+
+.wvc-wrap .wvc-issue__tables {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wvc-1);
+	margin-top: var(--wvc-2);
+}
+
+.wvc-issue__tables code {
+	padding: 1px 6px;
+	border-radius: var(--wvc-r-xs);
+	background: var(--wvc-sunken);
+	border: 1px solid var(--wvc-border);
+	font-size: var(--wvc-t-xs);
+	color: var(--wvc-ink-2);
+}
+
+.wvc-issue__more {
+	font-size: var(--wvc-t-xs);
+	color: var(--wvc-ink-3);
+}
+
+.wvc-sql {
+	margin-top: var(--wvc-3);
+}
+
+.wvc-sql__summary {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 3px 0;
+	font-size: var(--wvc-t-sm);
+	font-weight: 600;
+	color: var(--wvc-accent);
+	cursor: pointer;
+	list-style: none;
+}
+
+.wvc-sql__summary::-webkit-details-marker {
+	display: none;
+}
+
+.wvc-sql__summary:hover {
+	color: var(--wvc-accent-hover);
+}
+
+.wvc-sql__caret {
+	transition: transform var(--wvc-ease);
+}
+
+.wvc-sql[open] .wvc-sql__caret {
+	transform: rotate(180deg);
+}
+
+.wvc-sql__body {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--wvc-2);
+	margin-top: var(--wvc-2);
+}
+
+.wvc-sql__code {
+	width: 100%;
+	margin: 0;
+	padding: var(--wvc-3);
+	border-radius: var(--wvc-r-sm);
+	border: 1px solid var(--wvc-code-bg);
+	background: var(--wvc-code-bg);
+	color: var(--wvc-code-ink);
+	font-family: var(--wvc-font-mono);
+	font-size: var(--wvc-t-xs);
+	line-height: 1.7;
+	overflow-x: auto;
+	white-space: pre;
+}
+
+.wvc-issues__footer {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-3);
+	flex-wrap: wrap;
+	margin-top: var(--wvc-4);
+	padding-top: var(--wvc-4);
+	border-top: 1px solid var(--wvc-border);
+}
+
+.wvc-issues__hint {
+	font-size: var(--wvc-t-xs);
+	color: var(--wvc-ink-3);
+}
+
+/* -------------------------------------------------------------------------
+ * 15. Notices, guidance, empty states, steps
+ * ---------------------------------------------------------------------- */
+
+/*
+ * A notice is a tinted surface, a matching border and a coloured icon — and
+ * nothing else. It deliberately does not also wear a heavy left bar: in this
+ * interface that bar means rank within a list, and a notice is not in a list.
+ */
+.wvc-notice {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wvc-3);
+	padding: var(--wvc-3) var(--wvc-4);
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-r);
+	background: var(--wvc-sunken);
+	font-size: var(--wvc-t-sm);
+	line-height: var(--wvc-lh);
+	color: var(--wvc-ink-2);
+}
+
+.wvc-notice--info {
+	border-color: var(--wvc-accent-line);
+	background: var(--wvc-accent-soft);
+}
+
+.wvc-notice--success {
+	border-color: var(--wvc-ok-line);
+	background: var(--wvc-ok-soft);
+}
+
+.wvc-notice--warning {
+	border-color: var(--wvc-warn-line);
+	background: var(--wvc-warn-soft);
+}
+
+.wvc-notice--error {
+	border-color: var(--wvc-bad-line);
+	background: var(--wvc-bad-soft);
+}
+
+.wvc-notice__icon {
+	flex: 0 0 auto;
+	margin-top: 1px;
+}
+
+.wvc-notice--info .wvc-notice__icon {
+	color: var(--wvc-accent);
+}
+
+.wvc-notice--success .wvc-notice__icon {
+	color: var(--wvc-ok);
+}
+
+.wvc-notice--warning .wvc-notice__icon {
+	color: var(--wvc-warn);
+}
+
+.wvc-notice--error .wvc-notice__icon {
+	color: var(--wvc-bad);
+}
+
+.wvc-notice__body {
+	min-width: 0;
+}
+
+.wvc-wrap .wvc-notice__body > * + * {
+	margin-top: var(--wvc-2);
+}
+
+.wvc-notice__title {
+	display: block;
+	color: var(--wvc-ink);
+	font-weight: 600;
+}
+
+.wvc-notice code {
+	padding: 1px 4px;
+	border-radius: var(--wvc-r-xs);
+	background: rgba(16, 24, 40, 0.06);
+}
+
+.wvc-notice a {
+	color: var(--wvc-accent-hover);
+}
+
+/* Collapsed reference reading. Quieter than a notice on purpose: it is
+   background, and it is on every visit whether or not anything is wrong. */
+.wvc-guidance {
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-r);
+	background: var(--wvc-surface);
+	overflow: hidden;
+}
+
+/* This is the only control on the screen that opens a block of reading, and it
+   was the smallest thing on the page. Sized to a 44px target so it is worth
+   aiming at, and to body size so it reads as a heading for what it reveals. */
+.wvc-guidance__summary {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-2);
+	min-height: 44px;
+	padding: var(--wvc-2) var(--wvc-4);
+	font-size: var(--wvc-t-md);
+	font-weight: 600;
+	color: var(--wvc-ink-2);
+	cursor: pointer;
+	list-style: none;
+	transition: background-color var(--wvc-ease), color var(--wvc-ease);
+}
+
+.wvc-guidance__summary::-webkit-details-marker {
+	display: none;
+}
+
+.wvc-guidance__summary:hover {
+	background: var(--wvc-sunken);
+	color: var(--wvc-ink);
+}
+
+.wvc-guidance__icon {
+	color: var(--wvc-ink-3);
+}
+
+.wvc-guidance__title {
+	flex: 1 1 auto;
+}
+
+.wvc-guidance__caret {
+	color: var(--wvc-ink-3);
+	transition: transform var(--wvc-ease);
+}
+
+.wvc-guidance[open] .wvc-guidance__caret {
+	transform: rotate(180deg);
+}
+
+.wvc-guidance[open] .wvc-guidance__summary {
+	background: var(--wvc-sunken);
+	color: var(--wvc-ink);
+}
+
+.wvc-guidance__body {
+	padding: var(--wvc-3) var(--wvc-4) var(--wvc-4);
+	border-top: 1px solid var(--wvc-border);
+	font-size: var(--wvc-t-sm);
+	line-height: var(--wvc-lh-loose);
+	color: var(--wvc-ink-2);
+}
+
+.wvc-wrap .wvc-guidance__body > * + * {
+	margin-top: var(--wvc-2);
+}
+
+.wvc-guidance__body strong {
+	color: var(--wvc-ink);
+	font-weight: 600;
+}
+
+.wvc-guidance__body code {
+	padding: 1px 4px;
+	border-radius: var(--wvc-r-xs);
+	background: var(--wvc-sunken);
+	border: 1px solid var(--wvc-border);
+}
+
+.wvc-guidance__body ul {
+	list-style: disc;
+	padding-left: var(--wvc-5);
+}
+
+.wvc-guidance__body li {
+	margin-bottom: var(--wvc-1);
+}
+
+.wvc-guidance__body a {
+	color: var(--wvc-accent);
+}
+
+/* Empty state. */
+.wvc-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wvc-2);
+	padding: var(--wvc-8) var(--wvc-5);
+	border: 1px dashed var(--wvc-border-strong);
+	border-radius: var(--wvc-r-lg);
+	background: var(--wvc-surface);
+	text-align: center;
+}
+
+.wvc-empty__icon {
+	display: grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	color: var(--wvc-ink-3);
+	background: var(--wvc-sunken);
+}
+
+.wvc-empty__title {
+	font-size: var(--wvc-t-lg);
+	font-weight: 600;
+	color: var(--wvc-ink);
+}
+
+.wvc-empty__message {
+	max-width: 60ch;
+	color: var(--wvc-ink-3);
+}
+
+.wvc-wrap .wvc-empty__action {
+	margin-top: var(--wvc-2);
+}
+
+/* Getting started, shown once on a site that has never been scanned. */
+.wvc-steps {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-3);
+}
+
+.wvc-step {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wvc-3);
+}
+
+.wvc-step__rank {
+	flex: 0 0 auto;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background: var(--wvc-ink);
+	color: #fff;
+	font-size: var(--wvc-t-sm);
+	font-weight: 700;
+	line-height: 24px;
+	text-align: center;
+}
+
+.wvc-step__text {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.wvc-step__title {
+	font-size: var(--wvc-t-md);
+	font-weight: 600;
+	color: var(--wvc-ink);
+}
+
+.wvc-step__body {
+	font-size: var(--wvc-t-sm);
+	line-height: var(--wvc-lh-loose);
+	color: var(--wvc-ink-2);
+}
+
+/* -------------------------------------------------------------------------
+ * 16. The fix list
+ * ---------------------------------------------------------------------- */
+
+/*
+ * The filter bar.
+ *
+ * One row, read left to right as result then controls: the count and any filter
+ * that arrived from another screen on the left, then the two facets and search
+ * gathered into one cluster on the right.
+ *
+ * It used to be three stacked rows — a chip row per facet, then the count with
+ * search parked beside it. That gave a whole row of the toolbar to each facet
+ * whatever was in it, and the cost grew with the taxonomy: the category row
+ * already wrapped on a laptop, to offer a choice made once per visit. Collapsed
+ * into dropdowns, each facet is one control of fixed width that still names its
+ * own selection, and the block loses two thirds of its height.
+ *
+ * What the collapse must not lose is the answer to "what am I looking at", so
+ * the trigger carries the current option — dot and all — and marks itself when
+ * that option is narrowing the list. The tier hue stays in the dot, the token
+ * the fix cards and the overview tiles already share.
+ */
+.wvc-controls {
+	position: sticky;
+	top: calc(var(--wvc-sticky) + var(--wvc-2));
+	z-index: 5;
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--wvc-2) var(--wvc-4);
+	padding: var(--wvc-2) var(--wvc-3);
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-r-lg);
+	background: rgba(255, 255, 255, 0.92);
+	backdrop-filter: blur(10px);
+	box-shadow: var(--wvc-shadow-sm);
+}
+
+/* --- The controls that change the view --------------------------------- */
+
+/* Held at the right end, in source order after the count, so a keyboard reaches
+   the result of the last filter before the controls that change it again. */
+/* One line, never two: the two facets and search are one cluster, and letting
+   search drop to a row of its own leaves it stranded under a mostly empty bar.
+   It shrinks instead, and only unstacks on a phone (see the 782px block). */
+.wvc-controls__tools {
+	display: flex;
+	align-items: center;
+	flex-wrap: nowrap;
+	gap: var(--wvc-2);
+	flex: 0 1 auto;
+	margin-left: auto;
+	min-width: 0;
+}
+
+/* Search shrinks before the facets do — a facet you can no longer read is worse
+   than a field you have to scroll a long query through. */
+.wvc-controls__tools .wvc-search {
+	flex: 0 1 360px;
+	min-width: 260px;
+}
+
+/* Sunken at rest so it reads as a slot to type into rather than as a third
+   button beside the two facets, and lifts to the surface on focus. */
+.wvc-wrap .wvc-controls__tools .wvc-search__input {
+	border-color: var(--wvc-border);
+	background: var(--wvc-sunken);
+	box-shadow: none;
+}
+
+.wvc-wrap .wvc-controls__tools .wvc-search__input:hover {
+	border-color: var(--wvc-border-strong);
+}
+
+.wvc-wrap .wvc-controls__tools .wvc-search__input:focus,
+.wvc-wrap .wvc-controls__tools .wvc-search__input:focus-visible {
+	border-color: var(--wvc-accent);
+	background: var(--wvc-surface);
+}
+
+/* --- Filter dropdowns --------------------------------------------------- */
+
+.wvc-filter {
+	flex: 0 0 auto;
+}
+
+/* The closed control. Caption and value share one shell rather than sitting in
+   a label beside it: the pair is one sentence — "area: security" — and splitting
+   it would spend the width of a second control on saying nothing new. */
+.wvc-filter__trigger {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-height: var(--wvc-ctl-sm);
+	padding: 0 9px 0 11px;
+	border: 1px solid var(--wvc-border-strong);
+	border-radius: var(--wvc-r-pill);
+	background: var(--wvc-surface);
+	font-size: var(--wvc-t-sm);
+	line-height: 1.4;
+	white-space: nowrap;
+	box-shadow: var(--wvc-shadow-xs);
+	transition: background-color var(--wvc-ease), border-color var(--wvc-ease);
+}
+
+.wvc-filter__trigger:hover {
+	border-color: var(--wvc-ink-3);
+	background: var(--wvc-hover);
+}
+
+.wvc-filter__trigger:focus-visible {
+	outline: none;
+	box-shadow: var(--wvc-focus);
+}
+
+/* The facet name is the quiet half; the selection is the half being read. */
+.wvc-filter__caption {
+	font-weight: 500;
+	color: var(--wvc-ink-3);
+}
+
+.wvc-filter__value {
+	font-weight: 600;
+	color: var(--wvc-ink);
+}
+
+.wvc-filter__trigger .wvc-tierdot {
+	width: 7px;
+	height: 7px;
+	margin-left: 1px;
+}
+
+.wvc-filter__chevron {
+	color: var(--wvc-ink-3);
+	transition: transform var(--wvc-ease);
+}
+
+.wvc-filter[open] .wvc-filter__chevron {
+	transform: rotate(180deg);
+}
+
+/*
+ * Applied. Not solid ink, which is the weight the page spends on a primary
+ * button, and not a hue, which would collide with the tier dot sitting inside
+ * the same control: a tinted ground and an accent edge are enough to say "this
+ * one is doing something" at a glance across the bar.
+ */
+.wvc-filter.is-narrowed .wvc-filter__trigger {
+	border-color: var(--wvc-accent-line);
+	background: var(--wvc-accent-soft);
+}
+
+.wvc-filter.is-narrowed .wvc-filter__trigger:hover {
+	border-color: var(--wvc-accent);
+}
+
+.wvc-filter.is-narrowed .wvc-filter__caption {
+	color: var(--wvc-accent);
+}
+
+/* The open panel. Narrower than the export menu it inherits from, because a
+   list of one-line options does not need the width of a list with hints. */
+.wvc-filter__panel {
+	width: 250px;
+	padding: var(--wvc-1);
+}
+
+.wvc-wrap .wvc-filter__panel .wvc-menu__title {
+	margin: 6px var(--wvc-2) var(--wvc-1);
+}
+
+.wvc-filter__option {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-2);
+	padding: 5px var(--wvc-2);
+	border-radius: var(--wvc-r-sm);
+	font-size: var(--wvc-t-sm);
+	font-weight: 500;
+	color: var(--wvc-ink-2);
+	text-decoration: none;
+	transition: background-color var(--wvc-ease), color var(--wvc-ease);
+}
+
+.wvc-filter__option:hover {
+	background: var(--wvc-hover);
+	color: var(--wvc-ink);
+}
+
+.wvc-filter__option:focus-visible {
+	outline: none;
+	box-shadow: var(--wvc-focus);
+}
+
+.wvc-filter__option.is-active {
+	background: var(--wvc-sunken);
+	font-weight: 600;
+	color: var(--wvc-ink);
+}
+
+/* A tier with nothing in it still holds its place, so the menu offers the same
+   four tiers as the overview and never reshuffles between visits. It is a
+   reading, not a control, so it does not respond to the pointer. */
+.wvc-filter__option.is-empty {
+	color: var(--wvc-ink-3);
+	cursor: default;
+}
+
+.wvc-filter__option.is-empty:hover {
+	background: transparent;
+	color: var(--wvc-ink-3);
+}
+
+.wvc-filter__option.is-empty .wvc-tierdot {
+	opacity: 0.35;
+}
+
+/* Reserved on every row, so the labels keep one left edge as the tick moves. */
+.wvc-filter__tick {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	width: 14px;
+	color: var(--wvc-accent);
+}
+
+.wvc-filter__option .wvc-tierdot {
+	width: 7px;
+	height: 7px;
+	margin-left: -2px;
+}
+
+.wvc-filter__option-label {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wvc-filter__count {
+	flex: 0 0 auto;
+	font-size: var(--wvc-t-xs);
+	font-weight: 600;
+	color: var(--wvc-ink-3);
+	font-variant-numeric: tabular-nums;
+}
+
+/* --- What the view currently is ---------------------------------------- */
+
+.wvc-listbar {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-1) var(--wvc-2);
+	flex-wrap: wrap;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+/* The `.wvc-wrap` prefix is load-bearing: this is a `p`, and the base reset
+   would otherwise win on specificity and hand it the body size. */
+.wvc-wrap .wvc-listbar__count {
+	flex: 0 0 auto;
+	font-size: var(--wvc-t-xs);
+	font-weight: 500;
+	line-height: 18px;
+	color: var(--wvc-ink-3);
+}
+
+/* The number is the answer; the noun is only the unit it is in. */
+.wvc-listbar__total {
+	margin-right: 2px;
+	font-size: var(--wvc-t-sm);
+	font-weight: 700;
+	color: var(--wvc-ink);
+}
+
+/* Last in the left cluster, after whatever pills are there to be cleared. */
+.wvc-listbar__clear {
+	flex: 0 0 auto;
+	font-size: var(--wvc-t-xs);
+	font-weight: 600;
+	color: var(--wvc-ink-3);
+	text-decoration: none;
+	border-bottom: 1px solid transparent;
+	transition: color var(--wvc-ease), border-color var(--wvc-ease);
+}
+
+.wvc-listbar__clear:hover {
+	color: var(--wvc-accent);
+	border-bottom-color: currentColor;
+}
+
+.wvc-activefilters {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-1);
+	flex-wrap: wrap;
+}
+
+/* A filter that arrived from another screen, shown as something you were
+   given rather than something you chose, with the one control that undoes it. */
+.wvc-activefilter {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 2px 9px;
+	border: 1px solid var(--wvc-accent-line);
+	border-radius: var(--wvc-r-pill);
+	background: var(--wvc-accent-soft);
+	font-size: var(--wvc-t-xs);
+	font-weight: 600;
+	line-height: 18px;
+	color: var(--wvc-accent);
+	text-decoration: none;
+	transition: background-color var(--wvc-ease), color var(--wvc-ease);
+}
+
+.wvc-activefilter:hover {
+	background: var(--wvc-accent);
+	color: #fff;
+}
+
+.wvc-activefilter:focus-visible {
+	outline: none;
+	box-shadow: var(--wvc-focus);
+	color: var(--wvc-accent);
+}
+
+.wvc-activefilter__remove {
+	font-size: var(--wvc-t-lg);
+	line-height: 1;
+	opacity: 0.7;
+}
+
+/* The list itself. */
+.wvc-fixlist {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-2);
+}
+
+.wvc-fix {
+	border: 1px solid var(--wvc-border);
+	border-left: 3px solid var(--wvc-border);
+	border-radius: var(--wvc-r);
+	background: var(--wvc-surface);
+	box-shadow: var(--wvc-shadow-xs);
+	overflow: hidden;
+	transition: border-color var(--wvc-ease), box-shadow var(--wvc-ease);
+}
+
+.wvc-fix:hover {
+	box-shadow: var(--wvc-shadow-sm);
+}
+
+/* The tier is the card's left edge as well as its label, so the shape of the
+   backlog stays legible from the margin alone while scrolling past it. */
+.wvc-fix--blocking {
+	border-left-color: var(--wvc-tier-blocking);
+}
+
+.wvc-fix--important {
+	border-left-color: var(--wvc-tier-important);
+}
+
+.wvc-fix--warning {
+	border-left-color: var(--wvc-tier-warning);
+}
+
+.wvc-fix--info {
+	border-left-color: var(--wvc-tier-info);
+}
+
+.wvc-fix__summary {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wvc-3);
+	padding: var(--wvc-3);
+	cursor: pointer;
+	list-style: none;
+	transition: background-color var(--wvc-ease);
+}
+
+.wvc-fix__summary::-webkit-details-marker {
+	display: none;
+}
+
+.wvc-fix__summary:hover {
+	background: var(--wvc-hover);
+}
+
+.wvc-fix__summary:focus-visible {
+	outline: none;
+	background: var(--wvc-hover);
+	box-shadow: inset 0 0 0 2px var(--wvc-accent);
+}
+
+/* A task card wears the card shape but has nothing to disclose: the work it
+   points at lives on another screen, so it carries a link instead of a caret
+   and must not look clickable as a whole. */
+.wvc-fix--task .wvc-fix__summary {
+	cursor: default;
+}
+
+.wvc-fix--task .wvc-fix__summary:hover {
+	background: transparent;
+}
+
+.wvc-fix__cta {
+	flex: 0 0 auto;
+	align-self: center;
+}
+
+.wvc-fix__caret {
+	flex: 0 0 auto;
+	margin-top: 4px;
+	color: var(--wvc-ink-3);
+	transition: transform var(--wvc-ease);
+}
+
+.wvc-fix[open] .wvc-fix__caret {
+	transform: rotate(180deg);
+}
+
+/* A fixed column for the tier keeps every title on one left edge, so the list
+   scans as a list instead of as a ragged stack of cards. */
+.wvc-fix__tier {
+	flex: 0 0 auto;
+	width: 122px;
+	padding-top: 1px;
+}
+
+.wvc-fix__main {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+
+.wvc-fix__title {
+	font-size: var(--wvc-t-md);
+	font-weight: 600;
+	color: var(--wvc-ink);
+}
+
+.wvc-fix__where {
+	display: flex;
+	align-items: baseline;
+	gap: var(--wvc-2);
+	flex-wrap: wrap;
+	font-size: var(--wvc-t-xs);
+	color: var(--wvc-ink-3);
+}
+
+.wvc-fix__target {
+	font-weight: 600;
+	color: var(--wvc-ink-2);
+}
+
+.wvc-fix__places code {
+	font-size: var(--wvc-t-xs);
+	overflow-wrap: anywhere;
+}
+
+.wvc-fix__effort {
+	padding: 0 6px;
+	border: 1px solid var(--wvc-border);
+	border-radius: var(--wvc-r-xs);
+	background: var(--wvc-sunken);
+	font-size: var(--wvc-t-2xs);
+	font-weight: 700;
+	line-height: 17px;
+	letter-spacing: 0.02em;
+	color: var(--wvc-ink-3);
+	white-space: nowrap;
+}
+
+/* The recommended fix, on the outside of the card. This is the sentence the
+   reader came for, so it is never behind a disclosure. */
+.wvc-fix__lead {
+	display: flex;
+	align-items: baseline;
+	gap: 7px;
+	margin-top: 3px;
+	font-size: var(--wvc-t-sm);
+	line-height: var(--wvc-lh);
+	color: var(--wvc-ink-2);
+}
+
+.wvc-fix__lead-label {
+	flex: 0 0 auto;
+	padding: 0 6px;
+	border-radius: var(--wvc-r-xs);
+	background: var(--wvc-ok-soft);
+	font-size: var(--wvc-t-2xs);
+	font-weight: 700;
+	line-height: 17px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--wvc-ok);
+}
+
+/* "Why" rather than "Fix": on a task the title already states the action, so
+   the line beneath it carries the reason instead of the remedy. */
+.wvc-fix__lead-label--why {
+	background: var(--wvc-accent-soft);
+	color: var(--wvc-accent);
+}
+
+.wvc-fix__lead-text {
+	min-width: 0;
+}
+
+.wvc-fix__body {
+	padding: var(--wvc-4);
+	border-top: 1px solid var(--wvc-border);
+	background: var(--wvc-sunken);
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-4);
+}
+
+.wvc-fix__answer {
+	display: grid;
+	grid-template-columns: minmax(140px, 180px) minmax(0, 1fr);
+	gap: var(--wvc-1) var(--wvc-4);
+	font-size: var(--wvc-t-sm);
+}
+
+.wvc-wrap .wvc-fix__answer dt {
+	padding-top: 2px;
+}
+
+.wvc-fix__answer dd {
+	margin: 0;
+	line-height: var(--wvc-lh);
+	color: var(--wvc-ink-2);
+}
+
+.wvc-wrap .wvc-occurrences__title {
+	margin-bottom: var(--wvc-2);
+}
+
+.wvc-occurrences__list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-2);
+}
+
+.wvc-occurrence {
+	padding-left: var(--wvc-3);
+	border-left: 2px solid var(--wvc-border);
+}
+
+.wvc-occurrence__where {
+	display: flex;
+	align-items: baseline;
+	gap: var(--wvc-2);
+	flex-wrap: wrap;
+	font-size: var(--wvc-t-xs);
+}
+
+.wvc-occurrence__where code {
+	font-weight: 600;
+	color: var(--wvc-ink);
+	overflow-wrap: anywhere;
+}
+
+.wvc-occurrence__scope {
+	color: var(--wvc-ink-3);
+}
+
+.wvc-occurrence__evidence {
+	margin: var(--wvc-1) 0 0;
+	padding: var(--wvc-2) var(--wvc-3);
+	border-radius: var(--wvc-r-sm);
+	background: var(--wvc-code-bg);
+	color: var(--wvc-code-ink);
+	font-family: var(--wvc-font-mono);
+	font-size: var(--wvc-t-xs);
+	line-height: var(--wvc-lh-loose);
+	overflow-x: auto;
+	white-space: pre;
+}
+
+.wvc-wrap .wvc-occurrence__note {
+	margin-top: var(--wvc-1);
+	font-size: var(--wvc-t-xs);
+	color: var(--wvc-ink-3);
+}
+
+.wvc-subdetails {
+	border-top: 1px solid var(--wvc-border);
+	padding-top: var(--wvc-3);
+}
+
+.wvc-subdetails__summary {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: var(--wvc-t-xs);
+	font-weight: 600;
+	color: var(--wvc-ink-3);
+	cursor: pointer;
+	list-style: none;
+	transition: color var(--wvc-ease);
+}
+
+.wvc-subdetails__summary::-webkit-details-marker {
+	display: none;
+}
+
+.wvc-subdetails__summary:hover {
+	color: var(--wvc-accent);
+}
+
+.wvc-subdetails__caret {
+	transition: transform var(--wvc-ease);
+}
+
+.wvc-subdetails[open] .wvc-subdetails__caret {
+	transform: rotate(180deg);
+}
+
+.wvc-subdetails__body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wvc-3);
+	margin-top: var(--wvc-3);
+}
+
+.wvc-fix__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wvc-1);
+}
+
+.wvc-fix__also {
+	font-size: var(--wvc-t-xs);
+	color: var(--wvc-ink-3);
+}
+
+.wvc-fix__doc {
+	font-size: var(--wvc-t-sm);
+}
+
+/* -------------------------------------------------------------------------
+ * 17. Responsive
+ * ---------------------------------------------------------------------- */
+
+/* Wide desktop: an auto-fit grid of 230px definitions turns into seven columns
+   of two-word pairs on a 1600px screen, which is width spent on nothing. Four
+   is the point past which a labelled value stops being easier to find. */
+@media (min-width: 1240px) {
+	.wvc-defs--grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.wvc-verdict__facts {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}
+
+/* Laptop: the notes column stops competing with the columns that carry a
+   decision, since there is less width to share out. */
+@media (max-width: 1180px) {
+	.wvc-col-notes {
+		max-width: 320px;
+	}
+}
+
+/* Tablet. */
+@media (max-width: 960px) {
+	.wvc-verdict {
+		grid-template-columns: minmax(0, 1fr);
+		padding: var(--wvc-5);
+	}
+
+	.wvc-verdict__gauge {
+		justify-content: flex-start;
+	}
+
+	.wvc-gauge {
+		width: 108px;
+		height: 108px;
+	}
+
+	.wvc-gauge__score {
+		font-size: var(--wvc-t-metric);
+	}
+
+	.wvc-fix__answer {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1px;
+	}
+
+	.wvc-fix__answer dd {
+		margin-bottom: var(--wvc-2);
+	}
+
+	/* The tier column stops paying for itself once the title has to wrap. */
+	.wvc-fix__summary {
+		flex-wrap: wrap;
+	}
+
+	.wvc-fix__tier {
+		width: auto;
+	}
+
+	.wvc-fix__main {
+		flex-basis: 100%;
+	}
+
+	/* The toolbar's two halves each take a line rather than leaving the search
+	   field stranded on a row of its own at an arbitrary width. */
+	.wvc-toolbar {
+		align-items: stretch;
+	}
+
+	.wvc-toolbar__tools {
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.wvc-toolbar__tools .wvc-search {
+		flex: 1 1 240px;
+	}
+}
+
+/* Phone: tables become stacked cards. */
+@media (max-width: 782px) {
 	.wvc-wrap {
-		margin: 0 10px;
-		padding-top: var(--wvc-4);
+		/* The admin bar is taller here, and everything sticky has to follow it. */
+		--wvc-sticky: 46px;
+
+		margin: 0 10px 0 0;
+		padding-top: var(--wvc-3);
 	}
 
 	.wvc-masthead {
-		gap: var(--wvc-3);
+		padding: var(--wvc-3);
+	}
+
+	.wvc-masthead__actions {
+		width: 100%;
+		justify-content: flex-start;
+	}
+
+	.wvc-page-head__title {
+		font-size: var(--wvc-t-2xl);
+	}
+
+	.wvc-stats {
+		grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+		gap: var(--wvc-2);
+	}
+
+	.wvc-stat__value {
+		font-size: var(--wvc-t-3xl);
+	}
+
+	.wvc-panel__head,
+	.wvc-panel__body {
+		padding: var(--wvc-3);
 	}
 
 	.wvc-toolbar {
-		align-items: stretch;
-		flex-direction: column;
+		padding: var(--wvc-2) var(--wvc-3);
 	}
 
-	.wvc-wrap .wvc-segmented {
-		display: flex;
-		flex-wrap: wrap;
-	}
-
-	.wvc-wrap .wvc-segmented > button,
-	.wvc-wrap .wvc-segmented > a {
-		flex: 1 1 auto;
-		justify-content: center;
-	}
-
-	.wvc-filterbar,
-	.wvc-scanbar {
-		align-items: stretch;
-		flex-direction: column;
-	}
-
-	.wvc-actions__item {
-		flex-wrap: wrap;
-	}
-
-	.wvc-wrap .wvc-actions__cta {
-		margin-left: calc(8px + var(--wvc-3));
-	}
-
-	.wvc-wrap .wvc-finding__answer {
-		grid-template-columns: minmax(0, 1fr);
-		gap: var(--wvc-1);
-	}
-
-	.wvc-wrap .wvc-finding__answer dd {
-		margin-bottom: var(--wvc-2);
+	.wvc-toolbar__filters,
+	.wvc-toolbar__tools {
+		width: 100%;
 	}
 
 	.wvc-search {
@@ -1712,32 +3665,19 @@
 		min-width: 0;
 	}
 
-	.wvc-wrap .wvc-search__input {
-		min-height: 40px;
-		font-size: 16px; /* Prevents iOS zoom on focus. */
-	}
-
-	/* Tables collapse into readable stacked cards. */
+	/* Stacked table cards. Each cell carries its own label. */
 	.wvc-table-wrap {
-		max-height: none;
-		border: 0;
-		border-radius: 0;
-		background: transparent;
-		box-shadow: none;
-		overflow: visible;
+		overflow-x: visible;
 	}
 
 	.wvc-wrap .wvc-table thead {
 		position: absolute;
 		width: 1px;
 		height: 1px;
-		margin: -1px;
-		padding: 0;
 		overflow: hidden;
 		clip: rect(0 0 0 0);
 		clip-path: inset(50%);
 		white-space: nowrap;
-		border: 0;
 	}
 
 	.wvc-wrap .wvc-table,
@@ -1748,127 +3688,197 @@
 		width: auto;
 	}
 
-	.wvc-wrap .wvc-table tbody tr {
+	.wvc-wrap .wvc-table tbody tr.wvc-row {
 		position: relative;
-		margin-bottom: var(--wvc-3);
-		padding: var(--wvc-2) 0;
+		margin: var(--wvc-3);
 		border: 1px solid var(--wvc-border);
-		border-radius: var(--wvc-radius);
+		border-radius: var(--wvc-r);
+		background: var(--wvc-surface);
 		box-shadow: var(--wvc-shadow-xs);
 	}
 
-	.wvc-wrap .wvc-table tbody tr:last-child td {
+	.wvc-wrap .wvc-table tbody tr.wvc-row td {
+		display: grid;
+		grid-template-columns: 38% minmax(0, 1fr);
+		gap: var(--wvc-3);
+		padding: 7px var(--wvc-3);
+		border-bottom: 1px solid var(--wvc-border);
+	}
+
+	.wvc-wrap .wvc-table tbody tr.wvc-row td:last-child {
 		border-bottom: 0;
 	}
 
-	.wvc-wrap .wvc-table td {
-		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		gap: var(--wvc-4);
-		padding: 7px var(--wvc-4);
-		border-bottom: 0;
-		text-align: right;
-	}
-
-	.wvc-wrap .wvc-table td::before {
+	.wvc-wrap .wvc-table tbody tr.wvc-row td::before {
 		content: attr(data-label);
-		flex: 0 0 40%;
-		font-size: 11px;
-		font-weight: 650;
-		letter-spacing: 0.04em;
+		font-size: var(--wvc-t-2xs);
+		font-weight: 700;
+		letter-spacing: 0.05em;
 		text-transform: uppercase;
-		color: var(--wvc-text-muted);
-		text-align: left;
+		color: var(--wvc-ink-3);
+		padding-top: 2px;
 	}
 
-	.wvc-wrap .wvc-table td.wvc-col-sn {
+	.wvc-wrap .wvc-table tbody tr.wvc-row td.wvc-col-number {
+		text-align: left !important;
+	}
+
+	/* The expand control leaves the column grid and sits in the card's corner,
+	   because a stacked card has no columns left to give it — and dropping it
+	   would put the row's detail out of reach on a phone. */
+	.wvc-wrap .wvc-table tbody tr.wvc-row td.wvc-col-toggle {
 		position: absolute;
-		top: 10px;
-		left: var(--wvc-4);
+		top: 5px;
+		right: 5px;
+		z-index: 1;
+		display: block;
 		width: auto;
-		padding: 0;
+		padding: 0 !important;
+		border: 0;
+		background: none;
 	}
 
-	.wvc-wrap .wvc-table td.wvc-col-sn::before {
-		content: "#" counter(wvc-row);
-		counter-increment: wvc-row;
-		flex: 0 0 auto;
-	}
-
-	.wvc-wrap .wvc-table td.wvc-col-name {
-		padding-top: var(--wvc-6);
-		font-size: 14px;
-	}
-
-	.wvc-wrap .wvc-table td.wvc-col-name::before {
+	.wvc-wrap .wvc-table tbody tr.wvc-row td.wvc-col-toggle::before {
 		display: none;
 	}
 
-	.wvc-wrap .wvc-table td.wvc-col-name,
-	.wvc-wrap .wvc-table td.wvc-col-notes {
-		display: block;
-		text-align: left;
+	.wvc-wrap .wvc-table tbody tr.wvc-row td.wvc-col-name {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0;
+		padding-right: 38px;
+		border-radius: var(--wvc-r) var(--wvc-r) 0 0;
+		background: var(--wvc-sunken);
 	}
 
-	.wvc-wrap .wvc-table td.wvc-col-notes::before {
-		display: block;
-		margin-bottom: var(--wvc-1);
+	.wvc-wrap .wvc-table tbody tr.wvc-row td.wvc-col-name::before {
+		display: none;
 	}
 
-	.wvc-notes {
+	.wvc-row-detail > td {
+		display: block;
+		margin: calc(var(--wvc-3) * -1) var(--wvc-3) var(--wvc-3);
+		border: 1px solid var(--wvc-border);
+		border-top: 0;
+		border-radius: 0 0 var(--wvc-r) var(--wvc-r);
+	}
+
+	.wvc-detail {
+		padding: var(--wvc-3);
+		border-left: 0;
+	}
+
+	.wvc-no-results td {
+		display: block;
+		margin: var(--wvc-3);
+	}
+
+	.wvc-spotlight__shot {
+		width: 100%;
+		max-width: 260px;
+	}
+
+	/* Sticky controls would eat most of a phone screen, so they scroll away. */
+	.wvc-controls {
+		position: static;
+	}
+
+	/*
+	 * No width to hold the count and three controls on one line, so the bar
+	 * unstacks: the count keeps the top line, the tools take the one below.
+	 * The two facets stay side by side there — they are short, and splitting
+	 * them would cost a third line to say what fits on the second.
+	 */
+	.wvc-controls__tools {
+		width: 100%;
+		margin-left: 0;
+		flex-wrap: wrap;
+	}
+
+	.wvc-controls__tools .wvc-search {
+		flex: 1 1 100%;
 		min-width: 0;
 	}
 
-	/* Stacked cells are narrow; let long values wrap again. */
-	.wvc-wrap .wvc-table td.wvc-col-mono,
-	.wvc-wrap .wvc-table td.wvc-col-name code {
-		white-space: normal;
-		word-break: break-word;
+	/* A thumb is the pointer here, so the trigger grows to the full control
+	   height and the two facets share the line evenly rather than sizing to
+	   whichever option happens to be selected. */
+	.wvc-filter {
+		flex: 1 1 0;
+		min-width: 0;
 	}
 
-	.wvc-table .wvc-no-results td,
-	.wvc-table .wvc-table__empty td {
-		display: block;
-		text-align: center;
+	.wvc-filter__trigger {
+		width: 100%;
+		min-height: var(--wvc-ctl);
+		overflow: hidden;
 	}
 
-	.wvc-table .wvc-no-results td::before,
-	.wvc-table .wvc-table__empty td::before {
-		display: none;
-	}
-}
-
-@media screen and (max-width: 600px) {
-	.wvc-masthead__title {
-		font-size: 18px;
+	.wvc-filter__value {
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
-	.wvc-gauge {
-		width: 96px;
-		height: 96px;
+	/* Anchored to its own trigger rather than to the right edge of the bar. */
+	.wvc-filter__panel {
+		right: auto;
+		left: 0;
+		width: 100%;
+		min-width: 200px;
 	}
 
-	.wvc-wrap .wvc-areas__link {
-		grid-template-columns: minmax(0, 1fr) auto;
-		gap: var(--wvc-2);
+	.wvc-fix__body {
+		padding: var(--wvc-3);
 	}
 
-	.wvc-wrap .wvc-table td {
+	.wvc-verdict__facts {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.wvc-issues__footer {
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 2px;
-		text-align: left;
-	}
-
-	.wvc-wrap .wvc-table td::before {
-		flex: 0 0 auto;
 	}
 }
 
 /* -------------------------------------------------------------------------
- * 15. Motion & accessibility
+ * 18. Motion, accessibility and print
  * ---------------------------------------------------------------------- */
+
+.wvc-wrap .screen-reader-text {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* Where a hue is the only thing separating two states, raise the border so the
+   difference survives a forced palette or a low-contrast display. */
+@media (prefers-contrast: more) {
+	.wvc-wrap {
+		--wvc-border: #b9c0cc;
+		--wvc-border-strong: #8d97a8;
+		--wvc-ink-3: #4d5769;
+	}
+
+	.wvc-status,
+	.wvc-tier,
+	.wvc-badge,
+	.wvc-filter__trigger {
+		border-width: 1px;
+	}
+
+	/* Selection in the menu is a tinted ground plus a tick; raise the ground so
+	   the tick is not carrying it alone. */
+	.wvc-filter__option.is-active {
+		background: var(--wvc-hover);
+		box-shadow: inset 0 0 0 1px var(--wvc-border-strong);
+	}
+}
 
 @media (prefers-reduced-motion: reduce) {
 	.wvc-wrap *,
@@ -1881,597 +3891,28 @@
 	}
 }
 
-@media (forced-colors: active) {
-	.wvc-table-wrap,
+@media print {
+	.wvc-masthead__actions,
+	.wvc-toolbar,
+	.wvc-scan,
+	.wvc-controls {
+		display: none !important;
+	}
+
+	/* A printed fix list is only useful with the fixes on it. */
+	.wvc-fix__body {
+		display: flex !important;
+	}
+
+	.wvc-panel,
 	.wvc-verdict,
-	.wvc-actions,
-	.wvc-areas,
-	.wvc-band,
-	.wvc-finding,
-	.wvc-status,
-	.wvc-notice {
-		border: 1px solid CanvasText;
+	.wvc-fix,
+	.wvc-issue {
+		box-shadow: none;
+		break-inside: avoid;
 	}
 
-	.wvc-subnav__item.is-active,
-	.wvc-wrap .wvc-segmented > button.active,
-	.wvc-wrap .wvc-segmented > a.active {
-		forced-color-adjust: none;
-		background: Highlight;
-		color: HighlightText;
+	.wvc-th {
+		position: static;
 	}
-
-	/* Tier and proportion colours are the only thing separating a blocker from
-	   a note, and forced-colors discards them — so restore them explicitly. */
-	.wvc-tierdot,
-	.wvc-meter__part {
-		forced-color-adjust: none;
-	}
-}
-
-/* -------------------------------------------------------------------------
- * 16. Findings report
- *
- * The report is banded by consequence. A band carries the weight — its label,
- * its counts, and its dot — so an individual finding can stay quiet: a title, a
- * location and a type, with the explanation, the code and the detection
- * metadata behind disclosures. A hundred low-severity notes should read as a
- * folded paragraph, not as a hundred cards competing with four blockers.
- * ---------------------------------------------------------------------- */
-
-/* Scan bar. */
-.wvc-scanbar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--wvc-3);
-	flex-wrap: wrap;
-	padding: var(--wvc-2) var(--wvc-4);
-	background: var(--wvc-surface-sunken);
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-radius);
-}
-
-.wvc-scanbar__state {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-1);
-	margin: 0;
-	font-size: 12px;
-	color: var(--wvc-text-muted);
-	font-variant-numeric: tabular-nums;
-}
-
-.wvc-scanbar__actions {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-3);
-	flex-wrap: wrap;
-}
-
-.wvc-exports {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--wvc-2);
-	font-size: 12px;
-}
-
-.wvc-exports__label {
-	color: var(--wvc-text-muted);
-}
-
-.wvc-wrap .wvc-exports__link {
-	color: var(--wvc-accent);
-	font-weight: 500;
-	text-decoration: none;
-	border-radius: 3px;
-}
-
-.wvc-wrap .wvc-exports__link:hover {
-	text-decoration: underline;
-	text-underline-offset: 2px;
-}
-
-/* Filter bar. */
-.wvc-filterbar {
-	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: var(--wvc-3);
-	flex-wrap: wrap;
-}
-
-.wvc-morefilters {
-	flex: 0 0 auto;
-}
-
-.wvc-wrap .wvc-morefilters__summary {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--wvc-2);
-	padding: 6px var(--wvc-3);
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-radius-sm);
-	background: var(--wvc-surface);
-	font-size: 12.5px;
-	font-weight: 500;
-	color: var(--wvc-text-secondary);
-	cursor: pointer;
-	list-style: none;
-}
-
-.wvc-morefilters__summary::-webkit-details-marker {
-	display: none;
-}
-
-.wvc-morefilters__summary:hover {
-	color: var(--wvc-accent);
-	border-color: var(--wvc-border-strong);
-}
-
-.wvc-morefilters[open] > .wvc-morefilters__summary {
-	color: var(--wvc-text);
-	background: var(--wvc-surface-sunken);
-}
-
-.wvc-filters {
-	display: flex;
-	align-items: flex-end;
-	gap: var(--wvc-3);
-	flex-wrap: wrap;
-	margin-top: var(--wvc-2);
-	padding: var(--wvc-4);
-	background: var(--wvc-surface);
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-radius);
-	box-shadow: var(--wvc-shadow-sm);
-}
-
-.wvc-filters__field {
-	display: flex;
-	flex-direction: column;
-	gap: 3px;
-	min-width: 150px;
-	font-size: 11.5px;
-	font-weight: 600;
-	letter-spacing: 0.02em;
-	text-transform: uppercase;
-	color: var(--wvc-text-muted);
-}
-
-.wvc-filters__field--grow {
-	flex: 1 1 200px;
-}
-
-.wvc-wrap .wvc-filters__field select,
-.wvc-wrap .wvc-filters__field input[type="search"] {
-	width: 100%;
-	min-height: 32px;
-	margin: 0;
-	padding: 4px 8px;
-	border: 1px solid var(--wvc-border-strong);
-	border-radius: var(--wvc-radius-sm);
-	background: var(--wvc-surface);
-	font-family: inherit;
-	font-size: 13px;
-	font-weight: 400;
-	letter-spacing: 0;
-	text-transform: none;
-	color: var(--wvc-text);
-}
-
-/* Tier bands. */
-.wvc-band {
-	background: var(--wvc-surface);
-	border: 1px solid var(--wvc-border);
-	border-left: 4px solid var(--wvc-border-strong);
-	border-radius: var(--wvc-radius-lg);
-	box-shadow: var(--wvc-shadow-sm);
-	overflow: hidden;
-}
-
-.wvc-band--blocking {
-	border-left-color: var(--wvc-bad);
-}
-
-.wvc-band--important {
-	border-left-color: #d97706;
-}
-
-.wvc-band--warning {
-	border-left-color: var(--wvc-warn);
-}
-
-.wvc-band--info {
-	border-left-color: var(--wvc-text-muted);
-}
-
-.wvc-band__summary {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-3);
-	flex-wrap: wrap;
-	padding: var(--wvc-4) var(--wvc-5);
-	cursor: pointer;
-	list-style: none;
-	transition: background-color var(--wvc-transition);
-}
-
-.wvc-band__summary::-webkit-details-marker {
-	display: none;
-}
-
-.wvc-band__summary:hover {
-	background: var(--wvc-surface-hover);
-}
-
-.wvc-band__title {
-	font-size: 14.5px;
-	font-weight: 680;
-	letter-spacing: -0.005em;
-	color: var(--wvc-text);
-}
-
-.wvc-band__count {
-	padding: 1px 8px;
-	border-radius: var(--wvc-radius-pill);
-	background: var(--wvc-surface-sunken);
-	border: 1px solid var(--wvc-border);
-	font-size: 11.5px;
-	font-weight: 600;
-	color: var(--wvc-text-secondary);
-	font-variant-numeric: tabular-nums;
-	white-space: nowrap;
-}
-
-.wvc-band__summary-text {
-	flex: 1 1 240px;
-	font-size: 12.5px;
-	color: var(--wvc-text-muted);
-}
-
-/* A collapsed band should read as a single line, so its explanation is the
-   thing that gives way first when the row runs out of room. */
-.wvc-band:not([open]) .wvc-band__summary-text {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.wvc-band__body {
-	padding: 0 var(--wvc-5) var(--wvc-5);
-}
-
-/* Per-item groups inside a band. */
-.wvc-group + .wvc-group {
-	margin-top: var(--wvc-5);
-}
-
-.wvc-group__head {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-2);
-	flex-wrap: wrap;
-	padding-bottom: var(--wvc-2);
-	margin-bottom: var(--wvc-3);
-	border-bottom: 1px solid var(--wvc-border);
-}
-
-.wvc-wrap .wvc-group__title {
-	margin: 0;
-	padding: 0;
-	font-size: 13px;
-	font-weight: 650;
-	color: var(--wvc-text);
-}
-
-.wvc-group__kind {
-	padding: 1px 6px;
-	border-radius: var(--wvc-radius-sm);
-	background: var(--wvc-surface-sunken);
-	border: 1px solid var(--wvc-border);
-	font-size: 10.5px;
-	font-weight: 600;
-	letter-spacing: 0.02em;
-	text-transform: uppercase;
-	color: var(--wvc-text-muted);
-}
-
-.wvc-group__count {
-	margin-left: auto;
-	font-size: 11.5px;
-	color: var(--wvc-text-muted);
-	font-variant-numeric: tabular-nums;
-}
-
-.wvc-findings {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wvc-2);
-}
-
-/* One rule's findings. */
-.wvc-finding {
-	background: var(--wvc-surface);
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-radius);
-	overflow: hidden;
-}
-
-.wvc-finding[open] {
-	border-color: var(--wvc-border-strong);
-	box-shadow: var(--wvc-shadow-sm);
-}
-
-.wvc-finding__summary {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-3);
-	padding: var(--wvc-3) var(--wvc-4);
-	cursor: pointer;
-	list-style: none;
-	transition: background-color var(--wvc-transition);
-}
-
-.wvc-finding__summary::-webkit-details-marker {
-	display: none;
-}
-
-.wvc-finding__summary:hover {
-	background: var(--wvc-surface-hover);
-}
-
-.wvc-finding__headline {
-	flex: 1 1 auto;
-	display: flex;
-	align-items: baseline;
-	gap: var(--wvc-3);
-	flex-wrap: wrap;
-	min-width: 0;
-}
-
-.wvc-finding__title {
-	font-size: 13px;
-	font-weight: 600;
-	line-height: 1.45;
-	color: var(--wvc-text);
-}
-
-.wvc-finding__where {
-	font-size: 11.5px;
-	color: var(--wvc-text-muted);
-	font-variant-numeric: tabular-nums;
-}
-
-.wvc-finding__where code {
-	padding: 1px 5px;
-	border-radius: 4px;
-	background: var(--wvc-surface-sunken);
-	font-family: var(--wvc-font-mono);
-	font-size: 11px;
-	color: var(--wvc-text-secondary);
-}
-
-.wvc-finding__pills {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-2);
-	flex: 0 0 auto;
-}
-
-.wvc-finding__body {
-	padding: 0 var(--wvc-4) var(--wvc-4);
-	border-top: 1px solid var(--wvc-border);
-	padding-top: var(--wvc-4);
-}
-
-/* "Why" and "fix" — the two things a finding exists to say. */
-.wvc-wrap .wvc-finding__answer {
-	display: grid;
-	grid-template-columns: minmax(140px, max-content) 1fr;
-	gap: var(--wvc-2) var(--wvc-4);
-	margin: 0;
-}
-
-.wvc-wrap .wvc-finding__answer dt {
-	margin: 0;
-	font-size: 11.5px;
-	font-weight: 650;
-	letter-spacing: 0.02em;
-	text-transform: uppercase;
-	color: var(--wvc-text-muted);
-}
-
-.wvc-wrap .wvc-finding__answer dd {
-	margin: 0;
-	max-width: 90ch;
-	font-size: 13px;
-	line-height: 1.6;
-	color: var(--wvc-text-secondary);
-}
-
-/* Locations. */
-.wvc-occurrences {
-	margin-top: var(--wvc-4);
-}
-
-.wvc-wrap .wvc-occurrences__title {
-	margin: 0 0 var(--wvc-2);
-	padding: 0;
-	font-size: 11.5px;
-	font-weight: 650;
-	letter-spacing: 0.02em;
-	text-transform: uppercase;
-	color: var(--wvc-text-muted);
-}
-
-.wvc-occurrences__list {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-	/* A rule can fire dozens of times; the list scrolls rather than pushing the
-	   next finding off the screen. */
-	max-height: 22rem;
-	overflow-y: auto;
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-radius-sm);
-	background: var(--wvc-surface-sunken);
-}
-
-.wvc-occurrence {
-	margin: 0;
-	padding: var(--wvc-2) var(--wvc-3);
-}
-
-.wvc-occurrence + .wvc-occurrence {
-	border-top: 1px solid var(--wvc-border);
-}
-
-.wvc-occurrence__where {
-	display: flex;
-	align-items: baseline;
-	gap: var(--wvc-2);
-	flex-wrap: wrap;
-	margin: 0;
-}
-
-.wvc-occurrence__where code {
-	font-family: var(--wvc-font-mono);
-	font-size: 11.5px;
-	color: var(--wvc-accent-hover);
-	word-break: break-all;
-}
-
-.wvc-occurrence__scope {
-	font-size: 11px;
-	color: var(--wvc-text-muted);
-}
-
-.wvc-wrap .wvc-occurrence__evidence {
-	margin: var(--wvc-1) 0 0;
-	padding: var(--wvc-2) var(--wvc-3);
-	background: var(--wvc-surface);
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-radius-sm);
-	overflow-x: auto;
-	font-family: var(--wvc-font-mono);
-	font-size: 11.5px;
-	line-height: 1.6;
-	color: var(--wvc-text);
-	white-space: pre;
-}
-
-.wvc-occurrence__note {
-	margin: var(--wvc-1) 0 0;
-	font-size: 11.5px;
-	color: var(--wvc-text-muted);
-}
-
-/* Detection metadata — evidence for the finding, not a reason to act on it. */
-.wvc-subdetails {
-	margin-top: var(--wvc-3);
-}
-
-.wvc-wrap .wvc-subdetails__summary {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--wvc-1);
-	font-size: 11.5px;
-	font-weight: 600;
-	color: var(--wvc-text-muted);
-	cursor: pointer;
-	list-style: none;
-}
-
-.wvc-subdetails__summary::-webkit-details-marker {
-	display: none;
-}
-
-.wvc-subdetails__summary::before {
-	content: "▸";
-	font-size: 9px;
-}
-
-.wvc-subdetails[open] > .wvc-subdetails__summary::before {
-	content: "▾";
-}
-
-.wvc-subdetails__summary:hover {
-	color: var(--wvc-accent);
-}
-
-.wvc-subdetails__body {
-	margin-top: var(--wvc-3);
-	padding: var(--wvc-3);
-	background: var(--wvc-surface-sunken);
-	border: 1px solid var(--wvc-border);
-	border-radius: var(--wvc-radius-sm);
-}
-
-.wvc-finding__meta {
-	display: flex;
-	align-items: center;
-	gap: var(--wvc-2);
-	flex-wrap: wrap;
-	margin-top: var(--wvc-3);
-}
-
-.wvc-chip {
-	display: inline-flex;
-	align-items: baseline;
-	gap: 5px;
-	padding: 2px 8px;
-	border-radius: var(--wvc-radius-sm);
-	background: var(--wvc-surface);
-	border: 1px solid var(--wvc-border);
-	font-size: 11px;
-	white-space: nowrap;
-}
-
-.wvc-chip__label {
-	font-weight: 600;
-	letter-spacing: 0.02em;
-	text-transform: uppercase;
-	color: var(--wvc-text-muted);
-}
-
-.wvc-chip__value {
-	color: var(--wvc-text);
-	font-family: var(--wvc-font-mono);
-	font-size: 11px;
-}
-
-.wvc-tag {
-	display: inline-flex;
-	align-items: center;
-	padding: 2px 8px;
-	border-radius: var(--wvc-radius-pill);
-	font-size: 11px;
-	font-weight: 600;
-	white-space: nowrap;
-}
-
-.wvc-tag--blocking {
-	color: var(--wvc-bad);
-	background: var(--wvc-bad-soft);
-	border: 1px solid var(--wvc-bad-border);
-}
-
-.wvc-tag--advisory {
-	color: var(--wvc-text-secondary);
-	background: var(--wvc-surface-sunken);
-	border: 1px solid var(--wvc-border);
-}
-
-.wvc-finding__also,
-.wvc-finding__doc {
-	margin: var(--wvc-3) 0 0;
-	font-size: 11.5px;
-	color: var(--wvc-text-muted);
-}
-
-.wvc-ruleref {
-	margin: 0;
-	font-size: 11.5px;
-	color: var(--wvc-text-muted);
 }

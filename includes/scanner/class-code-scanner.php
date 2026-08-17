@@ -78,7 +78,7 @@ class Code_Scanner {
 	 *
 	 * Any analyser that cannot be told "yes, I know, and it is fine here" ends
 	 * up either lying or being ignored. The annotation mirrors the PHPCS one
-	 * VIP developers already use:
+	 * WordPress VIP developers already use:
 	 *
 	 *     $path = '/wp-content/uploads'; // wvc:ignore filesystem.hardcoded-uploads-path -- documentation string.
 	 *     // wvc:ignore-next-line * -- fixture data, not executed.

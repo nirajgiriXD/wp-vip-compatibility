@@ -1,24 +1,20 @@
 /**
  * WordPress VIP Compatibility — admin interactions.
  *
- * Behaviour is grouped into small controllers:
- *   - clipboard : copy SQL snippets
+ * Behaviour is grouped into small controllers, each owning one concern:
+ *
+ *   - menus     : single-open disclosure menus that close on outside click and Escape
+ *   - clipboard : copying SQL, both single statements and whole groups
  *   - tableView : filtering, searching, sorting and live counts
+ *   - rows      : the per-row detail drawers
  *   - scanner   : queued async compatibility checks and progress
  *
- * Two things changed with the information-architecture rework:
- *
- * Filtering reads declarative `data-<group>` attributes on each row rather than
- * sniffing `compatible` / `not-compatible` classes on cells. That contract only
- * supported a two-way "ready / not ready" split, which is why "needs review"
- * used to be tagged as a failure just to remain findable.
- *
- * A screen may now hold more than one table (the Site screen's two audits), so a
- * view is scoped to its own `[data-role="table-view"]` container and its nearest
- * toolbar, instead of the first `.wvc-table` on the page.
- *
- * The dashboard controller is gone: the overview renders its proportion bars
- * server-side, so there is nothing left to fetch or draw.
+ * Two contracts matter across controllers. Filtering reads declarative
+ * `data-<group>` attributes on each row rather than sniffing class names on
+ * cells, so a row can carry several independent filters at once. And a data row
+ * may be followed by its own detail row, so everything that moves or hides a row
+ * — filtering, searching, sorting — has to carry that pair together, which is
+ * why rows are resolved through `pairOf()` rather than by index.
  */
 jQuery(document).ready(function ($) {
 	"use strict";
@@ -124,6 +120,99 @@ jQuery(document).ready(function ($) {
 			.append($("<span/>").text(label));
 	}
 
+	/**
+	 * Returns a row together with the detail row that belongs to it.
+	 *
+	 * @param {jQuery} $row A data row.
+	 * @returns {jQuery} The row and, when present, its detail row.
+	 */
+	function pairOf($row) {
+		var $next = $row.next(".wvc-row-detail");
+
+		return $next.length ? $row.add($next) : $row;
+	}
+
+	/* ---------------------------------------------------------------------
+	 * Disclosure menus
+	 * ------------------------------------------------------------------ */
+
+	(function menus() {
+		var $menus = $(".wvc-menu");
+
+		if (!$menus.length) {
+			return;
+		}
+
+		$(document).on("click", function (event) {
+			$menus.each(function () {
+				if (this.open && !this.contains(event.target)) {
+					this.open = false;
+				}
+			});
+		});
+
+		$(document).on("keydown", function (event) {
+			if (event.key !== "Escape") {
+				return;
+			}
+
+			$menus.each(function () {
+				if (this.open) {
+					this.open = false;
+					$(this).children("summary").trigger("focus");
+				}
+			});
+		});
+	})();
+
+	/* ---------------------------------------------------------------------
+	 * Submitting state
+	 * ------------------------------------------------------------------ */
+
+	(function submitting() {
+		/*
+		 * A rescan is a normal form post that can take several seconds before the
+		 * browser starts painting the new page, and until now nothing
+		 * acknowledged the click — so the button looked ignored and invited a
+		 * second press.
+		 *
+		 * The busy class rather than the `disabled` attribute: disabling a
+		 * submit button during its own submit event stops some browsers from
+		 * sending it at all, and a disabled button's `name`/`value` is not
+		 * submitted, which would drop the scope the rescan menu carries. The
+		 * class shows a spinner and takes the control out of the pointer's
+		 * reach, which is all that is needed.
+		 *
+		 * The scope menu is one form with a button per area, so the spinner has
+		 * to land on the button that was pressed rather than on all of them.
+		 * `submitter` gives that directly where it is supported; the click
+		 * handler below is the fallback for older browsers.
+		 */
+		// Both shapes a posting form takes: one button on its own, and the menu
+		// of scoped rescans.
+		var FORMS = ".wvc-inline-form, .wvc-menu__form";
+		var SUBMITS = ".wvc-inline-form button[type='submit'], .wvc-menu__form button[type='submit']";
+		var $pressed = null;
+
+		$(document).on("click", SUBMITS, function () {
+			$pressed = $(this);
+		});
+
+		$(document).on("submit", FORMS, function (event) {
+			var $form = $(this);
+			var submitter = event.originalEvent && event.originalEvent.submitter;
+			var $button = submitter ? $(submitter) : $pressed;
+
+			if (!$button || !$button.length || !$.contains(this, $button[0])) {
+				$button = $form.find("button[type='submit']").first();
+			}
+
+			$button.addClass("is-busy");
+			$form.addClass("is-submitting");
+			$pressed = null;
+		});
+	})();
+
 	/* ---------------------------------------------------------------------
 	 * Clipboard
 	 * ------------------------------------------------------------------ */
@@ -166,31 +255,114 @@ jQuery(document).ready(function ($) {
 
 		$(document).on("click", "[data-role='copy']", function () {
 			var $button = $(this);
+			// A labelled button keeps its label and swaps the word; an icon-only
+			// button has nothing to say, so the icon itself becomes the feedback.
+			var $label = $button.children("span").not(".screen-reader-text").first();
+			var original = $label.length ? $label.text() : "";
 			var timer = $button.data("wvcResetTimer");
 
 			window.clearTimeout(timer);
 
 			$.when(writeText($button.attr("data-clipboard") || ""))
 				.done(function () {
-					$button
-						.addClass("is-copied")
-						.html(icon("check", "xs"))
-						.attr({ "aria-label": i18n.copied, title: i18n.copied });
+					$button.addClass("is-copied");
+
+					if ($label.length) {
+						$label.text(i18n.copied || "");
+					} else {
+						$button.html(icon("check", "xs")).attr({ "aria-label": i18n.copied, title: i18n.copied });
+					}
 				})
 				.fail(function () {
-					$button.attr({ "aria-label": i18n.copyFailed, title: i18n.copyFailed });
+					if ($label.length) {
+						$label.text(i18n.copyFailed || "");
+					} else {
+						$button.attr({ "aria-label": i18n.copyFailed, title: i18n.copyFailed });
+					}
 				})
 				.always(function () {
 					$button.data(
 						"wvcResetTimer",
 						window.setTimeout(function () {
-							$button
-								.removeClass("is-copied")
-								.html(icon("copy", "xs"))
-								.attr({ "aria-label": i18n.copy, title: i18n.copy });
+							$button.removeClass("is-copied");
+
+							if ($label.length) {
+								$label.text(original);
+							} else {
+								$button
+									.html(icon("copy", "xs"))
+									.attr({ "aria-label": i18n.copy, title: i18n.copy });
+							}
 						}, 1800)
 					);
 				});
+		});
+	})();
+
+	/* ---------------------------------------------------------------------
+	 * Row detail drawers
+	 * ------------------------------------------------------------------ */
+
+	(function rows() {
+		/**
+		 * Opens or closes the drawer belonging to one row.
+		 *
+		 * @param {jQuery} $button The row's toggle button.
+		 */
+		function toggle($button) {
+			var $row = $button.closest("tr");
+			var $detail = $row.next(".wvc-row-detail");
+			var open = $button.attr("aria-expanded") !== "true";
+
+			if (!$detail.length) {
+				return;
+			}
+
+			$button.attr("aria-expanded", open ? "true" : "false");
+			$row.toggleClass("is-open", open);
+
+			// `hidden` is the state; the inline display keeps it in step with
+			// whatever filtering has done to the row above it, which would
+			// otherwise leave a `display: none` behind on the way back open.
+			$detail.prop("hidden", !open).toggle(open);
+		}
+
+		$(document).on("click", "[data-role='row-toggle']", function () {
+			toggle($(this));
+		});
+
+		/*
+		 * The whole row is a target too, because a 22px chevron is a small
+		 * thing to ask someone to hit for every plugin on the list.
+		 *
+		 * The button is still the control: it owns `aria-expanded` and
+		 * `aria-controls` and it is what the keyboard reaches. This is a
+		 * pointer convenience layered on top, which is why the row itself gets
+		 * no tabindex — a second tab stop onto the row would make every list
+		 * twice as long to walk through for no extra reach.
+		 *
+		 * Two things have to keep working inside a clickable row: the links in
+		 * it, and selecting text out of it.
+		 */
+		$(document).on("click", ".wvc-table--expandable tbody tr.wvc-row", function (event) {
+			// A click that landed on its own control belongs to that control.
+			// This also covers the toggle button, whose own handler already ran.
+			if ($(event.target).closest("a, button, input, select, textarea, label, summary").length) {
+				return;
+			}
+
+			// Finishing a drag-selection inside the row is not a click on it.
+			var selection = window.getSelection ? String(window.getSelection()) : "";
+
+			if (selection.length) {
+				return;
+			}
+
+			var $button = $(this).find("[data-role='row-toggle']").first();
+
+			if ($button.length) {
+				toggle($button);
+			}
 		});
 	})();
 
@@ -217,7 +389,12 @@ jQuery(document).ready(function ($) {
 		var $toolbar = $container.prevAll(".wvc-toolbar").first();
 		var $scan = $container.prevAll(".wvc-scan").first();
 		var $tbody = $table.children("tbody");
-		var $rows = $tbody.children("tr").not("[data-empty]");
+		var $rows = $tbody.children("tr.wvc-row");
+
+		if (!$rows.length) {
+			$rows = $tbody.children("tr").not(".wvc-row-detail").not("[data-empty]");
+		}
+
 		var $groups = $toolbar.find("[data-filter-group]");
 		var $search = $toolbar.find("[data-role='table-search']");
 		var $resultCount = $toolbar.find("[data-role='result-count']");
@@ -227,7 +404,7 @@ jQuery(document).ready(function ($) {
 		var $noResults = null;
 
 		// Seed each group from whichever option the server marked active, so a
-		// link such as ?kind=mu-plugin lands on a filtered view.
+		// link such as ?status=not-compatible lands on a filtered view.
 		$groups.each(function () {
 			var $group = $(this);
 			var name = $group.data("filter-group");
@@ -275,12 +452,21 @@ jQuery(document).ready(function ($) {
 			return matches;
 		}
 
+		/**
+		 * Whether a row matches the free-text query.
+		 *
+		 * The detail drawer is searched alongside the row, so a match on an
+		 * author or a path that only appears when expanded still finds the row.
+		 *
+		 * @param {jQuery} $row The row.
+		 * @returns {boolean} True when the row should be visible.
+		 */
 		function rowMatchesQuery($row) {
 			if (!state.query) {
 				return true;
 			}
 
-			return $row.text().toLowerCase().indexOf(state.query) !== -1;
+			return pairOf($row).text().toLowerCase().indexOf(state.query) !== -1;
 		}
 
 		/**
@@ -340,6 +526,15 @@ jQuery(document).ready(function ($) {
 				var show = rowMatchesFilters($row) && rowMatchesQuery($row);
 
 				$row.toggle(show);
+
+				// A hidden row must not leave its drawer behind. `is-open` is the
+				// reader's choice and survives filtering, so a row that comes back
+				// into view comes back expanded if that is how they left it.
+				var $detail = $row.next(".wvc-row-detail");
+
+				if ($detail.length) {
+					$detail.toggle(show && $row.hasClass("is-open"));
+				}
 
 				if (show) {
 					visible += 1;
@@ -428,7 +623,10 @@ jQuery(document).ready(function ($) {
 			$table.find("thead th").attr("aria-sort", "none");
 			$th.attr("aria-sort", ascending ? "ascending" : "descending");
 
-			$tbody.append(sorted);
+			// Each row is reinserted with its own drawer, or the two drift apart.
+			$.each(sorted, function (position, row) {
+				$tbody.append(pairOf($(row)));
+			});
 
 			// Keep the empty-result row last.
 			if ($noResults) {
@@ -468,7 +666,47 @@ jQuery(document).ready(function ($) {
 		var $statusCells = $("td.wvc-col-status.is-pending[data-target]");
 		var total = $statusCells.length;
 
+		// Present only when this page was reached by choosing an area from the
+		// rescan menu. Its scope is what the completion call reports.
+		var $report = $("[data-role='scan-report']");
+
+		/**
+		 * Ends a rescan that was started from the menu.
+		 *
+		 * The tiles above the table, the count on the admin menu and the
+		 * "scanned N minutes ago" chip are all rendered from the stored results,
+		 * and none of them is touched by resolving a row. Rather than patch four
+		 * things from the client and risk them drifting, the page is rendered
+		 * again from the server once the queue is empty — by which point the
+		 * results are cached, so it costs a fast render and gives a screen where
+		 * every number agrees with every other one.
+		 */
+		function finish() {
+			if (!$report.length) {
+				return;
+			}
+
+			$.ajax({
+				url: settings.ajax_url,
+				type: "POST",
+				data: {
+					_ajax_nonce: settings.nonce,
+					action: "wvc_scan_complete",
+					scope: $report.data("scope")
+				}
+			}).always(function () {
+				// Same URL with the parameter switched from the in-progress name
+				// to the finished one, so the reload lands on the confirmation.
+				window.location.replace(
+					window.location.href.replace(/([?&])wvc-scanning=/, "$1wvc-scanned=")
+				);
+			});
+		}
+
 		if (!total) {
+			// An area with nothing in it still finishes: choosing "Themes" on a
+			// site with no themes should confirm that, not hang on a bare page.
+			finish();
 			return;
 		}
 
@@ -492,9 +730,19 @@ jQuery(document).ready(function ($) {
 		var completed = 0;
 		var active = 0;
 
-		// Tokenising a plugin is CPU heavy on the server; a small pool keeps the
-		// admin responsive instead of firing one request per row at once.
-		var CONCURRENCY = 3;
+		/*
+		 * One request at a time, deliberately.
+		 *
+		 * Each scan writes its result into a shared summary index, which is a
+		 * read-modify-write on a single option. Running three of them in
+		 * parallel meant two requests could read the same index and write back
+		 * over each other, dropping a verdict that had just been computed — the
+		 * row would come back "Not scanned yet" on the next load and be scanned
+		 * again. Serialising the queue removes the window entirely, and also
+		 * stops three simultaneous tokenising runs from spiking CPU on a shared
+		 * host. The progress bar is what covers the wait.
+		 */
+		var CONCURRENCY = 1;
 
 		function updateProgress() {
 			if (!$scan.length) {
@@ -514,6 +762,17 @@ jQuery(document).ready(function ($) {
 
 			if ($scan.length) {
 				$scanBar.css("width", "100%");
+			}
+
+			// A rescan started from the menu re-renders the page here, so the
+			// progress bar is left showing rather than hidden into a page that is
+			// about to be replaced anyway.
+			if ($report.length) {
+				finish();
+				return;
+			}
+
+			if ($scan.length) {
 				$scan.attr("hidden", "hidden");
 			}
 		}

@@ -44,6 +44,34 @@ class Results_Store {
 	const HISTORY_LIMIT = 20;
 
 	/**
+	 * Per-request copy of the summary index.
+	 *
+	 * The index is read by the masthead, the menu badge and every screen, which
+	 * is three or four reads of the same option on a single admin page. It is
+	 * kept in step with every write below rather than simply invalidated, so a
+	 * caller never sees a stale copy.
+	 *
+	 * @var array<string, array<string, mixed>>|null
+	 */
+	private static $index = null;
+
+	/**
+	 * Incremented on every write, so derived caches can tell they are stale.
+	 *
+	 * @var int
+	 */
+	private static $generation = 0;
+
+	/**
+	 * Returns a token that changes whenever the stored results change.
+	 *
+	 * @return string The token.
+	 */
+	public static function generation() {
+		return (string) self::$generation;
+	}
+
+	/**
 	 * Returns the stored result for a target.
 	 *
 	 * @param string $target_key The target key.
@@ -74,6 +102,15 @@ class Results_Store {
 	public static function save( $target_key, array $result ) {
 		update_option( self::option_name( $target_key ), $result, false );
 
+		/*
+		 * Read the index from storage rather than from the per-request copy. The
+		 * browser resolves unscanned rows one at a time, but a second admin
+		 * request — another tab, a second author — can have written an entry
+		 * since this process first read the index, and a blind write back would
+		 * drop it.
+		 */
+		self::flush_index();
+
 		$index = self::get_index();
 
 		$index[ $target_key ] = array(
@@ -90,6 +127,9 @@ class Results_Store {
 		);
 
 		update_option( self::INDEX_OPTION, $index, false );
+
+		self::$index = $index;
+		++self::$generation;
 	}
 
 	/**
@@ -98,9 +138,26 @@ class Results_Store {
 	 * @return array<string, array<string, mixed>> Summaries keyed by target key.
 	 */
 	public static function get_index() {
-		$index = get_option( self::INDEX_OPTION, array() );
+		if ( null === self::$index ) {
+			$index = get_option( self::INDEX_OPTION, array() );
 
-		return is_array( $index ) ? $index : array();
+			self::$index = is_array( $index ) ? $index : array();
+		}
+
+		return self::$index;
+	}
+
+	/**
+	 * Drops the per-request copy of the index.
+	 *
+	 * Intended for tests and long-running processes, where the option can change
+	 * underneath a process that has already read it.
+	 *
+	 * @return void
+	 */
+	public static function flush_index() {
+		self::$index = null;
+		++self::$generation;
 	}
 
 	/**
@@ -144,6 +201,43 @@ class Results_Store {
 
 		if ( $removed > 0 ) {
 			update_option( self::INDEX_OPTION, $index, false );
+
+			self::$index = $index;
+			++self::$generation;
+		}
+
+		return $removed;
+	}
+
+	/**
+	 * Discards the stored results for specific targets.
+	 *
+	 * Unlike prune(), which removes what no longer exists, this removes results
+	 * for targets that are still installed — so they read as unscanned and get
+	 * scanned again. The history is deliberately untouched: forgetting a reading
+	 * is not the same as forgetting that it was ever taken.
+	 *
+	 * @param string[] $target_keys Keys to discard.
+	 * @return int The number of results discarded.
+	 */
+	public static function forget( array $target_keys ) {
+		$index   = self::get_index();
+		$removed = 0;
+
+		foreach ( $target_keys as $target_key ) {
+			delete_option( self::option_name( $target_key ) );
+
+			if ( isset( $index[ $target_key ] ) ) {
+				unset( $index[ $target_key ] );
+				++$removed;
+			}
+		}
+
+		if ( $removed > 0 ) {
+			update_option( self::INDEX_OPTION, $index, false );
+
+			self::$index = $index;
+			++self::$generation;
 		}
 
 		return $removed;
@@ -161,6 +255,9 @@ class Results_Store {
 
 		delete_option( self::INDEX_OPTION );
 		delete_option( self::HISTORY_OPTION );
+
+		self::$index = array();
+		++self::$generation;
 	}
 
 	/**

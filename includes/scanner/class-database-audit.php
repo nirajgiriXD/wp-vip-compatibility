@@ -2,7 +2,7 @@
 /**
  * Database audit.
  *
- * Checks every table in the site's schema against the three requirements VIP
+ * Checks every table in the site's schema against the three requirements WordPress VIP
  * states for an imported database: the InnoDB storage engine, a supported
  * utf8mb4 collation, and the standard `wp_` table prefix.
  *
@@ -21,7 +21,7 @@ use WP_VIP_COMPATIBILITY\Includes\Classes\Plugin;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Audits the database schema against the VIP requirements.
+ * Audits the database schema against the WordPress VIP requirements.
  */
 class Database_Audit {
 
@@ -135,7 +135,7 @@ class Database_Audit {
 	 * Examines one table.
 	 *
 	 * @param object   $table      Row from information_schema.
-	 * @param string[] $collations VIP-supported collations.
+	 * @param string[] $collations WordPress VIP-supported collations.
 	 * @return array<string, mixed> The examined table.
 	 */
 	private static function examine( $table, array $collations ) {
@@ -155,7 +155,7 @@ class Database_Audit {
 				'severity'    => Taxonomy::SEVERITY_HIGH,
 				'label'       => __( 'Unsupported storage engine', 'wp-vip-compatibility' ),
 				/* translators: %s: Current storage engine, for example "MyISAM". */
-				'detail'      => sprintf( __( 'The table uses %s. VIP requires InnoDB.', 'wp-vip-compatibility' ), $engine ),
+				'detail'      => sprintf( __( 'The table uses %s. WordPress VIP requires InnoDB.', 'wp-vip-compatibility' ), $engine ),
 				'remediation' => __( 'Convert the table before exporting the database for import.', 'wp-vip-compatibility' ),
 				'sql'         => sprintf( 'ALTER TABLE `%s` ENGINE = InnoDB;', $name ),
 			);
@@ -169,7 +169,7 @@ class Database_Audit {
 				'severity'    => Taxonomy::SEVERITY_HIGH,
 				'label'       => __( 'Unsupported collation', 'wp-vip-compatibility' ),
 				/* translators: %s: Current collation. */
-				'detail'      => sprintf( __( '%s is not on the VIP supported collation list. VIP expects a utf8mb4 collation.', 'wp-vip-compatibility' ), $collation ),
+				'detail'      => sprintf( __( '%s is not on the WordPress VIP supported collation list. WordPress VIP expects a utf8mb4 collation.', 'wp-vip-compatibility' ), $collation ),
 				'remediation' => ( '' === $suggestion )
 					? __( 'No direct utf8mb4 equivalent exists for this collation. Pick the closest supported one and verify the data after converting.', 'wp-vip-compatibility' )
 					: __( 'Convert the table to the equivalent utf8mb4 collation. Run it against a backup first and check any columns holding non-ASCII text.', 'wp-vip-compatibility' ),
@@ -184,8 +184,8 @@ class Database_Audit {
 				'kind'        => 'prefix',
 				'severity'    => Taxonomy::SEVERITY_MEDIUM,
 				'label'       => __( 'Non-standard table prefix', 'wp-vip-compatibility' ),
-				'detail'      => __( 'VIP expects every table to use the wp_ prefix.', 'wp-vip-compatibility' ),
-				'remediation' => __( 'Report the prefix to VIP and only rename tables once VIP confirms it is required. Renaming also means updating option names and user meta keys that embed the prefix — wp_user_roles, wp_capabilities, wp_user_level and wp_user-settings — or users lose their roles.', 'wp-vip-compatibility' ),
+				'detail'      => __( 'WordPress VIP expects every table to use the wp_ prefix.', 'wp-vip-compatibility' ),
+				'remediation' => __( 'Report the prefix to WordPress VIP and only rename tables once WordPress VIP confirms it is required. Renaming also means updating option names and user meta keys that embed the prefix — wp_user_roles, wp_capabilities, wp_user_level and wp_user-settings — or users lose their roles.', 'wp-vip-compatibility' ),
 				'sql'         => sprintf( 'ALTER TABLE `%1$s` RENAME TO `wp_%1$s`;', $name ),
 			);
 		}
@@ -205,7 +205,7 @@ class Database_Audit {
 	 * Suggests the utf8mb4 equivalent of an unsupported collation.
 	 *
 	 * @param string   $collation  The current collation.
-	 * @param string[] $collations VIP-supported collations.
+	 * @param string[] $collations WordPress VIP-supported collations.
 	 * @return string The suggested collation, or an empty string.
 	 */
 	private static function suggest_collation( $collation, array $collations ) {

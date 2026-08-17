@@ -2,12 +2,12 @@
 /**
  * wp-content directory audit.
  *
- * Compares what is in wp-content against the VIP application structure.
+ * Compares what is in wp-content against the WordPress VIP application structure.
  *
  * The important correction over the original implementation is that "not part
- * of the VIP repository structure" and "incompatible with VIP" are not the same
+ * of the WordPress VIP repository structure" and "incompatible with WordPress VIP" are not the same
  * thing. `uploads/` was previously reported as incompatible, which is exactly
- * backwards: it is the one directory under wp-content that VIP *does* let
+ * backwards: it is the one directory under wp-content that WordPress VIP *does* let
  * application code write to. It is simply imported separately rather than
  * committed. `upgrade/` and `index.php` were flagged the same way, and are
  * ordinary WordPress artefacts.
@@ -38,11 +38,30 @@ class Directory_Audit {
 	const STATUS_REVIEW        = 'review';
 
 	/**
+	 * Per-request copy of the audit result.
+	 *
+	 * @var array<string, mixed>|null
+	 */
+	private static $result = null;
+
+	/**
 	 * Runs the audit.
 	 *
+	 * The overview asks for this three times over — once for the area card, once
+	 * for the plan, and once for the tier counts beside the gauge — and each run
+	 * reads wp-content and stats every entry in it. It is held for the request
+	 * rather than cached across requests, because the answer changes the moment
+	 * someone uploads a file and a stale "everything is fine" would be worse than
+	 * the directory read it saves.
+	 *
+	 * @param bool $force Whether to rebuild rather than reuse this request's copy.
 	 * @return array<string, mixed> The audit result.
 	 */
-	public static function run() {
+	public static function run( $force = false ) {
+		if ( ! $force && null !== self::$result ) {
+			return self::$result;
+		}
+
 		$known   = (array) Plugin::get_instance()->get_reference_list( 'directories' );
 		$entries = self::read_wp_content();
 
@@ -63,11 +82,27 @@ class Directory_Audit {
 			++$summary[ $row['status'] ];
 		}
 
-		return array(
+		self::$result = array(
 			'entries'    => $rows,
 			'summary'    => $summary,
 			'checked_at' => time(),
 		);
+
+		return self::$result;
+	}
+
+	/**
+	 * Drops this request's copy of the audit.
+	 *
+	 * Nothing survives the request, so unlike the database audit there is no
+	 * stored reading to invalidate. It exists so that a rescan scoped to
+	 * wp-content is a real instruction rather than a no-op, and so that a caller
+	 * which changes the directory mid-request sees the change.
+	 *
+	 * @return void
+	 */
+	public static function flush() {
+		self::$result = null;
 	}
 
 	/**
@@ -127,7 +162,7 @@ class Directory_Audit {
 				array(
 					'status'      => self::STATUS_UNSUPPORTED,
 					'description' => __( 'WordPress drop-in.', 'wp-vip-compatibility' ),
-					'guidance'    => __( 'VIP installs its own drop-ins. A drop-in shipped with the application either has no effect or conflicts with the platform.', 'wp-vip-compatibility' ),
+					'guidance'    => __( 'WordPress VIP installs its own drop-ins. A drop-in shipped with the application either has no effect or conflicts with the platform.', 'wp-vip-compatibility' ),
 					'doc'         => 'https://docs.wpvip.com/technical-references/wordpress-on-vip/',
 				)
 			);
@@ -137,8 +172,8 @@ class Directory_Audit {
 			$defaults,
 			array(
 				'description' => $is_dir
-					? __( 'Directory that is not part of the VIP application structure.', 'wp-vip-compatibility' )
-					: __( 'File that is not part of the VIP application structure.', 'wp-vip-compatibility' ),
+					? __( 'Directory that is not part of the WordPress VIP application structure.', 'wp-vip-compatibility' )
+					: __( 'File that is not part of the WordPress VIP application structure.', 'wp-vip-compatibility' ),
 				'guidance'    => __( 'Work out what created it. If the codebase reads from it, move the contents into uploads/ and update the stored paths; if nothing uses it, leave it out of the repository.', 'wp-vip-compatibility' ),
 				'doc'         => 'https://docs.wpvip.com/wordpress-skeleton/',
 			)

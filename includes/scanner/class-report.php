@@ -24,21 +24,124 @@ class Report {
 	const SCHEMA_VERSION = '1.0';
 
 	/**
-	 * Scans every target and records a history snapshot.
-	 *
-	 * @param bool $force Whether to bypass cached per-target results.
-	 * @return array<string, mixed> The aggregate.
+	 * The scope that rescans the whole site.
 	 */
-	public static function run_full_scan( $force = false ) {
-		$scanner = new Scanner();
-		$targets = Targets::all();
+	const SCOPE_ALL = 'all';
 
-		foreach ( $targets as $target ) {
-			$scanner->get_result( $target, $force );
+	/**
+	 * Returns what a rescan can be narrowed to.
+	 *
+	 * A full rescan re-tokenises every PHP file the site ships, which on a large
+	 * codebase is minutes of work. Most of the time the reason for rescanning is
+	 * one area — a plugin was updated, tables were converted — and re-reading the
+	 * other four proves nothing that was not already known.
+	 *
+	 * The keys are the same five areas the overview cards, the admin menu and
+	 * Report::areas() use, so "Plugins" means the same thing wherever it is read.
+	 *
+	 * Each scope also says where its work belongs and how it gets done:
+	 *
+	 * - `type`   the target type it covers, empty for the areas that are audited
+	 *            rather than scanned.
+	 * - `screen` the screen that owns the area, so choosing a scope takes you to
+	 *            the thing you asked about instead of leaving you where you were.
+	 * - `async`  whether the scanning happens in the browser, row by row. The
+	 *            three areas made of scannable targets do; the two audits have no
+	 *            rows to resolve and are simply re-read when their screen renders.
+	 *
+	 * @return array<string, array<string, mixed>> Scope definitions keyed by slug.
+	 */
+	public static function get_scopes() {
+		return array(
+			self::SCOPE_ALL => array(
+				'label'  => __( 'Everything', 'wp-vip-compatibility' ),
+				'hint'   => __( 'Every plugin, theme and must-use plugin, and both site audits.', 'wp-vip-compatibility' ),
+				'type'   => '',
+				// Everything spans five screens, so there is no one screen to land
+				// on: a full rescan returns you to where you started it.
+				'screen' => '',
+				'async'  => false,
+			),
+			'plugin'        => array(
+				'label'  => __( 'Plugins', 'wp-vip-compatibility' ),
+				'hint'   => __( 'Every installed plugin.', 'wp-vip-compatibility' ),
+				'type'   => 'plugin',
+				'screen' => 'plugins',
+				'async'  => true,
+			),
+			'theme'         => array(
+				'label'  => __( 'Themes', 'wp-vip-compatibility' ),
+				'hint'   => __( 'Every installed theme.', 'wp-vip-compatibility' ),
+				'type'   => 'theme',
+				'screen' => 'themes',
+				'async'  => true,
+			),
+			'mu-plugin'     => array(
+				'label'  => __( 'Must-use plugins', 'wp-vip-compatibility' ),
+				'hint'   => __( 'Everything in wp-content/mu-plugins.', 'wp-vip-compatibility' ),
+				'type'   => 'mu-plugin',
+				'screen' => 'mu-plugins',
+				'async'  => true,
+			),
+			'database'      => array(
+				'label'  => __( 'Database', 'wp-vip-compatibility' ),
+				'hint'   => __( 'Measure the schema, ignoring the cache.', 'wp-vip-compatibility' ),
+				'type'   => '',
+				'screen' => 'database',
+				'async'  => false,
+			),
+			'directories'   => array(
+				'label'  => __( 'wp-content', 'wp-vip-compatibility' ),
+				'hint'   => __( 'What sits in wp-content today.', 'wp-vip-compatibility' ),
+				'type'   => '',
+				'screen' => 'directories',
+				'async'  => false,
+			),
+		);
+	}
+
+	/**
+	 * Returns one scope definition, resolving an unknown slug to the full site.
+	 *
+	 * @param string $scope The scope slug.
+	 * @return array<string, mixed> The scope definition.
+	 */
+	public static function get_scope( $scope ) {
+		return self::get_scopes()[ self::resolve_scope( $scope ) ];
+	}
+
+	/**
+	 * Discards the stored results for a scope so its rows scan again.
+	 *
+	 * This is what makes a browser-side rescan work without a second code path:
+	 * a target with no stored result already renders as "Not scanned yet", and
+	 * the queue on the page already picks those rows up. Forgetting the results
+	 * is therefore the whole instruction — the screen does the rest exactly as it
+	 * does for a plugin installed five minutes ago.
+	 *
+	 * @param string $scope The scope slug.
+	 * @return int How many stored results were discarded.
+	 */
+	public static function clear_scope( $scope ) {
+		$type = self::get_scope( $scope )['type'];
+
+		if ( '' === $type ) {
+			return 0;
 		}
 
-		Results_Store::prune( array_keys( $targets ) );
+		return Results_Store::forget( array_keys( Targets::of_type( $type ) ) );
+	}
 
+	/**
+	 * Records where the whole site stands, as one history snapshot.
+	 *
+	 * Split out of run_full_scan() because a browser-side rescan finishes in the
+	 * browser: the last row to resolve has no idea it was the last, so the page
+	 * reports completion once and this is what it calls.
+	 *
+	 * @return array<string, mixed> The aggregate the snapshot was taken from.
+	 */
+	public static function record_snapshot() {
 		$aggregate = self::aggregate();
 
 		Results_Store::record_history(
@@ -56,11 +159,152 @@ class Report {
 	}
 
 	/**
+	 * Resolves a scope supplied by a request.
+	 *
+	 * @param string $scope The scope slug.
+	 * @return string A known scope slug; the full-site scope when it is not one.
+	 */
+	public static function resolve_scope( $scope ) {
+		return isset( self::get_scopes()[ $scope ] ) ? (string) $scope : self::SCOPE_ALL;
+	}
+
+	/**
+	 * Scans the targets in one scope and records a history snapshot.
+	 *
+	 * The history snapshot is taken whatever the scope, because it describes the
+	 * whole site rather than the part just rescanned — and Results_Store drops a
+	 * snapshot whose totals match the one before it, so narrowing a rescan to an
+	 * area that did not move leaves no entry behind.
+	 *
+	 * @param bool   $force Whether to bypass cached per-target results.
+	 * @param string $scope One of the keys from get_scopes().
+	 * @return array<string, mixed> The aggregate.
+	 */
+	public static function run_full_scan( $force = false, $scope = self::SCOPE_ALL ) {
+		$scope      = self::resolve_scope( $scope );
+		$everything = ( self::SCOPE_ALL === $scope );
+		$type       = self::get_scopes()[ $scope ]['type'];
+
+		$scanner = new Scanner();
+		$targets = Targets::all();
+
+		foreach ( $targets as $target ) {
+			if ( ! $everything && $target['type'] !== $type ) {
+				continue;
+			}
+
+			$scanner->get_result( $target, $force );
+		}
+
+		// Pruning is measured against the whole inventory rather than the scope,
+		// so a narrowed rescan still clears results for something uninstalled.
+		Results_Store::prune( array_keys( $targets ) );
+
+		if ( $everything || 'database' === $scope ) {
+			Database_Audit::flush();
+		}
+
+		if ( $everything || 'directories' === $scope ) {
+			Directory_Audit::flush();
+		}
+
+		return self::record_snapshot();
+	}
+
+	/**
+	 * Describes what a completed rescan actually covered.
+	 *
+	 * The confirmation used to report the site-wide totals whatever had been
+	 * rescanned, which after narrowing to one area claimed far more work than was
+	 * done — and after rescanning the database, where nothing is tokenised at all,
+	 * would have read "0 items and 0 PHP files".
+	 *
+	 * @param string $scope One of the keys from get_scopes().
+	 * @return string A sentence naming what was read.
+	 */
+	public static function scope_outcome( $scope ) {
+		$scope = self::resolve_scope( $scope );
+
+		if ( 'database' === $scope ) {
+			$total = (int) Database_Audit::run()['summary']['total'];
+
+			return sprintf(
+				/* translators: %s: Number of database tables. */
+				_n( 'Measured the schema again. %s table checked.', 'Measured the schema again. %s tables checked.', $total, 'wp-vip-compatibility' ),
+				number_format_i18n( $total )
+			);
+		}
+
+		if ( 'directories' === $scope ) {
+			$total = (int) Directory_Audit::run()['summary']['total'];
+
+			return sprintf(
+				/* translators: %s: Number of entries in wp-content. */
+				_n( 'Looked at wp-content again. %s entry checked.', 'Looked at wp-content again. %s entries checked.', $total, 'wp-vip-compatibility' ),
+				number_format_i18n( $total )
+			);
+		}
+
+		$type  = self::get_scopes()[ $scope ]['type'];
+		$items = 0;
+		$files = 0;
+
+		foreach ( Results_Store::get_index() as $entry ) {
+			if ( '' !== $type && ( $entry['type'] ?? '' ) !== $type ) {
+				continue;
+			}
+
+			++$items;
+			$files += (int) ( $entry['files_scanned'] ?? 0 );
+		}
+
+		switch ( $scope ) {
+			case 'plugin':
+				/* translators: %s: Number of plugins. */
+				$subject = sprintf( _n( '%s plugin', '%s plugins', $items, 'wp-vip-compatibility' ), number_format_i18n( $items ) );
+				break;
+			case 'theme':
+				/* translators: %s: Number of themes. */
+				$subject = sprintf( _n( '%s theme', '%s themes', $items, 'wp-vip-compatibility' ), number_format_i18n( $items ) );
+				break;
+			case 'mu-plugin':
+				/* translators: %s: Number of must-use plugins. */
+				$subject = sprintf( _n( '%s must-use plugin', '%s must-use plugins', $items, 'wp-vip-compatibility' ), number_format_i18n( $items ) );
+				break;
+			default:
+				/* translators: %s: Number of scanned items. */
+				$subject = sprintf( _n( '%s item', '%s items', $items, 'wp-vip-compatibility' ), number_format_i18n( $items ) );
+				break;
+		}
+
+		return sprintf(
+			/* translators: 1: What was scanned, already counted, e.g. "12 plugins". 2: Number of PHP files. */
+			_n( 'Scanned %1$s across %2$s PHP file.', 'Scanned %1$s across %2$s PHP files.', $files, 'wp-vip-compatibility' ),
+			$subject,
+			number_format_i18n( $files )
+		);
+	}
+
+	/**
 	 * Builds the aggregate from the stored index, without scanning.
 	 *
 	 * @return array<string, mixed> The aggregate.
 	 */
 	public static function aggregate() {
+		/*
+		 * The masthead, the admin-menu badge and the screen itself each ask for
+		 * this within one request, and the badge asks for it on every admin page
+		 * in the site. Keyed on the store's generation so a scan that lands
+		 * mid-request is still reflected rather than served from a stale copy.
+		 */
+		static $memo = array();
+
+		$generation = Results_Store::generation();
+
+		if ( isset( $memo[ $generation ] ) ) {
+			return $memo[ $generation ];
+		}
+
 		$index = Results_Store::get_index();
 
 		$aggregate = array(
@@ -119,6 +363,8 @@ class Report {
 		}
 
 		$aggregate['score'] = self::score( $aggregate['statuses'] );
+
+		$memo = array( $generation => $aggregate );
 
 		return $aggregate;
 	}
@@ -184,7 +430,7 @@ class Report {
 			);
 		}
 
-		// Neither a VIP-preinstalled nor a previous host's must-use plugin is
+		// Neither a WordPress VIP-preinstalled nor a previous host's must-use plugin is
 		// "incompatible code" — both are "do not ship this", which is review work.
 		if ( 'mu-plugin' === $target['type'] && is_array( $known ) ) {
 			return array_merge(
@@ -288,15 +534,18 @@ class Report {
 	/**
 	 * Returns the per-area breakdown the overview shows.
 	 *
-	 * @return array<int, array<string, mixed>> Areas, each with `key`, `label`, `screen`, `filter` and `counts`.
+	 * Each area maps onto the screen that owns it, so a card on the overview and
+	 * the entry in the section rail lead to the same place.
+	 *
+	 * @return array<int, array<string, mixed>> Areas, each with `key`, `label`, `screen`, `icon` and `counts`.
 	 */
 	public static function areas() {
 		$areas = array(
-			'plugin'      => array( __( 'Plugins', 'wp-vip-compatibility' ), 'inventory', 'plugin' ),
-			'theme'       => array( __( 'Themes', 'wp-vip-compatibility' ), 'inventory', 'theme' ),
-			'mu-plugin'   => array( __( 'Must-use plugins', 'wp-vip-compatibility' ), 'inventory', 'mu-plugin' ),
-			'database'    => array( __( 'Database tables', 'wp-vip-compatibility' ), 'site', 'database' ),
-			'directories' => array( __( 'wp-content layout', 'wp-vip-compatibility' ), 'site', 'directories' ),
+			'plugin'      => array( __( 'Plugins', 'wp-vip-compatibility' ), 'plugins', 'plug' ),
+			'theme'       => array( __( 'Themes', 'wp-vip-compatibility' ), 'themes', 'brush' ),
+			'mu-plugin'   => array( __( 'Must-use plugins', 'wp-vip-compatibility' ), 'mu-plugins', 'bolt' ),
+			'database'    => array( __( 'Database tables', 'wp-vip-compatibility' ), 'database', 'database' ),
+			'directories' => array( __( 'wp-content layout', 'wp-vip-compatibility' ), 'directories', 'folder' ),
 		);
 
 		$rows = array();
@@ -306,7 +555,7 @@ class Report {
 				'key'    => $key,
 				'label'  => $area[0],
 				'screen' => $area[1],
-				'filter' => $area[2],
+				'icon'   => $area[2],
 				'counts' => self::area_counts( $key ),
 			);
 		}
@@ -315,58 +564,132 @@ class Report {
 	}
 
 	/**
-	 * Builds the ranked list of things to do next.
+	 * Describes the environment the site runs in today.
 	 *
-	 * The overview's job is to answer "what should I do?", which a set of totals
-	 * does not do. Each entry names the work, says how much of it there is, and
-	 * links to the screen that shows it — ordered worst first, and capped so the
-	 * list stays a plan rather than another report.
+	 * The overview used to say nothing about the platform underneath the code,
+	 * which is half of what "is this ready" means: a site on PHP 7.4 with no
+	 * persistent object cache has migration work that no code scan reports.
 	 *
-	 * @return array<int, array<string, mixed>> Actions, each with `tier`, `title`, `detail`, `url` and `action`.
+	 * @return array<int, array<string, mixed>> Rows, each with `label`, `value`, `hint` and `tone`.
 	 */
-	public static function next_actions() {
-		$aggregate = self::aggregate();
-		$actions   = array();
+	public static function environment() {
+		$database = Database_Audit::run()['summary'];
+		$php_ok   = version_compare( PHP_VERSION, '8.0', '>=' );
+		$cache_ok = wp_using_ext_object_cache();
 
-		// Informational findings are context, not work, so they never become a
-		// step in the plan.
-		foreach ( Taxonomy::get_tiers() as $tier => $definition ) {
-			if ( Taxonomy::TIER_INFO === $tier ) {
-				continue;
-			}
-
-			$count = 0;
-
-			foreach ( $definition['severities'] as $severity ) {
-				$count += (int) ( $aggregate['by_severity'][ $severity ] ?? 0 );
-			}
-
-			if ( 0 === $count ) {
-				continue;
-			}
-
-			$actions[] = array(
-				'tier'   => $tier,
-				'title'  => sprintf(
-					/* translators: 1: Number of findings. 2: Tier label, e.g. "blocking". */
-					_n( 'Resolve %1$d %2$s finding', 'Resolve %1$d %2$s findings', $count, 'wp-vip-compatibility' ),
-					$count,
-					strtolower( $definition['label'] )
+		return array(
+			array(
+				'label' => __( 'PHP', 'wp-vip-compatibility' ),
+				'value' => PHP_VERSION,
+				'hint'  => $php_ok
+					? __( 'Within the range WordPress VIP runs.', 'wp-vip-compatibility' )
+					: __( 'WordPress VIP runs PHP 8.0 and above. Test on a supported version first.', 'wp-vip-compatibility' ),
+				'tone'  => $php_ok ? 'ok' : 'warn',
+			),
+			array(
+				'label' => __( 'WordPress', 'wp-vip-compatibility' ),
+				'value' => get_bloginfo( 'version' ),
+				'hint'  => __( 'WordPress VIP tracks the latest release closely.', 'wp-vip-compatibility' ),
+			),
+			array(
+				'label' => __( 'Object cache', 'wp-vip-compatibility' ),
+				'value' => $cache_ok
+					? __( 'Persistent', 'wp-vip-compatibility' )
+					: __( 'Not persistent', 'wp-vip-compatibility' ),
+				'hint'  => $cache_ok
+					? __( 'Matches the WordPress VIP environment, where the object cache is always persistent.', 'wp-vip-compatibility' )
+					: __( 'WordPress VIP always has a persistent object cache. Uncached queries behave differently there.', 'wp-vip-compatibility' ),
+				'tone'  => $cache_ok ? 'ok' : 'warn',
+			),
+			array(
+				'label' => __( 'Install type', 'wp-vip-compatibility' ),
+				'value' => is_multisite()
+					? __( 'Multisite', 'wp-vip-compatibility' )
+					: __( 'Single site', 'wp-vip-compatibility' ),
+				'hint'  => is_multisite()
+					? __( 'A multisite migration needs the network layout agreed with WordPress VIP up front.', 'wp-vip-compatibility' )
+					: '',
+			),
+			array(
+				'label' => __( 'Database size', 'wp-vip-compatibility' ),
+				'value' => size_format( (int) $database['bytes'], 1 ),
+				'hint'  => sprintf(
+					/* translators: %s: Number of tables. */
+					_n( '%s table', '%s tables', (int) $database['total'], 'wp-vip-compatibility' ),
+					number_format_i18n( (int) $database['total'] )
 				),
-				'detail' => $definition['summary'],
-				'url'    => add_query_arg( 'tier', $tier, admin_url( 'admin.php?page=wvc-findings' ) ),
-				'action' => __( 'Review findings', 'wp-vip-compatibility' ),
-			);
+			),
+			array(
+				'label' => __( 'Rule set', 'wp-vip-compatibility' ),
+				'value' => Rules::VERSION,
+				'hint'  => sprintf(
+					/* translators: %s: Number of rules. */
+					_n( '%s rule, each mapped to a WordPress VIP requirement.', '%s rules, each mapped to a WordPress VIP requirement.', count( Rules::all() ), 'wp-vip-compatibility' ),
+					number_format_i18n( count( Rules::all() ) )
+				),
+			),
+		);
+	}
+
+	/**
+	 * Returns the outstanding work that did not come from reading code.
+	 *
+	 * The schema's storage engine, the contents of mu-plugins and the shape of
+	 * wp-content are all migration blockers, and none of them is a finding: they
+	 * come from three audits that inspect the site rather than its source. That
+	 * distinction is invisible on the overview, where they sit in the same plan
+	 * under the same tier labels as everything else — so the fix list has to be
+	 * able to name them too, or it silently contradicts the plan that sent you
+	 * there.
+	 *
+	 * @return array<int, array<string, mixed>> Actions, worst first.
+	 */
+	public static function other_work() {
+		// Both the plan and the tier counts ask for this within one request, and
+		// building it walks wp-content and the schema. Once per request is enough,
+		// but a scan landing mid-request has to invalidate it — the inventory
+		// actions are derived from the stored verdicts.
+		static $memo = array();
+
+		$generation = Results_Store::generation();
+
+		if ( ! isset( $memo[ $generation ] ) ) {
+			$memo = array( $generation => self::sort_by_tier( array_merge( self::inventory_actions(), self::site_actions() ) ) );
 		}
 
-		$actions = array_merge( $actions, self::inventory_actions(), self::site_actions() );
+		return $memo[ $generation ];
+	}
 
-		// Worst first, and short enough to read in one pass.
+	/**
+	 * Counts the non-finding work in one tier.
+	 *
+	 * @param string $tier A tier slug.
+	 * @return int How many actions sit in it.
+	 */
+	public static function other_work_in_tier( $tier ) {
+		$count = 0;
+
+		foreach ( self::other_work() as $action ) {
+			if ( $action['tier'] === $tier ) {
+				++$count;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Orders actions worst tier first.
+	 *
+	 * @param array<int, array<string, mixed>> $actions The actions.
+	 * @return array<int, array<string, mixed>> The ordered actions.
+	 */
+	private static function sort_by_tier( array $actions ) {
 		$order = array(
-			'blocking'  => 0,
-			'important' => 1,
-			'warning'   => 2,
-			'info'      => 3,
+			Taxonomy::TIER_BLOCKING  => 0,
+			Taxonomy::TIER_IMPORTANT => 1,
+			Taxonomy::TIER_WARNING   => 2,
+			Taxonomy::TIER_INFO      => 3,
 		);
 
 		usort(
@@ -376,8 +699,9 @@ class Report {
 			}
 		);
 
-		return array_slice( $actions, 0, 6 );
+		return $actions;
 	}
+
 
 	/**
 	 * Builds the actions that come from the plugin, theme and must-use inventory.
@@ -407,18 +731,13 @@ class Report {
 				'tier'   => 'blocking',
 				'title'  => sprintf(
 					/* translators: %d: Number of plugins. */
-					_n( 'Replace %d plugin VIP lists as incompatible', 'Replace %d plugins VIP lists as incompatible', $listed, 'wp-vip-compatibility' ),
+					_n( 'Replace %d plugin WordPress VIP lists as incompatible', 'Replace %d plugins WordPress VIP lists as incompatible', $listed, 'wp-vip-compatibility' ),
 					$listed
 				),
 				'detail' => __( 'WordPress VIP documents these as incompatible with the platform. No code change makes them work.', 'wp-vip-compatibility' ),
-				'url'    => add_query_arg(
-					array(
-						'kind'   => 'plugin',
-						'status' => 'not-compatible',
-					),
-					admin_url( 'admin.php?page=wvc-inventory' )
-				),
-				'action' => __( 'Open the inventory', 'wp-vip-compatibility' ),
+				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=wvc-plugins' ) ),
+				'action' => __( 'Open plugins', 'wp-vip-compatibility' ),
+				'source' => __( 'Plugins', 'wp-vip-compatibility' ),
 			);
 		}
 
@@ -430,9 +749,10 @@ class Report {
 					_n( 'Relocate %d must-use plugin', 'Relocate %d must-use plugins', $mu_to_move, 'wp-vip-compatibility' ),
 					$mu_to_move
 				),
-				'detail' => __( 'VIP reserves wp-content/mu-plugins for platform code. Anything you ship belongs in client-mu-plugins/.', 'wp-vip-compatibility' ),
-				'url'    => add_query_arg( 'kind', 'mu-plugin', admin_url( 'admin.php?page=wvc-inventory' ) ),
-				'action' => __( 'Open the inventory', 'wp-vip-compatibility' ),
+				'detail' => __( 'WordPress VIP reserves wp-content/mu-plugins for platform code. Anything you ship belongs in client-mu-plugins/.', 'wp-vip-compatibility' ),
+				'url'    => admin_url( 'admin.php?page=wvc-mu-plugins' ),
+				'action' => __( 'Open must-use', 'wp-vip-compatibility' ),
+				'source' => __( 'Must-use plugins', 'wp-vip-compatibility' ),
 			);
 		}
 
@@ -458,15 +778,10 @@ class Report {
 					_n( 'Convert %d table to InnoDB and utf8mb4', 'Convert %d tables to InnoDB and utf8mb4', $schema, 'wp-vip-compatibility' ),
 					$schema
 				),
-				'detail' => __( 'VIP will not import a database with an unsupported storage engine or collation.', 'wp-vip-compatibility' ),
-				'url'    => add_query_arg(
-					array(
-						'section' => 'database',
-						'status'  => 'not-compatible',
-					),
-					admin_url( 'admin.php?page=wvc-site' )
-				),
+				'detail' => __( 'WordPress VIP will not import a database with an unsupported storage engine or collation.', 'wp-vip-compatibility' ),
+				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=wvc-database' ) ),
 				'action' => __( 'Show the SQL', 'wp-vip-compatibility' ),
+				'source' => __( 'Database', 'wp-vip-compatibility' ),
 			);
 		}
 
@@ -475,12 +790,13 @@ class Report {
 				'tier'   => 'warning',
 				'title'  => sprintf(
 					/* translators: %d: Number of tables. */
-					_n( 'Report %d non-standard table prefix to VIP', 'Report %d non-standard table prefixes to VIP', (int) $database['issues']['prefix'], 'wp-vip-compatibility' ),
+					_n( 'Report %d non-standard table prefix to WordPress VIP', 'Report %d non-standard table prefixes to WordPress VIP', (int) $database['issues']['prefix'], 'wp-vip-compatibility' ),
 					(int) $database['issues']['prefix']
 				),
-				'detail' => __( 'The prefix is embedded in option names and user meta keys, so renaming tables without VIP confirming it breaks roles and capabilities.', 'wp-vip-compatibility' ),
-				'url'    => add_query_arg( 'section', 'database', admin_url( 'admin.php?page=wvc-site' ) ),
+				'detail' => __( 'The prefix is embedded in option names and user meta keys, so renaming tables without WordPress VIP confirming it breaks roles and capabilities.', 'wp-vip-compatibility' ),
+				'url'    => admin_url( 'admin.php?page=wvc-database' ),
 				'action' => __( 'Open the audit', 'wp-vip-compatibility' ),
+				'source' => __( 'Database', 'wp-vip-compatibility' ),
 			);
 		}
 
@@ -492,15 +808,10 @@ class Report {
 					_n( 'Remove or relocate %d path in wp-content', 'Remove or relocate %d paths in wp-content', (int) $content['unsupported'], 'wp-vip-compatibility' ),
 					(int) $content['unsupported']
 				),
-				'detail' => __( 'These conflict with the VIP application structure, or with drop-ins the platform installs itself.', 'wp-vip-compatibility' ),
-				'url'    => add_query_arg(
-					array(
-						'section' => 'directories',
-						'status'  => 'not-compatible',
-					),
-					admin_url( 'admin.php?page=wvc-site' )
-				),
+				'detail' => __( 'These conflict with the WordPress VIP application structure, or with drop-ins the platform installs itself.', 'wp-vip-compatibility' ),
+				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=wvc-directories' ) ),
 				'action' => __( 'Open the audit', 'wp-vip-compatibility' ),
+				'source' => __( 'wp-content', 'wp-vip-compatibility' ),
 			);
 		}
 
@@ -565,6 +876,52 @@ class Report {
 		);
 
 		return $groups;
+	}
+
+	/**
+	 * Builds the flat, ranked list of fixes the findings screen is made of.
+	 *
+	 * The unit is one rule in one target, because that is the unit of work: the
+	 * same rule firing in two plugins is two jobs for two owners, while the same
+	 * rule firing twenty times in one plugin is one job with twenty locations.
+	 *
+	 * The list is then ordered the way it should be worked through — worst first,
+	 * and within a tier all of one target's jobs together, so a reader who opens
+	 * a plugin's cards is not sent back and forth between plugins.
+	 *
+	 * @param array<int, array<string, mixed>> $findings Findings from findings().
+	 * @return array<int, array<string, mixed>> Rule groups, worst first.
+	 */
+	public static function fix_list( array $findings ) {
+		$list = array();
+
+		foreach ( self::group( $findings, 'target_key' ) as $target_findings ) {
+			$list = array_merge( $list, self::group_by_rule( $target_findings ) );
+		}
+
+		usort(
+			$list,
+			static function ( $a, $b ) {
+				// Worst tier first.
+				$severity = Taxonomy::get_severity_weight( $b['severity'] ) <=> Taxonomy::get_severity_weight( $a['severity'] );
+
+				if ( 0 !== $severity ) {
+					return $severity;
+				}
+
+				// Then keep one target's work together.
+				$target = strcasecmp( (string) $a['target_label'], (string) $b['target_label'] );
+
+				if ( 0 !== $target ) {
+					return $target;
+				}
+
+				// Then the biggest job in that target first.
+				return count( $b['occurrences'] ) <=> count( $a['occurrences'] );
+			}
+		);
+
+		return $list;
 	}
 
 	/**

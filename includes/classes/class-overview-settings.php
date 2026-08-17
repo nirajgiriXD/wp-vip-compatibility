@@ -2,14 +2,11 @@
 /**
  * The overview screen.
  *
- * This screen answers three questions in order, and nothing else: how ready is
- * this site, what should I do next, and where is the work. Everything that
- * explains the plugin rather than the site sits in a disclosure at the bottom.
- *
- * It used to lead with a readiness gauge, then repeat the same three counts in a
- * stats strip, then repeat them again in five doughnut charts — each of which
- * cost an AJAX round trip and a charting library — and then hide an "About"
- * page behind a tab bar as though documentation were a peer workflow.
+ * The overview answers, in this order and nothing else: how ready is this site,
+ * what is wrong, what should I do first, where is the work, and what is the
+ * platform underneath it. Each answer is one section, and each section links
+ * into the screen that owns the detail — so the path from a summary to a fix is
+ * summary, problem, detail, action, without ever going through a search box.
  *
  * @package wp-vip-compatibility
  */
@@ -38,7 +35,7 @@ class Overview_Settings {
 	public function __construct() {}
 
 	/**
-	 * Renders the settings page.
+	 * Renders the screen.
 	 *
 	 * @return void
 	 */
@@ -49,15 +46,64 @@ class Overview_Settings {
 		$this->render_verdict( $aggregate, $scanned );
 
 		if ( $scanned ) {
-			$this->render_next_steps();
 			$this->render_areas();
+		} else {
+			$this->render_getting_started();
+		}
+
+		$this->render_environment();
+
+		if ( $scanned ) {
+			$this->render_history();
 		}
 
 		$this->render_about();
 	}
 
 	/**
-	 * Renders the verdict card.
+	 * Explains the loop, on a site that has never been scanned.
+	 *
+	 * At that point every screen in the plugin is empty, so this is the only
+	 * moment where the interface has to describe itself instead of showing
+	 * something. It says what the three things are that this plugin is for, and
+	 * then never appears again.
+	 *
+	 * @return void
+	 */
+	private function render_getting_started() {
+		UI::render_panel_open(
+			array(
+				'title'   => __( 'How this works', 'wp-vip-compatibility' ),
+				'summary' => __( 'Three steps, repeated until the list is empty.', 'wp-vip-compatibility' ),
+			)
+		);
+
+		UI::render_steps(
+			array(
+				array(
+					'title' => __( 'Scan', 'wp-vip-compatibility' ),
+					'body'  => __( 'Every plugin, theme and must-use plugin is read against the WordPress VIP Platform requirements, along with the database schema and the wp-content layout. The code is read, never run, so this is safe on a live site.', 'wp-vip-compatibility' ),
+				),
+				array(
+					'title' => __( 'Work through the findings', 'wp-vip-compatibility' ),
+					'body'  => __( 'Findings are ranked, must-fix first. Each one names the file and line, says why it matters on WordPress VIP specifically, and gives you the change to make.', 'wp-vip-compatibility' ),
+				),
+				array(
+					'title' => __( 'Rescan', 'wp-vip-compatibility' ),
+					'body'  => __( 'Run it again to see the list shrink and the readiness score climb. Export it as JSON, CSV or Markdown whenever the work needs to move into a ticket or a pull request.', 'wp-vip-compatibility' ),
+				),
+			)
+		);
+
+		UI::render_panel_close();
+	}
+
+	/* ---------------------------------------------------------------------
+	 * Verdict
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Renders the verdict hero.
 	 *
 	 * @param array<string, mixed> $aggregate The aggregate.
 	 * @param bool                 $scanned   Whether anything has been scanned.
@@ -74,8 +120,56 @@ class Overview_Settings {
 				'summary'  => $verdict['summary'],
 				'meta'     => $this->scan_meta( $aggregate, $scanned ),
 				'actions'  => $verdict['actions'],
+				'facts'    => $scanned ? $this->get_facts( $aggregate ) : array(),
 			)
 		);
+	}
+
+	/**
+	 * Builds the counted facts shown beside the gauge.
+	 *
+	 * These are the four numbers the whole report reduces to, each linking into
+	 * the fix list filtered to exactly that tier — so the top of the screen is
+	 * also the fastest way into it.
+	 *
+	 * They count everything outstanding, not just the findings: the database,
+	 * must-use and wp-content audits produce migration work that has no file and
+	 * line, and it appears in the plan directly below under these same four
+	 * labels. Counting only findings here would put "Must fix 0" immediately
+	 * above a step badged "Must fix", and would disagree with the identical row
+	 * of chips on the fix list.
+	 *
+	 * Every tier is listed even at zero, because "nothing must be fixed" is the
+	 * answer this screen exists to give, and it can only be read off a row that
+	 * always has four entries in it.
+	 *
+	 * There was a fifth entry here, "Passed", which counted plugins and themes
+	 * rather than work. One row mixing two units, with nothing naming either,
+	 * made all five ambiguous — and the number it carried is already in the
+	 * gauge, in the headline beside it, and in the per-area cards below.
+	 *
+	 * @param array<string, mixed> $aggregate The aggregate.
+	 * @return array<int, array<string, mixed>> Facts.
+	 */
+	private function get_facts( array $aggregate ) {
+		$facts = array();
+
+		foreach ( UI::get_tiers() as $tier => $definition ) {
+			$count = Report::other_work_in_tier( $tier );
+
+			foreach ( $definition['severities'] as $severity ) {
+				$count += (int) ( $aggregate['by_severity'][ $severity ] ?? 0 );
+			}
+
+			$facts[] = array(
+				'label' => $definition['label'],
+				'value' => number_format_i18n( $count ),
+				'tone'  => ( 0 === $count ) ? 'muted' : $definition['tone'],
+				'url'   => ( 0 === $count ) ? '' : UI::get_findings_url( '', $tier ),
+			);
+		}
+
+		return $facts;
 	}
 
 	/**
@@ -98,7 +192,7 @@ class Overview_Settings {
 			return array(
 				'tier'     => 'ready',
 				'headline' => __( 'Nothing has been scanned yet', 'wp-vip-compatibility' ),
-				'summary'  => __( 'Run a scan to check every plugin, theme and must-use plugin against the VIP Platform requirements. It reads code without running it, so it is safe to run on a live site.', 'wp-vip-compatibility' ),
+				'summary'  => __( 'Run a scan to check every plugin, theme and must-use plugin against the WordPress VIP Platform requirements. It reads code without running it, so it is safe to run on a live site.', 'wp-vip-compatibility' ),
 				'actions'  => array(
 					array_merge(
 						$rescan,
@@ -122,8 +216,8 @@ class Overview_Settings {
 				'summary'  => sprintf(
 					/* translators: 1: Number of blocked targets. 2: Total number of targets. */
 					_n(
-						'%1$d of %2$d scanned items is expected to fail on the VIP Platform and has to be resolved first.',
-						'%1$d of %2$d scanned items are expected to fail on the VIP Platform and have to be resolved first.',
+						'%1$d of %2$d scanned items is expected to fail on the WordPress VIP Platform and has to be resolved first.',
+						'%1$d of %2$d scanned items are expected to fail on the WordPress VIP Platform and have to be resolved first.',
 						$blocked,
 						'wp-vip-compatibility'
 					),
@@ -133,8 +227,8 @@ class Overview_Settings {
 				'actions'  => array(
 					array(
 						'label'   => __( 'Start with the blockers', 'wp-vip-compatibility' ),
-						'url'     => UI::get_findings_url(),
-						'icon'    => 'list',
+						'url'     => UI::get_findings_url( '', Taxonomy::TIER_BLOCKING ),
+						'icon'    => 'alert',
 						'primary' => true,
 					),
 					$rescan,
@@ -171,11 +265,11 @@ class Overview_Settings {
 		return array(
 			'tier'     => 'ready',
 			'headline' => __( 'Ready to migrate', 'wp-vip-compatibility' ),
-			'summary'  => __( 'Every scanned plugin, theme and must-use plugin passed. Check the database and wp-content audits on the Site screen before you export.', 'wp-vip-compatibility' ),
+			'summary'  => __( 'Every scanned plugin, theme and must-use plugin passed. Check the database and wp-content audits before you export.', 'wp-vip-compatibility' ),
 			'actions'  => array(
 				array(
-					'label'   => __( 'Check the site audits', 'wp-vip-compatibility' ),
-					'url'     => UI::get_screen_url( 'site' ),
+					'label'   => __( 'Check the database', 'wp-vip-compatibility' ),
+					'url'     => UI::get_screen_url( 'database' ),
 					'icon'    => 'database',
 					'primary' => true,
 				),
@@ -186,10 +280,6 @@ class Overview_Settings {
 
 	/**
 	 * Builds the single supporting line: when the scan ran and what changed.
-	 *
-	 * This is the only place in the plugin that reports the change since the
-	 * previous scan. It used to appear here and again, word for word, on the
-	 * findings screen.
 	 *
 	 * @param array<string, mixed> $aggregate The aggregate.
 	 * @param bool                 $scanned   Whether anything has been scanned.
@@ -202,13 +292,8 @@ class Overview_Settings {
 
 		$parts = array(
 			sprintf(
-				/* translators: %s: Human-readable time difference. */
-				__( 'Last scanned %s ago', 'wp-vip-compatibility' ),
-				human_time_diff( $aggregate['scanned_at'] )
-			),
-			sprintf(
 				/* translators: 1: Number of targets. 2: Number of PHP files. */
-				__( '%1$d items, %2$s PHP files', 'wp-vip-compatibility' ),
+				__( '%1$d items scanned across %2$s PHP files', 'wp-vip-compatibility' ),
 				(int) $aggregate['targets'],
 				number_format_i18n( (int) $aggregate['totals']['files'] )
 			),
@@ -227,32 +312,9 @@ class Overview_Settings {
 		return implode( ' · ', $parts );
 	}
 
-	/**
-	 * Renders the ranked list of next steps.
-	 *
-	 * @return void
-	 */
-	private function render_next_steps() {
-		$actions = Report::next_actions();
-
-		if ( empty( $actions ) ) {
-			echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-				esc_html__( 'The scanner found nothing that needs doing before this site moves to VIP. Test on a VIP environment before you rely on that: static analysis cannot see behaviour that only appears under real traffic or real data.', 'wp-vip-compatibility' ),
-				'success',
-				esc_html__( 'Nothing outstanding', 'wp-vip-compatibility' )
-			);
-
-			return;
-		}
-
-		UI::render_section_head(
-			__( 'What to do next', 'wp-vip-compatibility' ),
-			'',
-			__( 'Ordered by how much each item stands between this site and the platform.', 'wp-vip-compatibility' )
-		);
-
-		UI::render_action_list( $actions );
-	}
+	/* ---------------------------------------------------------------------
+	 * Sections
+	 * ------------------------------------------------------------------ */
 
 	/**
 	 * Renders the per-area breakdown.
@@ -260,61 +322,208 @@ class Overview_Settings {
 	 * @return void
 	 */
 	private function render_areas() {
-		UI::render_section_head( __( 'Where the work is', 'wp-vip-compatibility' ) );
-		?>
-		<ul class="wvc-areas">
-			<?php foreach ( Report::areas() as $area ) : ?>
-				<?php
-				$counts = $area['counts'];
-				$url    = ( 'inventory' === $area['screen'] )
-					? UI::get_screen_url( 'inventory', array( 'kind' => $area['filter'] ) )
-					: UI::get_screen_url( 'site', array( 'section' => $area['filter'] ) );
-				?>
-				<li class="wvc-areas__item">
-					<a class="wvc-areas__link" href="<?php echo esc_url( $url ); ?>">
-						<span class="wvc-areas__label"><?php echo esc_html( $area['label'] ); ?></span>
-						<?php echo UI::get_meter( $counts ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-						<span class="wvc-areas__legend"><?php echo esc_html( UI::get_meter_legend( $counts ) ); ?></span>
-						<?php echo UI::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--xs wvc-areas__chevron' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-					</a>
-				</li>
-			<?php endforeach; ?>
-		</ul>
-		<?php
+		UI::render_panel_open(
+			array(
+				'title'   => __( 'Where the work is', 'wp-vip-compatibility' ),
+				'summary' => __( 'Every area of the site, with the split between what is ready and what is not.', 'wp-vip-compatibility' ),
+			)
+		);
+
+		UI::render_area_cards( Report::areas() );
+
+		UI::render_panel_close();
 	}
 
 	/**
-	 * Renders the collapsed "about" disclosure.
+	 * Renders the environment summary.
+	 *
+	 * @return void
+	 */
+	private function render_environment() {
+		UI::render_panel_open(
+			array(
+				'title'   => __( 'Environment', 'wp-vip-compatibility' ),
+				'summary' => __( 'What this site runs on today, measured against what it will run on at WordPress VIP. None of this is visible to a code scan.', 'wp-vip-compatibility' ),
+			)
+		);
+
+		// Boxed, not the default left rule: six of these in a row read as one long
+		// indented quotation rather than six separate facts about the platform.
+		// `--grid` stays on for the four-column cap on wide screens.
+		echo UI::get_defs( Report::environment(), 'wvc-defs--grid wvc-defs--boxed' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+
+		UI::render_panel_close();
+	}
+
+	/**
+	 * Renders the scan history.
+	 *
+	 * Only aggregate snapshots are kept, which is enough to answer the question
+	 * this section exists for: is the migration work getting smaller?
+	 *
+	 * @return void
+	 */
+	private function render_history() {
+		$history = Results_Store::get_history();
+
+		if ( count( $history ) < 2 ) {
+			return;
+		}
+
+		$history = array_reverse( array_slice( $history, -8 ) );
+
+		UI::render_panel_open(
+			array(
+				'title'   => __( 'Recent scans', 'wp-vip-compatibility' ),
+				'summary' => __( 'How the report has moved over the last few scans.', 'wp-vip-compatibility' ),
+				'flush'   => true,
+			)
+		);
+
+		echo '<div class="wvc-table-wrap">';
+		echo '<table class="wvc-table wvc-table--compact">';
+
+		UI::render_table_head(
+			array(
+				array(
+					'label' => __( 'When', 'wp-vip-compatibility' ),
+					'class' => 'wvc-col-name',
+				),
+				array(
+					'label' => __( 'Readiness', 'wp-vip-compatibility' ),
+					'class' => 'wvc-col-number',
+				),
+				array(
+					'label' => __( 'Findings', 'wp-vip-compatibility' ),
+					'class' => 'wvc-col-number',
+				),
+				array(
+					'label' => __( 'Must fix', 'wp-vip-compatibility' ),
+					'class' => 'wvc-col-number',
+				),
+				array(
+					'label' => __( 'Blocked items', 'wp-vip-compatibility' ),
+					'class' => 'wvc-col-number',
+				),
+				array( 'label' => __( 'Change', 'wp-vip-compatibility' ) ),
+			)
+		);
+
+		echo '<tbody>';
+
+		foreach ( $history as $position => $snapshot ) {
+			$previous = $history[ $position + 1 ] ?? null;
+			$delta    = ( null === $previous ) ? null : (int) $snapshot['total'] - (int) $previous['total'];
+
+			echo '<tr class="wvc-row">';
+
+			echo '<td class="wvc-col-name" data-label="' . esc_attr__( 'When', 'wp-vip-compatibility' ) . '">'
+				. esc_html(
+					sprintf(
+						/* translators: %s: Human-readable time difference. */
+						__( '%s ago', 'wp-vip-compatibility' ),
+						human_time_diff( (int) $snapshot['recorded_at'] )
+					)
+				)
+				. '</td>';
+
+			echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Readiness', 'wp-vip-compatibility' ) . '">'
+				. esc_html( sprintf( '%d%%', (int) $snapshot['score'] ) )
+				. '</td>';
+
+			echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Findings', 'wp-vip-compatibility' ) . '">'
+				. esc_html( number_format_i18n( (int) $snapshot['total'] ) )
+				. '</td>';
+
+			echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Must fix', 'wp-vip-compatibility' ) . '">'
+				. esc_html( number_format_i18n( (int) $snapshot['blocking'] ) )
+				. '</td>';
+
+			echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Blocked items', 'wp-vip-compatibility' ) . '">'
+				. esc_html( number_format_i18n( (int) $snapshot['blocked'] ) )
+				. '</td>';
+
+			echo '<td data-label="' . esc_attr__( 'Change', 'wp-vip-compatibility' ) . '">';
+
+			if ( null === $delta || 0 === $delta ) {
+				echo '<span class="wvc-dash" aria-hidden="true">—</span>';
+			} else {
+				printf(
+					'<span class="wvc-delta wvc-delta--%1$s">%2$s</span>',
+					esc_attr( $delta < 0 ? 'down' : 'up' ),
+					esc_html( sprintf( '%+d', $delta ) )
+				);
+			}
+
+			echo '</td>';
+			echo '</tr>';
+		}
+
+		echo '</tbody></table>';
+		echo '</div>';
+
+		UI::render_panel_close();
+	}
+
+	/**
+	 * Renders what the plugin checks and what its answer is worth.
+	 *
+	 * This is a panel rather than the collapsed disclosure it used to be. What
+	 * the scan covers, and the fact that a clean report is not a guarantee, are
+	 * the two things that qualify every number above it — and a reader who has
+	 * to open something to find that out is a reader who never finds it.
+	 *
+	 * The five areas are a definition grid for the same reason the environment
+	 * summary is: as a bullet list they were five long sentences stacked down
+	 * the left edge of a very wide column, and as labelled pairs they lay out
+	 * across it and can be scanned for the one that matters.
 	 *
 	 * @return void
 	 */
 	private function render_about() {
 		$checks = array(
-			__( 'Filesystem and media — writes outside /tmp/ and uploads, traversal over the object store, generated PHP/CSS/JS, .htaccess assumptions and local image processing.', 'wp-vip-compatibility' ),
-			__( 'Database — storage engines, collations and prefixes, plus unprepared SQL, uncached queries, unbounded result sets and runtime schema changes.', 'wp-vip-compatibility' ),
-			__( 'Caching, cron and requests — cache-busting headers, full object-cache flushes, custom cache layers, Cron Control conflicts and uncached or untimed outbound requests.', 'wp-vip-compatibility' ),
-			__( 'Security and environment — shell execution, dynamic code, unescaped request data, PHP sessions, runtime ini changes and redefined core constants.', 'wp-vip-compatibility' ),
-			__( 'Platform overlap — plugins VIP lists as incompatible, plugins that need testing, and plugins duplicating something the platform already provides.', 'wp-vip-compatibility' ),
+			array(
+				'label' => __( 'Filesystem and media', 'wp-vip-compatibility' ),
+				'value' => __( 'Writes outside /tmp/ and uploads, traversal over the object store, generated PHP/CSS/JS, .htaccess assumptions and local image processing.', 'wp-vip-compatibility' ),
+			),
+			array(
+				'label' => __( 'Database', 'wp-vip-compatibility' ),
+				'value' => __( 'Storage engines, collations and prefixes, plus unprepared SQL, uncached queries, unbounded result sets and runtime schema changes.', 'wp-vip-compatibility' ),
+			),
+			array(
+				'label' => __( 'Caching, cron and requests', 'wp-vip-compatibility' ),
+				'value' => __( 'Cache-busting headers, full object-cache flushes, custom cache layers, Cron Control conflicts and uncached or untimed outbound requests.', 'wp-vip-compatibility' ),
+			),
+			array(
+				'label' => __( 'Security and environment', 'wp-vip-compatibility' ),
+				'value' => __( 'Shell execution, dynamic code, unescaped request data, PHP sessions, runtime ini changes and redefined core constants.', 'wp-vip-compatibility' ),
+			),
+			array(
+				'label' => __( 'Platform overlap', 'wp-vip-compatibility' ),
+				'value' => __( 'Plugins WordPress VIP lists as incompatible, plugins that need testing, and plugins duplicating something the platform already provides.', 'wp-vip-compatibility' ),
+			),
 		);
 
-		$body  = '<p>' . esc_html__( 'This plugin analyses a standard WordPress site against the requirements of the WordPress VIP Platform, so that the work needed to migrate is known before the migration starts rather than discovered during it.', 'wp-vip-compatibility' ) . '</p>';
-		$body .= '<p>' . esc_html__( 'It is a starting point, not a certificate. It reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Where static analysis cannot resolve a value, a finding records its confidence rather than asserting an incompatibility it cannot prove.', 'wp-vip-compatibility' ) . '</p>';
-		$body .= '<p>' . esc_html__( 'What gets checked:', 'wp-vip-compatibility' ) . '</p><ul>';
-
-		foreach ( $checks as $check ) {
-			$body .= '<li>' . esc_html( $check ) . '</li>';
-		}
-
-		$body .= '</ul>';
-		$body .= '<p>' . esc_html(
-			sprintf(
-				/* translators: 1: Rule set version. 2: Number of rules. */
-				__( 'Rule set %1$s — %2$d rules, each mapped to the VIP requirement it comes from.', 'wp-vip-compatibility' ),
-				Rules::VERSION,
-				count( Rules::all() )
+		UI::render_panel_open(
+			array(
+				'title'   => __( 'About this plugin and what it checks', 'wp-vip-compatibility' ),
+				'summary' => sprintf(
+					/* translators: 1: Rule set version. 2: Number of rules. */
+					__( 'Rule set %1$s — %2$d rules, each mapped to the WordPress VIP requirement it comes from.', 'wp-vip-compatibility' ),
+					Rules::VERSION,
+					count( Rules::all() )
+				),
 			)
-		) . '</p>';
+		);
 
-		echo UI::get_guidance( $body, __( 'About this plugin and what it checks', 'wp-vip-compatibility' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo '<p class="wvc-about__lead">' . esc_html__( 'This plugin analyses a standard WordPress site against the requirements of the WordPress VIP Platform, so that the work needed to migrate is known before the migration starts rather than discovered during it.', 'wp-vip-compatibility' ) . '</p>';
+		echo '<p class="wvc-about__lead">' . esc_html__( 'It is a starting point, not a certificate. It reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Where static analysis cannot resolve a value, a finding records its confidence rather than asserting an incompatibility it cannot prove.', 'wp-vip-compatibility' ) . '</p>';
+
+		echo '<div class="wvc-detail__block">';
+		echo '<h4 class="wvc-detail__title">' . esc_html__( 'What gets checked', 'wp-vip-compatibility' ) . '</h4>';
+		echo UI::get_defs( $checks, 'wvc-defs--cards' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo '</div>';
+
+		UI::render_panel_close();
 	}
 }

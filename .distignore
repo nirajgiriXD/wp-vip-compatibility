@@ -1,24 +1,34 @@
-# Don't include development-related files/folders
+# Development tooling and version control. None of it runs at plugin runtime.
 node_modules/
 .git/
+.gitattributes
 .gitignore
 .github
 dist/
 .idea
-webpack.config.js
 .vscode/
+webpack.config.js
+postcss.config.js
 composer.*
 package*.json
-.distignore
 phpcs.xml
-postcss.config.js
 .editorconfig
+.distignore
+.DS_Store
+Thumbs.db
 
-# Don't include unnecessary files/folders in the distribution package
-LICENSE
+# Repository documentation. readme.txt is the file the Plugin Directory reads.
+README.md
 WORKFLOW.md
 CODE_OF_CONDUCT.md
-.DS_Store
+
+# Directory assets. These belong in the /assets/ folder of the plugin's SVN
+# repository, not inside the plugin ZIP — shipping them just makes the download
+# larger for every user. The stylesheet and script under assets/ are runtime
+# files and are deliberately not matched by these patterns.
 assets/screenshot-*.png
 assets/banner-*.png
 assets/icon-*.png
+
+# LICENSE is deliberately NOT excluded: the GPL requires the licence text to be
+# distributed with the software it covers.

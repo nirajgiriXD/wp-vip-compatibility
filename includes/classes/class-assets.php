@@ -34,6 +34,43 @@ class Assets {
 	private function setup_hooks() {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+		add_action( 'admin_head', array( $this, 'print_menu_styles' ) );
+	}
+
+	/**
+	 * Styles the group headings in the plugin's admin submenu.
+	 *
+	 * This cannot ride along with the screen stylesheet. The submenu is rendered
+	 * into every admin page, so the headings would show up as stray words on the
+	 * WordPress screens where that stylesheet is deliberately not loaded. It is
+	 * half a dozen rules, so it is printed inline rather than costing a request.
+	 *
+	 * @return void
+	 */
+	public function print_menu_styles() {
+		$slug = UI::get_screens()['overview']['slug'];
+		?>
+		<style id="wvc-menu-styles">
+			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .wvc-menu-group {
+				display: block;
+				margin: 10px -13px 3px;
+				padding: 8px 13px 0;
+				border-top: 1px solid rgba(240, 246, 252, 0.14);
+				font-size: 10px;
+				font-weight: 600;
+				line-height: 1.4;
+				letter-spacing: 0.06em;
+				text-transform: uppercase;
+				opacity: 0.55;
+			}
+
+			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .wvc-menu-group--first {
+				margin-top: 2px;
+				padding-top: 0;
+				border-top: 0;
+			}
+		</style>
+		<?php
 	}
 
 	/**

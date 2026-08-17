@@ -19,7 +19,6 @@ namespace WP_VIP_COMPATIBILITY\Includes\Classes;
 
 use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Results_Store;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Scanner;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
 use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
@@ -52,7 +51,7 @@ class Ajax {
 	 */
 	private function setup_hooks() {
 		add_action( 'wp_ajax_wvc_scan_target', array( $this, 'scan_target' ) );
-		add_action( 'wp_ajax_wvc_get_scan_summary', array( $this, 'get_scan_summary' ) );
+		add_action( 'wp_ajax_wvc_scan_complete', array( $this, 'scan_complete' ) );
 	}
 
 	/**
@@ -108,7 +107,6 @@ class Ajax {
 				'severity' => $this->highest_severity( $result['summary']['by_severity'] ),
 				'files'    => (int) $result['files_scanned'],
 				'url'      => UI::get_findings_url( $result['key'] ),
-				/* translators: 1: Number of findings. 2: Number of files scanned. */
 				'summary'  => sprintf(
 					/* translators: 1: Number of findings. 2: Number of PHP files scanned. */
 					_n( '%1$d finding across %2$d PHP file.', '%1$d findings across %2$d PHP files.', (int) $result['summary']['total'], 'wp-vip-compatibility' ),
@@ -120,29 +118,23 @@ class Ajax {
 	}
 
 	/**
-	 * Returns the aggregate readiness summary.
+	 * Closes out a rescan that ran in the browser.
+	 *
+	 * A row-by-row rescan has no moment on the server where it is finished: the
+	 * last target to resolve looks exactly like the first. The page reports
+	 * completion once, and that is what records the history snapshot — otherwise
+	 * a rescan started from the menu would never appear under "Recent scans".
 	 *
 	 * @return void
 	 */
-	public function get_scan_summary() {
+	public function scan_complete() {
 		$this->authorize();
 
-		$aggregate = Report::aggregate();
-		$delta     = Results_Store::get_delta();
+		$scope = isset( $_POST['scope'] ) ? sanitize_key( wp_unslash( $_POST['scope'] ) ) : Report::SCOPE_ALL; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce and capability are verified by authorize() at the top of this handler.
 
-		wp_send_json_success(
-			array(
-				'score'      => (int) $aggregate['score'],
-				'targets'    => (int) $aggregate['targets'],
-				'statuses'   => $aggregate['statuses'],
-				'findings'   => (int) $aggregate['totals']['findings'],
-				'blocking'   => (int) $aggregate['totals']['blocking'],
-				'files'      => (int) $aggregate['totals']['files'],
-				'severities' => $aggregate['by_severity'],
-				'delta'      => $delta,
-				'url'        => UI::get_findings_url(),
-			)
-		);
+		Report::record_snapshot();
+
+		wp_send_json_success( array( 'scope' => Report::resolve_scope( $scope ) ) );
 	}
 
 	/**
