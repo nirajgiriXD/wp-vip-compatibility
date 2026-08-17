@@ -470,34 +470,6 @@
             "cc-post-to-pdf",
             "tiny-compress-images",
             "zoom-meeting"
-        ],
-        "vip_disallowed_plugins": [
-            "all-in-one-wp-migration",
-            "wp-all-import",
-            "wp-all-import-pro",
-            "wp-all-export",
-            "wp-all-export-pro",
-            "w3-total-cache",
-            "wp-fastest-cache",
-            "wp-rocket",
-            "wp-super-cache",
-            "wp-smushit",
-            "sucuri-scanner",
-            "wordfence",
-            "wp-file-manager"
-        ],
-        "tested_compatible_plugins": [
-            "wp-vip-compatibility",
-            "aryo-activity-log",
-            "memberpress-importer",
-            "memberpress-pdf-invoice",
-            "memberpress",
-            "miniorange-2-factor-authentication",
-            "miniorange-saml-20-single-sign-on",
-            "post-smtp",
-            "cc-post-to-pdf",
-            "tiny-compress-images",
-            "zoom-meeting"
         ]
     }
 }

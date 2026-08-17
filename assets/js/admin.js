@@ -171,18 +171,45 @@ jQuery(document).ready(function ($) {
 
 	(function submitting() {
 		/*
-		 * A full rescan is a normal form post that can take several seconds
-		 * before the browser starts painting the new page, and until now
-		 * nothing acknowledged the click — so the button looked ignored and
-		 * invited a second press.
+		 * A rescan is a normal form post that can take several seconds before the
+		 * browser starts painting the new page, and until now nothing
+		 * acknowledged the click — so the button looked ignored and invited a
+		 * second press.
 		 *
 		 * The busy class rather than the `disabled` attribute: disabling a
 		 * submit button during its own submit event stops some browsers from
-		 * sending it at all. The class carries a spinner and takes the button
-		 * out of the pointer's reach, which is all that is needed.
+		 * sending it at all, and a disabled button's `name`/`value` is not
+		 * submitted, which would drop the scope the rescan menu carries. The
+		 * class shows a spinner and takes the control out of the pointer's
+		 * reach, which is all that is needed.
+		 *
+		 * The scope menu is one form with a button per area, so the spinner has
+		 * to land on the button that was pressed rather than on all of them.
+		 * `submitter` gives that directly where it is supported; the click
+		 * handler below is the fallback for older browsers.
 		 */
-		$(document).on("submit", ".wvc-inline-form", function () {
-			$(this).find("button[type='submit']").addClass("is-busy");
+		// Both shapes a posting form takes: one button on its own, and the menu
+		// of scoped rescans.
+		var FORMS = ".wvc-inline-form, .wvc-menu__form";
+		var SUBMITS = ".wvc-inline-form button[type='submit'], .wvc-menu__form button[type='submit']";
+		var $pressed = null;
+
+		$(document).on("click", SUBMITS, function () {
+			$pressed = $(this);
+		});
+
+		$(document).on("submit", FORMS, function (event) {
+			var $form = $(this);
+			var submitter = event.originalEvent && event.originalEvent.submitter;
+			var $button = submitter ? $(submitter) : $pressed;
+
+			if (!$button || !$button.length || !$.contains(this, $button[0])) {
+				$button = $form.find("button[type='submit']").first();
+			}
+
+			$button.addClass("is-busy");
+			$form.addClass("is-submitting");
+			$pressed = null;
 		});
 	})();
 
@@ -639,7 +666,47 @@ jQuery(document).ready(function ($) {
 		var $statusCells = $("td.wvc-col-status.is-pending[data-target]");
 		var total = $statusCells.length;
 
+		// Present only when this page was reached by choosing an area from the
+		// rescan menu. Its scope is what the completion call reports.
+		var $report = $("[data-role='scan-report']");
+
+		/**
+		 * Ends a rescan that was started from the menu.
+		 *
+		 * The tiles above the table, the count on the admin menu and the
+		 * "scanned N minutes ago" chip are all rendered from the stored results,
+		 * and none of them is touched by resolving a row. Rather than patch four
+		 * things from the client and risk them drifting, the page is rendered
+		 * again from the server once the queue is empty — by which point the
+		 * results are cached, so it costs a fast render and gives a screen where
+		 * every number agrees with every other one.
+		 */
+		function finish() {
+			if (!$report.length) {
+				return;
+			}
+
+			$.ajax({
+				url: settings.ajax_url,
+				type: "POST",
+				data: {
+					_ajax_nonce: settings.nonce,
+					action: "wvc_scan_complete",
+					scope: $report.data("scope")
+				}
+			}).always(function () {
+				// Same URL with the parameter switched from the in-progress name
+				// to the finished one, so the reload lands on the confirmation.
+				window.location.replace(
+					window.location.href.replace(/([?&])wvc-scanning=/, "$1wvc-scanned=")
+				);
+			});
+		}
+
 		if (!total) {
+			// An area with nothing in it still finishes: choosing "Themes" on a
+			// site with no themes should confirm that, not hang on a bare page.
+			finish();
 			return;
 		}
 
@@ -663,9 +730,19 @@ jQuery(document).ready(function ($) {
 		var completed = 0;
 		var active = 0;
 
-		// Tokenising a plugin is CPU heavy on the server; a small pool keeps the
-		// admin responsive instead of firing one request per row at once.
-		var CONCURRENCY = 3;
+		/*
+		 * One request at a time, deliberately.
+		 *
+		 * Each scan writes its result into a shared summary index, which is a
+		 * read-modify-write on a single option. Running three of them in
+		 * parallel meant two requests could read the same index and write back
+		 * over each other, dropping a verdict that had just been computed — the
+		 * row would come back "Not scanned yet" on the next load and be scanned
+		 * again. Serialising the queue removes the window entirely, and also
+		 * stops three simultaneous tokenising runs from spiking CPU on a shared
+		 * host. The progress bar is what covers the wait.
+		 */
+		var CONCURRENCY = 1;
 
 		function updateProgress() {
 			if (!$scan.length) {
@@ -685,6 +762,17 @@ jQuery(document).ready(function ($) {
 
 			if ($scan.length) {
 				$scanBar.css("width", "100%");
+			}
+
+			// A rescan started from the menu re-renders the page here, so the
+			// progress bar is left showing rather than hidden into a page that is
+			// about to be replaced anyway.
+			if ($report.length) {
+				finish();
+				return;
+			}
+
+			if ($scan.length) {
 				$scan.attr("hidden", "hidden");
 			}
 		}

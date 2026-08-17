@@ -83,7 +83,10 @@ class Settings {
 
 		$args = ( '' === $status ) ? array() : array( 'status' => $status );
 
-		wp_safe_redirect( UI::get_screen_url( $key, $args ), 301 );
+		// 302, not 301: a permanent redirect on an admin route is cached by the
+		// browser indefinitely, which would strand anyone here if these slugs are
+		// ever rearranged again.
+		wp_safe_redirect( UI::get_screen_url( $key, $args ) );
 		exit;
 	}
 

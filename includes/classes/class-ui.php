@@ -407,17 +407,7 @@ class UI {
 					</span>
 				</span>
 
-				<?php
-				echo self::get_action_button( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-					array(
-						'label'   => $scanned ? __( 'Rescan', 'wp-vip-compatibility' ) : __( 'Run a scan', 'wp-vip-compatibility' ),
-						'submit'  => 'wvc_rescan',
-						'nonce'   => Findings_Settings::RESCAN_ACTION,
-						'icon'    => 'refresh',
-						'primary' => ! $scanned,
-					)
-				);
-				?>
+				<?php self::render_rescan_control( $scanned ); ?>
 
 				<details class="wvc-menu">
 					<summary class="wvc-btn wvc-btn--ghost wvc-btn--sm">
@@ -442,6 +432,76 @@ class UI {
 				</a>
 			</div>
 		</header>
+		<?php
+	}
+
+	/**
+	 * Renders the rescan control: one press for everything, a caret for one area.
+	 *
+	 * A full rescan re-reads every PHP file the site ships, and on a large
+	 * codebase that is minutes of waiting to confirm a change in one plugin. The
+	 * areas are therefore offered individually — but behind a caret rather than
+	 * as six equal buttons, because "rescan everything" is what is wanted almost
+	 * every time and it should stay a single press.
+	 *
+	 * The options are buttons in a form rather than the links the export menu
+	 * uses. Exporting reads; rescanning writes, and a write does not belong on a
+	 * link that a prefetcher or a bookmark can fire.
+	 *
+	 * @param bool $scanned Whether anything has been scanned yet.
+	 * @return void
+	 */
+	private static function render_rescan_control( $scanned ) {
+		$button = self::get_action_button(
+			array(
+				'label'   => $scanned ? __( 'Rescan', 'wp-vip-compatibility' ) : __( 'Run a scan', 'wp-vip-compatibility' ),
+				'submit'  => 'wvc_rescan',
+				'nonce'   => Findings_Settings::RESCAN_ACTION,
+				'fields'  => array( 'scope' => Report::SCOPE_ALL ),
+				'icon'    => 'refresh',
+				'primary' => ! $scanned,
+			)
+		);
+
+		// Before the first scan every area is empty, so there is nothing to
+		// narrow to and the control is the plain button it has always been.
+		if ( ! $scanned ) {
+			echo $button; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+
+			return;
+		}
+
+		// "Everything" is the button beside this menu, not a row inside it.
+		$areas = Report::get_scopes();
+		unset( $areas[ Report::SCOPE_ALL ] );
+		?>
+		<div class="wvc-split">
+			<?php echo $button; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
+
+			<details class="wvc-menu wvc-split__more">
+				<summary class="wvc-btn wvc-btn--ghost wvc-btn--sm wvc-split__caret">
+					<?php echo self::get_icon( 'chevron-down', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+					<span class="screen-reader-text"><?php esc_html_e( 'Rescan one area only', 'wp-vip-compatibility' ); ?></span>
+				</summary>
+
+				<div class="wvc-menu__panel">
+					<p class="wvc-menu__title"><?php esc_html_e( 'Rescan one area only', 'wp-vip-compatibility' ); ?></p>
+
+					<?php // Not wvc-inline-form: that class lays a form out as one inline row, which is right for a single button and turns a list of them into a row. ?>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="wvc-menu__form">
+						<input type="hidden" name="action" value="wvc_rescan" />
+						<?php wp_nonce_field( Findings_Settings::RESCAN_ACTION ); ?>
+
+						<?php foreach ( $areas as $slug => $scope ) : ?>
+							<button type="submit" class="wvc-menu__item" name="scope" value="<?php echo esc_attr( $slug ); ?>">
+								<span class="wvc-menu__label"><?php echo esc_html( $scope['label'] ); ?></span>
+								<span class="wvc-menu__hint"><?php echo esc_html( $scope['hint'] ); ?></span>
+							</button>
+						<?php endforeach; ?>
+					</form>
+				</div>
+			</details>
+		</div>
 		<?php
 	}
 
@@ -486,22 +546,58 @@ class UI {
 	 * @return void
 	 */
 	public static function render_scan_notice() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Presentation only; the scan itself was nonce-checked in Findings_Settings::handle_rescan().
-		if ( ! isset( $_GET['wvc-scanned'] ) ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Presentation only; the scan itself was nonce-checked in Findings_Settings::handle_rescan().
+		$scanned  = isset( $_GET['wvc-scanned'] ) ? sanitize_key( wp_unslash( $_GET['wvc-scanned'] ) ) : '';
+		$scanning = isset( $_GET['wvc-scanning'] ) ? sanitize_key( wp_unslash( $_GET['wvc-scanning'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		/*
+		 * A rescan that runs in the browser arrives here with nothing scanned
+		 * yet, so there is nothing to confirm. The screen marks itself as mid-
+		 * rescan instead: the rows below are already unscanned, the queue on the
+		 * page resolves them behind the progress bar, and the page reloads onto
+		 * `wvc-scanned` when it is done — which is the branch below, and which is
+		 * also what makes the tiles, the menu badge and the masthead timestamp
+		 * agree with the rows again.
+		 */
+		if ( '' !== $scanning ) {
+			$scanning = Report::resolve_scope( $scanning );
+
+			// The wrapper is what the queue on the page looks for; the notice
+			// inside it is what says so to the reader. The second sentence is
+			// there because the tiles above this read zero until the reload, and
+			// a zero nobody explained looks like a result rather than a wait.
+			printf(
+				'<div data-role="scan-report" data-scope="%1$s">%2$s</div>',
+				esc_attr( $scanning ),
+				self::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+					esc_html__( 'Each row below is being read in turn. The totals above them fill in once it finishes.', 'wp-vip-compatibility' ),
+					'info',
+					esc_html(
+						sprintf(
+							/* translators: %s: The area being rescanned, e.g. "Plugins". */
+							__( 'Rescanning %s', 'wp-vip-compatibility' ),
+							Report::get_scope( $scanning )['label']
+						)
+					)
+				)
+			);
+
 			return;
 		}
 
-		$aggregate = Report::aggregate();
+		if ( '' === $scanned ) {
+			return;
+		}
 
+		/*
+		 * The parameter carries the scope that was rescanned, so the confirmation
+		 * reports what was read rather than the site-wide totals. A link from an
+		 * earlier version carries `1`, which is not a scope and resolves to the
+		 * whole site — the message it used to produce.
+		 */
 		echo self::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-			esc_html(
-				sprintf(
-					/* translators: 1: Number of targets. 2: Number of PHP files. */
-					__( 'Scanned %1$d items and %2$s PHP files.', 'wp-vip-compatibility' ),
-					(int) $aggregate['targets'],
-					number_format_i18n( (int) $aggregate['totals']['files'] )
-				)
-			),
+			esc_html( Report::scope_outcome( Report::resolve_scope( $scanned ) ) ),
 			'success',
 			esc_html__( 'Scan complete', 'wp-vip-compatibility' )
 		);
@@ -521,6 +617,7 @@ class UI {
 	 *     @type string $url     Destination, for a link button.
 	 *     @type string $submit  admin-post action name, for a form button.
 	 *     @type string $nonce   Nonce action, required with `submit`.
+	 *     @type array  $fields  Extra hidden fields, as name => value, for a form button.
 	 *     @type string $icon    Optional icon name.
 	 *     @type bool   $primary Whether it is the primary action.
 	 *     @type bool   $small   Whether to render the compact size.
@@ -536,6 +633,7 @@ class UI {
 				'url'      => '',
 				'submit'   => '',
 				'nonce'    => '',
+				'fields'   => array(),
 				'icon'     => '',
 				'primary'  => false,
 				'small'    => true,
@@ -552,10 +650,21 @@ class UI {
 		$icon = '' === $action['icon'] ? '' : self::get_icon( $action['icon'], array( 'class' => 'wvc-icon wvc-icon--sm' ) );
 
 		if ( '' !== $action['submit'] ) {
+			$fields = '';
+
+			foreach ( (array) $action['fields'] as $name => $value ) {
+				$fields .= sprintf(
+					'<input type="hidden" name="%1$s" value="%2$s" />',
+					esc_attr( $name ),
+					esc_attr( $value )
+				);
+			}
+
 			return sprintf(
-				'<form method="post" action="%1$s" class="wvc-inline-form"><input type="hidden" name="action" value="%2$s" />%3$s<button type="submit" class="%4$s">%5$s<span>%6$s</span></button></form>',
+				'<form method="post" action="%1$s" class="wvc-inline-form"><input type="hidden" name="action" value="%2$s" />%3$s%4$s<button type="submit" class="%5$s">%6$s<span>%7$s</span></button></form>',
 				esc_url( admin_url( 'admin-post.php' ) ),
 				esc_attr( $action['submit'] ),
+				$fields,
 				wp_nonce_field( $action['nonce'], '_wpnonce', true, false ),
 				esc_attr( $classes ),
 				$icon,
@@ -762,7 +871,9 @@ class UI {
 			$args,
 			array(
 				'score'    => -1,
-				'tier'     => Taxonomy::TIER_INFO,
+				// `ready` rather than a tier slug: the accent is the hero's own
+				// four-way scale, and `info` has no colour defined for it here.
+				'tier'     => 'ready',
 				'headline' => '',
 				'summary'  => '',
 				'meta'     => '',
@@ -1549,23 +1660,6 @@ class UI {
 			'<span class="wvc-tier wvc-tier--%1$s"><span class="wvc-tierdot wvc-tierdot--%1$s" aria-hidden="true"></span>%2$s</span>',
 			esc_attr( $tier ),
 			esc_html( self::get_tier_label( $tier ) )
-		);
-	}
-
-	/**
-	 * Builds a finding-type pill.
-	 *
-	 * @param string $type A Taxonomy type slug.
-	 * @return string The pill markup.
-	 */
-	public static function get_type_pill( $type ) {
-		$blocking = Taxonomy::is_blocking_type( $type );
-
-		return sprintf(
-			'<span class="wvc-tag wvc-tag--%1$s" title="%3$s">%2$s</span>',
-			esc_attr( $blocking ? 'blocking' : 'advisory' ),
-			esc_html( Taxonomy::get_label( 'type', $type ) ),
-			esc_attr( Taxonomy::get_types()[ $type ]['description'] ?? '' )
 		);
 	}
 

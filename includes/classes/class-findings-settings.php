@@ -66,27 +66,107 @@ class Findings_Settings {
 
 		check_admin_referer( self::RESCAN_ACTION );
 
-		Report::run_full_scan( true );
+		// An unknown scope resolves to the whole site rather than being rejected:
+		// the worst a bad value can do is more work than was asked for.
+		$scope = isset( $_POST['scope'] ) ? sanitize_key( wp_unslash( $_POST['scope'] ) ) : Report::SCOPE_ALL; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check_admin_referer() ran above.
+		$scope = Report::resolve_scope( $scope );
 
-		wp_safe_redirect( add_query_arg( 'wvc-scanned', '1', $this->get_return_url() ) );
+		$definition = Report::get_scope( $scope );
+
+		/*
+		 * An area made of scannable rows is rescanned in the browser. Nothing is
+		 * read here: the stored results are discarded, which makes every row in
+		 * that area read as "not scanned yet", and the screen we redirect to
+		 * already knows how to resolve those one at a time behind a progress bar.
+		 *
+		 * That turns the wait from a blank admin-post.php into the screen you
+		 * asked about, filling in. It also means an interrupted rescan is not a
+		 * lost one — the rows that never resolved are still marked unscanned, so
+		 * the next visit to that screen picks up exactly where this one stopped.
+		 */
+		if ( ! empty( $definition['async'] ) ) {
+			Report::clear_scope( $scope );
+
+			wp_safe_redirect( $this->get_redirect_url( $definition['screen'], 'wvc-scanning', $scope ) );
+			exit;
+		}
+
+		/*
+		 * A full rescan tokenises every PHP file in every plugin, theme and
+		 * must-use plugin. On a site with a few dozen plugins that is minutes of
+		 * work, and the default 30-second limit turns it into a blank page with
+		 * half the results written — which then looks like a scan that found
+		 * nothing rather than one that was cut off. Narrowing the scope is the
+		 * real answer to that; these raises are the safety net. Both are best
+		 * effort, and a host running in safe mode simply ignores them.
+		 */
+		if ( function_exists( 'set_time_limit' ) && false === strpos( (string) ini_get( 'disable_functions' ), 'set_time_limit' ) ) {
+			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.PHP.NoSilencedErrors.Discouraged -- Best effort; ignored where the host forbids it.
+			@set_time_limit( 300 );
+		}
+
+		wp_raise_memory_limit( 'admin' );
+
+		Report::run_full_scan( true, $scope );
+
+		// The scope rides back on the redirect so the confirmation can report
+		// what was actually read rather than the site-wide totals.
+		wp_safe_redirect( $this->get_redirect_url( $definition['screen'], 'wvc-scanned', $scope ) );
 		exit;
 	}
 
 	/**
-	 * Resolves the screen a rescan should return to.
+	 * Resolves where a rescan should send the browser.
 	 *
-	 * Rescanning is a masthead action available from every screen, so sending
-	 * everyone to the fix list would take a reader looking at the database audit
-	 * somewhere they did not ask to go. The referring screen is used when it is
-	 * one of ours, and the fix list is the fallback.
+	 * A form posted to admin-post.php has to redirect somewhere — there is no
+	 * page there to render — so the question is never "redirect or not" but
+	 * "where to". The answer is: as close to where you already were as the scope
+	 * allows.
 	 *
+	 * - Rescanning everything is not about any one screen, so it goes back to the
+	 *   screen it was started from.
+	 * - Rescanning one area goes to the screen that owns that area, because that
+	 *   is the thing you asked about — unless you are already on it, in which
+	 *   case there is nowhere to go.
+	 *
+	 * Either way, when the destination is the screen the request came from, the
+	 * referring URL is reused rather than rebuilt. Rebuilding it dropped the
+	 * query string, so rescanning from a filtered or searched view silently reset
+	 * it — you pressed a button about scanning and lost your place.
+	 *
+	 * @param string $screen The screen key the scope owns, or '' for the whole site.
+	 * @param string $param  The query parameter marking the redirect.
+	 * @param string $scope  The scope slug the parameter carries.
 	 * @return string The admin URL.
 	 */
-	private function get_return_url() {
+	private function get_redirect_url( $screen, $param, $scope ) {
+		$referer = $this->get_referring_view();
+
+		// A full rescan has no screen of its own: it belongs wherever it started.
+		// With no usable referrer, the fix list is where the work is.
+		if ( '' === $screen ) {
+			$screen = ( null === $referer ) ? 'findings' : $referer['screen'];
+		}
+
+		// Already looking at the screen this rescan is about: keep the view
+		// exactly as it is — filters, search, sort — and only mark it.
+		$args = ( null !== $referer && $referer['screen'] === $screen ) ? $referer['args'] : array();
+
+		$args[ $param ] = $scope;
+
+		return UI::get_screen_url( $screen, $args );
+	}
+
+	/**
+	 * Returns the plugin screen the request came from, and how it was filtered.
+	 *
+	 * @return array{screen: string, args: array<string, string>}|null The view, or null when the referrer is not one of ours.
+	 */
+	private function get_referring_view() {
 		$referer = wp_get_referer();
 
 		if ( false === $referer ) {
-			return UI::get_findings_url();
+			return null;
 		}
 
 		$query = array();
@@ -94,13 +174,36 @@ class Findings_Settings {
 
 		$page = isset( $query['page'] ) ? sanitize_key( $query['page'] ) : '';
 
-		foreach ( UI::get_screens() as $key => $screen ) {
-			if ( $screen['slug'] === $page ) {
-				return UI::get_screen_url( $key );
+		foreach ( UI::get_screens() as $key => $definition ) {
+			if ( $definition['slug'] !== $page ) {
+				continue;
 			}
+
+			/*
+			 * `page` is added back by get_screen_url(), and the two scan markers
+			 * belong to the request that set them: carrying one forward would
+			 * replay a finished scan's confirmation, or restart a rescan, on the
+			 * next press. Everything else is the reader's view and is kept.
+			 */
+			unset( $query['page'], $query['wvc-scanned'], $query['wvc-scanning'] );
+
+			$args = array();
+
+			foreach ( $query as $name => $value ) {
+				// Only flat values: these came off a URL and are going back onto
+				// one, and every screen validates its own parameters on arrival.
+				if ( is_scalar( $value ) ) {
+					$args[ sanitize_key( $name ) ] = sanitize_text_field( (string) $value );
+				}
+			}
+
+			return array(
+				'screen' => $key,
+				'args'   => $args,
+			);
 		}
 
-		return UI::get_findings_url();
+		return null;
 	}
 
 	/**
@@ -404,8 +507,9 @@ class Findings_Settings {
 	 */
 	private function render_search( array $filters ) {
 		?>
+		<?php // The slug comes from the screen map rather than a literal, so it cannot drift away from the page it posts to. ?>
 		<form class="wvc-search wvc-search--form" method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" role="search">
-			<input type="hidden" name="page" value="wvc-findings" />
+			<input type="hidden" name="page" value="<?php echo esc_attr( UI::get_screens()['findings']['slug'] ); ?>" />
 			<?php foreach ( $this->query_args( $filters, 'search' ) as $name => $value ) : ?>
 				<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
 			<?php endforeach; ?>

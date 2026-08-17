@@ -1,8 +1,8 @@
 === WordPress VIP Compatibility ===
 Contributors: nirajgirixd, mi5t4n
-Tags: WordPress VIP, compatibility, migration, code analysis, phpcs
+Tags: vip, compatibility, migration, code analysis, phpcs
 Requires at least: 6.0
-Tested up to: 6.7.0
+Tested up to: 6.7
 Requires PHP: 7.4
 Stable tag: 2.0.0
 License: GPLv3 or later
@@ -69,6 +69,10 @@ The plugin holds itself to the same standard: its own source passes `phpcs --sta
 
 Open **WordPress VIP Compatibility** in the admin menu and run a scan from the header. Results are stored, so screens load without re-analysing the codebase; a target is only re-scanned when its files change or the rule set is updated.
 
+**Rescan** re-reads everything. The caret beside it narrows the rescan to one area — plugins, themes, must-use plugins, the database schema or wp-content — which is what you want after updating a single plugin or converting a few tables, and avoids re-tokenising a codebase that has not changed.
+
+Choosing an area takes you straight to that screen and reads its rows one at a time behind a progress bar, so you watch the work happen instead of waiting on a blank page. Stopping partway is safe: rows that never resolved stay marked unscanned and are picked up the next time you open that screen.
+
 **Overview** answers how ready the site is and what to do first. **Findings** is one ranked list of fixes, worst first, with the recommended change visible on every card. **Plugins**, **Themes** and **Must-use** give a per-target verdict, with each row expanding to the evidence behind it. **Database** and **wp-content** check the schema and the application structure against what WordPress VIP requires.
 
 Scan results are stored in the options table and are only readable by users who can `manage_options`. They are removed when the plugin is uninstalled.
@@ -95,6 +99,12 @@ Yes. Filter `wvc_scanner_rules` to add, modify or remove rules, and `wvc_scanner
 
 No. It reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Test on a WordPress VIP environment before relying on the result.
 
+== Upgrade Notice ==
+
+= 2.0.0 =
+
+Fixes three security issues in 1.0.0: AJAX endpoints that required only a logged-in user, a scan target taken as a raw filesystem path, and report files written to a publicly readable URL under uploads. The admin screens and the stored result format are both rewritten, so the first load after upgrading runs a fresh scan.
+
 == Changelog ==
 
 = 2.0.0 =
@@ -103,6 +113,7 @@ No. It reads code without running it, so it cannot see behaviour that only appea
 * Added a rule engine of 47 rules, each carrying its WordPress VIP justification, remediation, alternative approach, PHPCS sniff and documentation link.
 * Added independent severity, confidence and fixability ratings, and a three-state verdict (ready / needs review / blocked) in place of a binary compatible/incompatible flag.
 * Added a findings report with filters, search, grouping, scan history and JSON/CSV/Markdown export.
+* Rescanning can be narrowed to one area — plugins, themes, must-use plugins, the database or wp-content — instead of always re-reading the whole codebase. Choosing an area opens its screen and resolves the rows there behind a progress bar.
 * Security: added capability checks to every AJAX endpoint, which previously required only a logged-in user.
 * Security: scan requests now name a validated target instead of an arbitrary filesystem path, closing a path-disclosure and traversal surface.
 * Security: removed the report files written to `wp-content/uploads/wvc-logs/`, which were publicly downloadable; reports are now stored privately and exported through an authenticated download.

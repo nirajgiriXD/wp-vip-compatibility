@@ -137,10 +137,20 @@ class Export {
 			$formats[ $format ]['extension']
 		);
 
+		/*
+		 * Discard anything a theme, another plugin or a stray newline has already
+		 * buffered, or it is prepended to the download and corrupts the JSON.
+		 * No Content-Length is sent: a host with output compression enabled
+		 * rewrites the body after this point, and a length that no longer matches
+		 * truncates the file in the browser.
+		 */
+		while ( ob_get_level() > 0 ) {
+			ob_end_clean();
+		}
+
 		nocache_headers();
 		header( 'Content-Type: ' . $formats[ $format ]['mime'] . '; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
-		header( 'Content-Length: ' . strlen( $body ) );
 		header( 'X-Content-Type-Options: nosniff' );
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- A downloaded JSON/CSV/Markdown document; HTML escaping would corrupt it. Values are encoded by the format writers.

@@ -57,7 +57,7 @@ class Known_Plugins {
 			}
 		}
 
-		$verified = (array) ( $lists['verified'] ?? $lists['tested_compatible_plugins'] ?? array() );
+		$verified = (array) ( $lists['verified'] ?? array() );
 
 		if ( in_array( $slug, $verified, true ) ) {
 			return array(

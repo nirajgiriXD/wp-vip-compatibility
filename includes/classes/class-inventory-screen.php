@@ -529,11 +529,21 @@ abstract class Inventory_Screen {
 		}
 
 		if ( is_array( $verdict['known'] ) ) {
+			/*
+			 * The curated plugin list carries a classification and a reason; the
+			 * must-use list carries only a note. Reading the pair blindly left the
+			 * must-use drawer showing this label above an empty value, so the note
+			 * becomes the value when there is no classification to name.
+			 */
+			$known  = $verdict['known'];
+			$reason = $known['reason'] ?? ( $known['note'] ?? '' );
+			$label  = $known['label'] ?? '';
+
 			$rows[] = array(
 				'label' => __( 'On the WordPress VIP list', 'wp-vip-compatibility' ),
-				'value' => $verdict['known']['label'] ?? '',
-				'hint'  => $verdict['known']['reason'] ?? ( $verdict['known']['note'] ?? '' ),
-				'tone'  => ( Known_Plugins::INCOMPATIBLE === ( $verdict['known']['classification'] ?? '' ) ) ? 'bad' : 'warn',
+				'value' => ( '' === $label ) ? $reason : $label,
+				'hint'  => ( '' === $label ) ? '' : $reason,
+				'tone'  => ( Known_Plugins::INCOMPATIBLE === ( $known['classification'] ?? '' ) ) ? 'bad' : 'warn',
 			);
 		}
 
@@ -674,8 +684,12 @@ abstract class Inventory_Screen {
 	 * @return void
 	 */
 	protected function render_note_cell( array $target, array $verdict ) {
+		// Not run through wp_kses_post(): the fragments are already escaped by the
+		// helpers that build them, and kses strips the inline <svg> arrow out of
+		// the "Fix N findings" link, leaving the one call to action without its
+		// affordance on every row.
 		echo '<td class="wvc-col-notes" data-label="' . esc_attr__( 'What to do', 'wp-vip-compatibility' ) . '">'
-			. wp_kses_post( UI::get_notes_list( $this->get_notes( $target, $verdict ) ) )
+			. UI::get_notes_list( $this->get_notes( $target, $verdict ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Every fragment is escaped by get_known_note(), UI::get_findings_link() or esc_html() before it reaches here.
 			. '</td>';
 	}
 

@@ -38,11 +38,30 @@ class Directory_Audit {
 	const STATUS_REVIEW        = 'review';
 
 	/**
+	 * Per-request copy of the audit result.
+	 *
+	 * @var array<string, mixed>|null
+	 */
+	private static $result = null;
+
+	/**
 	 * Runs the audit.
 	 *
+	 * The overview asks for this three times over — once for the area card, once
+	 * for the plan, and once for the tier counts beside the gauge — and each run
+	 * reads wp-content and stats every entry in it. It is held for the request
+	 * rather than cached across requests, because the answer changes the moment
+	 * someone uploads a file and a stale "everything is fine" would be worse than
+	 * the directory read it saves.
+	 *
+	 * @param bool $force Whether to rebuild rather than reuse this request's copy.
 	 * @return array<string, mixed> The audit result.
 	 */
-	public static function run() {
+	public static function run( $force = false ) {
+		if ( ! $force && null !== self::$result ) {
+			return self::$result;
+		}
+
 		$known   = (array) Plugin::get_instance()->get_reference_list( 'directories' );
 		$entries = self::read_wp_content();
 
@@ -63,11 +82,27 @@ class Directory_Audit {
 			++$summary[ $row['status'] ];
 		}
 
-		return array(
+		self::$result = array(
 			'entries'    => $rows,
 			'summary'    => $summary,
 			'checked_at' => time(),
 		);
+
+		return self::$result;
+	}
+
+	/**
+	 * Drops this request's copy of the audit.
+	 *
+	 * Nothing survives the request, so unlike the database audit there is no
+	 * stored reading to invalidate. It exists so that a rescan scoped to
+	 * wp-content is a real instruction rather than a no-op, and so that a caller
+	 * which changes the directory mid-request sees the change.
+	 *
+	 * @return void
+	 */
+	public static function flush() {
+		self::$result = null;
 	}
 
 	/**
