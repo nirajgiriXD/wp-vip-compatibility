@@ -13,10 +13,10 @@
  * Ranking the same cards and putting the tier on each one says everything the
  * bands said, without asking anyone to navigate a hierarchy to get at it.
  *
- * Filtering is chips that are links: one click, no Apply button, and the result
- * is a URL that can be bookmarked or pasted into a migration ticket. Every count
- * on a chip is measured against the filters that would still apply after
- * clicking it, so a chip that says 4 always yields 4 cards.
+ * Filtering is menus of links: one click, no Apply button, and the result is a
+ * URL that can be bookmarked or pasted into a migration ticket. Every count on
+ * an option is measured against the filters that would still apply after
+ * clicking it, so an option that says 4 always yields 4 cards.
  *
  * @package wp-vip-compatibility
  */
@@ -134,12 +134,12 @@ class Findings_Settings {
 		/*
 		 * This screen shows two kinds of work: findings, which come from reading
 		 * code, and the database, must-use and wp-content audits, which do not.
-		 * Both are real migration work and both carry a tier, so the tier chips
+		 * Both are real migration work and both carry a tier, so the tier options
 		 * count both — a counter that ignored half of what the page lists would
 		 * read "Must fix 0" directly above a row badged "Must fix".
 		 *
-		 * Each chip's count therefore equals the number of items clicking it
-		 * leaves on screen. The two rows are counted against progressively
+		 * Each option's count therefore equals the number of items clicking it
+		 * leaves on screen. The two menus are counted against progressively
 		 * narrower sets: tiers against everything the item, type and search allow;
 		 * categories against that set once the tier is applied.
 		 */
@@ -335,54 +335,107 @@ class Findings_Settings {
 	 * ------------------------------------------------------------------ */
 
 	/**
-	 * Renders everything above the list: the two chip rows, the count, the
-	 * removable pills and the search field.
+	 * Renders everything above the list: the count, the removable pills, the two
+	 * filter menus and the search field.
+	 *
+	 * One row, read left to right as result then controls. The left half is what
+	 * the view currently *is* — how many issues, which filters arrived from
+	 * another screen, and the way out. The right half is everything that
+	 * *changes* it, gathered into one cluster so that the two facets and search
+	 * are found in one place rather than in three stacked rows.
+	 *
+	 * The facets are dropdowns rather than chip rows because a chip row costs a
+	 * row of the toolbar whatever is in it, and grows with the taxonomy: the
+	 * category row already wrapped on a laptop. Collapsed, each facet is one
+	 * control that still names its own selection.
 	 *
 	 * @param array<string, string>            $filters     The active filters.
 	 * @param array<int, array<string, mixed>> $scope       Findings before tier and category.
 	 * @param array<int, array<string, mixed>> $tier_scoped Findings after tier, before category.
 	 * @param array<int, array<string, mixed>> $findings    Findings after everything.
+	 * @param array<int, array<string, mixed>> $other       Non-finding work in scope.
+	 * @param array<int, array<string, mixed>> $shown       Non-finding work on screen.
 	 * @return void
 	 */
 	private function render_controls( array $filters, array $scope, array $tier_scoped, array $findings, array $other, array $shown ) {
 		$base = UI::get_screen_url( 'findings' );
 
-		// The three sit in one sticky block so that the filters, and the count of
-		// what they are showing, stay on screen while the list scrolls under them.
+		// Sticky, so the controls and the count of what they are showing stay on
+		// screen while the list scrolls under them.
 		echo '<div class="wvc-controls">';
 
-		UI::render_chip_row(
+		$this->render_list_bar( $filters, $findings, $shown, $base );
+
+		echo '<div class="wvc-controls__tools">';
+
+		UI::render_filter_menu(
 			array(
 				'label'   => __( 'Filter by what to do about it', 'wp-vip-compatibility' ),
-				'caption' => __( 'What to do', 'wp-vip-compatibility' ),
-				'chips'   => $this->get_tier_chips( $filters, $scope, $other, $base ),
+				'caption' => __( 'Pending tasks', 'wp-vip-compatibility' ),
+				'options' => $this->get_tier_options( $filters, $scope, $other, $base ),
 			)
 		);
 
-		UI::render_chip_row(
+		UI::render_filter_menu(
 			array(
-				'label'    => __( 'Filter by what the issue is about', 'wp-vip-compatibility' ),
-				'caption'  => __( 'Area', 'wp-vip-compatibility' ),
-				'chips'    => $this->get_category_chips( $filters, $tier_scoped, $base ),
-				'modifier' => 'wvc-chiprow--secondary',
+				'label'   => __( 'Filter by what the issue is about', 'wp-vip-compatibility' ),
+				'caption' => __( 'Area', 'wp-vip-compatibility' ),
+				'options' => $this->get_category_options( $filters, $tier_scoped, $base ),
 			)
 		);
 
-		$this->render_list_bar( $filters, $findings, $shown, $base );
+		$this->render_search( $filters );
+
+		echo '</div>';
 
 		echo '</div>';
 	}
 
 	/**
-	 * Builds the primary chip row: what to do about it.
+	 * Renders the search field.
+	 *
+	 * A one-field GET form: every other filter on the screen is a link that
+	 * produces a bookmarkable URL, and search carries the existing filters
+	 * forward as hidden fields so submitting it narrows the current view rather
+	 * than replacing it.
+	 *
+	 * @param array<string, string> $filters The active filters.
+	 * @return void
+	 */
+	private function render_search( array $filters ) {
+		?>
+		<form class="wvc-search wvc-search--form" method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" role="search">
+			<input type="hidden" name="page" value="wvc-findings" />
+			<?php foreach ( $this->query_args( $filters, 'search' ) as $name => $value ) : ?>
+				<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
+			<?php endforeach; ?>
+
+			<?php echo UI::get_icon( 'search', array( 'class' => 'wvc-icon wvc-icon--sm wvc-search__icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+			<label class="screen-reader-text" for="wvc-findings-search"><?php esc_html_e( 'Search findings by rule, file or function', 'wp-vip-compatibility' ); ?></label>
+			<input
+				type="search"
+				id="wvc-findings-search"
+				class="wvc-search__input"
+				name="s"
+				value="<?php echo esc_attr( $filters['search'] ); ?>"
+				placeholder="<?php esc_attr_e( 'Search rules, files, or functions…', 'wp-vip-compatibility' ); ?>"
+				autocomplete="off"
+				spellcheck="false"
+			/>
+		</form>
+		<?php
+	}
+
+	/**
+	 * Builds the primary filter menu: what to do about it.
 	 *
 	 * The counts cover both populations the page lists — findings, and the audit
-	 * work that has no file and line — because a chip filters the page, so it has
-	 * to count the page. Counting only findings is what produced a row reading
-	 * "Must fix 0" directly above a row badged "Must fix".
+	 * work that has no file and line — because an option filters the page, so it
+	 * has to count the page. Counting only findings is what produced a menu
+	 * reading "Must fix 0" directly above a row badged "Must fix".
 	 *
-	 * Every tier is rendered, including the ones with nothing in them. A zero
-	 * here is the answer to the question the whole plugin exists for — "is there
+	 * Every tier is offered, including the ones with nothing in them. A zero here
+	 * is the answer to the question the whole plugin exists for — "is there
 	 * anything that must be fixed?" — so hiding it would be hiding good news. An
 	 * empty tier renders as a count rather than as a link, because a filter that
 	 * leads nowhere is not a choice worth offering.
@@ -391,9 +444,9 @@ class Findings_Settings {
 	 * @param array<int, array<string, mixed>> $scope   Findings the tiers are counted against.
 	 * @param array<int, array<string, mixed>> $other   Non-finding work in scope, or empty.
 	 * @param string                           $base    The screen URL.
-	 * @return array<int, array<string, mixed>> Chips.
+	 * @return array<int, array<string, mixed>> Options.
 	 */
-	private function get_tier_chips( array $filters, array $scope, array $other, $base ) {
+	private function get_tier_options( array $filters, array $scope, array $other, $base ) {
 		$counts = array();
 
 		foreach ( $scope as $finding ) {
@@ -407,7 +460,7 @@ class Findings_Settings {
 
 		$total = count( $scope ) + count( $other );
 
-		$chips = array(
+		$options = array(
 			array(
 				'label'  => __( 'Everything', 'wp-vip-compatibility' ),
 				'url'    => add_query_arg( $this->query_args( $filters, 'tier' ), $base ),
@@ -426,10 +479,10 @@ class Findings_Settings {
 			$is_active = ( $filters['tier'] === $tier );
 			$is_empty  = ( 0 === $count && ! $is_active );
 
-			$chips[] = array(
+			$options[] = array(
 				'label'  => $definition['label'],
-				// Clicking the tier you are already in clears it, so every chip is
-				// its own off switch and nothing needs a separate reset.
+				// Clicking the tier you are already in clears it, so every option
+				// is its own off switch and nothing needs a separate reset.
 				'url'    => $is_active
 					? add_query_arg( $this->query_args( $filters, 'tier' ), $base )
 					: add_query_arg( array_merge( $this->query_args( $filters, 'tier' ), array( 'tier' => $tier ) ), $base ),
@@ -442,22 +495,22 @@ class Findings_Settings {
 			);
 		}
 
-		return $chips;
+		return $options;
 	}
 
 	/**
-	 * Builds the secondary chip row: what the issue is about.
+	 * Builds the secondary filter menu: what the issue is about.
 	 *
-	 * Only categories with something in them are offered, so the row is a map of
+	 * Only categories with something in them are offered, so the menu is a map of
 	 * this site's problems rather than a list of everything the scanner knows how
 	 * to look for.
 	 *
 	 * @param array<string, string>            $filters The active filters.
 	 * @param array<int, array<string, mixed>> $scope   Findings the categories are counted against.
 	 * @param string                           $base    The screen URL.
-	 * @return array<int, array<string, mixed>> Chips.
+	 * @return array<int, array<string, mixed>> Options.
 	 */
-	private function get_category_chips( array $filters, array $scope, $base ) {
+	private function get_category_options( array $filters, array $scope, $base ) {
 		$counts = array();
 
 		foreach ( $scope as $finding ) {
@@ -469,10 +522,13 @@ class Findings_Settings {
 			return array();
 		}
 
-		$chips = array(
+		$options = array(
 			array(
 				'label'  => __( 'All areas', 'wp-vip-compatibility' ),
 				'url'    => add_query_arg( $this->query_args( $filters, 'category' ), $base ),
+				// Counted now that the options sit in a column: a menu whose rows
+				// all carry a number except the first reads as a number missing.
+				'count'  => count( $scope ),
 				'active' => ( '' === $filters['category'] ),
 				'reset'  => true,
 			),
@@ -485,7 +541,7 @@ class Findings_Settings {
 
 			$is_active = ( $filters['category'] === $category );
 
-			$chips[] = array(
+			$options[] = array(
 				'label'  => $label,
 				'url'    => $is_active
 					? add_query_arg( $this->query_args( $filters, 'category' ), $base )
@@ -495,11 +551,11 @@ class Findings_Settings {
 			);
 		}
 
-		return $chips;
+		return $options;
 	}
 
 	/**
-	 * Renders the count, the removable filter pills and the search field.
+	 * Renders the count, the removable filter pills and the way out.
 	 *
 	 * A target filter arrives by following "Review N findings" from a plugin or a
 	 * theme rather than by being chosen here, so it is shown as something you were
@@ -542,18 +598,25 @@ class Findings_Settings {
 				'url'   => add_query_arg( $this->query_args( $filters, 'search' ), $base ),
 			);
 		}
+
+		// The list holds findings and site-audit work together, so the count
+		// names neither and simply counts what is on screen.
+		$total = count( $findings ) + count( $shown );
+
+		/*
+		 * One control that undoes everything. The menus each toggle their own
+		 * selection off and every pill has its own cross, but a reader four
+		 * filters deep had to find and click four separate things to get back to
+		 * the whole list.
+		 */
+		$narrowed = ( '' !== $filters['tier'] ) || ( '' !== $filters['category'] ) || ! empty( $pills );
 		?>
 		<div class="wvc-listbar">
 			<p class="wvc-listbar__count">
+				<span class="wvc-listbar__total"><?php echo esc_html( number_format_i18n( $total ) ); ?></span>
 				<?php
-				// The list holds findings and site-audit work together, so the
-				// count names neither and simply counts what is on screen.
-				$total = count( $findings ) + count( $shown );
-
-				printf(
-					/* translators: %s: Number of issues on screen. */
-					esc_html( _n( '%s issue', '%s issues', $total, 'wp-vip-compatibility' ) ),
-					esc_html( number_format_i18n( $total ) )
+				echo esc_html(
+					_n( 'issue', 'issues', $total, 'wp-vip-compatibility' )
 				);
 				?>
 			</p>
@@ -572,40 +635,11 @@ class Findings_Settings {
 				</ul>
 			<?php endif; ?>
 
-			<?php
-			/*
-			 * One control that undoes everything. The chips each toggle
-			 * themselves off and every pill has its own cross, but a reader four
-			 * filters deep had to find and click four separate things to get
-			 * back to the whole list.
-			 */
-			$narrowed = ( '' !== $filters['tier'] ) || ( '' !== $filters['category'] ) || ! empty( $pills );
-			?>
 			<?php if ( $narrowed ) : ?>
 				<a class="wvc-listbar__clear" href="<?php echo esc_url( $base ); ?>">
 					<?php esc_html_e( 'Clear all', 'wp-vip-compatibility' ); ?>
 				</a>
 			<?php endif; ?>
-
-			<form class="wvc-search wvc-search--form" method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>">
-				<input type="hidden" name="page" value="wvc-findings" />
-				<?php foreach ( $this->query_args( $filters, 'search' ) as $name => $value ) : ?>
-					<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
-				<?php endforeach; ?>
-
-				<?php echo UI::get_icon( 'search', array( 'class' => 'wvc-icon wvc-icon--sm wvc-search__icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-				<label class="screen-reader-text" for="wvc-findings-search"><?php esc_html_e( 'Search findings by rule, file or function', 'wp-vip-compatibility' ); ?></label>
-				<input
-					type="search"
-					id="wvc-findings-search"
-					class="wvc-search__input"
-					name="s"
-					value="<?php echo esc_attr( $filters['search'] ); ?>"
-					placeholder="<?php esc_attr_e( 'Search rule, file, function…', 'wp-vip-compatibility' ); ?>"
-					autocomplete="off"
-					spellcheck="false"
-				/>
-			</form>
 		</div>
 		<?php
 	}

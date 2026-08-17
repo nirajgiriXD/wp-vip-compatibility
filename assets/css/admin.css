@@ -279,7 +279,6 @@
 .wvc-wrap .wvc-gauge__caption,
 .wvc-wrap .wvc-verdict__facts-caption,
 .wvc-wrap .wvc-occurrences__title,
-.wvc-wrap .wvc-chiprow__caption,
 .wvc-wrap .wvc-fix__answer dt,
 .wvc-wrap .wvc-th {
 	font-size: var(--wvc-t-2xs);
@@ -1230,6 +1229,24 @@ a.wvc-sev:hover {
 	border-radius: var(--wvc-r);
 	background: var(--wvc-surface);
 	box-shadow: var(--wvc-shadow-xs);
+}
+
+/* The box draws all four edges, which would otherwise erase the tone accent the
+   default `.wvc-def` carries on its left edge. Redraw it thicker, so a card that
+   is flagged still reads as flagged. */
+.wvc-defs--boxed .wvc-def--ok,
+.wvc-defs--cards .wvc-def--ok {
+	border-left: 3px solid var(--wvc-ok);
+}
+
+.wvc-defs--boxed .wvc-def--warn,
+.wvc-defs--cards .wvc-def--warn {
+	border-left: 3px solid var(--wvc-warn);
+}
+
+.wvc-defs--boxed .wvc-def--bad,
+.wvc-defs--cards .wvc-def--bad {
+	border-left: 3px solid var(--wvc-bad);
 }
 
 .wvc-defs--boxed .wvc-def {
@@ -2812,26 +2829,31 @@ a.wvc-sev:hover {
 /*
  * The filter bar.
  *
- * It carries two facet rows and a result bar, and it used to present them as an
- * undifferentiated field of pills: nothing said that the first row was
- * consequence and the second was subject, the two "show everything" chips were
- * the heaviest objects on the block even though they mean "no filter applied",
- * and four tier hues fought each other on four chip outlines.
+ * One row, read left to right as result then controls: the count and any filter
+ * that arrived from another screen on the left, then the two facets and search
+ * gathered into one cluster on the right.
  *
- * Three things fix it. Each row gets a caption in a shared left gutter, so the
- * rows line up and announce themselves. The tier hue retreats to the dot, which
- * is the token the cards and the overview already share, leaving one neutral
- * chip shape. And selection is weighted by what it means: a chip that narrows
- * the list goes solid ink, a chip that clears it stays quiet.
+ * It used to be three stacked rows — a chip row per facet, then the count with
+ * search parked beside it. That gave a whole row of the toolbar to each facet
+ * whatever was in it, and the cost grew with the taxonomy: the category row
+ * already wrapped on a laptop, to offer a choice made once per visit. Collapsed
+ * into dropdowns, each facet is one control of fixed width that still names its
+ * own selection, and the block loses two thirds of its height.
+ *
+ * What the collapse must not lose is the answer to "what am I looking at", so
+ * the trigger carries the current option — dot and all — and marks itself when
+ * that option is narrowing the list. The tier hue stays in the dot, the token
+ * the fix cards and the overview tiles already share.
  */
 .wvc-controls {
 	position: sticky;
 	top: calc(var(--wvc-sticky) + var(--wvc-2));
 	z-index: 5;
 	display: flex;
-	flex-direction: column;
-	gap: 10px;
-	padding: var(--wvc-3) var(--wvc-4);
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--wvc-2) var(--wvc-4);
+	padding: var(--wvc-2) var(--wvc-3);
 	border: 1px solid var(--wvc-border);
 	border-radius: var(--wvc-r-lg);
 	background: rgba(255, 255, 255, 0.92);
@@ -2839,169 +2861,247 @@ a.wvc-sev:hover {
 	box-shadow: var(--wvc-shadow-sm);
 }
 
-/* --- Facet rows -------------------------------------------------------- */
+/* --- The controls that change the view --------------------------------- */
 
-.wvc-chiprow {
-	display: flex;
-	align-items: baseline;
-	gap: var(--wvc-3);
-	min-width: 0;
-}
-
-/* A fixed gutter, so the second row's chips start on the first row's left
-   edge and the block reads as a table of facets rather than as loose pills. */
-.wvc-wrap .wvc-chiprow__caption {
-	flex: 0 0 auto;
-	width: 76px;
-	padding-top: 5px;
-	text-align: right;
-}
-
-.wvc-chiprow__chips {
+/* Held at the right end, in source order after the count, so a keyboard reaches
+   the result of the last filter before the controls that change it again. */
+/* One line, never two: the two facets and search are one cluster, and letting
+   search drop to a row of its own leaves it stranded under a mostly empty bar.
+   It shrinks instead, and only unstacks on a phone (see the 782px block). */
+.wvc-controls__tools {
 	display: flex;
 	align-items: center;
-	flex-wrap: wrap;
-	gap: 5px;
-	flex: 1 1 auto;
+	flex-wrap: nowrap;
+	gap: var(--wvc-2);
+	flex: 0 1 auto;
+	margin-left: auto;
 	min-width: 0;
 }
 
-.wvc-chiplink {
+/* Search shrinks before the facets do — a facet you can no longer read is worse
+   than a field you have to scroll a long query through. */
+.wvc-controls__tools .wvc-search {
+	flex: 0 1 360px;
+	min-width: 260px;
+}
+
+/* Sunken at rest so it reads as a slot to type into rather than as a third
+   button beside the two facets, and lifts to the surface on focus. */
+.wvc-wrap .wvc-controls__tools .wvc-search__input {
+	border-color: var(--wvc-border);
+	background: var(--wvc-sunken);
+	box-shadow: none;
+}
+
+.wvc-wrap .wvc-controls__tools .wvc-search__input:hover {
+	border-color: var(--wvc-border-strong);
+}
+
+.wvc-wrap .wvc-controls__tools .wvc-search__input:focus,
+.wvc-wrap .wvc-controls__tools .wvc-search__input:focus-visible {
+	border-color: var(--wvc-accent);
+	background: var(--wvc-surface);
+}
+
+/* --- Filter dropdowns --------------------------------------------------- */
+
+.wvc-filter {
+	flex: 0 0 auto;
+}
+
+/* The closed control. Caption and value share one shell rather than sitting in
+   a label beside it: the pair is one sentence — "area: security" — and splitting
+   it would spend the width of a second control on saying nothing new. */
+.wvc-filter__trigger {
 	display: inline-flex;
 	align-items: center;
-	gap: 7px;
+	gap: 6px;
 	min-height: var(--wvc-ctl-sm);
-	padding: 0 11px;
-	border: 1px solid var(--wvc-border);
+	padding: 0 9px 0 11px;
+	border: 1px solid var(--wvc-border-strong);
 	border-radius: var(--wvc-r-pill);
 	background: var(--wvc-surface);
 	font-size: var(--wvc-t-sm);
-	font-weight: 500;
 	line-height: 1.4;
-	color: var(--wvc-ink-2);
-	text-decoration: none;
 	white-space: nowrap;
-	transition: background-color var(--wvc-ease), border-color var(--wvc-ease), color var(--wvc-ease);
+	box-shadow: var(--wvc-shadow-xs);
+	transition: background-color var(--wvc-ease), border-color var(--wvc-ease);
 }
 
-.wvc-chiplink:hover {
-	border-color: var(--wvc-border-strong);
+.wvc-filter__trigger:hover {
+	border-color: var(--wvc-ink-3);
 	background: var(--wvc-hover);
-	color: var(--wvc-ink);
 }
 
-.wvc-chiplink:focus-visible {
+.wvc-filter__trigger:focus-visible {
 	outline: none;
 	box-shadow: var(--wvc-focus);
 }
 
-/* Selected, and narrowing the list: the loudest thing on the bar, because it
-   is the reason the list below is shorter than it was. */
-.wvc-chiplink.is-active {
-	border-color: var(--wvc-ink);
-	background: var(--wvc-ink);
-	color: #fff;
-	font-weight: 600;
+/* The facet name is the quiet half; the selection is the half being read. */
+.wvc-filter__caption {
+	font-weight: 500;
+	color: var(--wvc-ink-3);
 }
 
-/* Selected, and clearing the row: this is the resting state of the screen, so
-   it reads as "nothing applied" rather than as a filter you have chosen. */
-.wvc-chiplink--reset.is-active {
-	border-color: var(--wvc-border-strong);
-	background: var(--wvc-sunken);
+.wvc-filter__value {
+	font-weight: 600;
 	color: var(--wvc-ink);
-	font-weight: 600;
 }
 
-/* A tier with nothing in it still holds its place, so the row stays the same
-   four counts as the overview and never reshuffles between visits. It is a
+.wvc-filter__trigger .wvc-tierdot {
+	width: 7px;
+	height: 7px;
+	margin-left: 1px;
+}
+
+.wvc-filter__chevron {
+	color: var(--wvc-ink-3);
+	transition: transform var(--wvc-ease);
+}
+
+.wvc-filter[open] .wvc-filter__chevron {
+	transform: rotate(180deg);
+}
+
+/*
+ * Applied. Not solid ink, which is the weight the page spends on a primary
+ * button, and not a hue, which would collide with the tier dot sitting inside
+ * the same control: a tinted ground and an accent edge are enough to say "this
+ * one is doing something" at a glance across the bar.
+ */
+.wvc-filter.is-narrowed .wvc-filter__trigger {
+	border-color: var(--wvc-accent-line);
+	background: var(--wvc-accent-soft);
+}
+
+.wvc-filter.is-narrowed .wvc-filter__trigger:hover {
+	border-color: var(--wvc-accent);
+}
+
+.wvc-filter.is-narrowed .wvc-filter__caption {
+	color: var(--wvc-accent);
+}
+
+/* The open panel. Narrower than the export menu it inherits from, because a
+   list of one-line options does not need the width of a list with hints. */
+.wvc-filter__panel {
+	width: 250px;
+	padding: var(--wvc-1);
+}
+
+.wvc-wrap .wvc-filter__panel .wvc-menu__title {
+	margin: 6px var(--wvc-2) var(--wvc-1);
+}
+
+.wvc-filter__option {
+	display: flex;
+	align-items: center;
+	gap: var(--wvc-2);
+	padding: 5px var(--wvc-2);
+	border-radius: var(--wvc-r-sm);
+	font-size: var(--wvc-t-sm);
+	font-weight: 500;
+	color: var(--wvc-ink-2);
+	text-decoration: none;
+	transition: background-color var(--wvc-ease), color var(--wvc-ease);
+}
+
+.wvc-filter__option:hover {
+	background: var(--wvc-hover);
+	color: var(--wvc-ink);
+}
+
+.wvc-filter__option:focus-visible {
+	outline: none;
+	box-shadow: var(--wvc-focus);
+}
+
+.wvc-filter__option.is-active {
+	background: var(--wvc-sunken);
+	font-weight: 600;
+	color: var(--wvc-ink);
+}
+
+/* A tier with nothing in it still holds its place, so the menu offers the same
+   four tiers as the overview and never reshuffles between visits. It is a
    reading, not a control, so it does not respond to the pointer. */
-.wvc-chiplink.is-empty {
-	border-style: dashed;
-	border-color: var(--wvc-border);
-	background: transparent;
+.wvc-filter__option.is-empty {
 	color: var(--wvc-ink-3);
 	cursor: default;
 }
 
-.wvc-chiplink.is-empty .wvc-chiplink__count {
+.wvc-filter__option.is-empty:hover {
 	background: transparent;
 	color: var(--wvc-ink-3);
 }
 
-.wvc-chiplink.is-empty .wvc-tierdot {
+.wvc-filter__option.is-empty .wvc-tierdot {
 	opacity: 0.35;
 }
 
-/* The tier hue lives in the dot alone. It used to tint the border and the
-   label as well, which put four saturated outlines in one row and made the
-   most repetitive part of the screen the busiest. The dot is the same token
-   the fix cards and the overview tiles use, so the link across screens holds
-   without the chip having to shout it. */
-.wvc-chiplink .wvc-tierdot {
-	width: 7px;
-	height: 7px;
+/* Reserved on every row, so the labels keep one left edge as the tick moves. */
+.wvc-filter__tick {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	width: 14px;
+	color: var(--wvc-accent);
 }
 
-.wvc-chiplink__count {
-	padding: 0 6px;
-	border-radius: var(--wvc-r-pill);
-	background: var(--wvc-sunken);
+.wvc-filter__option .wvc-tierdot {
+	width: 7px;
+	height: 7px;
+	margin-left: -2px;
+}
+
+.wvc-filter__option-label {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wvc-filter__count {
+	flex: 0 0 auto;
 	font-size: var(--wvc-t-xs);
-	font-weight: 700;
-	line-height: 17px;
+	font-weight: 600;
 	color: var(--wvc-ink-3);
 	font-variant-numeric: tabular-nums;
 }
 
-.wvc-chiplink.is-active .wvc-chiplink__count {
-	background: rgba(255, 255, 255, 0.2);
-	color: #fff;
-}
-
-.wvc-chiplink--reset.is-active .wvc-chiplink__count {
-	background: var(--wvc-surface);
-	color: var(--wvc-ink-2);
-}
-
-/* The second row is the quieter of the two: same shape, no resting outline, so
-   the eye lands on consequence before subject. */
-.wvc-chiprow--secondary .wvc-chiplink {
-	min-height: 24px;
-	padding: 0 9px;
-	border-color: transparent;
-	background: transparent;
-	font-size: var(--wvc-t-xs);
-}
-
-.wvc-chiprow--secondary .wvc-chiplink:hover {
-	border-color: var(--wvc-border);
-	background: var(--wvc-hover);
-}
-
-.wvc-chiprow--secondary .wvc-chiplink__count {
-	padding: 0;
-	background: transparent;
-}
-
-/* --- Result bar -------------------------------------------------------- */
+/* --- What the view currently is ---------------------------------------- */
 
 .wvc-listbar {
 	display: flex;
 	align-items: center;
-	gap: var(--wvc-2) var(--wvc-3);
+	gap: var(--wvc-1) var(--wvc-2);
 	flex-wrap: wrap;
-	padding-top: 10px;
-	border-top: 1px solid var(--wvc-border);
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
-.wvc-listbar__count {
+/* The `.wvc-wrap` prefix is load-bearing: this is a `p`, and the base reset
+   would otherwise win on specificity and hand it the body size. */
+.wvc-wrap .wvc-listbar__count {
 	flex: 0 0 auto;
+	font-size: var(--wvc-t-xs);
+	font-weight: 500;
+	line-height: 18px;
+	color: var(--wvc-ink-3);
+}
+
+/* The number is the answer; the noun is only the unit it is in. */
+.wvc-listbar__total {
+	margin-right: 2px;
 	font-size: var(--wvc-t-sm);
-	font-weight: 600;
+	font-weight: 700;
 	color: var(--wvc-ink);
 }
 
+/* Last in the left cluster, after whatever pills are there to be cleared. */
 .wvc-listbar__clear {
 	flex: 0 0 auto;
 	font-size: var(--wvc-t-xs);
@@ -3015,12 +3115,6 @@ a.wvc-sev:hover {
 .wvc-listbar__clear:hover {
 	color: var(--wvc-accent);
 	border-bottom-color: currentColor;
-}
-
-.wvc-listbar .wvc-search {
-	margin-left: auto;
-	flex: 0 1 300px;
-	min-width: 220px;
 }
 
 .wvc-activefilters {
@@ -3629,27 +3723,52 @@ a.wvc-sev:hover {
 		position: static;
 	}
 
-	/* The caption gutter costs a third of the width here, so the caption sits
-	   above its own row instead of beside it. */
-	.wvc-chiprow {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 5px;
+	/*
+	 * No width to hold the count and three controls on one line, so the bar
+	 * unstacks: the count keeps the top line, the tools take the one below.
+	 * The two facets stay side by side there — they are short, and splitting
+	 * them would cost a third line to say what fits on the second.
+	 */
+	.wvc-controls__tools {
+		width: 100%;
+		margin-left: 0;
+		flex-wrap: wrap;
 	}
 
-	.wvc-wrap .wvc-chiprow__caption {
-		width: auto;
-		padding-top: 0;
-		text-align: left;
+	.wvc-controls__tools .wvc-search {
+		flex: 1 1 100%;
+		min-width: 0;
+	}
+
+	/* A thumb is the pointer here, so the trigger grows to the full control
+	   height and the two facets share the line evenly rather than sizing to
+	   whichever option happens to be selected. */
+	.wvc-filter {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+
+	.wvc-filter__trigger {
+		width: 100%;
+		min-height: var(--wvc-ctl);
+		overflow: hidden;
+	}
+
+	.wvc-filter__value {
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	/* Anchored to its own trigger rather than to the right edge of the bar. */
+	.wvc-filter__panel {
+		right: auto;
+		left: 0;
+		width: 100%;
+		min-width: 200px;
 	}
 
 	.wvc-fix__body {
 		padding: var(--wvc-3);
-	}
-
-	.wvc-listbar .wvc-search {
-		margin-left: 0;
-		flex: 1 1 100%;
 	}
 
 	.wvc-verdict__facts {
@@ -3690,8 +3809,15 @@ a.wvc-sev:hover {
 	.wvc-status,
 	.wvc-tier,
 	.wvc-badge,
-	.wvc-chiplink {
+	.wvc-filter__trigger {
 		border-width: 1px;
+	}
+
+	/* Selection in the menu is a tinted ground plus a tick; raise the ground so
+	   the tick is not carrying it alone. */
+	.wvc-filter__option.is-active {
+		background: var(--wvc-hover);
+		box-shadow: inset 0 0 0 1px var(--wvc-border-strong);
 	}
 }
 

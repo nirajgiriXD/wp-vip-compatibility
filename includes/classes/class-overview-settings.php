@@ -347,7 +347,10 @@ class Overview_Settings {
 			)
 		);
 
-		echo UI::get_defs( Report::environment(), 'wvc-defs--grid' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		// Boxed, not the default left rule: six of these in a row read as one long
+		// indented quotation rather than six separate facts about the platform.
+		// `--grid` stays on for the four-column cap on wide screens.
+		echo UI::get_defs( Report::environment(), 'wvc-defs--grid wvc-defs--boxed' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
 		UI::render_panel_close();
 	}

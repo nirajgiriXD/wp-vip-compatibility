@@ -1130,120 +1130,147 @@ class UI {
 	}
 
 	/**
-	 * Renders a row of filter chips as links.
+	 * Renders a filter as a dropdown of links.
 	 *
-	 * The link form of the segmented control: every chip applies on click, with
-	 * no Apply button and no form to submit, so a filter costs one interaction
-	 * and the result is a URL that can be bookmarked or pasted into a ticket.
+	 * The options were a row of chips, which cost a row of the toolbar per facet
+	 * and grew with the taxonomy: eleven categories would have wrapped to three
+	 * lines to offer a choice the reader makes once. Collapsed, a facet costs one
+	 * control whatever it holds, and the closed trigger carries the selection, so
+	 * the answer to "what am I looking at" is readable without opening anything.
+	 *
+	 * `<details>` rather than a scripted popover: it opens, closes, takes focus
+	 * and responds to the keyboard with no JavaScript at all, and the options
+	 * stay ordinary links — so a filter is still one click, still bookmarkable,
+	 * and still works if the script never loads. The shared menu behaviour
+	 * (click-away, Escape) comes free with the `wvc-menu` class.
 	 *
 	 * @param array $args {
-	 *     Chip row arguments.
+	 *     Filter menu arguments.
 	 *
-	 *     @type string $label Accessible label for the group.
-	 *     @type array  $chips Each with `label`, `url`, and optional `count`,
-	 *                         `active`, `dot`, `tier`, `title` and `empty`.
-	 *     @type string $modifier Optional extra class.
+	 *     @type string $label   Accessible label for the control.
+	 *     @type string $caption Short facet name shown on the trigger.
+	 *     @type array  $options Each with `label`, `url`, and optional `count`,
+	 *                           `active`, `dot`, `tier`, `title`, `empty` and
+	 *                           `reset`. The `reset` option is the unfiltered
+	 *                           state and is expected first.
 	 * }
 	 * @return void
 	 */
-	public static function render_chip_row( array $args ) {
+	public static function render_filter_menu( array $args ) {
 		$args = wp_parse_args(
 			$args,
 			array(
-				'label'    => '',
-				'caption'  => '',
-				'chips'    => array(),
-				'modifier' => '',
+				'label'   => '',
+				'caption' => '',
+				'options' => array(),
 			)
 		);
 
-		if ( empty( $args['chips'] ) ) {
+		if ( empty( $args['options'] ) ) {
 			return;
 		}
+
+		/*
+		 * The trigger shows the selection, and is marked when that selection is
+		 * narrowing the list. Only then: a control reading "All areas" is the
+		 * resting state of the screen, and lighting it up would say a filter is
+		 * applied when none is.
+		 */
+		$current  = $args['options'][0];
+		$narrowed = false;
+
+		foreach ( $args['options'] as $option ) {
+			if ( ! empty( $option['active'] ) ) {
+				$current  = $option;
+				$narrowed = empty( $option['reset'] );
+				break;
+			}
+		}
 		?>
-		<div class="<?php echo esc_attr( trim( 'wvc-chiprow ' . $args['modifier'] ) ); ?>" role="group" aria-label="<?php echo esc_attr( $args['label'] ); ?>">
-			<?php if ( '' !== $args['caption'] ) : ?>
-				<?php
-				/*
-				 * The row says what it filters on, in a fixed gutter that both
-				 * rows share. Without it the two rows were an undifferentiated
-				 * field of pills, and the only way to learn that the first was
-				 * consequence and the second was subject was to click one.
-				 * Hidden from assistive technology because the group already
-				 * carries the same thing as its accessible name.
-				 */
-				?>
-				<span class="wvc-chiprow__caption" aria-hidden="true"><?php echo esc_html( $args['caption'] ); ?></span>
-			<?php endif; ?>
+		<details class="wvc-menu wvc-filter<?php echo $narrowed ? ' is-narrowed' : ''; ?>">
+			<summary class="wvc-filter__trigger">
+				<span class="wvc-filter__caption"><?php echo esc_html( $args['caption'] ); ?></span>
 
-			<div class="wvc-chiprow__chips">
-			<?php foreach ( $args['chips'] as $chip ) : ?>
-				<?php
-				$chip = wp_parse_args(
-					$chip,
-					array(
-						'label'  => '',
-						'url'    => '',
-						'count'  => null,
-						'active' => false,
-						'dot'    => '',
-						'tier'   => '',
-						'title'  => '',
-						'empty'  => false,
-						'reset'  => false,
-					)
-				);
+				<?php if ( ! empty( $current['dot'] ) ) : ?>
+					<span class="wvc-tierdot wvc-tierdot--<?php echo esc_attr( $current['dot'] ); ?>" aria-hidden="true"></span>
+				<?php endif; ?>
 
-				$classes = 'wvc-chiplink';
+				<span class="wvc-filter__value"><?php echo esc_html( $current['label'] ); ?></span>
+				<?php echo self::get_icon( 'chevron-down', array( 'class' => 'wvc-icon wvc-icon--xs wvc-filter__chevron' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+			</summary>
 
-				if ( '' !== $chip['tier'] ) {
-					$classes .= ' wvc-chiplink--' . $chip['tier'];
-				}
+			<div class="wvc-menu__panel wvc-filter__panel">
+				<p class="wvc-menu__title"><?php echo esc_html( $args['label'] ); ?></p>
 
-				/*
-				 * The chip that clears the row is marked so it can be styled as
-				 * the resting state rather than as a choice. Selected, it is
-				 * saying "not filtered" — the quietest thing on the bar — where
-				 * a selected narrowing chip is the loudest.
-				 */
-				if ( $chip['reset'] ) {
-					$classes .= ' wvc-chiplink--reset';
-				}
+				<?php foreach ( $args['options'] as $option ) : ?>
+					<?php
+					$option = wp_parse_args(
+						$option,
+						array(
+							'label'  => '',
+							'url'    => '',
+							'count'  => null,
+							'active' => false,
+							'dot'    => '',
+							'tier'   => '',
+							'title'  => '',
+							'empty'  => false,
+							'reset'  => false,
+						)
+					);
 
-				if ( $chip['active'] ) {
-					$classes .= ' is-active';
-				}
+					$classes = 'wvc-filter__option';
 
-				if ( $chip['empty'] ) {
-					$classes .= ' is-empty';
-				}
+					if ( $option['active'] ) {
+						$classes .= ' is-active';
+					}
 
-				// A chip with nothing behind it stays in place but stops being a
-				// control: it is reporting a zero, and a filter that leads to an
-				// empty list is a dead end rather than a choice.
-				$tag        = $chip['empty'] ? 'span' : 'a';
-				$attributes = $chip['empty'] ? '' : ' href="' . esc_url( $chip['url'] ) . '"';
+					if ( $option['empty'] ) {
+						$classes .= ' is-empty';
+					}
 
-				if ( $chip['active'] ) {
-					$attributes .= ' aria-current="true"';
-				}
+					// An option with nothing behind it stays in place but stops
+					// being a control: it is reporting a zero, and a filter that
+					// leads to an empty list is a dead end rather than a choice.
+					$tag        = $option['empty'] ? 'span' : 'a';
+					$attributes = $option['empty'] ? '' : ' href="' . esc_url( $option['url'] ) . '"';
 
-				if ( '' !== $chip['title'] ) {
-					$attributes .= ' title="' . esc_attr( $chip['title'] ) . '"';
-				}
-				?>
-				<<?php echo esc_html( $tag ); ?> class="<?php echo esc_attr( $classes ); ?>"<?php echo $attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?>>
-					<?php if ( '' !== $chip['dot'] ) : ?>
-						<span class="wvc-tierdot wvc-tierdot--<?php echo esc_attr( $chip['dot'] ); ?>" aria-hidden="true"></span>
-					<?php endif; ?>
-					<span class="wvc-chiplink__label"><?php echo esc_html( $chip['label'] ); ?></span>
-					<?php if ( null !== $chip['count'] ) : ?>
-						<span class="wvc-chiplink__count"><?php echo esc_html( number_format_i18n( (int) $chip['count'] ) ); ?></span>
-					<?php endif; ?>
-				</<?php echo esc_html( $tag ); ?>>
-			<?php endforeach; ?>
+					if ( $option['active'] ) {
+						$attributes .= ' aria-current="true"';
+					}
+
+					if ( '' !== $option['title'] ) {
+						$attributes .= ' title="' . esc_attr( $option['title'] ) . '"';
+					}
+					?>
+					<<?php echo esc_html( $tag ); ?> class="<?php echo esc_attr( $classes ); ?>"<?php echo $attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?>>
+						<?php
+						/*
+						 * The tick, not colour, is what says "this one". It holds
+						 * its width on every row so the labels stay on one left
+						 * edge instead of stepping in and out as the selection
+						 * moves down the list.
+						 */
+						?>
+						<span class="wvc-filter__tick" aria-hidden="true">
+							<?php if ( $option['active'] ) : ?>
+								<?php echo self::get_icon( 'check', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+							<?php endif; ?>
+						</span>
+
+						<?php if ( '' !== $option['dot'] ) : ?>
+							<span class="wvc-tierdot wvc-tierdot--<?php echo esc_attr( $option['dot'] ); ?>" aria-hidden="true"></span>
+						<?php endif; ?>
+
+						<span class="wvc-filter__option-label"><?php echo esc_html( $option['label'] ); ?></span>
+
+						<?php if ( null !== $option['count'] ) : ?>
+							<span class="wvc-filter__count"><?php echo esc_html( number_format_i18n( (int) $option['count'] ) ); ?></span>
+						<?php endif; ?>
+					</<?php echo esc_html( $tag ); ?>>
+				<?php endforeach; ?>
 			</div>
-		</div>
+		</details>
 		<?php
 	}
 
