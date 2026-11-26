@@ -162,8 +162,8 @@ class Directory_Audit {
 				array(
 					'status'      => self::STATUS_UNSUPPORTED,
 					'description' => __( 'WordPress drop-in.', 'wp-vip-compatibility' ),
-					'guidance'    => __( 'WordPress VIP installs its own drop-ins. A drop-in shipped with the application either has no effect or conflicts with the platform.', 'wp-vip-compatibility' ),
-					'doc'         => 'https://docs.wpvip.com/technical-references/wordpress-on-vip/',
+					'guidance'    => __( 'WordPress VIP provides its own db.php, object-cache.php and sunrise.php, and no other drop-ins can be added. Put sunrise.php changes in the vip-config directory instead.', 'wp-vip-compatibility' ),
+					'doc'         => 'https://docs.wpvip.com/wordpress-on-vip/drop-ins/',
 				)
 			);
 		}
@@ -174,7 +174,7 @@ class Directory_Audit {
 				'description' => $is_dir
 					? __( 'Directory that is not part of the WordPress VIP application structure.', 'wp-vip-compatibility' )
 					: __( 'File that is not part of the WordPress VIP application structure.', 'wp-vip-compatibility' ),
-				'guidance'    => __( 'Work out what created it. If the codebase reads from it, move the contents into uploads/ and update the stored paths; if nothing uses it, leave it out of the repository.', 'wp-vip-compatibility' ),
+				'guidance'    => __( 'Only the directories in the WordPress VIP skeleton are deployed, so this will not exist on the platform. Work out what created it. Move media into uploads/ and files that code reads but visitors must not into private/, then update the paths; if nothing uses it, leave it out of the repository.', 'wp-vip-compatibility' ),
 				'doc'         => 'https://docs.wpvip.com/wordpress-skeleton/',
 			)
 		);

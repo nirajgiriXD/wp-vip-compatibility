@@ -17,37 +17,37 @@
             "status": "supported",
             "description": "Translation files. On WordPress VIP these are committed rather than generated at runtime.",
             "guidance": "Plugins that write .mo files at runtime, such as WPML, cannot generate them here. Build them locally and commit the result.",
-            "doc": "https://docs.wpvip.com/wordpress-skeleton/"
+            "doc": "https://docs.wpvip.com/wordpress-skeleton/languages-directory/"
         },
         "plugins": {
             "status": "supported",
             "description": "Installed plugins, deployed from the application repository.",
             "guidance": "",
-            "doc": "https://docs.wpvip.com/wordpress-skeleton/"
+            "doc": "https://docs.wpvip.com/wordpress-skeleton/plugins-directory/"
         },
         "private": {
             "status": "supported",
-            "description": "Files that are deployed but never served over HTTP.",
+            "description": "Files that are deployed but never served over HTTP. Code reads them through the WPCOM_VIP_PRIVATE_DIR constant.",
             "guidance": "",
-            "doc": "https://docs.wpvip.com/wordpress-skeleton/"
+            "doc": "https://docs.wpvip.com/wordpress-skeleton/private-directory/"
         },
         "themes": {
             "status": "supported",
             "description": "Installed themes, deployed from the application repository.",
             "guidance": "",
-            "doc": "https://docs.wpvip.com/wordpress-skeleton/"
+            "doc": "https://docs.wpvip.com/wordpress-skeleton/themes-directory/"
         },
         "vip-config": {
             "status": "supported",
             "description": "WordPress VIP platform configuration, including vip-config.php.",
             "guidance": "",
-            "doc": "https://docs.wpvip.com/wordpress-skeleton/"
+            "doc": "https://docs.wpvip.com/wordpress-skeleton/vip-config-directory/"
         },
         "docs": {
             "status": "supported",
-            "description": "Project documentation committed alongside the code.",
+            "description": "Project documentation. Optional, and not mounted on production.",
             "guidance": "",
-            "doc": "https://docs.wpvip.com/wordpress-skeleton/"
+            "doc": "https://docs.wpvip.com/wordpress-skeleton/docs-directory/"
         },
         "mu-plugins": {
             "status": "unsupported",
@@ -149,7 +149,7 @@
             "status": "supported",
             "description": "Editor configuration.",
             "guidance": "",
-            "doc": ""
+            "doc": "https://docs.wpvip.com/wordpress-skeleton/editorconfig/"
         },
         ".gitignore": {
             "status": "supported",
@@ -157,11 +157,29 @@
             "guidance": "",
             "doc": ""
         },
+        ".deployignore": {
+            "status": "supported",
+            "description": "Lists the files and directories left out of deployment.",
+            "guidance": "",
+            "doc": "https://github.com/Automattic/vip-go-skeleton"
+        },
+        ".devcontainer": {
+            "status": "supported",
+            "description": "Development container configuration. Not deployed.",
+            "guidance": "",
+            "doc": "https://github.com/Automattic/vip-go-skeleton"
+        },
+        ".wpvip": {
+            "status": "supported",
+            "description": "WordPress VIP tooling configuration. Not deployed.",
+            "guidance": "",
+            "doc": "https://github.com/Automattic/vip-go-skeleton"
+        },
         ".phpcs.xml.dist": {
             "status": "supported",
             "description": "PHP_CodeSniffer configuration, used by the WordPress VIP Code Analysis Bot.",
             "guidance": "",
-            "doc": "https://docs.wpvip.com/vip-code-analysis-bot/customize-phpcs/"
+            "doc": "https://docs.wpvip.com/php_codesniffer/phpcs-xml-dist/"
         },
         ".vipgoci_phpcs_skip_folders": {
             "status": "supported",
@@ -171,7 +189,7 @@
         },
         "README.md": {
             "status": "supported",
-            "description": "Project readme.",
+            "description": "Project readme. Not deployed.",
             "guidance": "",
             "doc": ""
         },
@@ -457,7 +475,11 @@
             "hummingbird-performance": "Page caching and asset optimisation are handled by the WordPress VIP platform.",
             "wp-crontrol": "WordPress VIP runs scheduled events through Cron Control.",
             "application-passwords": "Merged into WordPress core in 5.6 and no longer needed as a plugin.",
-            "wordpress-importer": "Provided by the WordPress VIP platform and enabled by default."
+            "wordpress-importer": "Provided by the WordPress VIP platform and enabled by default.",
+            "advanced-post-cache": "Ships with the WordPress VIP platform.",
+            "cron-control": "Ships with the WordPress VIP platform.",
+            "lightweight-term-count-update": "Ships with the WordPress VIP platform.",
+            "rewrite-rules-inspector": "Ships with the WordPress VIP platform."
         }
     }
 }
