@@ -107,7 +107,6 @@ body.wvc-screen,
  * ---------------------------------------------------------------------- */
 
 .wvc {
-	max-width: 1320px;
 	margin-top: 14px;
 	color: var(--wvc-ink);
 	font-family: var(--wvc-sans);
@@ -348,7 +347,6 @@ body.wvc-screen,
 }
 
 .wvc-head__lede {
-	max-width: 68ch;
 	margin-top: 10px !important;
 	color: var(--wvc-ink-2);
 	font-size: 15px;
@@ -1096,7 +1094,6 @@ body.wvc-screen,
 }
 
 .wvc-verdict__summary {
-	max-width: 62ch;
 	margin-top: 12px !important;
 	color: var(--wvc-ink-2);
 	font-size: 15.5px;
