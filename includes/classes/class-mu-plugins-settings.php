@@ -47,7 +47,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 	}
 
 	/**
-	 * Returns the panel title for the table.
+	 * Returns the accessible name of the table.
 	 *
 	 * @return string The title.
 	 */
@@ -76,7 +76,8 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 	protected function render_intro( array $context ) {
 		unset( $context );
 
-		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_notice(
 			wp_kses_post(
 				sprintf(
 					/* translators: %s: Link to the WordPress VIP documentation. */
@@ -87,6 +88,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 			'warning',
 			esc_html__( 'None of this migrates as-is', 'wp-vip-compatibility' )
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -189,72 +191,6 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 	}
 
 	/**
-	 * Replaces the shared statistics with ones that fit the actual decision.
-	 *
-	 * Everything here has to move, so "ready / blocked" is the wrong split. What
-	 * matters is how much there is, how much of it WordPress VIP already provides, and how
-	 * much code comes with it.
-	 *
-	 * @param array<string, mixed> $context The context.
-	 * @return array<int, array<string, mixed>> Stat tiles.
-	 */
-	protected function get_stats( array $context ) {
-		$files       = 0;
-		$directories = 0;
-		$known       = 0;
-
-		foreach ( $context['verdicts'] as $key => $verdict ) {
-			$target = Targets::get( $key );
-
-			if ( null === $target ) {
-				continue;
-			}
-
-			if ( $this->is_file( $target ) ) {
-				++$files;
-			} else {
-				++$directories;
-			}
-
-			if ( is_array( $verdict['known'] ) ) {
-				++$known;
-			}
-		}
-
-		return array(
-			array(
-				'label' => __( 'To relocate', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( (int) $context['counts']['total'] - $known ),
-				'meta'  => __( 'Move into client-mu-plugins/', 'wp-vip-compatibility' ),
-				'tone'  => ( $context['counts']['total'] - $known ) > 0 ? 'warn' : 'ok',
-			),
-			array(
-				'label' => __( 'Drop instead', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( $known ),
-				'meta'  => __( 'Preinstalled by WordPress VIP or left by a host', 'wp-vip-compatibility' ),
-				'tone'  => 'neutral',
-			),
-			array(
-				'label' => __( 'Auto-loaded files', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( $files ),
-				'meta'  => sprintf(
-					/* translators: %s: Number of directories. */
-					_n( '%s directory alongside them', '%s directories alongside them', $directories, 'wp-vip-compatibility' ),
-					number_format_i18n( $directories )
-				),
-				'tone'  => 'neutral',
-			),
-			array(
-				'label' => __( 'Findings', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( (int) $context['counts']['issues'] ),
-				'meta'  => __( 'To resolve as part of the move', 'wp-vip-compatibility' ),
-				'tone'  => 'accent',
-				'url'   => $context['counts']['issues'] > 0 ? UI::get_findings_url() : '',
-			),
-		);
-	}
-
-	/**
 	 * Renders the cells of one row.
 	 *
 	 * @param array<string, mixed> $target  The target.
@@ -268,13 +204,15 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 		$this->render_name_cell( $target, array(), 'wp-content/mu-plugins/' . $target['file'] );
 
 		echo '<td class="wvc-col-state" data-label="' . esc_attr__( 'Kind', 'wp-vip-compatibility' ) . '">';
-		echo UI::get_badge( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_badge(
 			$is_file ? __( 'File', 'wp-vip-compatibility' ) : __( 'Directory', 'wp-vip-compatibility' ),
 			$is_file ? 'accent' : 'neutral',
 			$is_file
 				? __( 'WordPress auto-loads this file on every request.', 'wp-vip-compatibility' )
 				: __( 'Not auto-loaded. Something else has to require it, or nothing does.', 'wp-vip-compatibility' )
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</td>';
 
 		$this->render_version_cell( $target, $context );

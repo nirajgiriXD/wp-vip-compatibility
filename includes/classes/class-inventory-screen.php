@@ -80,12 +80,21 @@ abstract class Inventory_Screen {
 	abstract protected function get_empty_state();
 
 	/**
-	 * Returns the reference notes shown above the table.
+	 * Returns the reference notes shown in the WordPress Help tab.
 	 *
 	 * @return array<int, string> Note paragraphs, already containing limited HTML.
 	 */
 	protected function get_guidance_notes() {
 		return array();
+	}
+
+	/**
+	 * Returns the notes shown in the WordPress Help tab.
+	 *
+	 * @return array<int, string> Note paragraphs, already containing limited HTML.
+	 */
+	public function get_page_guidance() {
+		return $this->get_guidance_notes();
 	}
 
 	/**
@@ -101,7 +110,7 @@ abstract class Inventory_Screen {
 	}
 
 	/**
-	 * Renders anything that belongs above the table, after the statistics.
+	 * Renders anything that belongs above the table.
 	 *
 	 * @param array<string, mixed> $context Shared per-request lookups.
 	 * @return void
@@ -118,15 +127,17 @@ abstract class Inventory_Screen {
 	abstract protected function get_search_label();
 
 	/**
-	 * Returns the panel title for the table.
+	 * Returns the accessible name of the table.
 	 *
 	 * @return string The title.
 	 */
 	abstract protected function get_table_title();
 
-	/* ---------------------------------------------------------------------
+	/*
+	 * ---------------------------------------------------------------------
 	 * Rendering
-	 * ------------------------------------------------------------------ */
+	 * ------------------------------------------------------------------
+	 */
 
 	/**
 	 * Renders the screen.
@@ -146,26 +157,11 @@ abstract class Inventory_Screen {
 
 		$context = $this->build_context( $targets );
 
-		UI::render_stats( $this->get_stats( $context ) );
-
 		$this->render_intro( $context );
 
-		$notes = $this->get_guidance_notes();
-
-		if ( ! empty( $notes ) ) {
-			echo UI::get_guidance( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-				'<p>' . implode( '</p><p>', $notes ) . '</p>',
-				__( 'How to read this list', 'wp-vip-compatibility' )
-			);
-		}
-
-		UI::render_panel_open(
-			array(
-				'title' => $this->get_table_title(),
-				'count' => number_format_i18n( count( $targets ) ),
-				'flush' => true,
-			)
-		);
+		// No heading: the page title already names the list. The title still
+		// names the table for assistive technology.
+		UI::render_panel_open( array( 'flush' => true ) );
 
 		UI::render_toolbar(
 			array(
@@ -176,7 +172,7 @@ abstract class Inventory_Screen {
 		);
 
 		echo '<div class="wvc-table-wrap" data-role="table-view">';
-		echo '<table class="wvc-table wvc-table--expandable">';
+		echo '<table class="wvc-table wvc-table--expandable" aria-label="' . esc_attr( $this->get_table_title() ) . '">';
 
 		UI::render_table_head(
 			array_merge(
@@ -209,41 +205,16 @@ abstract class Inventory_Screen {
 	 * @return array<string, mixed> The context.
 	 */
 	protected function build_context( array $targets ) {
-		$index  = Results_Store::get_index();
-		$counts = array(
-			'total'   => 0,
-			'ready'   => 0,
-			'review'  => 0,
-			'blocked' => 0,
-			'pending' => 0,
-			'issues'  => 0,
-		);
-
+		$index    = Results_Store::get_index();
 		$verdicts = array();
 
 		foreach ( $targets as $key => $target ) {
-			$verdict         = Report::verdict( $target, $index );
-			$verdicts[ $key ] = $verdict;
-
-			$bucket = 'review';
-
-			if ( 'pending' === $verdict['state'] ) {
-				$bucket = 'pending';
-			} elseif ( Scanner::STATUS_PASS === $verdict['status'] ) {
-				$bucket = 'ready';
-			} elseif ( Scanner::STATUS_BLOCKED === $verdict['status'] ) {
-				$bucket = 'blocked';
-			}
-
-			++$counts[ $bucket ];
-			++$counts['total'];
-			$counts['issues'] += (int) $verdict['total'];
+			$verdicts[ $key ] = Report::verdict( $target, $index );
 		}
 
 		return array(
 			'index'          => $index,
 			'verdicts'       => $verdicts,
-			'counts'         => $counts,
 			'plugin_updates' => get_site_transient( 'update_plugins' ),
 			'theme_updates'  => get_site_transient( 'update_themes' ),
 			'active_theme'   => get_stylesheet(),
@@ -264,51 +235,6 @@ abstract class Inventory_Screen {
 		}
 
 		return $active;
-	}
-
-	/**
-	 * Builds the headline statistics for the screen.
-	 *
-	 * @param array<string, mixed> $context The context.
-	 * @return array<int, array<string, mixed>> Stat tiles.
-	 */
-	protected function get_stats( array $context ) {
-		$counts = $context['counts'];
-		$screen = UI::get_screen_for_type( $this->get_type() );
-		$url    = UI::get_screen_url( $screen );
-
-		$stats = array(
-			array(
-				'label' => __( 'Blocked', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( $counts['blocked'] ),
-				'meta'  => __( 'Expected to fail on WordPress VIP', 'wp-vip-compatibility' ),
-				'tone'  => $counts['blocked'] > 0 ? 'bad' : 'neutral',
-				'url'   => $counts['blocked'] > 0 ? add_query_arg( 'status', 'not-compatible', $url ) : '',
-			),
-			array(
-				'label' => __( 'Needs review', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( $counts['review'] ),
-				'meta'  => __( 'A decision before you migrate', 'wp-vip-compatibility' ),
-				'tone'  => $counts['review'] > 0 ? 'warn' : 'neutral',
-				'url'   => $counts['review'] > 0 ? add_query_arg( 'status', 'review', $url ) : '',
-			),
-			array(
-				'label' => __( 'Ready', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( $counts['ready'] ),
-				'meta'  => __( 'Nothing outstanding', 'wp-vip-compatibility' ),
-				'tone'  => 'ok',
-				'url'   => $counts['ready'] > 0 ? add_query_arg( 'status', 'compatible', $url ) : '',
-			),
-			array(
-				'label' => __( 'Findings', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( $counts['issues'] ),
-				'meta'  => __( 'Across everything listed here', 'wp-vip-compatibility' ),
-				'tone'  => 'accent',
-				'url'   => $counts['issues'] > 0 ? UI::get_findings_url() : '',
-			),
-		);
-
-		return $stats;
 	}
 
 	/**
@@ -376,7 +302,8 @@ abstract class Inventory_Screen {
 
 		echo '<tr class="wvc-row"' . $attributes . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
 
-		echo UI::get_row_toggle( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_row_toggle(
 			$detail,
 			sprintf(
 				/* translators: %s: Item name. */
@@ -384,6 +311,7 @@ abstract class Inventory_Screen {
 				$target['label']
 			)
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		$this->render_cells( $target, $verdict, $context );
 
@@ -414,7 +342,7 @@ abstract class Inventory_Screen {
 
 		echo '<div class="wvc-detail">';
 
-		echo UI::get_defs( $this->get_detail_rows( $target, $verdict, $context, $entry ), 'wvc-defs--boxed' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_defs( $this->get_detail_rows( $target, $verdict, $context, $entry ), 'wvc-defs--drawer' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
 		$categories = array_filter( (array) ( $summary['by_category'] ?? array() ) );
 
@@ -422,24 +350,28 @@ abstract class Inventory_Screen {
 			arsort( $categories );
 
 			echo '<div class="wvc-detail__block">';
-			echo '<h5 class="wvc-detail__title">' . esc_html__( 'What the findings are about', 'wp-vip-compatibility' ) . '</h5>';
+			echo '<h3 class="wvc-detail__title">' . esc_html__( 'What the findings are about', 'wp-vip-compatibility' ) . '</h3>';
 			echo '<div class="wvc-chips">';
 
 			foreach ( $categories as $category => $count ) {
-				echo UI::get_meta_chip( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+				// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+				echo UI::get_meta_chip(
 					Taxonomy::get_label( 'category', $category ),
 					number_format_i18n( (int) $count )
 				);
+				// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 
 			echo '</div></div>';
 		}
 
 		if ( ! empty( $entry['truncated'] ) ) {
-			echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			echo UI::get_notice(
 				esc_html__( 'This item is large enough that the scan stopped early. Fix what is listed and rescan to see the rest.', 'wp-vip-compatibility' ),
 				'info'
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		$actions = array();

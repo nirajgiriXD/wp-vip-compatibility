@@ -35,6 +35,25 @@ class Assets {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'admin_head', array( $this, 'print_menu_styles' ) );
+		add_filter( 'admin_body_class', array( $this, 'add_body_class' ) );
+	}
+
+	/**
+	 * Marks the plugin's own screens on the admin body.
+	 *
+	 * The screens are drawn on their own paper ground, and that ground has to
+	 * reach the edges of the content area and the footer rather than stopping at
+	 * the edge of the wrap — which only a class on the body can scope.
+	 *
+	 * @param string $classes Space-separated body classes.
+	 * @return string The classes.
+	 */
+	public function add_body_class( $classes ) {
+		if ( '' === $this->get_current_screen_key() ) {
+			return $classes;
+		}
+
+		return $classes . ' wvc-screen';
 	}
 
 	/**
@@ -48,7 +67,8 @@ class Assets {
 	 * @return void
 	 */
 	public function print_menu_styles() {
-		$slug = UI::get_screens()['overview']['slug'];
+		$slug  = UI::get_screens()['overview']['slug'];
+		$color = $this->get_menu_group_color();
 		?>
 		<style id="wvc-menu-styles">
 			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .wvc-menu-group {
@@ -56,6 +76,9 @@ class Assets {
 				margin: 10px -13px 3px;
 				padding: 8px 13px 0;
 				border-top: 1px solid rgba(240, 246, 252, 0.14);
+				<?php if ( '' !== $color ) : ?>
+				color: <?php echo esc_html( $color ); ?>;
+				<?php endif; ?>
 				font-size: 10px;
 				font-weight: 600;
 				line-height: 1.4;
@@ -69,8 +92,42 @@ class Assets {
 				padding-top: 0;
 				border-top: 0;
 			}
+
+			/*
+			 * The heading sits inside the link, so core's hover bar (an inset
+			 * box-shadow) would run down the heading too. Redraw it as a
+			 * background sized to the item's own line plus its bottom padding.
+			 */
+			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .wp-submenu a:has(.wvc-menu-group):hover,
+			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .wp-submenu a:has(.wvc-menu-group):focus {
+				box-shadow: none;
+				background: linear-gradient(currentColor, currentColor) left bottom / 4px calc(1.4em + 5px) no-repeat;
+			}
 		</style>
 		<?php
+	}
+
+	/**
+	 * Returns the resting colour of the admin menu for the user's colour scheme.
+	 *
+	 * The group heading is inside the submenu link, so without a colour of its
+	 * own it would pick up the link's hover colour. Pinning it to the scheme's
+	 * resting icon colour keeps it still while the item under it lights up.
+	 *
+	 * @return string A hex colour, or an empty string when the scheme has none.
+	 */
+	private function get_menu_group_color() {
+		global $_wp_admin_css_colors;
+
+		$scheme = get_user_option( 'admin_color' );
+
+		if ( empty( $scheme ) || ! isset( $_wp_admin_css_colors[ $scheme ] ) ) {
+			$scheme = 'fresh';
+		}
+
+		$base = $_wp_admin_css_colors[ $scheme ]->icon_colors['base'] ?? '';
+
+		return (string) sanitize_hex_color( $base );
 	}
 
 	/**
@@ -158,9 +215,25 @@ class Assets {
 						'noResults'       => esc_html__( 'No matching results', 'wp-vip-compatibility' ),
 						'noResultsHint'   => esc_html__( 'Try a different search term, or widen the filters above.', 'wp-vip-compatibility' ),
 
+						'confirmTitle'    => esc_html__( 'Rescan everything?', 'wp-vip-compatibility' ),
+						'confirmBody'     => esc_html__( 'This re-reads every plugin, theme and must-use plugin, and rechecks the database and wp-content. It can take a while on a large site, and the current results are replaced when it finishes.', 'wp-vip-compatibility' ),
+						'confirmAction'   => esc_html__( 'Rescan everything', 'wp-vip-compatibility' ),
+						'cancel'          => esc_html__( 'Cancel', 'wp-vip-compatibility' ),
+
+						'pager'           => esc_html__( 'Table pages', 'wp-vip-compatibility' ),
+						'previous'        => esc_html__( 'Previous', 'wp-vip-compatibility' ),
+						'next'            => esc_html__( 'Next', 'wp-vip-compatibility' ),
+						/* translators: 1: First row shown. 2: Last row shown. 3: Number of matching rows. */
+						'pageRange'       => esc_html__( '%1$s–%2$s of %3$s', 'wp-vip-compatibility' ),
+						/* translators: 1: Current page. 2: Number of pages. */
+						'pageOf'          => esc_html__( 'Page %1$s of %2$s', 'wp-vip-compatibility' ),
+
 						'copy'            => esc_html__( 'Copy to clipboard', 'wp-vip-compatibility' ),
 						'copied'          => esc_html__( 'Copied', 'wp-vip-compatibility' ),
 						'copyFailed'      => esc_html__( 'Press Ctrl+C to copy', 'wp-vip-compatibility' ),
+
+						'expandAll'       => esc_html__( 'Expand all', 'wp-vip-compatibility' ),
+						'collapseAll'     => esc_html__( 'Collapse all', 'wp-vip-compatibility' ),
 					),
 				)
 			);

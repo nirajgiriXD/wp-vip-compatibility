@@ -41,7 +41,10 @@ class Settings {
 	 */
 	private function setup_hooks() {
 		add_action( 'admin_menu', array( $this, 'add_plugin_menus' ) );
-		add_action( 'admin_init', array( $this, 'redirect_retired_screens' ) );
+		// Not admin_init: WordPress refuses an unregistered page slug in
+		// wp-admin/menu.php, which runs before admin_init, so a redirect hooked
+		// there never fires. admin_menu runs before that check.
+		add_action( 'admin_menu', array( $this, 'redirect_retired_screens' ), 0 );
 	}
 
 	/**
@@ -121,14 +124,9 @@ class Settings {
 			return;
 		}
 
-		UI::render_shell_open();
-		UI::render_page_head( $key );
-
-		echo '<div class="wvc-container" id="' . esc_attr( $key ) . '">';
+		UI::render_shell_open( $key );
 		UI::render_scan_notice();
 		$settings->render_settings_page();
-		echo '</div>';
-
 		UI::render_shell_close();
 	}
 
@@ -178,24 +176,64 @@ class Settings {
 				$label            = '<span class="wvc-menu-group' . $modifier . '" aria-hidden="true">' . esc_html( $groups[ $group ] ) . '</span>' . $label;
 			}
 
-			add_submenu_page(
+			$hook = add_submenu_page(
 				$screens['overview']['slug'],
 				/* translators: %s: Submenu title */
 				sprintf( __( 'WordPress VIP Compatibility — %s', 'wp-vip-compatibility' ), $screen['title'] ),
 				$label,
 				'manage_options',
 				$screen['slug'],
-				/*
-				 * The overview is listed as its own first submenu entry so the
-				 * menu does not show the plugin name twice under itself. It must be
-				 * registered without a callback: add_menu_page() already hooked
-				 * one, and because the slugs match, add_submenu_page() resolves
-				 * to the same `toplevel_page_*` hook — passing a callback here
-				 * hooks it a second time and renders the whole screen twice.
-				 */
+				// The overview is listed as its own first submenu entry so the
+				// menu does not show the plugin name twice under itself. It must be
+				// registered without a callback: add_menu_page() already hooked
+				// one, and because the slugs match, add_submenu_page() resolves
+				// to the same `toplevel_page_*` hook — passing a callback here
+				// hooks it a second time and renders the whole screen twice.
 				$is_parent ? null : fn() => $this->render_settings_page( $key )
 			);
+
+			if ( $hook ) {
+				add_action( 'load-' . $hook, fn() => $this->add_help_tab( $key ) );
+			}
 		}
+	}
+
+	/**
+	 * Puts a screen's reading notes in the WordPress Help tab.
+	 *
+	 * They are background reading, so they live where WordPress keeps help for
+	 * every admin screen instead of taking space on the page itself.
+	 *
+	 * @param string $key The settings key.
+	 * @return void
+	 */
+	private function add_help_tab( $key ) {
+		$settings = $this->get_settings_class( $key );
+		$screen   = get_current_screen();
+
+		if ( ! $settings || ! $screen || ! method_exists( $settings, 'get_page_guidance' ) ) {
+			return;
+		}
+
+		$notes = $settings->get_page_guidance();
+
+		if ( empty( $notes ) ) {
+			return;
+		}
+
+		// The overview is a report rather than a list.
+		$title = ( 'overview' === $key )
+			? __( 'About this report', 'wp-vip-compatibility' )
+			: __( 'How to read this list', 'wp-vip-compatibility' );
+
+		$screen->add_help_tab(
+			array(
+				'id'      => 'wvc-how-to-read',
+				'title'   => $title,
+				'content' => '<p class="wvc-help__title">' . esc_html( $title ) . '</p>'
+					. '<div class="wvc-help__notes">' . wp_kses_post( '<p>' . implode( '</p><p>', $notes ) . '</p>' ) . '</div>',
+			)
+		);
 	}
 
 	/**

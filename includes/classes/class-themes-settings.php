@@ -2,11 +2,9 @@
 /**
  * The themes screen.
  *
- * One theme runs the site and the rest are inventory, so the screen is shaped
- * that way: the active theme gets a panel of its own with everything a migration
- * needs to know about it, and every installed theme — including that one — stays
- * in the table below, because inactive themes still ship in the repository and
- * are still read by WordPress VIP's code review.
+ * Every installed theme is listed, with the active theme and its parent marked
+ * by a badge beside the name. Inactive themes stay in the list because they
+ * still ship in the repository and are still read by WordPress VIP's code review.
  *
  * @package wp-vip-compatibility
  */
@@ -14,7 +12,6 @@
 namespace WP_VIP_COMPATIBILITY\Includes\Classes;
 
 use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -44,7 +41,7 @@ class Themes_Settings extends Inventory_Screen {
 	}
 
 	/**
-	 * Returns the panel title for the table.
+	 * Returns the accessible name of the table.
 	 *
 	 * @return string The title.
 	 */
@@ -92,11 +89,6 @@ class Themes_Settings extends Inventory_Screen {
 			array(
 				'label' => __( 'Version', 'wp-vip-compatibility' ),
 				'class' => 'wvc-col-version',
-			),
-			array(
-				'label'    => __( 'Role', 'wp-vip-compatibility' ),
-				'class'    => 'wvc-col-state',
-				'sortable' => true,
 			),
 			array(
 				'label'    => __( 'WordPress VIP verdict', 'wp-vip-compatibility' ),
@@ -178,100 +170,6 @@ class Themes_Settings extends Inventory_Screen {
 	}
 
 	/**
-	 * Leads with the active theme before the full list.
-	 *
-	 * @param array<string, mixed> $context The context.
-	 * @return void
-	 */
-	protected function render_intro( array $context ) {
-		$key    = Targets::key( 'theme', $context['active_theme'] );
-		$target = Targets::get( $key );
-
-		if ( null === $target ) {
-			return;
-		}
-
-		$verdict = $context['verdicts'][ $key ] ?? array();
-		$theme   = wp_get_theme( $context['active_theme'] );
-		$parent  = $theme->parent();
-
-		UI::render_panel_open(
-			array(
-				'title'   => __( 'Active theme', 'wp-vip-compatibility' ),
-				'summary' => __( 'The theme this site renders through today. Its findings are the ones your visitors are exposed to.', 'wp-vip-compatibility' ),
-				'actions' => ( empty( $verdict['total'] ) ) ? array() : array(
-					array(
-						'label' => __( 'Review its findings', 'wp-vip-compatibility' ),
-						'url'   => UI::get_findings_url( $key ),
-						'icon'  => 'list',
-					),
-				),
-			)
-		);
-		?>
-		<div class="wvc-spotlight">
-			<?php $screenshot = $theme->get_screenshot(); ?>
-			<?php if ( $screenshot ) : ?>
-				<img class="wvc-spotlight__shot" src="<?php echo esc_url( $screenshot ); ?>" alt="" loading="lazy" width="200" height="150" />
-			<?php endif; ?>
-
-			<div class="wvc-spotlight__body">
-				<h4 class="wvc-spotlight__name">
-					<?php echo esc_html( $theme->get( 'Name' ) ); ?>
-					<?php if ( ! empty( $verdict['state'] ) ) : ?>
-						<?php echo UI::get_status_pill( $verdict['state'], $verdict['label'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-					<?php endif; ?>
-				</h4>
-
-				<?php if ( $theme->get( 'Description' ) ) : ?>
-					<p class="wvc-spotlight__description"><?php echo esc_html( wp_strip_all_tags( $theme->get( 'Description' ) ) ); ?></p>
-				<?php endif; ?>
-
-				<?php
-				$rows = array(
-					array(
-						'label' => __( 'Version', 'wp-vip-compatibility' ),
-						'value' => $theme->get( 'Version' ),
-					),
-					array(
-						'label' => __( 'Author', 'wp-vip-compatibility' ),
-						'value' => wp_strip_all_tags( (string) $theme->get( 'Author' ) ),
-					),
-					array(
-						'label' => __( 'Directory', 'wp-vip-compatibility' ),
-						'html'  => '<code>' . esc_html( $this->get_relative_path( $target ) ) . '</code>',
-					),
-				);
-
-				if ( $parent ) {
-					$rows[] = array(
-						'label' => __( 'Parent theme', 'wp-vip-compatibility' ),
-						'value' => $parent->get( 'Name' ),
-						'hint'  => __( 'The parent ships with the site and is scanned in its own right.', 'wp-vip-compatibility' ),
-					);
-				}
-
-				$bar = UI::get_severity_bar(
-					(array) ( $context['index'][ $key ]['summary']['by_severity'] ?? array() ),
-					$key
-				);
-
-				if ( '' !== $bar ) {
-					$rows[] = array(
-						'label' => __( 'Findings by importance', 'wp-vip-compatibility' ),
-						'html'  => $bar,
-					);
-				}
-
-				echo UI::get_defs( $rows, 'wvc-defs--tight' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-				?>
-			</div>
-		</div>
-		<?php
-		UI::render_panel_close();
-	}
-
-	/**
 	 * Renders the cells of one row.
 	 *
 	 * @param array<string, mixed> $target  The target.
@@ -280,19 +178,17 @@ class Themes_Settings extends Inventory_Screen {
 	 * @return void
 	 */
 	protected function render_cells( array $target, array $verdict, array $context ) {
-		$this->render_name_cell( $target );
-		$this->render_version_cell( $target, $context );
-
+		// Only a theme the site actually renders through is marked; an inactive
+		// theme is the default and needs no label.
 		$role   = $this->get_role( $target, $context );
 		$labels = array(
-			'active'   => array( __( 'Active', 'wp-vip-compatibility' ), 'accent', __( 'The site renders through this theme.', 'wp-vip-compatibility' ) ),
-			'parent'   => array( __( 'Parent', 'wp-vip-compatibility' ), 'accent', __( 'The active theme inherits from this one.', 'wp-vip-compatibility' ) ),
-			'inactive' => array( __( 'Inactive', 'wp-vip-compatibility' ), 'neutral', __( 'Not in use, but still committed to the repository and still reviewed by WordPress VIP.', 'wp-vip-compatibility' ) ),
+			'active' => array( __( 'Active', 'wp-vip-compatibility' ), 'accent', __( 'The site renders through this theme.', 'wp-vip-compatibility' ) ),
+			'parent' => array( __( 'Parent', 'wp-vip-compatibility' ), 'neutral', __( 'The active theme inherits from this one.', 'wp-vip-compatibility' ) ),
 		);
+		$badges = isset( $labels[ $role ] ) ? array( UI::get_badge( ...$labels[ $role ] ) ) : array();
 
-		echo '<td class="wvc-col-state" data-label="' . esc_attr__( 'Role', 'wp-vip-compatibility' ) . '">';
-		echo UI::get_badge( $labels[ $role ][0], $labels[ $role ][1], $labels[ $role ][2] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-		echo '</td>';
+		$this->render_name_cell( $target, $badges );
+		$this->render_version_cell( $target, $context );
 
 		echo UI::get_verdict_cell( $verdict, $target['key'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
@@ -312,6 +208,6 @@ class Themes_Settings extends Inventory_Screen {
 			return 'active';
 		}
 
-		return ( $target['slug'] === ( $context['active_template'] ?? '' ) ) ? 'parent' : 'inactive';
+		return ( ( $context['active_template'] ?? '' ) === $target['slug'] ) ? 'parent' : 'inactive';
 	}
 }

@@ -49,15 +49,17 @@ A target ends up in one of three states: **ready**, **needs review** (work to do
 
 ## Screens
 
-Navigation is the WordPress admin menu itself. The menu carries a count of what must be fixed before migrating, and the seven entries are split under headings into three groups — readiness, the code you ship, and the site's own infrastructure — so the order to work in is visible before anything is opened.
+The screens are designed as a migration manifest: a ruled document on a paper ground rather than a dashboard of cards. Colour is spent on urgency only, and every urgency level also has its own shape, so the scale reads without colour.
 
-- **Overview** — readiness score, the ranked list of what to do next, a per-area breakdown, the environment the site runs on, and how the report has moved over recent scans.
-- **Findings** — one flat list of fixes, worst first, each card carrying the recommended fix on its face. Filtering is chips that are links: what to do about it, then what it is about, applied on click and reflected in the URL.
+The WordPress admin menu carries a count of what must be fixed before migrating, split under headings into three groups — readiness, the code you ship, and the site's own infrastructure.
+
+- **Overview** — readiness score, the outstanding work by tier, the first three things to do, a map of every item on the site by verdict, the environment the site runs on, and how the report has moved over recent scans.
+- **Findings** — one flat list of fixes, worst first, each entry carrying the recommended fix on its face. Filters sit in a sticky column of links — what to do about it, then what it is about — applied on click and reflected in the URL. Press `/` to jump to search.
 - **Plugins** — every installed plugin with its verdict, activation state, available update and severity split; each row expands to its evidence.
 - **Themes** — the active theme in detail, plus every other theme that still ships in the repository.
 - **Must-use** — everything in `wp-content/mu-plugins`, separated into what to relocate and what to drop.
-- **Database** — the schema's shape, the work grouped by requirement with copyable SQL, and every table's engine, collation, rows, size and owner.
-- **wp-content** — every entry measured against the WordPress VIP application structure.
+- **Database** — every table's engine, collation, rows, size and owner, with the tables that need a change listed first and their SQL copyable in one go.
+- **wp-content** — every entry measured against the WordPress VIP application structure, with what needs action listed first.
 
 ## Export
 

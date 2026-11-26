@@ -43,71 +43,19 @@ class Directories_Settings {
 			return;
 		}
 
-		$this->render_stats( $audit );
-		$this->render_guidance();
 		$this->render_table( $audit );
 	}
 
 	/**
-	 * Renders the headline statistics.
+	 * Returns the notes shown in the WordPress Help tab.
 	 *
-	 * @param array<string, mixed> $audit The audit result.
-	 * @return void
+	 * @return array<int, string> Note paragraphs, already containing limited HTML.
 	 */
-	private function render_stats( array $audit ) {
-		$summary = $audit['summary'];
-
-		UI::render_stats(
-			array(
-				array(
-					'label' => __( 'Remove or relocate', 'wp-vip-compatibility' ),
-					'value' => number_format_i18n( (int) $summary['unsupported'] ),
-					'meta'  => __( 'Conflicts with the WordPress VIP structure', 'wp-vip-compatibility' ),
-					'tone'  => $summary['unsupported'] > 0 ? 'bad' : 'ok',
-					'url'   => $summary['unsupported'] > 0
-						? UI::get_screen_url( 'directories', array( 'status' => 'not-compatible' ) )
-						: '',
-				),
-				array(
-					'label' => __( 'Needs review', 'wp-vip-compatibility' ),
-					'value' => number_format_i18n( (int) $summary['review'] ),
-					'meta'  => __( 'Unrecognised — work out what created it', 'wp-vip-compatibility' ),
-					'tone'  => $summary['review'] > 0 ? 'warn' : 'neutral',
-					'url'   => $summary['review'] > 0
-						? UI::get_screen_url( 'directories', array( 'status' => 'review' ) )
-						: '',
-				),
-				array(
-					'label' => __( 'Part of the structure', 'wp-vip-compatibility' ),
-					'value' => number_format_i18n( (int) $summary['supported'] ),
-					'meta'  => __( 'Committed to the WordPress VIP repository', 'wp-vip-compatibility' ),
-					'tone'  => 'ok',
-				),
-				array(
-					'label' => __( 'Not deployed', 'wp-vip-compatibility' ),
-					'value' => number_format_i18n( (int) $summary['informational'] ),
-					'meta'  => __( 'Imported or generated, not committed', 'wp-vip-compatibility' ),
-					'tone'  => 'neutral',
-				),
-			)
-		);
-	}
-
-	/**
-	 * Renders the reference notes for this screen.
-	 *
-	 * @return void
-	 */
-	private function render_guidance() {
-		$notes = array(
+	public function get_page_guidance() {
+		return array(
 			__( '<strong>"Not deployed" is not a problem.</strong> It marks what WordPress or the local environment maintains — <code>uploads/</code> above all, which is the one path under wp-content that application code may write to on WordPress VIP. It is imported with the WordPress VIP CLI rather than committed.', 'wp-vip-compatibility' ),
 			__( '<strong>"Remove or relocate" is.</strong> Those entries either conflict with the WordPress VIP application structure or duplicate a drop-in the platform installs itself, where a shipped copy is at best ignored and at worst fights the platform.', 'wp-vip-compatibility' ),
 			__( '<strong>"Needs review" means unrecognised.</strong> Work out what created it: if the codebase reads from it, move the contents into <code>uploads/</code> and update the stored paths; if nothing uses it, leave it out of the repository.', 'wp-vip-compatibility' ),
-		);
-
-		echo UI::get_guidance( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-			'<p>' . implode( '</p><p>', $notes ) . '</p>',
-			__( 'How to read this list', 'wp-vip-compatibility' )
 		);
 	}
 
@@ -118,13 +66,27 @@ class Directories_Settings {
 	 * @return void
 	 */
 	private function render_table( array $audit ) {
-		UI::render_panel_open(
-			array(
-				'title' => __( 'Everything in wp-content', 'wp-vip-compatibility' ),
-				'count' => number_format_i18n( (int) $audit['summary']['total'] ),
-				'flush' => true,
-			)
+		$entries = $audit['entries'];
+
+		// Entries that need action lead: remove or relocate, then needs review,
+		// then everything that is fine as it is. Ties keep the audit's order,
+		// because PHP sorts are only stable from 8.0.
+		$rank  = array(
+			Directory_Audit::STATUS_UNSUPPORTED => 0,
+			Directory_Audit::STATUS_REVIEW      => 1,
 		);
+		$order = array_flip( array_keys( $entries ) );
+		uksort(
+			$entries,
+			static function ( $a, $b ) use ( $entries, $rank, $order ) {
+				$diff = ( $rank[ $entries[ $a ]['status'] ] ?? 2 ) <=> ( $rank[ $entries[ $b ]['status'] ] ?? 2 );
+
+				return 0 !== $diff ? $diff : $order[ $a ] <=> $order[ $b ];
+			}
+		);
+
+		// No heading: the page title already names the list.
+		UI::render_panel_open( array( 'flush' => true ) );
 
 		UI::render_toolbar(
 			array(
@@ -162,7 +124,7 @@ class Directories_Settings {
 		);
 
 		echo '<div class="wvc-table-wrap" data-role="table-view">';
-		echo '<table class="wvc-table">';
+		echo '<table class="wvc-table" aria-label="' . esc_attr__( 'Everything in wp-content', 'wp-vip-compatibility' ) . '">';
 
 		UI::render_table_head(
 			array(
@@ -185,7 +147,7 @@ class Directories_Settings {
 
 		echo '<tbody>';
 
-		foreach ( $audit['entries'] as $entry ) {
+		foreach ( $entries as $entry ) {
 			$this->render_row( $entry );
 		}
 

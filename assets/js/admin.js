@@ -4,8 +4,12 @@
  * Behaviour is grouped into small controllers, each owning one concern:
  *
  *   - menus     : single-open disclosure menus that close on outside click and Escape
+ *   - confirm   : asking before a full rescan
+ *   - shortcuts : "/" to jump to the screen's search field
+ *   - findings  : expanding and collapsing every entry in the fix list at once
+ *   - tiers     : switching the findings list between tiers without a reload
  *   - clipboard : copying SQL, both single statements and whole groups
- *   - tableView : filtering, searching, sorting and live counts
+ *   - tableView : filtering, searching, sorting, paging and live counts
  *   - rows      : the per-row detail drawers
  *   - scanner   : queued async compatibility checks and progress
  *
@@ -50,13 +54,14 @@ jQuery(document).ready(function ($) {
 
 	var ICON_PATHS = {
 		check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
-		alert:
-			'<path d="M12 8.5v5"/><path d="M12 17h.01"/>' +
-			'<path d="M10.3 3.9 2.6 17.4A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3.1L13.7 3.9a2 2 0 0 0-3.4 0Z"/>',
-		info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
+		refresh:
+			'<path d="M20 6v5h-5"/><path d="M4 18v-5h5"/>' +
+			'<path d="M19.5 11a7.5 7.5 0 0 0-13-3.5L4 10"/><path d="M4.5 13a7.5 7.5 0 0 0 13 3.5L20 14"/>',
 		copy:
 			'<rect x="9" y="9" width="11" height="11" rx="2"/>' +
-			'<path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5V5A1.5 1.5 0 0 1 4.5 3.5H13A1.5 1.5 0 0 1 14.5 5v.5"/>'
+			'<path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5V5A1.5 1.5 0 0 1 4.5 3.5H13A1.5 1.5 0 0 1 14.5 5v.5"/>',
+		"chevron-left": '<path d="m15 5-7 7 7 7"/>',
+		"chevron-right": '<path d="m9 5 7 7-7 7"/>'
 	};
 
 	/**
@@ -93,18 +98,20 @@ jQuery(document).ready(function ($) {
 	}
 
 	/**
-	 * Builds a resolved status pill.
+	 * Builds a resolved verdict tag, matching UI::get_status_pill().
+	 *
+	 * The glyph is drawn by the stylesheet from the modifier, so a tag is only
+	 * ever a class and a word.
 	 *
 	 * @param {string} state One of `compatible`, `review`, `not-compatible`.
 	 * @param {string} label Visible text.
-	 * @returns {jQuery} The pill element.
+	 * @returns {jQuery} The tag element.
 	 */
 	function buildPill(state, label) {
 		var modifier = state === "compatible" ? "ok" : state === "review" ? "warn" : "bad";
-		var glyph = state === "compatible" ? "check" : state === "review" ? "info" : "alert";
 
 		return $("<span/>", { class: "wvc-status wvc-status--" + modifier })
-			.append(icon(glyph, "xs"))
+			.append($("<span/>", { class: "wvc-status__glyph", "aria-hidden": "true" }))
 			.append($("<span/>").text(label));
 	}
 
@@ -166,8 +173,304 @@ jQuery(document).ready(function ($) {
 	})();
 
 	/* ---------------------------------------------------------------------
+	 * Help: the bar's button drives the WordPress Help panel
+	 * ------------------------------------------------------------------ */
+
+	(function help() {
+		var $toggle = $("[data-role='help-toggle']");
+		var $link = $("#contextual-help-link");
+
+		if (!$toggle.length || !$link.length) {
+			return;
+		}
+
+		$toggle.on("click", function () {
+			// WordPress updates its own link only after the slide animation, so
+			// read the panel's state before toggling it.
+			var opening = !$("#contextual-help-wrap").is(":visible");
+
+			$link.trigger("click");
+			$toggle.attr("aria-expanded", opening ? "true" : "false");
+		});
+	})();
+
+	/* ---------------------------------------------------------------------
+	 * Keyboard shortcut: "/" focuses search
+	 * ------------------------------------------------------------------ */
+
+	(function shortcuts() {
+		$(document).on("keydown", function (event) {
+			if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey) {
+				return;
+			}
+
+			// Typing a slash into a field is typing, not a shortcut.
+			if ($(event.target).closest("input, textarea, select, [contenteditable='true']").length) {
+				return;
+			}
+
+			var $search = $(".wvc .wvc-search__input:visible").first();
+
+			if ($search.length) {
+				event.preventDefault();
+				$search.trigger("focus").trigger("select");
+			}
+		});
+	})();
+
+	/* ---------------------------------------------------------------------
+	 * Findings: expand or collapse every entry
+	 * ------------------------------------------------------------------ */
+
+	(function findings() {
+		var $toggle = $("[data-role='expand-all']");
+		var $entries = $(".wvc-fixlist details.wvc-fix");
+
+		if (!$toggle.length || !$entries.length) {
+			return;
+		}
+
+		var $label = $toggle.children("span").first();
+
+		/**
+		 * Brings the button in line with the entries, however they were opened.
+		 */
+		function sync() {
+			var allOpen = $entries.filter(":not([open])").length === 0;
+
+			$toggle.attr("aria-pressed", allOpen ? "true" : "false");
+			$label.text(allOpen ? i18n.collapseAll || "" : i18n.expandAll || "");
+		}
+
+		// The button only works with the script, so it only appears with it.
+		$toggle.removeAttr("hidden");
+
+		$toggle.on("click", function () {
+			var open = $toggle.attr("aria-pressed") !== "true";
+
+			$entries.prop("open", open);
+			sync();
+		});
+
+		// `toggle` does not bubble, so it is listened for on each entry.
+		$entries.on("toggle", sync);
+
+		sync();
+	})();
+
+	/* ---------------------------------------------------------------------
+	 * Findings: switch tiers in place
+	 * ------------------------------------------------------------------ */
+
+	(function tiers() {
+		var $nav = $(".wvc-findings__toolbar .wvc-segmented");
+
+		if (!$nav.length) {
+			return;
+		}
+
+		var $groups = $(".wvc-fixlist > .wvc-tiergroup");
+		var $empty = $("[data-role='tier-empty']");
+		var $count = $("[data-role='findings-count']");
+
+		/**
+		 * Returns a URL with the tier set, or removed for "Everything".
+		 *
+		 * @param {string} href A URL.
+		 * @param {string} tier The tier slug, or "".
+		 * @returns {string} The URL.
+		 */
+		function withTier(href, tier) {
+			var url = new URL(href, window.location.href);
+
+			if (tier) {
+				url.searchParams.set("tier", tier);
+			} else {
+				url.searchParams.delete("tier");
+			}
+
+			return url.toString();
+		}
+
+		/**
+		 * Shows one tier's card, or all of them, and keeps the page in step.
+		 *
+		 * @param {string}  tier The tier slug, or "" for everything.
+		 * @param {boolean} push Whether to add a history entry.
+		 */
+		function select(tier, push) {
+			var $option = $nav.find(".wvc-segmented__option[data-tier='" + tier + "']");
+
+			if (!$option.length) {
+				tier = "";
+				$option = $nav.find(".wvc-segmented__option[data-tier='']");
+			}
+
+			$nav.find(".wvc-segmented__option").removeClass("active").removeAttr("aria-current");
+			$option.addClass("active").attr("aria-current", "true");
+
+			var visible = 0;
+
+			$groups.each(function () {
+				var show = !tier || String($(this).data("tier")) === tier;
+
+				$(this).prop("hidden", !show);
+				visible += show ? 1 : 0;
+			});
+
+			$empty.prop("hidden", visible > 0);
+			$count.text($option.attr("data-summary") || "");
+
+			// Everything else that carries the tier: the address, the search
+			// form and the links that remove the other filters.
+			if (push) {
+				window.history.pushState({ tier: tier }, "", withTier(window.location.href, tier));
+			}
+
+			var $form = $(".wvc-findings__toolbar form.wvc-search");
+
+			$form.find("input[name='tier']").remove();
+
+			if (tier) {
+				$form.append($('<input type="hidden" name="tier">').val(tier));
+			}
+
+			$(".wvc-findings__active a.wvc-activefilter").each(function () {
+				this.href = withTier(this.href, tier);
+			});
+		}
+
+		$nav.on("click", "a.wvc-segmented__option", function (event) {
+			// A modified click still opens the link wherever the reader asked.
+			if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
+				return;
+			}
+
+			event.preventDefault();
+
+			var $option = $(this);
+			var tier = String($option.attr("data-tier") || "");
+
+			// Choosing the selected tier again clears it, as the links do.
+			if ($option.hasClass("active") && tier) {
+				tier = "";
+			}
+
+			select(tier, true);
+		});
+
+		$(window).on("popstate", function () {
+			select(new URL(window.location.href).searchParams.get("tier") || "", false);
+		});
+	})();
+
+	/* ---------------------------------------------------------------------
 	 * Submitting state
 	 * ------------------------------------------------------------------ */
+
+	(function confirmRescan() {
+		/*
+		 * A full rescan replaces every result and can run for a while, so it
+		 * asks first. Registered before the submitting controller so a cancelled
+		 * submit never reaches it and the button never shows as busy.
+		 */
+		var $dialog = null;
+		var $pending = null;
+
+		function getDialog() {
+			if ($dialog) {
+				return $dialog;
+			}
+
+			// Inside the plugin's wrapper so the screen's styles reach it.
+			$dialog = $('<dialog class="wvc-dialog" aria-labelledby="wvc-dialog-title"></dialog>')
+				.append($('<h2 class="wvc-dialog__title" id="wvc-dialog-title"></h2>').text(i18n.confirmTitle || ""))
+				.append($('<p class="wvc-dialog__body"></p>').text(i18n.confirmBody || ""))
+				.append(
+					$('<div class="wvc-dialog__actions"></div>')
+						.append(
+							$('<button type="button" class="wvc-btn wvc-btn--ghost wvc-btn--sm" data-dialog="cancel"></button>').text(
+								i18n.cancel || ""
+							)
+						)
+						.append(
+							$('<button type="button" class="wvc-btn wvc-btn--primary wvc-btn--sm" data-dialog="confirm"></button>')
+								.append(icon("refresh", "sm"))
+								.append($("<span/>").text(i18n.confirmAction || ""))
+						)
+				)
+				.appendTo($(".wrap.wvc").first().length ? $(".wrap.wvc").first() : document.body);
+
+			$dialog.on("click", "[data-dialog='cancel']", function () {
+				$dialog[0].close();
+			});
+
+			// A click on the backdrop lands on the dialog element itself.
+			$dialog.on("click", function (event) {
+				if (event.target === this) {
+					this.close();
+				}
+			});
+
+			$dialog.on("click", "[data-dialog='confirm']", function () {
+				var form = $pending && $pending[0];
+
+				$dialog[0].close();
+
+				if (!form) {
+					return;
+				}
+
+				form.setAttribute("data-confirmed", "true");
+
+				// requestSubmit() fires the submit event, so the button shows as
+				// busy exactly as it does for an unconfirmed submit.
+				if (typeof form.requestSubmit === "function") {
+					form.requestSubmit();
+				} else {
+					$(form).find("button[type='submit']").addClass("is-busy");
+					form.submit();
+				}
+			});
+
+			$dialog.on("close", function () {
+				if ($pending && !$pending.attr("data-confirmed")) {
+					$pending.find("button[type='submit']").trigger("focus");
+				}
+
+				$pending = null;
+			});
+
+			return $dialog;
+		}
+
+		$(document).on("submit", "form[data-confirm='rescan-all']", function (event) {
+			var $form = $(this);
+
+			if ($form.attr("data-confirmed")) {
+				return;
+			}
+
+			var dialog = getDialog()[0];
+
+			// Without <dialog> support, fall back to the browser's own prompt.
+			if (typeof dialog.showModal !== "function") {
+				if (!window.confirm((i18n.confirmTitle || "") + "\n\n" + (i18n.confirmBody || ""))) {
+					event.preventDefault();
+					event.stopImmediatePropagation();
+				}
+
+				return;
+			}
+
+			event.preventDefault();
+			event.stopImmediatePropagation();
+
+			$pending = $form;
+			dialog.showModal();
+			$(dialog).find("[data-dialog='confirm']").trigger("focus");
+		});
+	})();
 
 	(function submitting() {
 		/*
@@ -367,8 +670,15 @@ jQuery(document).ready(function ($) {
 	})();
 
 	/* ---------------------------------------------------------------------
-	 * Table view: filter + search + sort + counts
+	 * Table view: filter + search + sort + paging + counts
 	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Rows per page. Every row is still rendered and searched; paging only
+	 * limits how many are drawn at once, so a schema with thousands of tables
+	 * stays quick to scroll and to filter.
+	 */
+	var PAGE_SIZE = 20;
 
 	/**
 	 * Wires up one table and the toolbar that precedes it.
@@ -400,8 +710,9 @@ jQuery(document).ready(function ($) {
 		var $resultCount = $toolbar.find("[data-role='result-count']");
 		var columnCount = $table.find("thead th").length || 1;
 
-		var state = { query: "", filters: {}, countsPending: false };
+		var state = { query: "", filters: {}, countsPending: false, page: 1 };
 		var $noResults = null;
+		var $pager = null;
 
 		// Seed each group from whichever option the server marked active, so a
 		// link such as ?status=not-compatible lands on a filtered view.
@@ -518,12 +829,109 @@ jQuery(document).ready(function ($) {
 			});
 		}
 
+		/**
+		 * Builds the pager once, directly after the table.
+		 *
+		 * @returns {jQuery} The pager.
+		 */
+		function getPager() {
+			if (!$pager) {
+				$pager = $('<nav class="wvc-pager" hidden></nav>').attr("aria-label", i18n.pager || "");
+
+				$pager
+					.append($('<p class="wvc-pager__range" aria-live="polite"></p>'))
+					.append(
+						$('<div class="wvc-pager__controls"></div>')
+							.append(
+								$('<button type="button" class="wvc-btn wvc-btn--ghost wvc-btn--sm" data-page="prev"></button>')
+									.append(icon("chevron-left", "sm"))
+									.append($("<span/>").text(i18n.previous || ""))
+							)
+							.append($('<span class="wvc-pager__page"></span>'))
+							.append(
+								$('<button type="button" class="wvc-btn wvc-btn--ghost wvc-btn--sm" data-page="next"></button>')
+									.append($("<span/>").text(i18n.next || ""))
+									.append(icon("chevron-right", "sm"))
+							)
+					);
+
+				$pager.on("click", "[data-page]", function () {
+					state.page += $(this).data("page") === "next" ? 1 : -1;
+					apply();
+
+					// The controls sit under the rows, so bring the top of the
+					// new page into view rather than leaving the reader at its end.
+					var top = ($toolbar.length ? $toolbar : $container).offset().top - 48;
+
+					if ($(window).scrollTop() > top) {
+						$("html, body").scrollTop(top);
+					}
+				});
+
+				$container.after($pager);
+			}
+
+			return $pager;
+		}
+
+		/**
+		 * Brings the pager in line with the matching rows and the current page.
+		 *
+		 * @param {number} matched Rows that pass the filters and the search.
+		 * @param {number} pages   Number of pages.
+		 */
+		function updatePager(matched, pages) {
+			var $nav = getPager();
+
+			if (pages <= 1) {
+				$nav.prop("hidden", true);
+				return;
+			}
+
+			var first = (state.page - 1) * PAGE_SIZE + 1;
+			var last = Math.min(state.page * PAGE_SIZE, matched);
+
+			$nav.prop("hidden", false);
+			$nav.find(".wvc-pager__range").text(format(i18n.pageRange, first, last, matched));
+			$nav.find(".wvc-pager__page").text(format(i18n.pageOf, state.page, pages));
+			$nav.find("[data-page='prev']").prop("disabled", state.page <= 1);
+			$nav.find("[data-page='next']").prop("disabled", state.page >= pages);
+		}
+
 		function apply() {
 			var visible = 0;
+			var matches = [];
 
-			$rows.each(function () {
+			// `$rows` is kept in display order (sorting reorders it), so the
+			// position among matching rows is the position on the page.
+			$rows.each(function (index) {
 				var $row = $(this);
-				var show = rowMatchesFilters($row) && rowMatchesQuery($row);
+
+				matches[index] = rowMatchesFilters($row) && rowMatchesQuery($row);
+
+				if (matches[index]) {
+					visible += 1;
+				}
+			});
+
+			var pages = Math.max(1, Math.ceil(visible / PAGE_SIZE));
+
+			// A refresh from the scanner can shrink the match; never strand the
+			// reader past the last page.
+			state.page = Math.min(Math.max(1, state.page), pages);
+
+			var start = (state.page - 1) * PAGE_SIZE;
+			var end = start + PAGE_SIZE;
+			var position = 0;
+
+			$rows.each(function (index) {
+				var $row = $(this);
+				var show = false;
+
+				if (matches[index]) {
+					show = position >= start && position < end;
+					position += 1;
+				}
 
 				$row.toggle(show);
 
@@ -535,11 +943,9 @@ jQuery(document).ready(function ($) {
 				if ($detail.length) {
 					$detail.toggle(show && $row.hasClass("is-open"));
 				}
-
-				if (show) {
-					visible += 1;
-				}
 			});
+
+			updatePager(visible, pages);
 
 			if (!visible && $rows.length) {
 				getNoResultsRow().appendTo($tbody).show();
@@ -566,6 +972,7 @@ jQuery(document).ready(function ($) {
 			var $group = $button.closest("[data-filter-group]");
 
 			state.filters[$group.data("filter-group")] = String($button.data("filter-value"));
+			state.page = 1;
 
 			$group.find("button").removeClass("active").attr("aria-pressed", "false");
 			$button.addClass("active").attr("aria-pressed", "true");
@@ -583,6 +990,7 @@ jQuery(document).ready(function ($) {
 				window.clearTimeout(searchTimer);
 				searchTimer = window.setTimeout(function () {
 					state.query = $.trim(String(value)).toLowerCase();
+					state.page = 1;
 					apply();
 				}, 140);
 			});
@@ -592,6 +1000,7 @@ jQuery(document).ready(function ($) {
 					event.stopPropagation();
 					$(this).val("");
 					state.query = "";
+					state.page = 1;
 					apply();
 				}
 			});
@@ -628,10 +1037,16 @@ jQuery(document).ready(function ($) {
 				$tbody.append(pairOf($(row)));
 			});
 
+			// Paging walks `$rows`, so it has to follow the new order.
+			$rows = $(sorted);
+
 			// Keep the empty-result row last.
 			if ($noResults) {
 				$noResults.appendTo($tbody);
 			}
+
+			state.page = 1;
+			apply();
 		});
 
 		apply();

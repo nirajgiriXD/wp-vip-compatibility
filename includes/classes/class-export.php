@@ -57,19 +57,19 @@ class Export {
 		return array(
 			'json' => array(
 				'label'       => __( 'JSON', 'wp-vip-compatibility' ),
-				'description' => __( 'Full report with every finding. Suitable for CI and tooling.', 'wp-vip-compatibility' ),
+				'description' => __( 'Every finding, for CI and tooling.', 'wp-vip-compatibility' ),
 				'extension'   => 'json',
 				'mime'        => 'application/json',
 			),
 			'csv'  => array(
 				'label'       => __( 'CSV', 'wp-vip-compatibility' ),
-				'description' => __( 'One row per finding, for a spreadsheet or an analysis sheet.', 'wp-vip-compatibility' ),
+				'description' => __( 'One row per finding, for a spreadsheet.', 'wp-vip-compatibility' ),
 				'extension'   => 'csv',
 				'mime'        => 'text/csv',
 			),
 			'md'   => array(
 				'label'       => __( 'Markdown', 'wp-vip-compatibility' ),
-				'description' => __( 'Grouped by target, for pasting into a ticket or a pull request.', 'wp-vip-compatibility' ),
+				'description' => __( 'For pasting into a ticket or PR.', 'wp-vip-compatibility' ),
 				'extension'   => 'md',
 				'mime'        => 'text/markdown',
 			),

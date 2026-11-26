@@ -43,7 +43,7 @@ class Plugins_Settings extends Inventory_Screen {
 	}
 
 	/**
-	 * Returns the panel title for the table.
+	 * Returns the accessible name of the table.
 	 *
 	 * @return string The title.
 	 */
@@ -165,54 +165,6 @@ class Plugins_Settings extends Inventory_Screen {
 	}
 
 	/**
-	 * Adds the update count to the shared statistics.
-	 *
-	 * @param array<string, mixed> $context The context.
-	 * @return array<int, array<string, mixed>> Stat tiles.
-	 */
-	protected function get_stats( array $context ) {
-		$stats   = parent::get_stats( $context );
-		$updates = 0;
-		$active  = 0;
-
-		foreach ( Targets::of_type( 'plugin' ) as $target ) {
-			if ( '' !== $this->get_available_version( $target, $context ) ) {
-				++$updates;
-			}
-
-			if ( $this->is_active( $target, $context ) ) {
-				++$active;
-			}
-		}
-
-		array_unshift(
-			$stats,
-			array(
-				'label' => __( 'Installed', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( (int) $context['counts']['total'] ),
-				'meta'  => sprintf(
-					/* translators: %s: Number of active plugins. */
-					__( '%s active', 'wp-vip-compatibility' ),
-					number_format_i18n( $active )
-				),
-				'tone'  => 'neutral',
-			)
-		);
-
-		if ( $updates > 0 ) {
-			$stats[] = array(
-				'label' => __( 'Updates available', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( $updates ),
-				'meta'  => __( 'Update before WordPress VIP reviews the code', 'wp-vip-compatibility' ),
-				'tone'  => 'accent',
-				'url'   => admin_url( 'plugins.php?plugin_status=upgrade' ),
-			);
-		}
-
-		return $stats;
-	}
-
-	/**
 	 * Renders the cells of one row.
 	 *
 	 * @param array<string, mixed> $target  The target.
@@ -227,13 +179,15 @@ class Plugins_Settings extends Inventory_Screen {
 		$active = $this->is_active( $target, $context );
 
 		echo '<td class="wvc-col-state" data-label="' . esc_attr__( 'State', 'wp-vip-compatibility' ) . '">';
-		echo UI::get_badge( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_badge(
 			$active ? __( 'Active', 'wp-vip-compatibility' ) : __( 'Inactive', 'wp-vip-compatibility' ),
 			$active ? 'accent' : 'neutral',
 			$active
 				? __( 'WordPress loads this plugin on every request.', 'wp-vip-compatibility' )
 				: __( 'Not loaded, but still shipped in the repository and still reviewed by WordPress VIP.', 'wp-vip-compatibility' )
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</td>';
 
 		echo UI::get_verdict_cell( $verdict, $target['key'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.

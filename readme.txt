@@ -47,7 +47,7 @@ The issue title, what was detected, why it matters on the WordPress VIP Platform
 
 = Reporting =
 
-An overall readiness score and a ranked list of what to do next; one flat list of fixes with the recommended change on the face of every card, filtered by one-click chips; per-plugin, per-theme and per-table breakdowns; scan history with a change summary between runs; and export to JSON, CSV or Markdown for CI, an analysis sheet or a pull request.
+An overall readiness score and the first three things to do; a map of every plugin, theme, table and path on the site, one square each, by verdict; one ranked list of fixes with the recommended change on the face of every entry, filtered from a column of one-click links; per-plugin, per-theme and per-table breakdowns; scan history with a change summary between runs; and export to JSON, CSV or Markdown for CI, an analysis sheet or a pull request.
 
 The admin menu carries a count of what must be fixed before migrating, so the work is visible from anywhere in wp-admin without opening the plugin.
 
@@ -136,3 +136,5 @@ Fixes three security issues in 1.0.0: AJAX endpoints that required only a logged
 2. The fix list, ranked worst first, with one-click filters.
 3. An expanded finding showing evidence, rationale and remediation.
 4. The database audit with per-table verdicts and the SQL to fix them.
+5. The plugins screen, with a row expanded to its evidence.
+6. The themes screen, leading with the active theme.
