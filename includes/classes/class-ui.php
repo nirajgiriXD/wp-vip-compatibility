@@ -388,7 +388,7 @@ class UI {
 					<?php echo self::get_icon( 'seal' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 				</span>
 				<span class="wvc-brand__text">
-					<span class="wvc-brand__name"><?php esc_html_e( 'VIP Compatibility', 'wp-vip-compatibility' ); ?></span>
+					<span class="wvc-brand__name"><?php esc_html_e( 'WordPress VIP Compatibility', 'wp-vip-compatibility' ); ?></span>
 					<span class="wvc-brand__meta">
 						<?php
 						printf(
