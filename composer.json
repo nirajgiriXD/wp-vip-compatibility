@@ -1,0 +1,24 @@
+{
+  "name": "nirajgirixd/preflight-audit",
+  "description": "Checks a WordPress site against the WordPress VIP Platform requirements before migrating.",
+  "type": "wordpress-plugin",
+  "license": "GPL-3.0-or-later",
+  "require": {
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "brain/monkey": "^2.6",
+    "phpunit/phpunit": "^9.6"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PREFLIGHT_AUDIT\\Tests\\": "tests/php/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit"
+  },
+  "config": {
+    "sort-packages": true
+  }
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<phpunit
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+	bootstrap="tests/php/bootstrap.php"
+	colors="true"
+	beStrictAboutOutputDuringTests="true"
+	failOnRisky="true"
+	failOnWarning="true"
+	convertDeprecationsToExceptions="true"
+>
+	<testsuites>
+		<testsuite name="scanner">
+			<directory suffix="Test.php">tests/php/Scanner</directory>
+		</testsuite>
+		<testsuite name="admin">
+			<directory suffix="Test.php">tests/php/Classes</directory>
+		</testsuite>
+		<testsuite name="plugin">
+			<directory suffix="Test.php">tests/php/Plugin</directory>
+		</testsuite>
+	</testsuites>
+
+	<!--
+		Tests in the known-bug group describe the correct behaviour for a bug that
+		is not fixed yet. Run them on their own with the group option set to known-bug.
+	-->
+	<groups>
+		<exclude>
+			<group>known-bug</group>
+		</exclude>
+	</groups>
+
+	<coverage>
+		<include>
+			<directory suffix=".php">includes</directory>
+			<file>functions.php</file>
+			<file>preflight-audit.php</file>
+			<file>uninstall.php</file>
+		</include>
+	</coverage>
+</phpunit>

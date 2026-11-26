@@ -12,3 +12,10 @@
 
 # Windows junk
 Thumbs.db
+
+# Composer and PHPUnit
+/vendor/
+.phpunit.result.cache
+
+# Jest
+/coverage/

@@ -12,6 +12,12 @@ postcss.config.js
 composer.*
 package*.json
 phpcs.xml
+phpunit.xml.dist
+patchwork.json
+vendor/
+tests/
+coverage/
+.phpunit.result.cache
 .editorconfig
 .distignore
 .DS_Store

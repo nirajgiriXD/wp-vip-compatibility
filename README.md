@@ -114,6 +114,13 @@ add_filter( 'preflight_audit_scanner_excluded_directories', function ( array $ex
 ## Development
 
 ```bash
+# Tests. Neither suite needs WordPress or a database.
+composer install && composer test   # PHP: PHPUnit with Brain Monkey
+npm install && npm test             # admin.js: Jest with jsdom
+
+# Tests for known, unfixed bugs. These are expected to fail.
+vendor/bin/phpunit --group known-bug
+
 # Coding standards. The plugin's own source passes with no violations.
 composer require --dev automattic/vipwpcs phpcompatibility/phpcompatibility-wp
 phpcs --standard=phpcs.xml .
