@@ -76,7 +76,8 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 	protected function render_intro( array $context ) {
 		unset( $context );
 
-		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_notice(
 			wp_kses_post(
 				sprintf(
 					/* translators: %s: Link to the WordPress VIP documentation. */
@@ -87,6 +88,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 			'warning',
 			esc_html__( 'None of this migrates as-is', 'wp-vip-compatibility' )
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -268,13 +270,15 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 		$this->render_name_cell( $target, array(), 'wp-content/mu-plugins/' . $target['file'] );
 
 		echo '<td class="wvc-col-state" data-label="' . esc_attr__( 'Kind', 'wp-vip-compatibility' ) . '">';
-		echo UI::get_badge( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_badge(
 			$is_file ? __( 'File', 'wp-vip-compatibility' ) : __( 'Directory', 'wp-vip-compatibility' ),
 			$is_file ? 'accent' : 'neutral',
 			$is_file
 				? __( 'WordPress auto-loads this file on every request.', 'wp-vip-compatibility' )
 				: __( 'Not auto-loaded. Something else has to require it, or nothing does.', 'wp-vip-compatibility' )
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</td>';
 
 		$this->render_version_cell( $target, $context );

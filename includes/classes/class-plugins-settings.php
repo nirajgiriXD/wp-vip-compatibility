@@ -227,13 +227,15 @@ class Plugins_Settings extends Inventory_Screen {
 		$active = $this->is_active( $target, $context );
 
 		echo '<td class="wvc-col-state" data-label="' . esc_attr__( 'State', 'wp-vip-compatibility' ) . '">';
-		echo UI::get_badge( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_badge(
 			$active ? __( 'Active', 'wp-vip-compatibility' ) : __( 'Inactive', 'wp-vip-compatibility' ),
 			$active ? 'accent' : 'neutral',
 			$active
 				? __( 'WordPress loads this plugin on every request.', 'wp-vip-compatibility' )
 				: __( 'Not loaded, but still shipped in the repository and still reviewed by WordPress VIP.', 'wp-vip-compatibility' )
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</td>';
 
 		echo UI::get_verdict_cell( $verdict, $target['key'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
