@@ -41,7 +41,10 @@ class Settings {
 	 */
 	private function setup_hooks() {
 		add_action( 'admin_menu', array( $this, 'add_plugin_menus' ) );
-		add_action( 'admin_init', array( $this, 'redirect_retired_screens' ) );
+		// Not admin_init: WordPress refuses an unregistered page slug in
+		// wp-admin/menu.php, which runs before admin_init, so a redirect hooked
+		// there never fires. admin_menu runs before that check.
+		add_action( 'admin_menu', array( $this, 'redirect_retired_screens' ), 0 );
 	}
 
 	/**
