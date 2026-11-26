@@ -713,63 +713,6 @@ class UI {
 	 */
 
 	/**
-	 * Renders a tally: the headline numbers of a screen, as one ruled band.
-	 *
-	 * One number, one label, one line of context per cell, and — where the
-	 * number stands for work — the link that takes you to it.
-	 *
-	 * @param array<int, array<string, mixed>> $stats {
-	 *     Cells to render.
-	 *
-	 *     @type string $label Short label.
-	 *     @type string $value The headline value.
-	 *     @type string $meta  Optional supporting line.
-	 *     @type string $tone  One of `ok`, `warn`, `bad`, `accent`, `neutral`.
-	 *     @type string $url   Optional destination.
-	 * }
-	 * @param string                           $modifier Optional extra class.
-	 * @return void
-	 */
-	public static function render_stats( array $stats, $modifier = '' ) {
-		if ( empty( $stats ) ) {
-			return;
-		}
-		?>
-		<ul class="<?php echo esc_attr( trim( 'wvc-tally ' . $modifier ) ); ?>">
-			<?php foreach ( $stats as $stat ) : ?>
-				<?php
-				$stat = wp_parse_args(
-					$stat,
-					array(
-						'label' => '',
-						'value' => '',
-						'meta'  => '',
-						'tone'  => 'neutral',
-						'url'   => '',
-					)
-				);
-
-				$tag        = ( '' === $stat['url'] ) ? 'div' : 'a';
-				$attributes = ( '' === $stat['url'] ) ? '' : ' href="' . esc_url( $stat['url'] ) . '"';
-				?>
-				<li class="wvc-tally__item wvc-tally__item--<?php echo esc_attr( $stat['tone'] ); ?>">
-					<<?php echo esc_html( $tag ); ?> class="wvc-tally__cell<?php echo ( '' === $stat['url'] ) ? '' : ' is-linked'; ?>"<?php echo $attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?>>
-						<span class="wvc-tally__label"><?php echo esc_html( $stat['label'] ); ?></span>
-						<span class="wvc-tally__value"><?php echo esc_html( $stat['value'] ); ?></span>
-						<?php if ( '' !== $stat['meta'] ) : ?>
-							<span class="wvc-tally__meta"><?php echo esc_html( $stat['meta'] ); ?></span>
-						<?php endif; ?>
-						<?php if ( '' !== $stat['url'] ) : ?>
-							<?php echo self::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--xs wvc-tally__arrow' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-						<?php endif; ?>
-					</<?php echo esc_html( $tag ); ?>>
-				</li>
-			<?php endforeach; ?>
-		</ul>
-		<?php
-	}
-
-	/**
 	 * Opens a titled section.
 	 *
 	 * A section is a heading on a rule. Only `flush` sections — the ones holding

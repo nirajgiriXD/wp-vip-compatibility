@@ -878,110 +878,6 @@ body.wvc-screen,
 	border-bottom-color: var(--wvc-rule-2);
 }
 
-/* Tallies: a screen's headline numbers as one ruled band. */
-.wvc-tally {
-	display: flex;
-	flex-wrap: wrap;
-	overflow: hidden;
-	border-top: 1px solid var(--wvc-ink);
-	border-bottom: 1px solid var(--wvc-rule-2);
-}
-
-.wvc-tally__item {
-	flex: 1 1 190px;
-	box-shadow: -1px 0 0 var(--wvc-rule), 0 -1px 0 var(--wvc-rule);
-}
-
-.wvc-tally__cell {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-	height: 100%;
-	padding: 16px 22px 18px;
-	color: inherit;
-	text-decoration: none;
-	transition: background-color 0.15s ease;
-}
-
-.wvc .wvc-tally__cell {
-	color: var(--wvc-ink);
-}
-
-.wvc-tally__cell.is-linked:hover {
-	background: var(--wvc-paper-2);
-}
-
-.wvc-tally__label {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	color: var(--wvc-ink-2);
-	font-family: var(--wvc-mono);
-	font-size: 10.5px;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-}
-
-.wvc-tally__label::before {
-	content: "";
-	width: 7px;
-	height: 7px;
-	border-radius: 1px;
-	background: var(--wvc-rule-2);
-}
-
-.wvc-tally__item--bad .wvc-tally__label::before {
-	background: var(--wvc-block);
-}
-
-.wvc-tally__item--warn .wvc-tally__label::before {
-	background: var(--wvc-imp);
-}
-
-.wvc-tally__item--ok .wvc-tally__label::before {
-	background: var(--wvc-ok);
-}
-
-.wvc-tally__item--accent .wvc-tally__label::before {
-	background: var(--wvc-accent);
-}
-
-.wvc-tally__value {
-	font-family: var(--wvc-mono);
-	font-size: 32px;
-	font-weight: 600;
-	line-height: 1.05;
-	letter-spacing: -0.03em;
-	font-variant-numeric: tabular-nums;
-}
-
-.wvc-tally__item--bad .wvc-tally__value {
-	color: var(--wvc-block-ink);
-}
-
-.wvc-tally__meta {
-	color: var(--wvc-ink-3);
-	font-size: 12.5px;
-	line-height: 1.4;
-}
-
-.wvc-tally__arrow {
-	position: absolute;
-	top: 16px;
-	right: 16px;
-	color: var(--wvc-ink-3);
-	opacity: 0;
-	transform: translateX(-4px);
-	transition: opacity 0.15s ease, transform 0.2s var(--wvc-ease);
-}
-
-.wvc-tally__cell.is-linked:hover .wvc-tally__arrow,
-.wvc-tally__cell.is-linked:focus-visible .wvc-tally__arrow {
-	opacity: 1;
-	transform: none;
-}
-
 /* -------------------------------------------------------------------------
  * 7. Overview
  * ---------------------------------------------------------------------- */
@@ -2882,10 +2778,6 @@ code.wvc-item__name {
 	margin-top: 18px;
 }
 
-.wvc-tally + .wvc-notice {
-	margin-top: 28px !important;
-}
-
 /*
  * The WordPress Help panel. Its floating tab is replaced by the Help button in
  * the bar, and with a single tab the tab list and its tinted backdrop only add
@@ -3377,14 +3269,6 @@ body.wvc-screen #screen-meta .help-tab-content {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.wvc-tally__item {
-		flex-basis: 50%;
-	}
-
-	.wvc-tally__value {
-		font-size: 26px;
-	}
-
 	.wvc-verdict__number {
 		font-size: 88px;
 	}
@@ -3422,10 +3306,6 @@ body.wvc-screen #screen-meta .help-tab-content {
 
 	.wvc-facet__option.is-active {
 		outline: 2px solid Highlight;
-	}
-
-	.wvc-tally__label::before {
-		forced-color-adjust: none;
 	}
 }
 
