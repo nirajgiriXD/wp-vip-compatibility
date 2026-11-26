@@ -77,13 +77,14 @@ class Database_Audit {
 		$collations = (array) Plugin::get_instance()->get_reference_list( 'vip_supported_collations' );
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema metadata has no core API; the result is cached in a transient by run().
+		// DATABASE() rather than DB_NAME: the constant is not defined on
+		// WordPress VIP, and the connection already knows which schema it is on.
 		$tables = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT TABLE_NAME, TABLE_COLLATION, ENGINE, TABLE_ROWS, DATA_LENGTH, INDEX_LENGTH
 				FROM information_schema.TABLES
-				WHERE TABLE_SCHEMA = %s AND TABLE_TYPE = %s
+				WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = %s
 				ORDER BY TABLE_NAME',
-				DB_NAME,
 				'BASE TABLE'
 			)
 		);

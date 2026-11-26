@@ -2,6 +2,8 @@
 
 Analyse a WordPress site against the [WordPress VIP Platform](https://docs.wpvip.com/) requirements, and get an actionable fix for every issue found.
 
+> Not affiliated with or endorsed by Automattic, WordPress VIP, or the WordPress Foundation.
+
 ## What it does
 
 The plugin scans every plugin, theme and must-use plugin on the site and reports what has to change before the site can move to WordPress VIP — and what to change it to.
@@ -82,11 +84,13 @@ Where it still cannot be sure, it lowers the confidence and explains why in the 
 ```php
 $path = '/wp-content/uploads'; // wvc:ignore filesystem.hardcoded-uploads-path -- Documentation string, not a path we use.
 
-// wvc:ignore-next-line security.command-execution -- Fixture data, never executed.
-exec( $command );
+// wvc:ignore-next-line environment.runtime-ini-change -- CLI-only script, never runs on a web request.
+ini_set( 'memory_limit', '512M' );
 ```
 
 A reason after `--` is required, so a suppression always records why.
+
+Security findings cannot be suppressed. The annotation lives in the code being scanned, so honouring it for those would let a third-party plugin hide its own shell calls or unescaped output.
 
 ## Extending
 

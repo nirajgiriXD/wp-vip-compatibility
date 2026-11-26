@@ -57,6 +57,10 @@ Results are only as good as their false-positive rate, so the scanner resolves l
 
 The plugin holds itself to the same standard: its own source passes `phpcs --standard=WordPress-VIP-Go`.
 
+= Disclaimer =
+
+Not affiliated with or endorsed by Automattic, WordPress VIP, or the WordPress Foundation.
+
 == Installation ==
 
 1. Download the plugin ZIP file.
@@ -89,7 +93,7 @@ Because it is not. `/wp-content/uploads/` is the one path under `wp-content` tha
 
 = Can I suppress a finding I have reviewed? =
 
-Yes. Add `// wvc:ignore <rule-id> -- your reason` to the line, or `// wvc:ignore-next-line <rule-id> -- your reason` above it. A reason is required.
+Yes. Add `// wvc:ignore <rule-id> -- your reason` to the line, or `// wvc:ignore-next-line <rule-id> -- your reason` above it. A reason is required. Security findings cannot be suppressed, so a plugin cannot hide its own shell calls or unescaped output.
 
 = Can I add or change rules? =
 

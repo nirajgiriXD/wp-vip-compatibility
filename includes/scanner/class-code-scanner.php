@@ -85,6 +85,10 @@ class Code_Scanner {
 	 *
 	 * A reason after `--` is required, so a suppression always records why.
 	 *
+	 * Security findings cannot be suppressed. The annotation lives in the code
+	 * being scanned, so honouring it for those would let any third-party plugin
+	 * hide its own shell calls or unescaped output from the site owner.
+	 *
 	 * @param array<int, array<string, mixed>> $findings The findings.
 	 * @param string                           $source   The file source.
 	 * @return array<int, array<string, mixed>> The surviving findings.
@@ -121,6 +125,11 @@ class Code_Scanner {
 				$findings,
 				static function ( $finding ) use ( $suppressed ) {
 					$rules = $suppressed[ $finding['line'] ] ?? array();
+					$rule  = Rules::get( $finding['rule'] );
+
+					if ( Taxonomy::TYPE_SECURITY === ( $rule['type'] ?? '' ) ) {
+						return true;
+					}
 
 					return ! in_array( '*', $rules, true ) && ! in_array( $finding['rule'], $rules, true );
 				}
@@ -141,7 +150,7 @@ class Code_Scanner {
 			return '';
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source file for static analysis; WP_Filesystem adds no value and cannot read outside the install.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source file for static analysis; WP_Filesystem adds no value here.
 		$source = @file_get_contents( $absolute_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- An unreadable file is skipped, not reported.
 
 		return is_string( $source ) ? $source : '';

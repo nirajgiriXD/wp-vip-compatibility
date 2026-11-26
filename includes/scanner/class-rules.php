@@ -7,7 +7,7 @@
  * least one of the following is true:
  *
  * - The pattern fails or misbehaves on WordPress VIP because of a platform constraint
- *   (read-only filesystem, no PHP sessions, NGINX instead of Apache, the
+ *   (read-only filesystem, no real directory tree in uploads, NGINX instead of Apache, the
  *   object cache being shared, cron running through Cron Control...).
  * - The platform already provides the capability, so shipping a local
  *   implementation duplicates or fights the platform.
@@ -41,7 +41,7 @@ class Rules {
 	 *
 	 * @var string
 	 */
-	const VERSION = '2.0.0';
+	const VERSION = '2.1.0';
 
 	/**
 	 * Memoised rule definitions.
@@ -127,7 +127,7 @@ class Rules {
 				'why'         => '',
 				'remediation' => '',
 				'alternative' => '',
-				'doc'         => 'https://docs.wpvip.com/technical-references/code-review/',
+				'doc'         => 'https://docs.wpvip.com/php_codesniffer/',
 				'phpcs'       => '',
 				'match'       => array(),
 				'guard'       => null,
@@ -252,10 +252,10 @@ class Rules {
 				'confidence'  => Taxonomy::CONFIDENCE_MEDIUM,
 				'fixability'  => Taxonomy::FIX_ARCHITECTURAL,
 				'detected'    => __( 'A directory listing or traversal call pointed at the uploads directory.', 'wp-vip-compatibility' ),
-				'why'         => __( 'The WordPress VIP File System is an object store presented through a stream wrapper. It has no real directory tree, so listing a directory returns nothing useful and some traversal calls raise a fatal error. This is the failure mode behind the known BuddyPress avatar incompatibility.', 'wp-vip-compatibility' ),
+				'why'         => __( 'The WordPress VIP File System is an object store presented through a stream wrapper, with no real directory tree. On the uploads directory, scandir(), glob(), opendir() and similar calls return an empty array or false and raise a PHP warning. Directory traversal only works in /tmp.', 'wp-vip-compatibility' ),
 				'remediation' => __( 'Stop discovering files by listing a directory. Record the files you write — in post meta, user meta, an option or a custom table — and read that index back instead.', 'wp-vip-compatibility' ),
 				'alternative' => __( 'For attachments, query the media library with WP_Query on the "attachment" post type rather than walking the uploads folder.', 'wp-vip-compatibility' ),
-				'doc'         => $fs_doc,
+				'doc'         => $uploads_doc,
 				'match'       => array(
 					'functions' => array( 'opendir', 'readdir', 'closedir', 'rewinddir', 'scandir', 'glob' ),
 					'classes'   => array( 'DirectoryIterator', 'RecursiveDirectoryIterator', 'FilesystemIterator' ),
@@ -305,14 +305,14 @@ class Rules {
 				'title'       => __( 'WP_Filesystem credentials request', 'wp-vip-compatibility' ),
 				'category'    => 'filesystem',
 				'type'        => Taxonomy::TYPE_POTENTIALLY_INCOMPATIBLE,
-				'severity'    => Taxonomy::SEVERITY_MEDIUM,
+				'severity'    => Taxonomy::SEVERITY_LOW,
 				'confidence'  => Taxonomy::CONFIDENCE_MEDIUM,
 				'fixability'  => Taxonomy::FIX_MANUAL,
 				'detected'    => __( 'Use of the WP_Filesystem abstraction or a request for filesystem credentials.', 'wp-vip-compatibility' ),
-				'why'         => __( 'WP_Filesystem exists to write into the WordPress install. On WordPress VIP those paths are read-only and file modifications are disabled, so the credentials prompt cannot succeed and the write will not land.', 'wp-vip-compatibility' ),
-				'remediation' => __( 'Drop the WP_Filesystem layer and write directly into the uploads directory with the standard PHP file functions — the WordPress VIP stream wrapper handles them.', 'wp-vip-compatibility' ),
+				'why'         => __( 'WP_Filesystem can still read plugin and theme files on WordPress VIP, but the web servers are read-only, so anything it writes outside /tmp fails, and its directory operations do not work as expected on the uploads file system.', 'wp-vip-compatibility' ),
+				'remediation' => __( 'Use WP_Filesystem only to read. Write scratch files with wp_tempnam() under get_temp_dir(), and store media through the WordPress upload APIs, which the WordPress VIP stream wrapper handles.', 'wp-vip-compatibility' ),
 				'alternative' => '',
-				'doc'         => $fs_doc,
+				'doc'         => $uploads_doc,
 				'match'       => array(
 					'functions' => array( 'request_filesystem_credentials', 'WP_Filesystem', 'get_filesystem_method' ),
 				),
@@ -373,10 +373,10 @@ class Rules {
 				'confidence'  => Taxonomy::CONFIDENCE_HIGH,
 				'fixability'  => Taxonomy::FIX_CONFIGURATION,
 				'detected'    => __( 'A call to add_image_size().', 'wp-vip-compatibility' ),
-				'why'         => __( 'Every registered size multiplies the derivative files created per upload, which inflates the media payload that has to be migrated and stored. WordPress VIP can generate sizes on demand from the original, so most registered sizes are avoidable.', 'wp-vip-compatibility' ),
-				'remediation' => __( 'Review whether each registered size is used. Request one-off dimensions through the image URL rather than registering a size for them.', 'wp-vip-compatibility' ),
+				'why'         => __( 'WordPress VIP does not create a file for each registered size. Every size is generated on request from the original through URL parameters, and get_intermediate_image_sizes() returns an empty array. Code that expects a resized file on disk, or loops over the size list, will not find what it expects.', 'wp-vip-compatibility' ),
+				'remediation' => __( 'Keep registered sizes for wp_get_attachment_image() and srcset, but never read a resized file from disk. Request one-off dimensions with URL parameters such as ?w=300&h=200&crop=1.', 'wp-vip-compatibility' ),
 				'alternative' => '',
-				'doc'         => 'https://docs.wpvip.com/vip-file-system/image-files/',
+				'doc'         => 'https://docs.wpvip.com/vip-file-system/image-files/intermediate-images/',
 				'match'       => array(
 					'functions' => array( 'add_image_size' ),
 				),
@@ -407,7 +407,7 @@ class Rules {
 				// inside a translatable string confuse both PHPCS and translators.
 				'remediation' => __( 'Wrap the SQL in $wpdb->prepare() using its string, integer and float placeholders, and pass the values as arguments. Table names cannot be placeholders — build them from $wpdb->prefix and validate against a known list.', 'wp-vip-compatibility' ),
 				'alternative' => __( 'Prefer a core API — WP_Query, get_posts(), get_terms() — over hand-written SQL wherever one exists.', 'wp-vip-compatibility' ),
-				'doc'         => 'https://docs.wpvip.com/security/',
+				'doc'         => 'https://docs.wpvip.com/databases/optimize-queries/database-queries/',
 				'phpcs'       => 'WordPress.DB.PreparedSQL.InterpolatedNotPrepared',
 				'match'       => array(
 					'methods' => array( 'wpdb->query', 'wpdb->get_results', 'wpdb->get_row', 'wpdb->get_var', 'wpdb->get_col' ),
@@ -438,12 +438,12 @@ class Rules {
 				'title'       => __( 'Runtime database schema change', 'wp-vip-compatibility' ),
 				'category'    => 'database',
 				'type'        => Taxonomy::TYPE_POTENTIALLY_INCOMPATIBLE,
-				'severity'    => Taxonomy::SEVERITY_HIGH,
+				'severity'    => Taxonomy::SEVERITY_MEDIUM,
 				'confidence'  => Taxonomy::CONFIDENCE_HIGH,
 				'fixability'  => Taxonomy::FIX_ARCHITECTURAL,
 				'detected'    => __( 'CREATE TABLE, ALTER TABLE, DROP TABLE, TRUNCATE TABLE or dbDelta() in application code.', 'wp-vip-compatibility' ),
-				'why'         => __( 'Custom tables are allowed on WordPress VIP but are expected to be reviewed, and a schema change issued during a web request can lock tables on a production database. Tables created this way also need the InnoDB engine, a supported collation and the wp_ prefix, which ad-hoc SQL frequently gets wrong.', 'wp-vip-compatibility' ),
-				'remediation' => __( 'Move schema changes out of the request path into an idempotent WP-CLI command, and specify ENGINE=InnoDB with a WordPress VIP-supported utf8mb4 collation and the $wpdb->prefix prefix.', 'wp-vip-compatibility' ),
+				'why'         => __( 'Custom tables are allowed on WordPress VIP, but they must use the $wpdb->prefix table prefix, and a schema change issued on every web request can lock tables on a production database.', 'wp-vip-compatibility' ),
+				'remediation' => __( 'Run schema changes through dbDelta() from a versioned upgrade routine that runs once, such as an option-version check or a WP-CLI command, never on every request. Use the $wpdb->prefix prefix and a WordPress VIP-supported utf8mb4 collation.', 'wp-vip-compatibility' ),
 				'alternative' => __( 'Consider whether a custom post type, taxonomy or meta table can replace the custom table before adding one.', 'wp-vip-compatibility' ),
 				'doc'         => 'https://docs.wpvip.com/databases/custom-tables/',
 				// Attached to the query rather than to any DDL-shaped string in
@@ -465,21 +465,22 @@ class Rules {
 				'fixability'  => Taxonomy::FIX_MANUAL,
 				'detected'    => __( 'A core function that WordPress VIP documents as running an uncached database query.', 'wp-vip-compatibility' ),
 				'why'         => __( 'These functions query the database directly on every call with no object-cache layer in front of them. On a high-traffic site they turn into an uncached query per page view.', 'wp-vip-compatibility' ),
-				'remediation' => __( 'Cache the result yourself with wp_cache_get()/wp_cache_set(), or replace the lookup with one that is cached — get_post(), get_term(), or a WP_Query with the identifier you already hold.', 'wp-vip-compatibility' ),
+				'remediation' => __( 'Use the cached wrapper WordPress VIP provides: wpcom_vip_url_to_postid(), wpcom_vip_attachment_url_to_postid(), wpcom_vip_count_user_posts(), wpcom_vip_get_adjacent_post(), wpcom_vip_wp_oembed_get() or wpcom_vip_old_slug_redirect(). Otherwise cache the result yourself with wp_cache_get() and wp_cache_set().', 'wp-vip-compatibility' ),
 				'alternative' => __( 'Store the resolved ID alongside the data that needed it so the lookup only happens once.', 'wp-vip-compatibility' ),
 				'doc'         => 'https://docs.wpvip.com/databases/optimize-queries/uncached-functions/',
 				'phpcs'       => 'WordPressVIPMinimum.Functions.RestrictedFunctions',
 				'match'       => array(
 					'functions' => array(
-						'get_page_by_path',
-						'get_page_by_title',
 						'url_to_postid',
 						'attachment_url_to_postid',
-						'get_term_by',
 						'wp_old_slug_redirect',
 						'count_user_posts',
 						'get_adjacent_post',
-						'get_children',
+						'get_previous_post',
+						'get_next_post',
+						'previous_post_link',
+						'next_post_link',
+						'wp_oembed_get',
 					),
 				),
 			),
@@ -562,7 +563,7 @@ class Rules {
 				'fixability'  => Taxonomy::FIX_MANUAL,
 				'detected'    => __( 'A direct cURL call.', 'wp-vip-compatibility' ),
 				'why'         => __( 'WordPress VIP expects outbound traffic to go through the WordPress HTTP API so that platform-level timeouts, retries and monitoring apply. Raw cURL sidesteps all of it, and typically ships with no timeout at all, so a slow endpoint stalls the whole request.', 'wp-vip-compatibility' ),
-				'remediation' => __( 'Replace the cURL handle with wp_safe_remote_get() or wp_safe_remote_post(), passing an explicit "timeout" of 3 seconds or less.', 'wp-vip-compatibility' ),
+				'remediation' => __( 'Replace the cURL handle with the WordPress HTTP API. For front-end GET requests use wpcom_vip_file_get_contents(), which caches the response; otherwise use vip_safe_wp_remote_get() or wp_safe_remote_post() with a timeout of 3 seconds or less.', 'wp-vip-compatibility' ),
 				'alternative' => __( 'Use vip_safe_wp_remote_get(), which adds a circuit breaker that stops calling an endpoint that has started failing.', 'wp-vip-compatibility' ),
 				'doc'         => $remote_doc,
 				'phpcs'       => 'WordPressVIPMinimum.Functions.RestrictedFunctions.curl_curl_init',
@@ -580,7 +581,7 @@ class Rules {
 				'fixability'  => Taxonomy::FIX_MANUAL,
 				'detected'    => __( 'A filesystem function called with an http:// or https:// URL.', 'wp-vip-compatibility' ),
 				'why'         => __( 'Fetching over HTTP with file_get_contents() and friends relies on allow_url_fopen, has no timeout, ignores the platform HTTP layer, and is explicitly reported by the WordPress VIP PHPCS standard.', 'wp-vip-compatibility' ),
-				'remediation' => __( 'Use wp_safe_remote_get() and read the body with wp_remote_retrieve_body(), passing an explicit short timeout.', 'wp-vip-compatibility' ),
+				'remediation' => __( 'Use wpcom_vip_file_get_contents(), which caches the response and serves the cached copy if a fetch fails, or wp_safe_remote_get() with an explicit short timeout and your own caching.', 'wp-vip-compatibility' ),
 				'alternative' => __( 'For feeds, fetch_feed() adds caching for free.', 'wp-vip-compatibility' ),
 				'doc'         => $remote_doc,
 				'phpcs'       => 'WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown',
@@ -598,8 +599,8 @@ class Rules {
 				'confidence'  => Taxonomy::CONFIDENCE_HIGH,
 				'fixability'  => Taxonomy::FIX_ARCHITECTURAL,
 				'detected'    => __( 'A raw socket, FTP, SSH, LDAP or third-party database connection.', 'wp-vip-compatibility' ),
-				'why'         => __( 'WordPress VIP containers restrict outbound traffic and do not ship every client extension. Connections on arbitrary ports and protocols are blocked, so this code fails on the platform even though it works locally.', 'wp-vip-compatibility' ),
-				'remediation' => __( 'Move the integration behind an HTTPS API reached with the WordPress HTTP API, and raise a WordPress VIP support request to allow-list the host if outbound access is refused.', 'wp-vip-compatibility' ),
+				'why'         => __( 'Outbound requests on WordPress VIP are documented for HTTP through the WordPress HTTP API only. Raw sockets, FTP, SSH, LDAP and external database connections depend on network access and PHP extensions the platform does not document, so they may fail on WordPress VIP even though they work locally.', 'wp-vip-compatibility' ),
+				'remediation' => __( 'Move the integration behind an HTTPS API reached with the WordPress HTTP API. If that is not possible, confirm the connection with WordPress VIP support before migrating.', 'wp-vip-compatibility' ),
 				'alternative' => __( 'Where the remote system cannot expose HTTP, run the transfer outside the application and push the results in.', 'wp-vip-compatibility' ),
 				'doc'         => 'https://docs.wpvip.com/technical-references/wordpress-on-vip/',
 				'match'       => array(
@@ -629,8 +630,8 @@ class Rules {
 				'confidence'  => Taxonomy::CONFIDENCE_MEDIUM,
 				'fixability'  => Taxonomy::FIX_MANUAL,
 				'detected'    => __( 'A WordPress HTTP API call with no transient or object-cache call anywhere in the same function.', 'wp-vip-compatibility' ),
-				'why'         => __( 'An uncached outbound request runs on every cache miss and blocks page generation until it returns. WordPress VIP treats remote calls on the front end as a primary cause of slow page generation.', 'wp-vip-compatibility' ),
-				'remediation' => __( 'Wrap the call in a transient or object-cache read, and pass an explicit "timeout" of 3 seconds or less.', 'wp-vip-compatibility' ),
+				'why'         => __( 'An uncached outbound request runs on every cache miss and blocks page generation until it returns. WordPress VIP says uncached remote requests should never run on the front end of a site.', 'wp-vip-compatibility' ),
+				'remediation' => __( 'Use wpcom_vip_file_get_contents(), which caches for 15 minutes by default, or wrap the call in a transient or object-cache read. Keep the timeout at 3 seconds or less.', 'wp-vip-compatibility' ),
 				'alternative' => __( 'Move the fetch into a scheduled job that refreshes a cached copy, so no visitor request ever waits on the remote service.', 'wp-vip-compatibility' ),
 				'doc'         => $remote_doc,
 				'match'       => array(
@@ -664,8 +665,6 @@ class Rules {
 	 * @return array<string, array<string, mixed>> Rule definitions.
 	 */
 	private static function caching_rules() {
-		$cache_doc = 'https://docs.wpvip.com/caching/page-cache/';
-
 		return array(
 			'caching.custom-page-cache'   => array(
 				'title'       => __( 'Custom page-cache implementation', 'wp-vip-compatibility' ),
@@ -678,7 +677,7 @@ class Rules {
 				'why'         => __( 'WordPress VIP provides a globally distributed edge page cache and a managed object cache, and installs its own drop-ins. A second caching layer either has no effect or actively conflicts with the platform, which is why the well-known caching plugins are on the WordPress VIP incompatibility list.', 'wp-vip-compatibility' ),
 				'remediation' => __( 'Remove the custom caching layer and rely on the platform. Tune behaviour with cache-control headers and the WordPress VIP Cache API instead.', 'wp-vip-compatibility' ),
 				'alternative' => __( 'For fragment caching inside a page, use the WordPress object cache API (wp_cache_get/wp_cache_set), which WordPress VIP backs with Memcached.', 'wp-vip-compatibility' ),
-				'doc'         => 'https://docs.wpvip.com/caching/',
+				'doc'         => 'https://docs.wpvip.com/wordpress-on-vip/drop-ins/',
 				'match'       => array(
 					'strings'   => array( '#(advanced-cache|object-cache)\.php#i' ),
 					'constants' => array( 'WP_CACHE' ),
@@ -695,10 +694,10 @@ class Rules {
 				'confidence'  => Taxonomy::CONFIDENCE_DEFINITIVE,
 				'fixability'  => Taxonomy::FIX_MANUAL,
 				'detected'    => __( 'A call to wp_cache_flush().', 'wp-vip-compatibility' ),
-				'why'         => __( 'The object cache on WordPress VIP is shared infrastructure. Flushing all of it evicts every other cached value on the site at once and produces a burst of uncached traffic straight onto the database.', 'wp-vip-compatibility' ),
+				'why'         => __( 'Flushing the object cache evicts every cached value on the site at once and sends a burst of uncached traffic straight to the database. WordPress VIP code review asks for the wp_cache_* functions to be used with great caution.', 'wp-vip-compatibility' ),
 				'remediation' => __( 'Delete only the keys you invalidated with wp_cache_delete(), or move the data into its own cache group and version the group key.', 'wp-vip-compatibility' ),
 				'alternative' => '',
-				'doc'         => 'https://docs.wpvip.com/technical-references/cache-api/',
+				'doc'         => 'https://docs.wpvip.com/caching/object-cache/',
 				'phpcs'       => 'WordPressVIPMinimum.Functions.RestrictedFunctions.wp_cache_flush',
 				'match'       => array(
 					'functions' => array( 'wp_cache_flush' ),
@@ -713,10 +712,10 @@ class Rules {
 				'confidence'  => Taxonomy::CONFIDENCE_MEDIUM,
 				'fixability'  => Taxonomy::FIX_MANUAL,
 				'detected'    => __( 'nocache_headers(), or a Cache-Control / Pragma / Expires header sent by hand.', 'wp-vip-compatibility' ),
-				'why'         => __( 'Sending no-cache headers on a front-end response tells the WordPress VIP edge cache not to store the page. Applied broadly, it takes the site off the CDN and puts every visitor onto the origin.', 'wp-vip-compatibility' ),
+				'why'         => __( 'WordPress VIP respects no-cache headers, and marks a response with a private Cache-Control value as uncacheable. Applied broadly, that takes the site off the edge cache and puts every visitor onto the origin.', 'wp-vip-compatibility' ),
 				'remediation' => __( 'Scope the header to genuinely per-user responses. Where the page is mostly static with a small dynamic part, cache the page and load the dynamic fragment separately.', 'wp-vip-compatibility' ),
-				'alternative' => __( 'Use the WordPress VIP Cache API to set an explicit max-age instead of disabling caching outright.', 'wp-vip-compatibility' ),
-				'doc'         => 'https://docs.wpvip.com/caching/page-cache/cache-control-headers/',
+				'alternative' => __( 'Send a Cache-Control header with a shorter max-age instead of disabling caching outright.', 'wp-vip-compatibility' ),
+				'doc'         => 'https://docs.wpvip.com/caching/page-cache/default-responses/',
 				'match'       => array(
 					'functions' => array( 'nocache_headers', 'header' ),
 				),
@@ -731,10 +730,10 @@ class Rules {
 				'confidence'  => Taxonomy::CONFIDENCE_LOW,
 				'fixability'  => Taxonomy::FIX_MANUAL,
 				'detected'    => __( 'A call to setcookie() or setrawcookie().', 'wp-vip-compatibility' ),
-				'why'         => __( 'Cookies interact with the edge cache: the wrong cookie name on a front-end response can make every visitor a cache miss. Only a defined set of cookie prefixes is safe to vary on.', 'wp-vip-compatibility' ),
-				'remediation' => __( 'Check the cookie against the WordPress VIP cache-personalisation rules, and set it only on the responses that genuinely need it rather than on every page load.', 'wp-vip-compatibility' ),
-				'alternative' => __( 'Read the value in JavaScript after the cached page loads, so the HTML itself stays cacheable.', 'wp-vip-compatibility' ),
-				'doc'         => 'https://docs.wpvip.com/technical-references/caching/vip-cache-personalization/',
+				'why'         => __( 'A response that sends a Set-Cookie header through setcookie() is marked uncacheable by the WordPress VIP page cache. Set on every front-end page, it takes the site off the edge cache.', 'wp-vip-compatibility' ),
+				'remediation' => __( 'Set the cookie only on the responses that genuinely need it, or in JavaScript after the cached page loads, so the HTML itself stays cacheable.', 'wp-vip-compatibility' ),
+				'alternative' => __( 'To serve different cached versions to groups of visitors, use the WordPress VIP cache personalization API (the Vary_Cache class) instead of a custom cookie.', 'wp-vip-compatibility' ),
+				'doc'         => 'https://docs.wpvip.com/caching/page-cache/cookies/',
 				'match'       => array(
 					'functions' => array( 'setcookie', 'setrawcookie' ),
 				),
@@ -776,7 +775,7 @@ class Rules {
 				'confidence'  => Taxonomy::CONFIDENCE_HIGH,
 				'fixability'  => Taxonomy::FIX_MANUAL,
 				'detected'    => __( 'spawn_cron(), a direct call into wp-cron.php, or direct reads and writes of the cron array.', 'wp-vip-compatibility' ),
-				'why'         => __( 'Cron Control owns the event queue on WordPress VIP. Code that spawns its own cron run or rewrites the cron array fights the platform runner and can drop or duplicate events.', 'wp-vip-compatibility' ),
+				'why'         => __( 'Cron Control owns the event queue on WordPress VIP, and the /wp-cron.php endpoint is disabled. Code that spawns its own cron run or rewrites the cron array fights the platform runner and can drop or duplicate events.', 'wp-vip-compatibility' ),
 				'remediation' => __( 'Schedule work with wp_schedule_event() and wp_schedule_single_event() and let Cron Control run it.', 'wp-vip-compatibility' ),
 				'alternative' => __( 'For work that must run on a precise schedule or take a long time, use a WP-CLI command triggered by Cron Control.', 'wp-vip-compatibility' ),
 				'doc'         => $cron_doc,
@@ -796,8 +795,8 @@ class Rules {
 				'confidence'  => Taxonomy::CONFIDENCE_HIGH,
 				'fixability'  => Taxonomy::FIX_CONFIGURATION,
 				'detected'    => __( 'A callback registered on the cron_schedules filter.', 'wp-vip-compatibility' ),
-				'why'         => __( 'Cron Control executes events at a bounded concurrency. Very short intervals produce a backlog rather than more frequent execution, so a custom schedule is worth checking against how long the job actually takes.', 'wp-vip-compatibility' ),
-				'remediation' => __( 'Confirm the interval is at least a minute and that the job finishes well inside it. Long jobs should be split into batches.', 'wp-vip-compatibility' ),
+				'why'         => __( 'By default Cron Control runs only one event with the same action at a time. If the interval is shorter than the job takes, runs queue up rather than happening more often.', 'wp-vip-compatibility' ),
+				'remediation' => __( 'Check that the job finishes well inside the interval, and split long jobs into batches. Schedule recurring work with wp_schedule_event(), not by calling wp_schedule_single_event() again on every run.', 'wp-vip-compatibility' ),
 				'alternative' => '',
 				'doc'         => $cron_doc,
 				'match'       => array(
@@ -819,12 +818,12 @@ class Rules {
 			'security.command-execution'   => array(
 				'title'       => __( 'Shell command execution', 'wp-vip-compatibility' ),
 				'category'    => 'security',
-				'type'        => Taxonomy::TYPE_INCOMPATIBLE,
+				'type'        => Taxonomy::TYPE_SECURITY,
 				'severity'    => Taxonomy::SEVERITY_CRITICAL,
 				'confidence'  => Taxonomy::CONFIDENCE_DEFINITIVE,
 				'fixability'  => Taxonomy::FIX_ARCHITECTURAL,
 				'detected'    => __( 'A call that shells out to the operating system.', 'wp-vip-compatibility' ),
-				'why'         => __( 'Process execution is disabled in WordPress VIP application containers, so these calls fail. They are also a command-injection risk whenever any part of the command is built from input.', 'wp-vip-compatibility' ),
+				'why'         => __( 'Shelling out is a command-injection risk whenever any part of the command is built from input, and the WordPress coding standards that the WordPress VIP standard builds on flag these calls. The binaries a command relies on are not documented as available on the read-only WordPress VIP web servers.', 'wp-vip-compatibility' ),
 				'remediation' => __( 'Replace the external binary with a PHP library or a WordPress API. Where the work is genuinely a batch job, implement it as a WP-CLI command.', 'wp-vip-compatibility' ),
 				'alternative' => __( 'For media processing specifically, the platform already handles resizing and format conversion — no external binary is needed.', 'wp-vip-compatibility' ),
 				'doc'         => $security_doc,
@@ -846,7 +845,7 @@ class Rules {
 				'why'         => __( 'Executing code assembled at runtime is a remote-code-execution risk and cannot be reviewed statically. WordPress VIP code review rejects it, and create_function() was removed in PHP 8.', 'wp-vip-compatibility' ),
 				'remediation' => __( 'Rewrite the dynamic code as a real function, a closure, or a lookup table of allowed behaviours.', 'wp-vip-compatibility' ),
 				'alternative' => '',
-				'doc'         => $security_doc,
+				'doc'         => 'https://docs.wpvip.com/php_codesniffer/warnings/',
 				'phpcs'       => 'Squiz.PHP.Eval.Discouraged',
 				'match'       => array(
 					'functions' => array( 'eval', 'create_function', 'assert' ),
@@ -864,7 +863,7 @@ class Rules {
 				'why'         => __( 'PHP object injection through unserialize() can lead to remote code execution when the payload is attacker-controlled. It is on the WordPress VIP restricted-function list.', 'wp-vip-compatibility' ),
 				'remediation' => __( 'Use JSON for data interchange, and maybe_unserialize() only for values WordPress itself serialised.', 'wp-vip-compatibility' ),
 				'alternative' => __( 'If unserialize() is unavoidable, pass ["allowed_classes" => false].', 'wp-vip-compatibility' ),
-				'doc'         => $security_doc,
+				'doc'         => 'https://docs.wpvip.com/php_codesniffer/warnings/',
 				'phpcs'       => 'WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize',
 				'match'       => array(
 					'functions' => array( 'unserialize' ),
@@ -882,7 +881,7 @@ class Rules {
 				'why'         => __( 'This is a reflected cross-site scripting vector. WordPress VIP code review treats unescaped output as a blocker.', 'wp-vip-compatibility' ),
 				'remediation' => __( 'Sanitise on input with sanitize_text_field( wp_unslash( ... ) ) and escape on output with esc_html(), esc_attr() or esc_url() as appropriate.', 'wp-vip-compatibility' ),
 				'alternative' => '',
-				'doc'         => $security_doc,
+				'doc'         => 'https://docs.wpvip.com/security/validating-sanitizing-and-escaping/',
 				'phpcs'       => 'WordPress.Security.EscapeOutput.OutputNotEscaped',
 				'match'       => array(
 					'echoed_superglobals' => true,
@@ -900,7 +899,7 @@ class Rules {
 				'why'         => __( 'extract() creates variables whose names come from data, so it can overwrite existing variables and makes the surrounding code impossible to reason about or review.', 'wp-vip-compatibility' ),
 				'remediation' => __( 'Read the array keys explicitly, or destructure with list()/[] so the variable names are visible in the source.', 'wp-vip-compatibility' ),
 				'alternative' => '',
-				'doc'         => $security_doc,
+				'doc'         => 'https://docs.wpvip.com/php_codesniffer/warnings/',
 				'phpcs'       => 'WordPress.PHP.DontExtract.extract_extract',
 				'match'       => array(
 					'functions' => array( 'extract' ),
@@ -956,14 +955,14 @@ class Rules {
 			'environment.php-sessions'      => array(
 				'title'       => __( 'PHP session used', 'wp-vip-compatibility' ),
 				'category'    => 'environment',
-				'type'        => Taxonomy::TYPE_INCOMPATIBLE,
-				'severity'    => Taxonomy::SEVERITY_HIGH,
+				'type'        => Taxonomy::TYPE_PERFORMANCE,
+				'severity'    => Taxonomy::SEVERITY_MEDIUM,
 				'confidence'  => Taxonomy::CONFIDENCE_DEFINITIVE,
-				'fixability'  => Taxonomy::FIX_ARCHITECTURAL,
+				'fixability'  => Taxonomy::FIX_MANUAL,
 				'detected'    => __( 'session_start(), another session function, or $_SESSION.', 'wp-vip-compatibility' ),
-				'why'         => __( 'PHP sessions are not supported on WordPress VIP. Requests are served by many containers with no shared session store, so a session written on one request is missing on the next, and starting a session sends headers that take the response out of the page cache.', 'wp-vip-compatibility' ),
-				'remediation' => __( 'Move per-user state into a cookie, user meta, or the object cache keyed by a value the client sends. Move short-lived flow state into a signed token in the URL.', 'wp-vip-compatibility' ),
-				'alternative' => __( 'For logged-in users, user meta is the direct replacement and is already cached.', 'wp-vip-compatibility' ),
+				'why'         => __( 'WordPress VIP supports PHP sessions for short-lived data, backed by Memcached, but every request from a user with a session bypasses the page cache. Starting a session for every visitor takes the site off the edge cache.', 'wp-vip-compatibility' ),
+				'remediation' => __( 'Start a session only when it is needed, scope it with the path argument of session_set_cookie_params(), and destroy it as soon as the flow is done.', 'wp-vip-compatibility' ),
+				'alternative' => __( 'For logged-in users, user meta is often a better home for per-user state, and it is already cached.', 'wp-vip-compatibility' ),
 				'doc'         => 'https://docs.wpvip.com/wordpress-on-vip/php-sessions/',
 				'phpcs'       => 'WordPressVIPMinimum.Functions.RestrictedFunctions.session_session_start',
 				'match'       => array(
@@ -979,14 +978,14 @@ class Rules {
 				'severity'    => Taxonomy::SEVERITY_MEDIUM,
 				'confidence'  => Taxonomy::CONFIDENCE_HIGH,
 				'fixability'  => Taxonomy::FIX_CONFIGURATION,
-				'detected'    => __( 'ini_set(), set_time_limit(), error_reporting(), putenv() or dl().', 'wp-vip-compatibility' ),
+				'detected'    => __( 'ini_set(), set_time_limit(), error_reporting(), putenv(), dl() or date_default_timezone_set().', 'wp-vip-compatibility' ),
 				'why'         => __( 'PHP configuration on WordPress VIP is managed by the platform. These calls are either ignored or overridden, so code that depends on the new value behaves differently in production than it does locally.', 'wp-vip-compatibility' ),
 				'remediation' => __( 'Remove the call and make the code work within the platform limits. If a limit genuinely blocks the workload, raise it with WordPress VIP support rather than trying to change it from PHP.', 'wp-vip-compatibility' ),
 				'alternative' => __( 'Work that needs a long execution time belongs in a WP-CLI command or a batched cron job, not a web request.', 'wp-vip-compatibility' ),
-				'doc'         => $platform_doc,
+				'doc'         => 'https://docs.wpvip.com/php_codesniffer/errors/',
 				'phpcs'       => 'WordPress.PHP.IniSet',
 				'match'       => array(
-					'functions' => array( 'ini_set', 'ini_alter', 'set_time_limit', 'error_reporting', 'putenv', 'dl', 'setlocale' ),
+					'functions' => array( 'ini_set', 'ini_alter', 'set_time_limit', 'error_reporting', 'putenv', 'dl', 'setlocale', 'date_default_timezone_set' ),
 				),
 			),
 
@@ -1069,10 +1068,10 @@ class Rules {
 				'confidence'  => Taxonomy::CONFIDENCE_DEFINITIVE,
 				'fixability'  => Taxonomy::FIX_AUTOMATIC,
 				'detected'    => __( "A call to PHP's mail() function.", 'wp-vip-compatibility' ),
-				'why'         => __( 'Outbound mail on WordPress VIP is delivered through the platform mail service, which hooks wp_mail(). PHP mail() bypasses that entirely, so the message is not sent and not logged.', 'wp-vip-compatibility' ),
+				'why'         => __( 'WordPress VIP code review flags application code that generates email, and expects any mail that must be sent to go through wp_mail(). PHP mail() bypasses the hooks WordPress and its plugins use to deliver, filter and log mail.', 'wp-vip-compatibility' ),
 				'remediation' => __( 'Replace mail() with wp_mail(). The arguments map directly.', 'wp-vip-compatibility' ),
 				'alternative' => '',
-				'doc'         => $platform_doc,
+				'doc'         => 'https://docs.wpvip.com/php_codesniffer/warnings/',
 				'phpcs'       => 'WordPress.PHP.DiscouragedPHPFunctions',
 				'match'       => array(
 					'functions' => array( 'mail' ),
@@ -1135,7 +1134,7 @@ class Rules {
 				'why'         => __( 'wp_redirect() will send a visitor to any host. When the destination comes from a request parameter that is an open-redirect vulnerability.', 'wp-vip-compatibility' ),
 				'remediation' => __( 'Use wp_safe_redirect(), which restricts the destination to allowed hosts, and add external hosts with the "allowed_redirect_hosts" filter when you need them.', 'wp-vip-compatibility' ),
 				'alternative' => '',
-				'doc'         => 'https://docs.wpvip.com/security/',
+				'doc'         => 'https://docs.wpvip.com/php_codesniffer/warnings/',
 				'phpcs'       => 'WordPressVIPMinimum.Security.ExitAfterRedirect',
 				'match'       => array(
 					'functions' => array( 'wp_redirect' ),
@@ -1158,6 +1157,7 @@ class Rules {
 				'match'       => array(
 					'functions' => array(
 						'create_function',
+						'get_page_by_title',
 						'get_currentuserinfo',
 						'get_userdatabylogin',
 						'get_settings',
