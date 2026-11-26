@@ -41,7 +41,7 @@ class Themes_Settings extends Inventory_Screen {
 	}
 
 	/**
-	 * Returns the panel title for the table.
+	 * Returns the accessible name of the table.
 	 *
 	 * @return string The title.
 	 */

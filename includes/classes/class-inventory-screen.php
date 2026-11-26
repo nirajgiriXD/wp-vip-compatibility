@@ -118,7 +118,7 @@ abstract class Inventory_Screen {
 	abstract protected function get_search_label();
 
 	/**
-	 * Returns the panel title for the table.
+	 * Returns the accessible name of the table.
 	 *
 	 * @return string The title.
 	 */
@@ -161,13 +161,9 @@ abstract class Inventory_Screen {
 			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		UI::render_panel_open(
-			array(
-				'title' => $this->get_table_title(),
-				'count' => number_format_i18n( count( $targets ) ),
-				'flush' => true,
-			)
-		);
+		// No heading: the page title already names the list. The title still
+		// names the table for assistive technology.
+		UI::render_panel_open( array( 'flush' => true ) );
 
 		UI::render_toolbar(
 			array(
@@ -178,7 +174,7 @@ abstract class Inventory_Screen {
 		);
 
 		echo '<div class="wvc-table-wrap" data-role="table-view">';
-		echo '<table class="wvc-table wvc-table--expandable">';
+		echo '<table class="wvc-table wvc-table--expandable" aria-label="' . esc_attr( $this->get_table_title() ) . '">';
 
 		UI::render_table_head(
 			array_merge(
