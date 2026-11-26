@@ -65,19 +65,19 @@
             "status": "unsupported",
             "description": "Page-cache drop-in.",
             "guidance": "Remove it. WordPress VIP installs its own drop-ins and provides a globally distributed edge cache.",
-            "doc": "https://docs.wpvip.com/caching/"
+            "doc": "https://docs.wpvip.com/wordpress-on-vip/drop-ins/"
         },
         "object-cache.php": {
             "status": "unsupported",
             "description": "Object-cache drop-in.",
             "guidance": "Remove it. WordPress VIP supplies a managed object cache backed by Memcached.",
-            "doc": "https://docs.wpvip.com/caching/"
+            "doc": "https://docs.wpvip.com/wordpress-on-vip/drop-ins/"
         },
         "db.php": {
             "status": "unsupported",
             "description": "Database drop-in.",
             "guidance": "Remove it. WordPress VIP runs HyperDB and does not permit alternative database drop-ins.",
-            "doc": "https://docs.wpvip.com/databases/"
+            "doc": "https://docs.wpvip.com/wordpress-on-vip/drop-ins/"
         },
         "debug.log": {
             "status": "unsupported",
@@ -420,8 +420,7 @@
             "wp-super-cache": "Page caching plugin that conflicts with the built-in WordPress VIP page cache.",
             "wp-smushit": "Image optimisation plugin with observed incompatibilities against the WordPress VIP File System.",
             "sucuri-scanner": "Security plugin that conflicts with WordPress VIP security infrastructure.",
-            "wordfence": "Security plugin that requires filesystem writes and conflicts with WordPress VIP security infrastructure.",
-            "wp-file-manager": "Browses and edits files in the WordPress install. The WordPress VIP application filesystem is read-only, so edits silently fail."
+            "wordfence": "Security plugin that requires filesystem writes and conflicts with WordPress VIP security infrastructure."
         },
         "caution": {
             "contact-form-7": "Versions before 5.8.1 require filesystem write access. Confirm the installed version and test file uploads.",
@@ -430,15 +429,16 @@
             "tablepress": "Needs write access for imports and exports. Verify against the uploads directory.",
             "ninja-tables": "Needs write access for imports and exports. Verify against the uploads directory.",
             "wpdatatables": "Needs write access for imports and exports. Verify against the uploads directory.",
-            "wpforms": "Writes uploads and logs. Confirm every path resolves inside the uploads directory.",
-            "wpforms-lite": "Writes uploads and logs. Confirm every path resolves inside the uploads directory.",
-            "elementor": "Generates per-page CSS files and makes heavy use of the object cache. Both are performance risks on WordPress VIP.",
-            "elementor-pro": "Generates per-page CSS files and makes heavy use of the object cache. Both are performance risks on WordPress VIP.",
+            "wpforms": "The Modern file upload field does not work on WordPress VIP. Switch file upload fields to the Classic style.",
+            "wpforms-lite": "The Modern file upload field does not work on WordPress VIP. Switch file upload fields to the Classic style.",
+            "elementor": "Heavy object-cache and autoloaded-option use hurts performance at scale, and SVG handling that relies on realpath() fails on the WordPress VIP File System.",
+            "elementor-pro": "Heavy object-cache and autoloaded-option use hurts performance at scale, and SVG handling that relies on realpath() fails on the WordPress VIP File System.",
             "advanced-custom-fields": "Supported, but field groups should be stored as JSON committed with the theme rather than in the database.",
             "advanced-custom-fields-pro": "Supported, but field groups should be stored as JSON committed with the theme rather than in the database.",
-            "buddypress": "Avatar and cover-photo handling iterates upload directories and calls opendir()/closedir(), which fatals on the WordPress VIP File System.",
-            "buddyboss-platform": "Shares the BuddyPress avatar handling that fatals on the WordPress VIP File System.",
-            "amazon-s3-and-cloudfront": "WP Offload Media diverts uploads away from the WordPress VIP File System, which produces broken or empty thumbnails."
+            "buddypress": "Avatar and cover-photo handling iterates upload directories with opendir()/closedir(), which return empty results and raise PHP warnings on the WordPress VIP File System.",
+            "buddyboss-platform": "Shares the BuddyPress avatar handling that breaks on the WordPress VIP File System.",
+            "amazon-s3-and-cloudfront": "WP Offload Media diverts uploads away from the WordPress VIP File System, which produces broken or empty thumbnails.",
+            "wp-file-manager": "Browses and edits files in the WordPress install. The WordPress VIP web servers are read-only, so edits fail."
         },
         "redundant": {
             "jetpack": "Provided by the WordPress VIP platform as a must-use plugin.",
@@ -456,7 +456,8 @@
             "cache-enabler": "Page caching is handled by the WordPress VIP edge cache.",
             "hummingbird-performance": "Page caching and asset optimisation are handled by the WordPress VIP platform.",
             "wp-crontrol": "WordPress VIP runs scheduled events through Cron Control.",
-            "application-passwords": "Merged into WordPress core in 5.6 and no longer needed as a plugin."
+            "application-passwords": "Merged into WordPress core in 5.6 and no longer needed as a plugin.",
+            "wordpress-importer": "Provided by the WordPress VIP platform and enabled by default."
         },
         "verified": [
             "wp-vip-compatibility",
