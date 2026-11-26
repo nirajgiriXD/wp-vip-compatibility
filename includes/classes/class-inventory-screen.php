@@ -101,7 +101,7 @@ abstract class Inventory_Screen {
 	}
 
 	/**
-	 * Renders anything that belongs above the table, after the statistics.
+	 * Renders anything that belongs above the table.
 	 *
 	 * @param array<string, mixed> $context Shared per-request lookups.
 	 * @return void
@@ -147,8 +147,6 @@ abstract class Inventory_Screen {
 		}
 
 		$context = $this->build_context( $targets );
-
-		UI::render_stats( $this->get_stats( $context ) );
 
 		$this->render_intro( $context );
 
@@ -213,41 +211,16 @@ abstract class Inventory_Screen {
 	 * @return array<string, mixed> The context.
 	 */
 	protected function build_context( array $targets ) {
-		$index  = Results_Store::get_index();
-		$counts = array(
-			'total'   => 0,
-			'ready'   => 0,
-			'review'  => 0,
-			'blocked' => 0,
-			'pending' => 0,
-			'issues'  => 0,
-		);
-
+		$index    = Results_Store::get_index();
 		$verdicts = array();
 
 		foreach ( $targets as $key => $target ) {
-			$verdict         = Report::verdict( $target, $index );
-			$verdicts[ $key ] = $verdict;
-
-			$bucket = 'review';
-
-			if ( 'pending' === $verdict['state'] ) {
-				$bucket = 'pending';
-			} elseif ( Scanner::STATUS_PASS === $verdict['status'] ) {
-				$bucket = 'ready';
-			} elseif ( Scanner::STATUS_BLOCKED === $verdict['status'] ) {
-				$bucket = 'blocked';
-			}
-
-			++$counts[ $bucket ];
-			++$counts['total'];
-			$counts['issues'] += (int) $verdict['total'];
+			$verdicts[ $key ] = Report::verdict( $target, $index );
 		}
 
 		return array(
 			'index'          => $index,
 			'verdicts'       => $verdicts,
-			'counts'         => $counts,
 			'plugin_updates' => get_site_transient( 'update_plugins' ),
 			'theme_updates'  => get_site_transient( 'update_themes' ),
 			'active_theme'   => get_stylesheet(),
@@ -268,51 +241,6 @@ abstract class Inventory_Screen {
 		}
 
 		return $active;
-	}
-
-	/**
-	 * Builds the headline statistics for the screen.
-	 *
-	 * @param array<string, mixed> $context The context.
-	 * @return array<int, array<string, mixed>> Stat tiles.
-	 */
-	protected function get_stats( array $context ) {
-		$counts = $context['counts'];
-		$screen = UI::get_screen_for_type( $this->get_type() );
-		$url    = UI::get_screen_url( $screen );
-
-		$stats = array(
-			array(
-				'label' => __( 'Blocked', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( $counts['blocked'] ),
-				'meta'  => __( 'Expected to fail on WordPress VIP', 'wp-vip-compatibility' ),
-				'tone'  => $counts['blocked'] > 0 ? 'bad' : 'neutral',
-				'url'   => $counts['blocked'] > 0 ? add_query_arg( 'status', 'not-compatible', $url ) : '',
-			),
-			array(
-				'label' => __( 'Needs review', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( $counts['review'] ),
-				'meta'  => __( 'A decision before you migrate', 'wp-vip-compatibility' ),
-				'tone'  => $counts['review'] > 0 ? 'warn' : 'neutral',
-				'url'   => $counts['review'] > 0 ? add_query_arg( 'status', 'review', $url ) : '',
-			),
-			array(
-				'label' => __( 'Ready', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( $counts['ready'] ),
-				'meta'  => __( 'Nothing outstanding', 'wp-vip-compatibility' ),
-				'tone'  => 'ok',
-				'url'   => $counts['ready'] > 0 ? add_query_arg( 'status', 'compatible', $url ) : '',
-			),
-			array(
-				'label' => __( 'Findings', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( $counts['issues'] ),
-				'meta'  => __( 'Across everything listed here', 'wp-vip-compatibility' ),
-				'tone'  => 'accent',
-				'url'   => $counts['issues'] > 0 ? UI::get_findings_url() : '',
-			),
-		);
-
-		return $stats;
 	}
 
 	/**

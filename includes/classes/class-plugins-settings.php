@@ -165,54 +165,6 @@ class Plugins_Settings extends Inventory_Screen {
 	}
 
 	/**
-	 * Adds the update count to the shared statistics.
-	 *
-	 * @param array<string, mixed> $context The context.
-	 * @return array<int, array<string, mixed>> Stat tiles.
-	 */
-	protected function get_stats( array $context ) {
-		$stats   = parent::get_stats( $context );
-		$updates = 0;
-		$active  = 0;
-
-		foreach ( Targets::of_type( 'plugin' ) as $target ) {
-			if ( '' !== $this->get_available_version( $target, $context ) ) {
-				++$updates;
-			}
-
-			if ( $this->is_active( $target, $context ) ) {
-				++$active;
-			}
-		}
-
-		array_unshift(
-			$stats,
-			array(
-				'label' => __( 'Installed', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( (int) $context['counts']['total'] ),
-				'meta'  => sprintf(
-					/* translators: %s: Number of active plugins. */
-					__( '%s active', 'wp-vip-compatibility' ),
-					number_format_i18n( $active )
-				),
-				'tone'  => 'neutral',
-			)
-		);
-
-		if ( $updates > 0 ) {
-			$stats[] = array(
-				'label' => __( 'Updates available', 'wp-vip-compatibility' ),
-				'value' => number_format_i18n( $updates ),
-				'meta'  => __( 'Update before WordPress VIP reviews the code', 'wp-vip-compatibility' ),
-				'tone'  => 'accent',
-				'url'   => admin_url( 'plugins.php?plugin_status=upgrade' ),
-			);
-		}
-
-		return $stats;
-	}
-
-	/**
 	 * Renders the cells of one row.
 	 *
 	 * @param array<string, mixed> $target  The target.
