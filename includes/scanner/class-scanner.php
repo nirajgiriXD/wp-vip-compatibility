@@ -143,11 +143,22 @@ class Scanner {
 		$files    = array();
 		$base     = rtrim( str_replace( '\\', '/', $path ), '/' );
 
+		/*
+		 * Symbolic links inside a target are skipped. Following them let a link
+		 * loop recurse until the path length limit, and let a link point the
+		 * scanner at files outside the plugin, theme or must-use plugin it was
+		 * asked about. The target root itself may still be a link, which is how
+		 * local development checkouts are usually mounted.
+		 */
 		try {
 			$iterator = new \RecursiveIteratorIterator(
 				new \RecursiveCallbackFilterIterator(
-					new \RecursiveDirectoryIterator( $path, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS ),
+					new \RecursiveDirectoryIterator( $path, \FilesystemIterator::SKIP_DOTS ),
 					static function ( $current ) use ( $excluded ) {
+						if ( $current->isLink() ) {
+							return false;
+						}
+
 						if ( $current->isDir() ) {
 							return ! in_array( strtolower( $current->getFilename() ), $excluded, true );
 						}

@@ -150,7 +150,7 @@ class Code_Scanner {
 			return '';
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source file for static analysis; WP_Filesystem adds no value and cannot read outside the install.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source file for static analysis; WP_Filesystem adds no value here.
 		$source = @file_get_contents( $absolute_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- An unreadable file is skipped, not reported.
 
 		return is_string( $source ) ? $source : '';
