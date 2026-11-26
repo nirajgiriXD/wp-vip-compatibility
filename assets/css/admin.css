@@ -1801,11 +1801,16 @@ body.wvc-screen,
 	opacity: 0.55;
 }
 
+/*
+ * The label's own face, with even-width digits: a monospace count sits on
+ * different font metrics and reads as raised beside the label.
+ */
 .wvc-segmented__count {
 	color: var(--wvc-ink-3);
-	font-family: var(--wvc-mono);
-	font-size: 11px;
-	font-weight: 500;
+	font-family: var(--wvc-sans);
+	font-size: 11.5px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
 }
 
 .wvc-segmented__count:empty {
