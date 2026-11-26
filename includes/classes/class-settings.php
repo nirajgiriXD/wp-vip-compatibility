@@ -221,11 +221,16 @@ class Settings {
 			return;
 		}
 
+		// The overview is a report rather than a list.
+		$title = ( 'overview' === $key )
+			? __( 'About this report', 'wp-vip-compatibility' )
+			: __( 'How to read this list', 'wp-vip-compatibility' );
+
 		$screen->add_help_tab(
 			array(
 				'id'      => 'wvc-how-to-read',
-				'title'   => __( 'How to read this list', 'wp-vip-compatibility' ),
-				'content' => '<p class="wvc-help__title">' . esc_html__( 'How to read this list', 'wp-vip-compatibility' ) . '</p>'
+				'title'   => $title,
+				'content' => '<p class="wvc-help__title">' . esc_html( $title ) . '</p>'
 					. '<div class="wvc-help__notes">' . wp_kses_post( '<p>' . implode( '</p><p>', $notes ) . '</p>' ) . '</div>',
 			)
 		);

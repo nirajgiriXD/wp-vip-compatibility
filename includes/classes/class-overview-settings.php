@@ -2,10 +2,11 @@
 /**
  * The overview screen.
  *
- * The overview answers, in this order and nothing else: how ready is this site,
- * how much work is left, what to do first, where the work is, and what the
- * platform underneath it looks like. Each answer is one ruled section, and each
- * links into the screen that owns the detail.
+ * The overview answers, in this order and nothing else: how ready is this site
+ * and how much work is left, what to do first, where the work is, and what the
+ * platform underneath it looks like. Each answer is one card, and each links
+ * into the screen that owns the detail. What the report is and how to read it
+ * lives in the Help panel rather than on the page.
  *
  * @package wp-vip-compatibility
  */
@@ -55,22 +56,42 @@ class Overview_Settings {
 		$this->render_verdict( $aggregate, $scanned );
 
 		if ( $scanned ) {
-			UI::render_work_ledger( $this->get_facts( $aggregate ) );
 			$this->render_next();
 			$this->render_areas();
 		} else {
 			$this->render_getting_started();
 		}
 
+		// Reference rather than work, so the two sit side by side below it.
+		echo '<div class="wvc-overview__pair">';
 		$this->render_environment();
 
 		if ( $scanned ) {
 			$this->render_history();
 		}
 
-		$this->render_about();
-
 		echo '</div>';
+		echo '</div>';
+	}
+
+	/**
+	 * Returns the notes shown in the WordPress Help tab.
+	 *
+	 * @return array<int, string> Note paragraphs, already containing limited HTML.
+	 */
+	public function get_page_guidance() {
+		return array(
+			__( '<strong>Readiness</strong> comes from the verdict on every scanned plugin, theme and must-use plugin: a ready item counts in full, one that needs review counts for a little over half, and a blocked one counts for nothing.', 'wp-vip-compatibility' ),
+			__( '<strong>Where the work is</strong> has one square for every plugin, theme, table and path on the site, worst first. Hover a square to see which one it is.', 'wp-vip-compatibility' ),
+			__( '<strong>Environment</strong> is what this site runs on today, measured against what it will run on at WordPress VIP. None of it is visible to a code scan.', 'wp-vip-compatibility' ),
+			__( '<strong>A starting point, not a certificate.</strong> The scan reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Where it cannot resolve a value, a finding records its confidence rather than asserting an incompatibility it cannot prove.', 'wp-vip-compatibility' ),
+			sprintf(
+				/* translators: 1: Rule set version. 2: Number of rules. */
+				__( '<strong>What gets checked.</strong> The filesystem and media, the database, caching, cron and outbound requests, security and the environment, and plugins that overlap with what the platform provides. Rule set %1$s has %2$d rules, each mapped to the WordPress VIP requirement it comes from.', 'wp-vip-compatibility' ),
+				Rules::VERSION,
+				count( Rules::all() )
+			),
+		);
 	}
 
 	/**
@@ -79,10 +100,10 @@ class Overview_Settings {
 	 * @return void
 	 */
 	private function render_getting_started() {
-		UI::render_panel_open(
+		UI::render_card_open(
 			array(
-				'title'   => __( 'How this works', 'wp-vip-compatibility' ),
-				'summary' => __( 'Three steps, repeated until the list is empty.', 'wp-vip-compatibility' ),
+				'title' => __( 'How this works', 'wp-vip-compatibility' ),
+				'aside' => '<span class="wvc-card__note">' . esc_html__( 'Three steps, repeated until the list is empty.', 'wp-vip-compatibility' ) . '</span>',
 			)
 		);
 
@@ -103,7 +124,7 @@ class Overview_Settings {
 			)
 		);
 
-		UI::render_panel_close();
+		UI::render_card_close();
 	}
 
 	/*
@@ -130,6 +151,7 @@ class Overview_Settings {
 				'summary'  => $verdict['summary'],
 				'meta'     => $this->scan_meta( $aggregate, $scanned ),
 				'actions'  => $verdict['actions'],
+				'tiers'    => $scanned ? $this->get_facts( $aggregate ) : array(),
 			)
 		);
 	}
@@ -387,10 +409,20 @@ class Overview_Settings {
 		$total = count( $queue );
 		$queue = array_slice( $queue, 0, self::NEXT_LIMIT );
 
-		UI::render_panel_open(
+		UI::render_card_open(
 			array(
-				'title'   => __( 'Start here', 'wp-vip-compatibility' ),
-				'summary' => __( 'The top of the fix list: the work most likely to hold up the migration.', 'wp-vip-compatibility' ),
+				'title' => __( 'Start here', 'wp-vip-compatibility' ),
+				'aside' => UI::get_arrow_link(
+					UI::get_findings_url(),
+					$total > self::NEXT_LIMIT
+						? sprintf(
+							/* translators: %s: Number of further items. */
+							_n( '%s more in Findings', '%s more in Findings', $total - self::NEXT_LIMIT, 'wp-vip-compatibility' ),
+							number_format_i18n( $total - self::NEXT_LIMIT )
+						)
+						: __( 'Open Findings', 'wp-vip-compatibility' )
+				),
+				'flush' => true,
 			)
 		);
 		?>
@@ -411,24 +443,8 @@ class Overview_Settings {
 				</li>
 			<?php endforeach; ?>
 		</ol>
-		<?php if ( $total > self::NEXT_LIMIT ) : ?>
-			<p class="wvc-next__more">
-				<?php
-				// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-				echo UI::get_arrow_link(
-					UI::get_findings_url(),
-					sprintf(
-						/* translators: %s: Number of further items. */
-						_n( '%s more to fix or check', '%s more to fix or check', $total - self::NEXT_LIMIT, 'wp-vip-compatibility' ),
-						number_format_i18n( $total - self::NEXT_LIMIT )
-					)
-				);
-				// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-				?>
-			</p>
-		<?php endif; ?>
 		<?php
-		UI::render_panel_close();
+		UI::render_card_close();
 	}
 
 	/*
@@ -449,16 +465,17 @@ class Overview_Settings {
 			$areas[ $position ]['items'] = $this->get_area_items( $area['key'] );
 		}
 
-		UI::render_panel_open(
+		UI::render_card_open(
 			array(
-				'title'   => __( 'Where the work is', 'wp-vip-compatibility' ),
-				'summary' => __( 'One square for every plugin, theme, table and path on the site, worst first. Hover a square to see which one it is.', 'wp-vip-compatibility' ),
+				'title' => __( 'Where the work is', 'wp-vip-compatibility' ),
+				'aside' => UI::get_manifest_legend(),
+				'flush' => true,
 			)
 		);
 
 		UI::render_manifest( $areas );
 
-		UI::render_panel_close();
+		UI::render_card_close();
 	}
 
 	/**
@@ -535,16 +552,16 @@ class Overview_Settings {
 	 * @return void
 	 */
 	private function render_environment() {
-		UI::render_panel_open(
+		UI::render_card_open(
 			array(
-				'title'   => __( 'Environment', 'wp-vip-compatibility' ),
-				'summary' => __( 'What this site runs on today, measured against what it will run on at WordPress VIP. None of this is visible to a code scan.', 'wp-vip-compatibility' ),
+				'title' => __( 'Environment', 'wp-vip-compatibility' ),
+				'flush' => true,
 			)
 		);
 
 		echo UI::get_defs( Report::environment(), 'wvc-defs--spec' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
-		UI::render_panel_close();
+		UI::render_card_close();
 	}
 
 	/**
@@ -570,10 +587,10 @@ class Overview_Settings {
 		$last  = end( $recent );
 		$shift = (int) $last['score'] - (int) $first['score'];
 
-		UI::render_panel_open(
+		UI::render_card_open(
 			array(
-				'title'   => __( 'Recent scans', 'wp-vip-compatibility' ),
-				'summary' => __( 'How the report has moved over the last few scans.', 'wp-vip-compatibility' ),
+				'title' => __( 'Recent scans', 'wp-vip-compatibility' ),
+				'flush' => true,
 			)
 		);
 		?>
@@ -614,9 +631,9 @@ class Overview_Settings {
 			</p>
 		</div>
 		<?php
-		$rows = array_reverse( array_slice( $history, -8 ) );
+		$rows = array_reverse( array_slice( $history, -5 ) );
 
-		echo '<div class="wvc-table-wrap wvc-sheet">';
+		echo '<div class="wvc-table-wrap">';
 		echo '<table class="wvc-table wvc-table--compact">';
 
 		UI::render_table_head(
@@ -631,14 +648,6 @@ class Overview_Settings {
 				),
 				array(
 					'label' => __( 'Findings', 'wp-vip-compatibility' ),
-					'class' => 'wvc-col-number',
-				),
-				array(
-					'label' => __( 'Must fix', 'wp-vip-compatibility' ),
-					'class' => 'wvc-col-number',
-				),
-				array(
-					'label' => __( 'Blocked items', 'wp-vip-compatibility' ),
 					'class' => 'wvc-col-number',
 				),
 				array(
@@ -674,14 +683,6 @@ class Overview_Settings {
 				. esc_html( number_format_i18n( (int) $snapshot['total'] ) )
 				. '</td>';
 
-			echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Must fix', 'wp-vip-compatibility' ) . '">'
-				. esc_html( number_format_i18n( (int) $snapshot['blocking'] ) )
-				. '</td>';
-
-			echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Blocked items', 'wp-vip-compatibility' ) . '">'
-				. esc_html( number_format_i18n( (int) $snapshot['blocked'] ) )
-				. '</td>';
-
 			echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Change', 'wp-vip-compatibility' ) . '">';
 
 			if ( null === $delta || 0 === $delta ) {
@@ -702,74 +703,6 @@ class Overview_Settings {
 		echo '</tbody></table>';
 		echo '</div>';
 
-		UI::render_panel_close();
-	}
-
-	/**
-	 * Renders what the plugin checks and what its answer is worth.
-	 *
-	 * What the scan covers, and the fact that a clean report is not a guarantee,
-	 * are the two things that qualify every number above it.
-	 *
-	 * @return void
-	 */
-	private function render_about() {
-		$checks = array(
-			array(
-				'label' => __( 'Filesystem and media', 'wp-vip-compatibility' ),
-				'value' => __( 'Writes outside /tmp/ and uploads, traversal over the object store, generated PHP/CSS/JS, .htaccess assumptions and local image processing.', 'wp-vip-compatibility' ),
-			),
-			array(
-				'label' => __( 'Database', 'wp-vip-compatibility' ),
-				'value' => __( 'Storage engines, collations and prefixes, plus unprepared SQL, uncached queries, unbounded result sets and runtime schema changes.', 'wp-vip-compatibility' ),
-			),
-			array(
-				'label' => __( 'Caching, cron and requests', 'wp-vip-compatibility' ),
-				'value' => __( 'Cache-busting headers, full object-cache flushes, custom cache layers, Cron Control conflicts and uncached or untimed outbound requests.', 'wp-vip-compatibility' ),
-			),
-			array(
-				'label' => __( 'Security and environment', 'wp-vip-compatibility' ),
-				'value' => __( 'Shell execution, dynamic code, unescaped request data, PHP sessions, runtime ini changes and redefined core constants.', 'wp-vip-compatibility' ),
-			),
-			array(
-				'label' => __( 'Platform overlap', 'wp-vip-compatibility' ),
-				'value' => __( 'Plugins WordPress VIP lists as incompatible, plugins that need testing, and plugins duplicating something the platform already provides.', 'wp-vip-compatibility' ),
-			),
-		);
-
-		UI::render_panel_open(
-			array(
-				'title'    => __( 'About this report', 'wp-vip-compatibility' ),
-				'summary'  => sprintf(
-					/* translators: 1: Rule set version. 2: Number of rules. */
-					__( 'Rule set %1$s — %2$d rules, each mapped to the WordPress VIP requirement it comes from.', 'wp-vip-compatibility' ),
-					Rules::VERSION,
-					count( Rules::all() )
-				),
-				'modifier' => 'wvc-section--quiet',
-			)
-		);
-		?>
-		<div class="wvc-about">
-			<div class="wvc-about__prose">
-				<p><?php esc_html_e( 'This plugin analyses a standard WordPress site against the requirements of the WordPress VIP Platform, so that the work needed to migrate is known before the migration starts rather than discovered during it.', 'wp-vip-compatibility' ); ?></p>
-				<p><?php esc_html_e( 'It is a starting point, not a certificate. It reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Where static analysis cannot resolve a value, a finding records its confidence rather than asserting an incompatibility it cannot prove.', 'wp-vip-compatibility' ); ?></p>
-			</div>
-
-			<div class="wvc-about__checks">
-				<h3 class="wvc-about__title"><?php esc_html_e( 'What gets checked', 'wp-vip-compatibility' ); ?></h3>
-				<ol class="wvc-checks">
-					<?php foreach ( $checks as $position => $check ) : ?>
-						<li class="wvc-checks__item">
-							<span class="wvc-checks__rank" aria-hidden="true"><?php echo esc_html( sprintf( '%02d', $position + 1 ) ); ?></span>
-							<strong class="wvc-checks__label"><?php echo esc_html( $check['label'] ); ?></strong>
-							<span class="wvc-checks__text"><?php echo esc_html( $check['value'] ); ?></span>
-						</li>
-					<?php endforeach; ?>
-				</ol>
-			</div>
-		</div>
-		<?php
-		UI::render_panel_close();
+		UI::render_card_close();
 	}
 }

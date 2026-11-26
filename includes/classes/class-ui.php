@@ -885,6 +885,8 @@ class UI {
 	 *     @type string $summary  One sentence saying what that means.
 	 *     @type string $meta     Optional supporting line.
 	 *     @type array  $actions  List of links or forms.
+	 *     @type array  $tiers    Optional outstanding work per tier, each with `tier`,
+	 *                            `label`, `value`, `summary` and `url`.
 	 * }
 	 * @return void
 	 */
@@ -898,6 +900,7 @@ class UI {
 				'summary'  => '',
 				'meta'     => '',
 				'actions'  => array(),
+				'tiers'    => array(),
 			)
 		);
 
@@ -907,91 +910,126 @@ class UI {
 		$filled   = (int) round( $score / ( 100 / $segments ) );
 		?>
 		<section class="wvc-verdict wvc-verdict--<?php echo esc_attr( $args['tier'] ); ?>" aria-labelledby="wvc-verdict-title">
-			<div class="wvc-verdict__score">
-				<p class="wvc-verdict__figure">
-					<?php if ( $scored ) : ?>
-						<span class="wvc-verdict__number"><?php echo esc_html( number_format_i18n( $score ) ); ?></span><span class="wvc-verdict__unit">%</span>
-					<?php else : ?>
-						<span class="wvc-verdict__number wvc-verdict__number--empty">—</span>
-					<?php endif; ?>
-				</p>
-				<p class="wvc-verdict__caption"><?php esc_html_e( 'ready to move', 'wp-vip-compatibility' ); ?></p>
+			<div class="wvc-verdict__main">
+				<div class="wvc-verdict__score">
+					<p class="wvc-verdict__figure">
+						<?php if ( $scored ) : ?>
+							<span class="wvc-verdict__number"><?php echo esc_html( number_format_i18n( $score ) ); ?></span><span class="wvc-verdict__unit">%</span>
+						<?php else : ?>
+							<span class="wvc-verdict__number wvc-verdict__number--empty">—</span>
+						<?php endif; ?>
+					</p>
+					<p class="wvc-verdict__caption"><?php esc_html_e( 'ready to move', 'wp-vip-compatibility' ); ?></p>
 
-				<div
-					class="wvc-ruler"
-					role="meter"
-					aria-valuemin="0"
-					aria-valuemax="100"
-					aria-valuenow="<?php echo esc_attr( (string) $score ); ?>"
-					aria-label="<?php esc_attr_e( 'Readiness', 'wp-vip-compatibility' ); ?>"
-					<?php echo $scored ? '' : 'aria-valuetext="' . esc_attr__( 'Not scanned yet', 'wp-vip-compatibility' ) . '"'; ?>
-				>
-					<?php for ( $i = 0; $i < $segments; $i++ ) : ?>
-						<span class="wvc-ruler__seg<?php echo ( $i < $filled ) ? ' is-on' : ''; ?>" style="--i:<?php echo esc_attr( (string) $i ); ?>"></span>
-					<?php endfor; ?>
-				</div>
-				<p class="wvc-ruler__scale" aria-hidden="true"><span>0</span><span>50</span><span>100</span></p>
-			</div>
-
-			<div class="wvc-verdict__body">
-				<h2 class="wvc-verdict__headline" id="wvc-verdict-title"><?php echo esc_html( $args['headline'] ); ?></h2>
-				<p class="wvc-verdict__summary"><?php echo esc_html( $args['summary'] ); ?></p>
-
-				<?php if ( ! empty( $args['actions'] ) ) : ?>
-					<div class="wvc-verdict__actions">
-						<?php
-						foreach ( $args['actions'] as $action ) {
-							echo self::get_action_button( array_merge( $action, array( 'small' => false ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-						}
-						?>
+					<div
+						class="wvc-ruler"
+						role="meter"
+						aria-valuemin="0"
+						aria-valuemax="100"
+						aria-valuenow="<?php echo esc_attr( (string) $score ); ?>"
+						aria-label="<?php esc_attr_e( 'Readiness', 'wp-vip-compatibility' ); ?>"
+						<?php echo $scored ? '' : 'aria-valuetext="' . esc_attr__( 'Not scanned yet', 'wp-vip-compatibility' ) . '"'; ?>
+					>
+						<?php for ( $i = 0; $i < $segments; $i++ ) : ?>
+							<span class="wvc-ruler__seg<?php echo ( $i < $filled ) ? ' is-on' : ''; ?>" style="--i:<?php echo esc_attr( (string) $i ); ?>"></span>
+						<?php endfor; ?>
 					</div>
-				<?php endif; ?>
+					<p class="wvc-ruler__scale" aria-hidden="true"><span>0</span><span>50</span><span>100</span></p>
+				</div>
 
-				<?php if ( '' !== $args['meta'] ) : ?>
-					<p class="wvc-verdict__meta"><?php echo esc_html( $args['meta'] ); ?></p>
-				<?php endif; ?>
+				<div class="wvc-verdict__body">
+					<h2 class="wvc-verdict__headline" id="wvc-verdict-title"><?php echo esc_html( $args['headline'] ); ?></h2>
+					<p class="wvc-verdict__summary"><?php echo esc_html( $args['summary'] ); ?></p>
+
+					<?php if ( ! empty( $args['actions'] ) ) : ?>
+						<div class="wvc-verdict__actions">
+							<?php
+							foreach ( $args['actions'] as $action ) {
+								echo self::get_action_button( array_merge( $action, array( 'small' => false ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+							}
+							?>
+						</div>
+					<?php endif; ?>
+
+					<?php if ( '' !== $args['meta'] ) : ?>
+						<p class="wvc-verdict__meta"><?php echo esc_html( $args['meta'] ); ?></p>
+					<?php endif; ?>
+				</div>
 			</div>
+
+			<?php
+			// The outstanding work, counted per tier, closes the card. Every tier
+			// is listed even at zero, because "nothing must be fixed" is the answer
+			// this screen exists to give.
+			if ( ! empty( $args['tiers'] ) ) :
+				?>
+				<ul class="wvc-verdict__tiers" aria-label="<?php esc_attr_e( 'Outstanding work', 'wp-vip-compatibility' ); ?>">
+					<?php foreach ( $args['tiers'] as $fact ) : ?>
+						<?php
+						$empty = ( '' === $fact['url'] );
+						$tag   = $empty ? 'span' : 'a';
+						?>
+						<li class="wvc-verdict__tier wvc-verdict__tier--<?php echo esc_attr( $fact['tier'] ); ?><?php echo $empty ? ' is-empty' : ''; ?>">
+							<<?php echo esc_html( $tag ); ?> class="wvc-verdict__tierlink" title="<?php echo esc_attr( $fact['summary'] ); ?>"<?php echo $empty ? '' : ' href="' . esc_url( $fact['url'] ) . '"'; ?>>
+								<?php echo self::get_mark( $fact['tier'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
+								<span class="wvc-verdict__tierlabel"><?php echo esc_html( $fact['label'] ); ?></span>
+								<span class="wvc-verdict__tiercount"><?php echo esc_html( $fact['value'] ); ?></span>
+								<?php if ( ! $empty ) : ?>
+									<?php echo self::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--xs wvc-verdict__tierarrow' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+								<?php endif; ?>
+							</<?php echo esc_html( $tag ); ?>>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			<?php endif; ?>
 		</section>
 		<?php
 	}
 
 	/**
-	 * Renders the outstanding-work ledger: the four tiers, counted.
+	 * Opens a card: a framed block with a heading band, as the overview uses.
 	 *
-	 * Every tier is listed even at zero, because "nothing must be fixed" is the
-	 * answer this screen exists to give, and it can only be read off a row that
-	 * always has four entries in it.
+	 * @param array $args {
+	 *     Card arguments.
 	 *
-	 * @param array<int, array<string, mixed>> $facts Each with `tier`, `label`, `value`, `summary` and `url`.
+	 *     @type string $title    Heading.
+	 *     @type string $aside    Markup shown at the end of the heading band, escaped by the caller.
+	 *     @type bool   $flush    Whether the body runs to the card's edges.
+	 *     @type string $modifier Optional extra class.
+	 * }
 	 * @return void
 	 */
-	public static function render_work_ledger( array $facts ) {
-		if ( empty( $facts ) ) {
-			return;
-		}
+	public static function render_card_open( array $args ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'title'    => '',
+				'aside'    => '',
+				'flush'    => false,
+				'modifier' => '',
+			)
+		);
+
+		$heading_id = self::next_id( 'wvc-card' );
 		?>
-		<div class="wvc-work">
-			<h2 class="wvc-work__caption"><?php esc_html_e( 'Outstanding work', 'wp-vip-compatibility' ); ?></h2>
-			<ul class="wvc-work__list">
-				<?php foreach ( $facts as $fact ) : ?>
-					<?php
-					$empty = ( '' === $fact['url'] );
-					$tag   = $empty ? 'div' : 'a';
-					?>
-					<li class="wvc-work__item wvc-work__item--<?php echo esc_attr( $fact['tier'] ); ?><?php echo $empty ? ' is-empty' : ''; ?>">
-						<<?php echo esc_html( $tag ); ?> class="wvc-work__cell"<?php echo $empty ? '' : ' href="' . esc_url( $fact['url'] ) . '"'; ?>>
-							<span class="wvc-work__label">
-								<?php echo self::get_mark( $fact['tier'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-								<?php echo esc_html( $fact['label'] ); ?>
-							</span>
-							<span class="wvc-work__value"><?php echo esc_html( $fact['value'] ); ?></span>
-							<span class="wvc-work__summary"><?php echo esc_html( $fact['summary'] ); ?></span>
-						</<?php echo esc_html( $tag ); ?>>
-					</li>
-				<?php endforeach; ?>
-			</ul>
-		</div>
+		<section class="<?php echo esc_attr( trim( 'wvc-card ' . $args['modifier'] ) ); ?>" aria-labelledby="<?php echo esc_attr( $heading_id ); ?>">
+			<header class="wvc-card__head">
+				<h2 class="wvc-card__title" id="<?php echo esc_attr( $heading_id ); ?>"><?php echo esc_html( $args['title'] ); ?></h2>
+				<?php if ( '' !== $args['aside'] ) : ?>
+					<div class="wvc-card__aside"><?php echo $args['aside']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the caller. ?></div>
+				<?php endif; ?>
+			</header>
+			<div class="wvc-card__body<?php echo $args['flush'] ? ' wvc-card__body--flush' : ''; ?>">
 		<?php
+	}
+
+	/**
+	 * Closes a card.
+	 *
+	 * @return void
+	 */
+	public static function render_card_close() {
+		echo '</div></section>';
 	}
 
 	/**
@@ -1126,14 +1164,27 @@ class UI {
 					</div>
 				</div>
 			<?php endforeach; ?>
-
-			<ul class="wvc-legend" aria-hidden="true">
-				<?php foreach ( $buckets as $definition ) : ?>
-					<li><span class="wvc-cell wvc-cell--<?php echo esc_attr( $definition[1] ); ?>"></span><?php echo esc_html( $definition[0] ); ?></li>
-				<?php endforeach; ?>
-			</ul>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Builds the key to the manifest's colours, for a card heading.
+	 *
+	 * @return string The legend markup.
+	 */
+	public static function get_manifest_legend() {
+		$items = '';
+
+		foreach ( self::get_buckets() as $definition ) {
+			$items .= sprintf(
+				'<li><span class="wvc-cell wvc-cell--%1$s"></span>%2$s</li>',
+				esc_attr( $definition[1] ),
+				esc_html( $definition[0] )
+			);
+		}
+
+		return '<ul class="wvc-legend" aria-hidden="true">' . $items . '</ul>';
 	}
 
 	/**
