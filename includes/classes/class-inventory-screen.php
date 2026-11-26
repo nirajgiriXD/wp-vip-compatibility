@@ -80,12 +80,21 @@ abstract class Inventory_Screen {
 	abstract protected function get_empty_state();
 
 	/**
-	 * Returns the reference notes shown above the table.
+	 * Returns the reference notes shown in the WordPress Help tab.
 	 *
 	 * @return array<int, string> Note paragraphs, already containing limited HTML.
 	 */
 	protected function get_guidance_notes() {
 		return array();
+	}
+
+	/**
+	 * Returns the notes shown in the WordPress Help tab.
+	 *
+	 * @return array<int, string> Note paragraphs, already containing limited HTML.
+	 */
+	public function get_page_guidance() {
+		return $this->get_guidance_notes();
 	}
 
 	/**
@@ -149,17 +158,6 @@ abstract class Inventory_Screen {
 		$context = $this->build_context( $targets );
 
 		$this->render_intro( $context );
-
-		$notes = $this->get_guidance_notes();
-
-		if ( ! empty( $notes ) ) {
-			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-			echo UI::get_guidance(
-				'<p>' . implode( '</p><p>', $notes ) . '</p>',
-				__( 'How to read this list', 'wp-vip-compatibility' )
-			);
-			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-		}
 
 		// No heading: the page title already names the list. The title still
 		// names the table for assistive technology.

@@ -176,7 +176,7 @@ class Settings {
 				$label            = '<span class="wvc-menu-group' . $modifier . '" aria-hidden="true">' . esc_html( $groups[ $group ] ) . '</span>' . $label;
 			}
 
-			add_submenu_page(
+			$hook = add_submenu_page(
 				$screens['overview']['slug'],
 				/* translators: %s: Submenu title */
 				sprintf( __( 'WordPress VIP Compatibility — %s', 'wp-vip-compatibility' ), $screen['title'] ),
@@ -191,7 +191,44 @@ class Settings {
 				// hooks it a second time and renders the whole screen twice.
 				$is_parent ? null : fn() => $this->render_settings_page( $key )
 			);
+
+			if ( $hook ) {
+				add_action( 'load-' . $hook, fn() => $this->add_help_tab( $key ) );
+			}
 		}
+	}
+
+	/**
+	 * Puts a screen's reading notes in the WordPress Help tab.
+	 *
+	 * They are background reading, so they live where WordPress keeps help for
+	 * every admin screen instead of taking space on the page itself.
+	 *
+	 * @param string $key The settings key.
+	 * @return void
+	 */
+	private function add_help_tab( $key ) {
+		$settings = $this->get_settings_class( $key );
+		$screen   = get_current_screen();
+
+		if ( ! $settings || ! $screen || ! method_exists( $settings, 'get_page_guidance' ) ) {
+			return;
+		}
+
+		$notes = $settings->get_page_guidance();
+
+		if ( empty( $notes ) ) {
+			return;
+		}
+
+		$screen->add_help_tab(
+			array(
+				'id'      => 'wvc-how-to-read',
+				'title'   => __( 'How to read this list', 'wp-vip-compatibility' ),
+				'content' => '<p class="wvc-help__title">' . esc_html__( 'How to read this list', 'wp-vip-compatibility' ) . '</p>'
+					. '<div class="wvc-help__notes">' . wp_kses_post( '<p>' . implode( '</p><p>', $notes ) . '</p>' ) . '</div>',
+			)
+		);
 	}
 
 	/**

@@ -166,6 +166,28 @@ jQuery(document).ready(function ($) {
 	})();
 
 	/* ---------------------------------------------------------------------
+	 * Help: the bar's button drives the WordPress Help panel
+	 * ------------------------------------------------------------------ */
+
+	(function help() {
+		var $toggle = $("[data-role='help-toggle']");
+		var $link = $("#contextual-help-link");
+
+		if (!$toggle.length || !$link.length) {
+			return;
+		}
+
+		$toggle.on("click", function () {
+			// WordPress updates its own link only after the slide animation, so
+			// read the panel's state before toggling it.
+			var opening = !$("#contextual-help-wrap").is(":visible");
+
+			$link.trigger("click");
+			$toggle.attr("aria-expanded", opening ? "true" : "false");
+		});
+	})();
+
+	/* ---------------------------------------------------------------------
 	 * Keyboard shortcut: "/" focuses search
 	 * ------------------------------------------------------------------ */
 

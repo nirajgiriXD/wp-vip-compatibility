@@ -44,7 +44,6 @@ class Directories_Settings {
 		}
 
 		$this->render_stats( $audit );
-		$this->render_guidance();
 		$this->render_table( $audit );
 	}
 
@@ -94,23 +93,16 @@ class Directories_Settings {
 	}
 
 	/**
-	 * Renders the reference notes for this screen.
+	 * Returns the notes shown in the WordPress Help tab.
 	 *
-	 * @return void
+	 * @return array<int, string> Note paragraphs, already containing limited HTML.
 	 */
-	private function render_guidance() {
-		$notes = array(
+	public function get_page_guidance() {
+		return array(
 			__( '<strong>"Not deployed" is not a problem.</strong> It marks what WordPress or the local environment maintains — <code>uploads/</code> above all, which is the one path under wp-content that application code may write to on WordPress VIP. It is imported with the WordPress VIP CLI rather than committed.', 'wp-vip-compatibility' ),
 			__( '<strong>"Remove or relocate" is.</strong> Those entries either conflict with the WordPress VIP application structure or duplicate a drop-in the platform installs itself, where a shipped copy is at best ignored and at worst fights the platform.', 'wp-vip-compatibility' ),
 			__( '<strong>"Needs review" means unrecognised.</strong> Work out what created it: if the codebase reads from it, move the contents into <code>uploads/</code> and update the stored paths; if nothing uses it, leave it out of the repository.', 'wp-vip-compatibility' ),
 		);
-
-		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-		echo UI::get_guidance(
-			'<p>' . implode( '</p><p>', $notes ) . '</p>',
-			__( 'How to read this list', 'wp-vip-compatibility' )
-		);
-		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**

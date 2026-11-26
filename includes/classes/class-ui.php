@@ -444,9 +444,28 @@ class UI {
 					<span><?php esc_html_e( 'Docs', 'wp-vip-compatibility' ); ?></span>
 					<span class="screen-reader-text"><?php esc_html_e( '(WordPress VIP documentation, opens in a new tab)', 'wp-vip-compatibility' ); ?></span>
 				</a>
+
+				<?php if ( self::has_help() ) : ?>
+					<?php // Opens the WordPress Help panel, whose own floating tab is hidden on these screens. ?>
+					<button type="button" class="wvc-btn wvc-btn--quiet wvc-btn--sm" data-role="help-toggle" aria-controls="contextual-help-wrap" aria-expanded="false">
+						<?php echo self::get_icon( 'info', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<span><?php esc_html_e( 'Help', 'wp-vip-compatibility' ); ?></span>
+					</button>
+				<?php endif; ?>
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Whether the current screen has anything in the WordPress Help panel.
+	 *
+	 * @return bool True when at least one help tab is registered.
+	 */
+	private static function has_help() {
+		$screen = get_current_screen();
+
+		return $screen && ! empty( $screen->get_help_tabs() );
 	}
 
 	/**
@@ -2032,26 +2051,6 @@ class UI {
 			$title ? '<strong class="wvc-notice__title">' . esc_html( $title ) . '</strong> ' : '',
 			wp_kses_post( $message ),
 			$role
-		);
-	}
-
-	/**
-	 * Builds a reference note that starts collapsed.
-	 *
-	 * For background reading — "how to read this list" — that should not compete
-	 * with the screen's data on every visit, but should stay one click away.
-	 *
-	 * @param string $message The note body (may contain limited HTML).
-	 * @param string $title   The summary label.
-	 * @return string The note markup.
-	 */
-	public static function get_guidance( $message, $title ) {
-		return sprintf(
-			'<details class="wvc-guidance"><summary class="wvc-guidance__summary">%1$s<span class="wvc-guidance__title">%2$s</span>%4$s</summary><div class="wvc-guidance__body">%3$s</div></details>',
-			self::get_icon( 'book', array( 'class' => 'wvc-icon wvc-icon--sm wvc-guidance__icon' ) ),
-			esc_html( $title ),
-			wp_kses_post( $message ),
-			self::get_icon( 'chevron-down', array( 'class' => 'wvc-icon wvc-icon--xs wvc-guidance__caret' ) )
 		);
 	}
 

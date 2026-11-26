@@ -3091,72 +3091,82 @@ code.wvc-item__name {
 	margin-top: 18px;
 }
 
-.wvc-guidance {
-	border: 1px dashed var(--wvc-rule-2);
-	border-radius: var(--wvc-radius-lg);
-}
-
-.wvc-guidance + .wvc-section,
-.wvc-tally + .wvc-guidance,
 .wvc-tally + .wvc-notice {
 	margin-top: 28px !important;
 }
 
-.wvc-notice + .wvc-guidance {
-	margin-top: 16px !important;
-}
-
-.wvc-guidance__summary {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	padding: 12px 16px;
-	color: var(--wvc-ink-2);
-	font-size: 13px;
-	font-weight: 600;
-	list-style: none;
-	cursor: pointer;
-	transition: color 0.15s ease;
-}
-
-.wvc-guidance__summary::-webkit-details-marker {
+/*
+ * The WordPress Help panel. Its floating tab is replaced by the Help button in
+ * the bar, and with a single tab the tab list and its tinted backdrop only add
+ * chrome, so the panel is reduced to a card that matches the screens.
+ */
+body.wvc-screen #screen-meta-links {
 	display: none;
 }
 
-.wvc-guidance__summary:hover {
-	color: var(--wvc-ink);
+/*
+ * The card is drawn on the inner panel, not on #screen-meta: WordPress slides
+ * the inner panel (height, margin and padding together), so the gap and the
+ * frame shrink with it instead of vanishing in one step when it finishes.
+ */
+body.wvc-screen #screen-meta {
+	margin: 0 20px 0 2px;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
 }
 
-.wvc-guidance__caret {
-	margin-left: auto;
-	transition: transform 0.2s var(--wvc-ease);
+body.wvc-screen #screen-meta #contextual-help-wrap {
+	margin-top: 14px;
+	border: 1px solid var(--wvc-rule-2);
+	border-radius: var(--wvc-radius-lg);
+	background: var(--wvc-sheet);
+	box-shadow: 0 1px 0 rgba(23, 25, 30, 0.03);
 }
 
-.wvc-guidance[open] .wvc-guidance__caret {
-	transform: rotate(180deg);
+body.wvc-screen #screen-meta #contextual-help-back,
+body.wvc-screen #screen-meta .contextual-help-tabs,
+body.wvc-screen #screen-meta .contextual-help-sidebar {
+	display: none;
 }
 
-.wvc-guidance__body {
+body.wvc-screen #screen-meta .contextual-help-tabs-wrap {
+	padding: 20px 24px 22px;
+}
+
+body.wvc-screen #screen-meta .help-tab-content {
+	margin: 0;
+}
+
+.wvc-help__title {
+	margin: 0 0 12px !important;
+	color: var(--wvc-ink-3);
+	font-family: var(--wvc-mono);
+	font-size: 11px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.wvc-help__notes {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-	gap: 16px 32px;
-	padding: 4px 18px 18px 42px;
-	animation: wvc-rise 0.2s var(--wvc-ease);
+	gap: 14px 32px;
 }
 
-.wvc-guidance__body p {
+.wvc-help__notes p {
+	margin: 0 !important;
 	color: var(--wvc-ink-2);
 	font-size: 13px;
 	line-height: 1.6;
 }
 
-.wvc-guidance__body strong {
+.wvc-help__notes strong {
 	display: block;
 	margin-bottom: 2px;
 	color: var(--wvc-ink);
 }
 
-.wvc-guidance__body code {
+.wvc-help__notes code {
 	font-size: 12px;
 }
 
