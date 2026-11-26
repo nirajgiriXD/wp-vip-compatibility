@@ -345,8 +345,9 @@ body.wvc-screen,
 	margin: 0;
 }
 
+/* Matches the gap after a notice, so the page keeps one rhythm. */
 .wvc-main {
-	margin-top: 36px;
+	margin-top: 24px;
 }
 
 /* -------------------------------------------------------------------------
