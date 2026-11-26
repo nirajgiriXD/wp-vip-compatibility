@@ -7,7 +7,7 @@
  *   - shortcuts : "/" to jump to the screen's search field
  *   - findings  : expanding and collapsing every entry in the fix list at once
  *   - clipboard : copying SQL, both single statements and whole groups
- *   - tableView : filtering, searching, sorting and live counts
+ *   - tableView : filtering, searching, sorting, paging and live counts
  *   - rows      : the per-row detail drawers
  *   - scanner   : queued async compatibility checks and progress
  *
@@ -54,7 +54,9 @@ jQuery(document).ready(function ($) {
 		check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
 		copy:
 			'<rect x="9" y="9" width="11" height="11" rx="2"/>' +
-			'<path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5V5A1.5 1.5 0 0 1 4.5 3.5H13A1.5 1.5 0 0 1 14.5 5v.5"/>'
+			'<path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5V5A1.5 1.5 0 0 1 4.5 3.5H13A1.5 1.5 0 0 1 14.5 5v.5"/>',
+		"chevron-left": '<path d="m15 5-7 7 7 7"/>',
+		"chevron-right": '<path d="m9 5 7 7-7 7"/>'
 	};
 
 	/**
@@ -453,8 +455,15 @@ jQuery(document).ready(function ($) {
 	})();
 
 	/* ---------------------------------------------------------------------
-	 * Table view: filter + search + sort + counts
+	 * Table view: filter + search + sort + paging + counts
 	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Rows per page. Every row is still rendered and searched; paging only
+	 * limits how many are drawn at once, so a schema with thousands of tables
+	 * stays quick to scroll and to filter.
+	 */
+	var PAGE_SIZE = 20;
 
 	/**
 	 * Wires up one table and the toolbar that precedes it.
@@ -486,8 +495,9 @@ jQuery(document).ready(function ($) {
 		var $resultCount = $toolbar.find("[data-role='result-count']");
 		var columnCount = $table.find("thead th").length || 1;
 
-		var state = { query: "", filters: {}, countsPending: false };
+		var state = { query: "", filters: {}, countsPending: false, page: 1 };
 		var $noResults = null;
+		var $pager = null;
 
 		// Seed each group from whichever option the server marked active, so a
 		// link such as ?status=not-compatible lands on a filtered view.
@@ -604,12 +614,109 @@ jQuery(document).ready(function ($) {
 			});
 		}
 
+		/**
+		 * Builds the pager once, directly after the table.
+		 *
+		 * @returns {jQuery} The pager.
+		 */
+		function getPager() {
+			if (!$pager) {
+				$pager = $('<nav class="wvc-pager" hidden></nav>').attr("aria-label", i18n.pager || "");
+
+				$pager
+					.append($('<p class="wvc-pager__range" aria-live="polite"></p>'))
+					.append(
+						$('<div class="wvc-pager__controls"></div>')
+							.append(
+								$('<button type="button" class="wvc-btn wvc-btn--ghost wvc-btn--sm" data-page="prev"></button>')
+									.append(icon("chevron-left", "sm"))
+									.append($("<span/>").text(i18n.previous || ""))
+							)
+							.append($('<span class="wvc-pager__page"></span>'))
+							.append(
+								$('<button type="button" class="wvc-btn wvc-btn--ghost wvc-btn--sm" data-page="next"></button>')
+									.append($("<span/>").text(i18n.next || ""))
+									.append(icon("chevron-right", "sm"))
+							)
+					);
+
+				$pager.on("click", "[data-page]", function () {
+					state.page += $(this).data("page") === "next" ? 1 : -1;
+					apply();
+
+					// The controls sit under the rows, so bring the top of the
+					// new page into view rather than leaving the reader at its end.
+					var top = ($toolbar.length ? $toolbar : $container).offset().top - 48;
+
+					if ($(window).scrollTop() > top) {
+						$("html, body").scrollTop(top);
+					}
+				});
+
+				$container.after($pager);
+			}
+
+			return $pager;
+		}
+
+		/**
+		 * Brings the pager in line with the matching rows and the current page.
+		 *
+		 * @param {number} matched Rows that pass the filters and the search.
+		 * @param {number} pages   Number of pages.
+		 */
+		function updatePager(matched, pages) {
+			var $nav = getPager();
+
+			if (pages <= 1) {
+				$nav.prop("hidden", true);
+				return;
+			}
+
+			var first = (state.page - 1) * PAGE_SIZE + 1;
+			var last = Math.min(state.page * PAGE_SIZE, matched);
+
+			$nav.prop("hidden", false);
+			$nav.find(".wvc-pager__range").text(format(i18n.pageRange, first, last, matched));
+			$nav.find(".wvc-pager__page").text(format(i18n.pageOf, state.page, pages));
+			$nav.find("[data-page='prev']").prop("disabled", state.page <= 1);
+			$nav.find("[data-page='next']").prop("disabled", state.page >= pages);
+		}
+
 		function apply() {
 			var visible = 0;
+			var matches = [];
 
-			$rows.each(function () {
+			// `$rows` is kept in display order (sorting reorders it), so the
+			// position among matching rows is the position on the page.
+			$rows.each(function (index) {
 				var $row = $(this);
-				var show = rowMatchesFilters($row) && rowMatchesQuery($row);
+
+				matches[index] = rowMatchesFilters($row) && rowMatchesQuery($row);
+
+				if (matches[index]) {
+					visible += 1;
+				}
+			});
+
+			var pages = Math.max(1, Math.ceil(visible / PAGE_SIZE));
+
+			// A refresh from the scanner can shrink the match; never strand the
+			// reader past the last page.
+			state.page = Math.min(Math.max(1, state.page), pages);
+
+			var start = (state.page - 1) * PAGE_SIZE;
+			var end = start + PAGE_SIZE;
+			var position = 0;
+
+			$rows.each(function (index) {
+				var $row = $(this);
+				var show = false;
+
+				if (matches[index]) {
+					show = position >= start && position < end;
+					position += 1;
+				}
 
 				$row.toggle(show);
 
@@ -621,11 +728,9 @@ jQuery(document).ready(function ($) {
 				if ($detail.length) {
 					$detail.toggle(show && $row.hasClass("is-open"));
 				}
-
-				if (show) {
-					visible += 1;
-				}
 			});
+
+			updatePager(visible, pages);
 
 			if (!visible && $rows.length) {
 				getNoResultsRow().appendTo($tbody).show();
@@ -652,6 +757,7 @@ jQuery(document).ready(function ($) {
 			var $group = $button.closest("[data-filter-group]");
 
 			state.filters[$group.data("filter-group")] = String($button.data("filter-value"));
+			state.page = 1;
 
 			$group.find("button").removeClass("active").attr("aria-pressed", "false");
 			$button.addClass("active").attr("aria-pressed", "true");
@@ -669,6 +775,7 @@ jQuery(document).ready(function ($) {
 				window.clearTimeout(searchTimer);
 				searchTimer = window.setTimeout(function () {
 					state.query = $.trim(String(value)).toLowerCase();
+					state.page = 1;
 					apply();
 				}, 140);
 			});
@@ -678,6 +785,7 @@ jQuery(document).ready(function ($) {
 					event.stopPropagation();
 					$(this).val("");
 					state.query = "";
+					state.page = 1;
 					apply();
 				}
 			});
@@ -714,10 +822,16 @@ jQuery(document).ready(function ($) {
 				$tbody.append(pairOf($(row)));
 			});
 
+			// Paging walks `$rows`, so it has to follow the new order.
+			$rows = $(sorted);
+
 			// Keep the empty-result row last.
 			if ($noResults) {
 				$noResults.appendTo($tbody);
 			}
+
+			state.page = 1;
+			apply();
 		});
 
 		apply();

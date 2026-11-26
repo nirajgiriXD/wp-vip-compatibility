@@ -215,6 +215,14 @@ class Assets {
 						'noResults'       => esc_html__( 'No matching results', 'wp-vip-compatibility' ),
 						'noResultsHint'   => esc_html__( 'Try a different search term, or widen the filters above.', 'wp-vip-compatibility' ),
 
+						'pager'           => esc_html__( 'Table pages', 'wp-vip-compatibility' ),
+						'previous'        => esc_html__( 'Previous', 'wp-vip-compatibility' ),
+						'next'            => esc_html__( 'Next', 'wp-vip-compatibility' ),
+						/* translators: 1: First row shown. 2: Last row shown. 3: Number of matching rows. */
+						'pageRange'       => esc_html__( '%1$s–%2$s of %3$s', 'wp-vip-compatibility' ),
+						/* translators: 1: Current page. 2: Number of pages. */
+						'pageOf'          => esc_html__( 'Page %1$s of %2$s', 'wp-vip-compatibility' ),
+
 						'copy'            => esc_html__( 'Copy to clipboard', 'wp-vip-compatibility' ),
 						'copied'          => esc_html__( 'Copied', 'wp-vip-compatibility' ),
 						'copyFailed'      => esc_html__( 'Press Ctrl+C to copy', 'wp-vip-compatibility' ),
