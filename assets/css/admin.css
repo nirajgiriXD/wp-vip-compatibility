@@ -420,6 +420,15 @@ body.wvc-screen,
 	color: var(--wvc-ink);
 }
 
+/*
+ * Borderless buttons show their padding as empty space, so two in a row read
+ * as further apart than bordered ones. Drop the row gap between them; their
+ * hover backgrounds then meet edge to edge.
+ */
+.wvc-bar__actions .wvc-btn--quiet + .wvc-btn--quiet {
+	margin-left: -8px;
+}
+
 .wvc .wvc-btn.is-busy {
 	pointer-events: none;
 	opacity: 0.85;
