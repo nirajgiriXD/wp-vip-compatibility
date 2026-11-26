@@ -7,6 +7,7 @@
  *   - confirm   : asking before a full rescan
  *   - shortcuts : "/" to jump to the screen's search field
  *   - findings  : expanding and collapsing every entry in the fix list at once
+ *   - tiers     : switching the findings list between tiers without a reload
  *   - clipboard : copying SQL, both single statements and whole groups
  *   - tableView : filtering, searching, sorting, paging and live counts
  *   - rows      : the per-row detail drawers
@@ -255,6 +256,112 @@ jQuery(document).ready(function ($) {
 		$entries.on("toggle", sync);
 
 		sync();
+	})();
+
+	/* ---------------------------------------------------------------------
+	 * Findings: switch tiers in place
+	 * ------------------------------------------------------------------ */
+
+	(function tiers() {
+		var $nav = $(".wvc-findings__toolbar .wvc-segmented");
+
+		if (!$nav.length) {
+			return;
+		}
+
+		var $groups = $(".wvc-fixlist > .wvc-tiergroup");
+		var $empty = $("[data-role='tier-empty']");
+		var $count = $("[data-role='findings-count']");
+
+		/**
+		 * Returns a URL with the tier set, or removed for "Everything".
+		 *
+		 * @param {string} href A URL.
+		 * @param {string} tier The tier slug, or "".
+		 * @returns {string} The URL.
+		 */
+		function withTier(href, tier) {
+			var url = new URL(href, window.location.href);
+
+			if (tier) {
+				url.searchParams.set("tier", tier);
+			} else {
+				url.searchParams.delete("tier");
+			}
+
+			return url.toString();
+		}
+
+		/**
+		 * Shows one tier's card, or all of them, and keeps the page in step.
+		 *
+		 * @param {string}  tier The tier slug, or "" for everything.
+		 * @param {boolean} push Whether to add a history entry.
+		 */
+		function select(tier, push) {
+			var $option = $nav.find(".wvc-segmented__option[data-tier='" + tier + "']");
+
+			if (!$option.length) {
+				tier = "";
+				$option = $nav.find(".wvc-segmented__option[data-tier='']");
+			}
+
+			$nav.find(".wvc-segmented__option").removeClass("active").removeAttr("aria-current");
+			$option.addClass("active").attr("aria-current", "true");
+
+			var visible = 0;
+
+			$groups.each(function () {
+				var show = !tier || String($(this).data("tier")) === tier;
+
+				$(this).prop("hidden", !show);
+				visible += show ? 1 : 0;
+			});
+
+			$empty.prop("hidden", visible > 0);
+			$count.text($option.attr("data-summary") || "");
+
+			// Everything else that carries the tier: the address, the search
+			// form and the links that remove the other filters.
+			if (push) {
+				window.history.pushState({ tier: tier }, "", withTier(window.location.href, tier));
+			}
+
+			var $form = $(".wvc-findings__toolbar form.wvc-search");
+
+			$form.find("input[name='tier']").remove();
+
+			if (tier) {
+				$form.append($('<input type="hidden" name="tier">').val(tier));
+			}
+
+			$(".wvc-findings__active a.wvc-activefilter").each(function () {
+				this.href = withTier(this.href, tier);
+			});
+		}
+
+		$nav.on("click", "a.wvc-segmented__option", function (event) {
+			// A modified click still opens the link wherever the reader asked.
+			if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
+				return;
+			}
+
+			event.preventDefault();
+
+			var $option = $(this);
+			var tier = String($option.attr("data-tier") || "");
+
+			// Choosing the selected tier again clears it, as the links do.
+			if ($option.hasClass("active") && tier) {
+				tier = "";
+			}
+
+			select(tier, true);
+		});
+
+		$(window).on("popstate", function () {
+			select(new URL(window.location.href).searchParams.get("tier") || "", false);
+		});
 	})();
 
 	/* ---------------------------------------------------------------------
