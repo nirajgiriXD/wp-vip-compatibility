@@ -118,7 +118,8 @@ add_filter( 'preflight_audit_scanner_excluded_directories', function ( array $ex
 composer install && composer test   # PHP: PHPUnit with Brain Monkey
 npm install && npm test             # admin.js: Jest with jsdom
 
-# Tests for known, unfixed bugs. These are expected to fail.
+# A bug found before it is fixed gets a test tagged @group known-bug, which
+# the default run skips. Run that group on its own to see what is open.
 vendor/bin/phpunit --group known-bug
 
 # Coding standards. The plugin's own source passes with no violations.
