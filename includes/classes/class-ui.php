@@ -354,7 +354,7 @@ class UI {
 	public static function render_shell_open( $current ) {
 		echo '<div class="wrap wvc">';
 
-		self::render_bar();
+		self::render_bar( $current );
 		self::render_page_head( $current );
 
 		echo '<hr class="wp-header-end" />';
@@ -376,9 +376,10 @@ class UI {
 	 * Rescanning and exporting are properties of the whole report rather than of
 	 * any one screen, so they live here and are reachable from all of them.
 	 *
+	 * @param string $current The current settings key.
 	 * @return void
 	 */
-	private static function render_bar() {
+	private static function render_bar( $current ) {
 		$aggregate = Report::aggregate();
 		$scanned   = $aggregate['targets'] > 0 && $aggregate['scanned_at'] > 0;
 		?>
@@ -418,22 +419,23 @@ class UI {
 					?>
 				</span>
 
-				<?php self::render_rescan_control( $scanned ); ?>
+				<?php self::render_rescan_control( $scanned, $current ); ?>
 
 				<details class="wvc-menu">
 					<summary class="wvc-btn wvc-btn--ghost wvc-btn--sm">
 						<?php echo self::get_icon( 'download', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 						<span><?php esc_html_e( 'Export', 'wp-vip-compatibility' ); ?></span>
 					</summary>
-					<div class="wvc-menu__panel">
+					<div class="wvc-menu__panel wvc-menu__panel--rich">
 						<p class="wvc-menu__title"><?php esc_html_e( 'Download the full report', 'wp-vip-compatibility' ); ?></p>
 						<?php foreach ( Export::get_formats() as $slug => $format ) : ?>
-							<a class="wvc-menu__item" href="<?php echo esc_url( Export::get_url( $slug ) ); ?>">
-								<span class="wvc-menu__label">
-									<?php echo esc_html( $format['label'] ); ?>
-									<span class="wvc-menu__ext">.<?php echo esc_html( $format['extension'] ); ?></span>
+							<a class="wvc-menu__item wvc-menu__row" href="<?php echo esc_url( Export::get_url( $slug ) ); ?>">
+								<span class="wvc-menu__tile wvc-menu__tile--ext" aria-hidden="true"><?php echo esc_html( $format['extension'] ); ?></span>
+								<span class="wvc-menu__text">
+									<span class="wvc-menu__label"><?php echo esc_html( $format['label'] ); ?></span>
+									<span class="wvc-menu__hint"><?php echo esc_html( $format['description'] ); ?></span>
 								</span>
-								<span class="wvc-menu__hint"><?php echo esc_html( $format['description'] ); ?></span>
+								<?php echo self::get_icon( 'download', array( 'class' => 'wvc-icon wvc-icon--sm wvc-menu__go' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 							</a>
 						<?php endforeach; ?>
 					</div>
@@ -475,10 +477,15 @@ class UI {
 	 * rescanning writes, and a write does not belong on a link that a prefetcher
 	 * or a bookmark can fire.
 	 *
-	 * @param bool $scanned Whether anything has been scanned yet.
+	 * The areas are grouped the way the admin menu groups their screens, and the
+	 * one behind the current screen is marked, since that is the area a reader
+	 * most often means to rescan.
+	 *
+	 * @param bool   $scanned Whether anything has been scanned yet.
+	 * @param string $current The current settings key.
 	 * @return void
 	 */
-	private static function render_rescan_control( $scanned ) {
+	private static function render_rescan_control( $scanned, $current ) {
 		$button = self::get_action_button(
 			array(
 				'label'   => $scanned ? __( 'Rescan', 'wp-vip-compatibility' ) : __( 'Run a scan', 'wp-vip-compatibility' ),
@@ -500,6 +507,22 @@ class UI {
 		// "Everything" is the button beside this menu, not a row inside it.
 		$areas = Report::get_scopes();
 		unset( $areas[ Report::SCOPE_ALL ] );
+
+		$screens = self::get_screens();
+		$groups  = self::get_groups();
+		$grouped = array();
+
+		foreach ( $areas as $slug => $scope ) {
+			$screen = $screens[ $scope['screen'] ] ?? array();
+
+			$grouped[ $screen['group'] ?? '' ][ $slug ] = array_merge(
+				$scope,
+				array(
+					'icon'    => $screen['icon'] ?? 'refresh',
+					'current' => $scope['screen'] === $current,
+				)
+			);
+		}
 		?>
 		<div class="wvc-split">
 			<?php echo $button; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
@@ -510,18 +533,34 @@ class UI {
 					<span class="screen-reader-text"><?php esc_html_e( 'Rescan one area only', 'wp-vip-compatibility' ); ?></span>
 				</summary>
 
-				<div class="wvc-menu__panel">
+				<div class="wvc-menu__panel wvc-menu__panel--rich">
 					<p class="wvc-menu__title"><?php esc_html_e( 'Rescan one area only', 'wp-vip-compatibility' ); ?></p>
 
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="wvc-menu__form">
 						<input type="hidden" name="action" value="wvc_rescan" />
 						<?php wp_nonce_field( Findings_Settings::RESCAN_ACTION ); ?>
 
-						<?php foreach ( $areas as $slug => $scope ) : ?>
-							<button type="submit" class="wvc-menu__item" name="scope" value="<?php echo esc_attr( $slug ); ?>">
-								<span class="wvc-menu__label"><?php echo esc_html( $scope['label'] ); ?></span>
-								<span class="wvc-menu__hint"><?php echo esc_html( $scope['hint'] ); ?></span>
-							</button>
+						<?php foreach ( $grouped as $group => $members ) : ?>
+							<div class="wvc-rescan__group" role="group" aria-label="<?php echo esc_attr( $groups[ $group ] ?? '' ); ?>">
+								<p class="wvc-rescan__heading" aria-hidden="true"><?php echo esc_html( $groups[ $group ] ?? '' ); ?></p>
+
+								<?php foreach ( $members as $slug => $scope ) : ?>
+									<button type="submit" class="wvc-menu__item wvc-menu__row" name="scope" value="<?php echo esc_attr( $slug ); ?>">
+										<span class="wvc-menu__tile" aria-hidden="true">
+											<?php echo self::get_icon( $scope['icon'], array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+										</span>
+										<span class="wvc-menu__text">
+											<span class="wvc-menu__label">
+												<?php echo esc_html( $scope['label'] ); ?>
+												<?php if ( $scope['current'] ) : ?>
+													<span class="wvc-menu__tag"><?php esc_html_e( 'This page', 'wp-vip-compatibility' ); ?></span>
+												<?php endif; ?>
+											</span>
+											<span class="wvc-menu__hint"><?php echo esc_html( $scope['hint'] ); ?></span>
+										</span>
+									</button>
+								<?php endforeach; ?>
+							</div>
 						<?php endforeach; ?>
 					</form>
 				</div>

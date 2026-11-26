@@ -520,7 +520,7 @@ body.wvc-screen,
 	animation: wvc-pop 0.16s var(--wvc-ease);
 }
 
-.wvc-menu__title {
+.wvc .wvc-menu__title {
 	padding: 8px 10px 6px;
 	color: var(--wvc-ink-3);
 	font-family: var(--wvc-mono);
@@ -564,17 +564,106 @@ body.wvc-screen,
 	line-height: 1.35;
 }
 
-.wvc-menu__ext {
-	color: var(--wvc-ink-3);
-	font-family: var(--wvc-mono);
-	font-size: 11px;
-	font-weight: 400;
-}
-
 .wvc-menu__hint {
 	color: var(--wvc-ink-3);
 	font-size: 12px;
 	line-height: 1.4;
+}
+
+/*
+ * Rich menus (rescan, export): each row leads with a tile naming what it acts
+ * on, so the options can be told apart at a glance.
+ */
+.wvc-menu__panel--rich {
+	width: 340px;
+}
+
+.wvc-rescan__group + .wvc-rescan__group {
+	margin-top: 4px;
+	padding-top: 4px;
+	border-top: 1px solid var(--wvc-rule);
+}
+
+.wvc .wvc-rescan__heading {
+	padding: 8px 10px 4px;
+	color: var(--wvc-ink-3);
+	font-size: 11px;
+	font-weight: 600;
+}
+
+.wvc .wvc-menu__row {
+	flex-direction: row;
+	align-items: center;
+	gap: 12px;
+	padding: 7px 10px;
+}
+
+.wvc-menu__tile {
+	display: grid;
+	flex: none;
+	place-items: center;
+	width: 30px;
+	height: 30px;
+	border: 1px solid var(--wvc-rule);
+	border-radius: var(--wvc-radius);
+	background: var(--wvc-paper);
+	color: var(--wvc-ink-2);
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.wvc-menu__row:hover .wvc-menu__tile,
+.wvc-menu__row:focus-visible .wvc-menu__tile {
+	border-color: var(--wvc-ink);
+	background: var(--wvc-ink);
+	color: var(--wvc-ink-inverse);
+}
+
+.wvc-menu__text {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	gap: 1px;
+	min-width: 0;
+}
+
+.wvc-menu__tile--ext {
+	font-family: var(--wvc-mono);
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+}
+
+/* Sized as a box to match the tile on the left, so the row reads balanced. */
+.wvc .wvc-menu__go {
+	box-sizing: border-box;
+	flex: none;
+	width: 30px;
+	height: 30px;
+	padding: 5px;
+	border: 1px solid var(--wvc-rule-2);
+	border-radius: var(--wvc-radius);
+	background: var(--wvc-sheet);
+	color: var(--wvc-ink);
+	opacity: 0;
+	transform: translateY(-2px);
+	transition: opacity 0.15s ease, transform 0.2s var(--wvc-ease);
+}
+
+.wvc-menu__row:hover .wvc-menu__go,
+.wvc-menu__row:focus-visible .wvc-menu__go {
+	opacity: 1;
+	transform: none;
+}
+
+.wvc-menu__tag {
+	padding: 1px 6px;
+	border-radius: 3px;
+	background: var(--wvc-accent-soft);
+	color: var(--wvc-accent-ink);
+	font-size: 10.5px;
+	font-weight: 600;
+	line-height: 1.5;
 }
 
 .wvc-menu__item.is-busy {
