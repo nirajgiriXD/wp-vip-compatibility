@@ -1197,20 +1197,20 @@ class Report {
 		ksort( $grouped );
 
 		foreach ( $grouped as $label => $findings ) {
-			$lines[] = sprintf( '## %s', $label );
+			$lines[] = sprintf( '## %s', self::md( $label ) );
 			$lines[] = '';
 
 			foreach ( $findings as $finding ) {
 				$lines[] = sprintf(
 					'- **%s** — %s (`%s`) at `%s:%d`',
 					ucfirst( $finding['severity'] ),
-					$finding['title'],
-					$finding['rule'],
-					$finding['file'],
+					self::md( $finding['title'] ),
+					self::md_code( $finding['rule'] ),
+					self::md_code( $finding['file'] ),
 					$finding['line']
 				);
-				$lines[] = sprintf( '  - Why it matters: %s', $finding['why'] );
-				$lines[] = sprintf( '  - Fix: %s', $finding['remediation'] );
+				$lines[] = sprintf( '  - Why it matters: %s', self::md( $finding['why'] ) );
+				$lines[] = sprintf( '  - Fix: %s', self::md( $finding['remediation'] ) );
 
 				if ( '' !== $finding['doc'] ) {
 					$lines[] = sprintf( '  - Reference: %s', $finding['doc'] );
@@ -1221,5 +1221,32 @@ class Report {
 		}
 
 		return implode( "\n", $lines );
+	}
+
+	/**
+	 * Escapes text for a Markdown export.
+	 *
+	 * Plugin names and paths come from scanned code. Unescaped, a crafted name
+	 * could turn into a link or a remote image once the report is pasted into
+	 * a ticket or pull request.
+	 *
+	 * @param string $text The text.
+	 * @return string The escaped text, on one line.
+	 */
+	private static function md( $text ) {
+		$text = preg_replace( '/\s+/', ' ', (string) $text );
+
+		// Every value lands mid-line, so only inline syntax needs escaping.
+		return addcslashes( (string) $text, '\\`*_[]<>!|~' );
+	}
+
+	/**
+	 * Prepares text for a Markdown code span, which cannot contain a backtick.
+	 *
+	 * @param string $text The text.
+	 * @return string The text, safe inside single backticks.
+	 */
+	private static function md_code( $text ) {
+		return str_replace( '`', "'", (string) preg_replace( '/\s+/', ' ', (string) $text ) );
 	}
 }
