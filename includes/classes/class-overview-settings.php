@@ -273,7 +273,7 @@ class Overview_Settings {
 	}
 
 	/**
-	 * Builds the single supporting line: how much was read and what changed.
+	 * Builds the single supporting line: how much was read.
 	 *
 	 * @param array<string, mixed> $aggregate The aggregate.
 	 * @param bool                 $scanned   Whether anything has been scanned.
@@ -284,26 +284,50 @@ class Overview_Settings {
 			return '';
 		}
 
-		$parts = array(
-			sprintf(
-				/* translators: 1: Number of targets. 2: Number of PHP files. */
-				__( '%1$d items scanned across %2$s PHP files', 'wp-vip-compatibility' ),
-				(int) $aggregate['targets'],
-				number_format_i18n( (int) $aggregate['totals']['files'] )
-			),
+		return sprintf(
+			/* translators: 1: What was scanned, e.g. "3 plugins, 1 theme and 1 must-use plugin". 2: Number of PHP files. */
+			__( '%1$s scanned across %2$s PHP files', 'wp-vip-compatibility' ),
+			$this->scanned_kinds( $aggregate ),
+			number_format_i18n( (int) $aggregate['totals']['files'] )
 		);
+	}
 
-		$delta = Results_Store::get_delta();
+	/**
+	 * Names what was scanned, counted by kind: "3 plugins, 1 theme and 1 must-use plugin".
+	 *
+	 * @param array<string, mixed> $aggregate The aggregate.
+	 * @return string The list, or an empty string when nothing was scanned.
+	 */
+	private function scanned_kinds( array $aggregate ) {
+		$items = array();
 
-		if ( null !== $delta && 0 !== $delta['total'] ) {
-			$parts[] = sprintf(
-				/* translators: %s: Signed change in findings, e.g. "+12". */
-				__( '%s findings since the previous scan', 'wp-vip-compatibility' ),
-				sprintf( '%+d', $delta['total'] )
-			);
+		foreach ( array( 'plugin', 'theme', 'mu-plugin' ) as $kind ) {
+			$count = (int) array_sum( $aggregate['by_kind'][ $kind ] ?? array() );
+
+			if ( $count <= 0 ) {
+				continue;
+			}
+
+			$number = number_format_i18n( $count );
+
+			switch ( $kind ) {
+				case 'theme':
+					/* translators: %s: Number of themes. */
+					$items[] = sprintf( _n( '%s theme', '%s themes', $count, 'wp-vip-compatibility' ), $number );
+					break;
+
+				case 'mu-plugin':
+					/* translators: %s: Number of must-use plugins. */
+					$items[] = sprintf( _n( '%s must-use plugin', '%s must-use plugins', $count, 'wp-vip-compatibility' ), $number );
+					break;
+
+				default:
+					/* translators: %s: Number of plugins. */
+					$items[] = sprintf( _n( '%s plugin', '%s plugins', $count, 'wp-vip-compatibility' ), $number );
+			}
 		}
 
-		return implode( ' · ', $parts );
+		return wp_sprintf( '%l', $items );
 	}
 
 	/*
