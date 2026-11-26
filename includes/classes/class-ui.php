@@ -440,7 +440,7 @@ class UI {
 				</details>
 
 				<a class="wvc-btn wvc-btn--quiet wvc-btn--sm" href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">
-					<?php echo self::get_icon( 'book', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+					<?php echo self::get_icon( 'external', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 					<span><?php esc_html_e( 'Docs', 'wp-vip-compatibility' ); ?></span>
 					<span class="screen-reader-text"><?php esc_html_e( '(WordPress VIP documentation, opens in a new tab)', 'wp-vip-compatibility' ); ?></span>
 				</a>
