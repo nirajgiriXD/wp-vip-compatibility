@@ -96,7 +96,7 @@ class UI {
 				'slug'        => 'wvc-themes',
 				'label'       => __( 'Themes', 'wp-vip-compatibility' ),
 				'title'       => __( 'Themes', 'wp-vip-compatibility' ),
-				'description' => __( 'The active theme in detail, and every other theme that still ships in the repository.', 'wp-vip-compatibility' ),
+				'description' => __( 'Every installed theme, with the active one marked. Inactive themes still ship in the repository.', 'wp-vip-compatibility' ),
 				'icon'        => 'brush',
 				'group'       => 'code',
 			),
