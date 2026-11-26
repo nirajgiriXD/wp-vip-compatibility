@@ -407,7 +407,7 @@ class Rules {
 				// inside a translatable string confuse both PHPCS and translators.
 				'remediation' => __( 'Wrap the SQL in $wpdb->prepare() using its string, integer and float placeholders, and pass the values as arguments. Table names cannot be placeholders — build them from $wpdb->prefix and validate against a known list.', 'wp-vip-compatibility' ),
 				'alternative' => __( 'Prefer a core API — WP_Query, get_posts(), get_terms() — over hand-written SQL wherever one exists.', 'wp-vip-compatibility' ),
-				'doc'         => 'https://docs.wpvip.com/code-quality/database-queries/',
+				'doc'         => 'https://docs.wpvip.com/databases/optimize-queries/database-queries/',
 				'phpcs'       => 'WordPress.DB.PreparedSQL.InterpolatedNotPrepared',
 				'match'       => array(
 					'methods' => array( 'wpdb->query', 'wpdb->get_results', 'wpdb->get_row', 'wpdb->get_var', 'wpdb->get_col' ),
