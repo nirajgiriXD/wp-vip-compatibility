@@ -307,7 +307,7 @@ class UI {
 			'clock'        => '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/>',
 			'expand'       => '<path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/>',
 			'collapse'     => '<path d="m7 20 5-5 5 5"/><path d="m7 4 5 5 5-5"/>',
-			'seal'         => '<rect x="2.75" y="6.75" width="7.5" height="10.5" rx="1"/><path d="M12.5 12h3.25"/><path d="m14.25 9.75 2.25 2.25-2.25 2.25"/><rect x="18.25" y="3.75" width="3" height="16.5" rx="1"/>',
+			'logo'         => '<path d="M21 3 8.5 8l4.2 1.8L14.5 14Z"/><path d="m21 3-8.3 6.8"/><path d="m3.5 17.5 2.5 2.5 4.5-5"/><path d="M14 18.5h6.5"/><path d="M3.5 11h.01"/><path d="M6.5 11.2h.01"/>',
 		);
 
 		if ( ! isset( $paths[ $name ] ) ) {
@@ -386,7 +386,7 @@ class UI {
 		<div class="pfa-bar">
 			<a class="pfa-brand" href="<?php echo esc_url( self::get_screen_url( 'overview' ) ); ?>">
 				<span class="pfa-brand__seal" aria-hidden="true">
-					<?php echo self::get_icon( 'seal' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+					<?php echo self::get_icon( 'logo' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 				</span>
 				<span class="pfa-brand__text">
 					<span class="pfa-brand__name"><?php esc_html_e( 'Preflight Audit', 'preflight-audit' ); ?></span>

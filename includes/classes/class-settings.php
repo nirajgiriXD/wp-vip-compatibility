@@ -21,6 +21,17 @@ class Settings {
 	use Singleton;
 
 	/**
+	 * The admin menu icon: the plugin logo as a single-colour 20x20 SVG.
+	 *
+	 * Base64 because that is the only form WordPress recolours to match the
+	 * admin colour scheme. Every shape sets `fill`, which is what it rewrites.
+	 * The source is the plane, flight path and tick from assets/icon.svg.
+	 *
+	 * @var string
+	 */
+	const MENU_ICON = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCAyMCI+PHBhdGggZmlsbD0iYmxhY2siIGQ9Ik0xOSAxLjYgNy44IDYuMmwzLjcgMS42ek0xOSAxLjZsLTYuOCA2LjkgMS40IDMuN3pNMSAxNS4ybDEuNC0xLjQgMS40IDEuNCAzLjgtMy44TDkgMTIuOCAzLjggMTh6TTExLjUgMTQuOEgxOGExIDEgMCAwIDEgMCAyaC02LjVhMSAxIDAgMCAxIDAtMnoiLz48Y2lyY2xlIGZpbGw9ImJsYWNrIiBjeD0iMS44IiBjeT0iOS40IiByPSIwLjc1Ii8+PGNpcmNsZSBmaWxsPSJibGFjayIgY3g9IjQuMyIgY3k9IjkuNiIgcj0iMC43NSIvPjxjaXJjbGUgZmlsbD0iYmxhY2siIGN4PSI2LjgiIGN5PSI5IiByPSIwLjc1Ii8+PC9zdmc+';
+
+	/**
 	 * Holds registered settings classes.
 	 *
 	 * @var array
@@ -154,7 +165,7 @@ class Settings {
 			'manage_options',
 			$screens['overview']['slug'],
 			fn() => $this->render_settings_page( 'overview' ),
-			'dashicons-shield-alt'
+			self::MENU_ICON
 		);
 
 		$headed = array();
