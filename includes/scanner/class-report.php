@@ -1155,7 +1155,16 @@ class Report {
 		$cells = array();
 
 		foreach ( $values as $value ) {
-			$cells[] = '"' . str_replace( '"', '""', (string) $value ) . '"';
+			$value = (string) $value;
+
+			// Plugin names and evidence lines come from scanned code. A cell that
+			// starts with one of these is run as a formula by spreadsheet apps,
+			// so it is prefixed with a quote to keep it plain text.
+			if ( '' !== $value && false !== strpos( "=+-@\t\r", $value[0] ) ) {
+				$value = "'" . $value;
+			}
+
+			$cells[] = '"' . str_replace( '"', '""', $value ) . '"';
 		}
 
 		return implode( ',', $cells );
