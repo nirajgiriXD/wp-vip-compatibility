@@ -32,3 +32,6 @@ assets/icon-*.png
 
 # LICENSE is deliberately NOT excluded: the GPL requires the licence text to be
 # distributed with the software it covers.
+
+# Plugin Directory icon source. Like the PNGs above, it belongs in SVN /assets/.
+assets/icon.svg
