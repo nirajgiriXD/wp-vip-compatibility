@@ -7,13 +7,13 @@
  * made from one row: what it is, whether the site runs it, whether WordPress VIP has
  * already ruled on it, how serious the findings are, and the one action to take.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Classes;
+namespace PREFLIGHT_AUDIT\Includes\Classes;
 
-use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
+use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
+use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -39,7 +39,7 @@ class Plugins_Settings extends Inventory_Screen {
 	 * @return string The label.
 	 */
 	protected function get_search_label() {
-		return __( 'Search plugins by name, path or author', 'wp-vip-compatibility' );
+		return __( 'Search plugins by name, path or author', 'preflight-audit' );
 	}
 
 	/**
@@ -48,7 +48,7 @@ class Plugins_Settings extends Inventory_Screen {
 	 * @return string The title.
 	 */
 	protected function get_table_title() {
-		return __( 'Installed plugins', 'wp-vip-compatibility' );
+		return __( 'Installed plugins', 'preflight-audit' );
 	}
 
 	/**
@@ -58,8 +58,8 @@ class Plugins_Settings extends Inventory_Screen {
 	 */
 	protected function get_empty_state() {
 		return array(
-			__( 'No plugins are installed', 'wp-vip-compatibility' ),
-			__( 'There is nothing here to check against the WordPress VIP Platform.', 'wp-vip-compatibility' ),
+			__( 'No plugins are installed', 'preflight-audit' ),
+			__( 'There is nothing here to check against the WordPress VIP Platform.', 'preflight-audit' ),
 		);
 	}
 
@@ -72,11 +72,11 @@ class Plugins_Settings extends Inventory_Screen {
 		return array(
 			sprintf(
 				/* translators: %s: Link to the findings report. */
-				__( '<strong>Verdicts.</strong> "Blocked" means at least one finding is expected to fail on WordPress VIP. "Review" means there is work to do that will not by itself stop a migration. %s for the detail behind every verdict.', 'wp-vip-compatibility' ),
-				'<a href="' . esc_url( UI::get_findings_url() ) . '">' . esc_html__( 'Open the findings report', 'wp-vip-compatibility' ) . '</a>'
+				__( '<strong>Verdicts.</strong> "Blocked" means at least one finding is expected to fail on WordPress VIP. "Review" means there is work to do that will not by itself stop a migration. %s for the detail behind every verdict.', 'preflight-audit' ),
+				'<a href="' . esc_url( UI::get_findings_url() ) . '">' . esc_html__( 'Open the findings report', 'preflight-audit' ) . '</a>'
 			),
-			__( '<strong>Inactive plugins still count.</strong> They ship in the repository and are still read by the WordPress VIP Code Analysis Bot. Removing the ones you do not use is the quickest way to shorten this list.', 'wp-vip-compatibility' ),
-			__( '<strong>Updates.</strong> An arrow next to a version means WordPress has a newer release. Update before you migrate, so WordPress VIP reviews the code you will actually ship.', 'wp-vip-compatibility' ),
+			__( '<strong>Inactive plugins still count.</strong> They ship in the repository and are still read by the WordPress VIP Code Analysis Bot. Removing the ones you do not use is the quickest way to shorten this list.', 'preflight-audit' ),
+			__( '<strong>Updates.</strong> An arrow next to a version means WordPress has a newer release. Update before you migrate, so WordPress VIP reviews the code you will actually ship.', 'preflight-audit' ),
 		);
 	}
 
@@ -88,32 +88,32 @@ class Plugins_Settings extends Inventory_Screen {
 	protected function get_columns() {
 		return array(
 			array(
-				'label'    => __( 'Plugin', 'wp-vip-compatibility' ),
-				'class'    => 'wvc-col-name',
+				'label'    => __( 'Plugin', 'preflight-audit' ),
+				'class'    => 'pfa-col-name',
 				'sortable' => true,
 			),
 			array(
-				'label' => __( 'Version', 'wp-vip-compatibility' ),
-				'class' => 'wvc-col-version',
+				'label' => __( 'Version', 'preflight-audit' ),
+				'class' => 'pfa-col-version',
 			),
 			array(
-				'label'    => __( 'State', 'wp-vip-compatibility' ),
-				'class'    => 'wvc-col-state',
+				'label'    => __( 'State', 'preflight-audit' ),
+				'class'    => 'pfa-col-state',
 				'sortable' => true,
 			),
 			array(
-				'label'    => __( 'WordPress VIP verdict', 'wp-vip-compatibility' ),
-				'class'    => 'wvc-col-status',
+				'label'    => __( 'WordPress VIP verdict', 'preflight-audit' ),
+				'class'    => 'pfa-col-status',
 				'sortable' => true,
 			),
 			array(
-				'label' => __( 'Findings', 'wp-vip-compatibility' ),
-				'class' => 'wvc-col-findings',
-				'hint'  => __( 'Findings grouped by what to do about them: must fix, should fix, worth checking, FYI.', 'wp-vip-compatibility' ),
+				'label' => __( 'Findings', 'preflight-audit' ),
+				'class' => 'pfa-col-findings',
+				'hint'  => __( 'Findings grouped by what to do about them: must fix, should fix, worth checking, FYI.', 'preflight-audit' ),
 			),
 			array(
-				'label' => __( 'What to do', 'wp-vip-compatibility' ),
-				'class' => 'wvc-col-notes',
+				'label' => __( 'What to do', 'preflight-audit' ),
+				'class' => 'pfa-col-notes',
 			),
 		);
 	}
@@ -133,20 +133,20 @@ class Plugins_Settings extends Inventory_Screen {
 		return array(
 			array(
 				'name'    => 'state',
-				'label'   => __( 'Filter by activation', 'wp-vip-compatibility' ),
+				'label'   => __( 'Filter by activation', 'preflight-audit' ),
 				'active'  => in_array( $state, array( 'active', 'inactive' ), true ) ? $state : 'all',
 				'options' => array(
 					array(
 						'value' => 'all',
-						'label' => __( 'All plugins', 'wp-vip-compatibility' ),
+						'label' => __( 'All plugins', 'preflight-audit' ),
 					),
 					array(
 						'value' => 'active',
-						'label' => __( 'Active', 'wp-vip-compatibility' ),
+						'label' => __( 'Active', 'preflight-audit' ),
 					),
 					array(
 						'value' => 'inactive',
-						'label' => __( 'Inactive', 'wp-vip-compatibility' ),
+						'label' => __( 'Inactive', 'preflight-audit' ),
 					),
 				),
 			),
@@ -178,14 +178,14 @@ class Plugins_Settings extends Inventory_Screen {
 
 		$active = $this->is_active( $target, $context );
 
-		echo '<td class="wvc-col-state" data-label="' . esc_attr__( 'State', 'wp-vip-compatibility' ) . '">';
+		echo '<td class="pfa-col-state" data-label="' . esc_attr__( 'State', 'preflight-audit' ) . '">';
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		echo UI::get_badge(
-			$active ? __( 'Active', 'wp-vip-compatibility' ) : __( 'Inactive', 'wp-vip-compatibility' ),
+			$active ? __( 'Active', 'preflight-audit' ) : __( 'Inactive', 'preflight-audit' ),
 			$active ? 'accent' : 'neutral',
 			$active
-				? __( 'WordPress loads this plugin on every request.', 'wp-vip-compatibility' )
-				: __( 'Not loaded, but still shipped in the repository and still reviewed by WordPress VIP.', 'wp-vip-compatibility' )
+				? __( 'WordPress loads this plugin on every request.', 'preflight-audit' )
+				: __( 'Not loaded, but still shipped in the repository and still reviewed by WordPress VIP.', 'preflight-audit' )
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</td>';

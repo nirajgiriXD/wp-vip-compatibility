@@ -6,10 +6,10 @@
  * filtered list the findings screen needs, and the machine-readable exports a
  * developer or a CI job needs.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Scanner;
+namespace PREFLIGHT_AUDIT\Includes\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -54,8 +54,8 @@ class Report {
 	public static function get_scopes() {
 		return array(
 			self::SCOPE_ALL => array(
-				'label'  => __( 'Everything', 'wp-vip-compatibility' ),
-				'hint'   => __( 'Every plugin, theme and must-use plugin, and both site audits.', 'wp-vip-compatibility' ),
+				'label'  => __( 'Everything', 'preflight-audit' ),
+				'hint'   => __( 'Every plugin, theme and must-use plugin, and both site audits.', 'preflight-audit' ),
 				'type'   => '',
 				// Everything spans five screens, so there is no one screen to land
 				// on: a full rescan returns you to where you started it.
@@ -63,36 +63,36 @@ class Report {
 				'async'  => false,
 			),
 			'plugin'        => array(
-				'label'  => __( 'Plugins', 'wp-vip-compatibility' ),
-				'hint'   => __( 'Re-read the code of every installed plugin.', 'wp-vip-compatibility' ),
+				'label'  => __( 'Plugins', 'preflight-audit' ),
+				'hint'   => __( 'Re-read the code of every installed plugin.', 'preflight-audit' ),
 				'type'   => 'plugin',
 				'screen' => 'plugins',
 				'async'  => true,
 			),
 			'theme'         => array(
-				'label'  => __( 'Themes', 'wp-vip-compatibility' ),
-				'hint'   => __( 'Re-read the code of every installed theme.', 'wp-vip-compatibility' ),
+				'label'  => __( 'Themes', 'preflight-audit' ),
+				'hint'   => __( 'Re-read the code of every installed theme.', 'preflight-audit' ),
 				'type'   => 'theme',
 				'screen' => 'themes',
 				'async'  => true,
 			),
 			'mu-plugin'     => array(
-				'label'  => __( 'Must-use plugins', 'wp-vip-compatibility' ),
-				'hint'   => __( 'Re-read everything in wp-content/mu-plugins.', 'wp-vip-compatibility' ),
+				'label'  => __( 'Must-use plugins', 'preflight-audit' ),
+				'hint'   => __( 'Re-read everything in wp-content/mu-plugins.', 'preflight-audit' ),
 				'type'   => 'mu-plugin',
 				'screen' => 'mu-plugins',
 				'async'  => true,
 			),
 			'database'      => array(
-				'label'  => __( 'Database', 'wp-vip-compatibility' ),
-				'hint'   => __( 'Recheck engine, collation and prefix.', 'wp-vip-compatibility' ),
+				'label'  => __( 'Database', 'preflight-audit' ),
+				'hint'   => __( 'Recheck engine, collation and prefix.', 'preflight-audit' ),
 				'type'   => '',
 				'screen' => 'database',
 				'async'  => false,
 			),
 			'directories'   => array(
-				'label'  => __( 'wp-content', 'wp-vip-compatibility' ),
-				'hint'   => __( 'Recheck what sits in wp-content today.', 'wp-vip-compatibility' ),
+				'label'  => __( 'wp-content', 'preflight-audit' ),
+				'hint'   => __( 'Recheck what sits in wp-content today.', 'preflight-audit' ),
 				'type'   => '',
 				'screen' => 'directories',
 				'async'  => false,
@@ -230,7 +230,7 @@ class Report {
 
 			return sprintf(
 				/* translators: %s: Number of database tables. */
-				_n( 'Measured the schema again. %s table checked.', 'Measured the schema again. %s tables checked.', $total, 'wp-vip-compatibility' ),
+				_n( 'Measured the schema again. %s table checked.', 'Measured the schema again. %s tables checked.', $total, 'preflight-audit' ),
 				number_format_i18n( $total )
 			);
 		}
@@ -240,7 +240,7 @@ class Report {
 
 			return sprintf(
 				/* translators: %s: Number of entries in wp-content. */
-				_n( 'Looked at wp-content again. %s entry checked.', 'Looked at wp-content again. %s entries checked.', $total, 'wp-vip-compatibility' ),
+				_n( 'Looked at wp-content again. %s entry checked.', 'Looked at wp-content again. %s entries checked.', $total, 'preflight-audit' ),
 				number_format_i18n( $total )
 			);
 		}
@@ -261,25 +261,25 @@ class Report {
 		switch ( $scope ) {
 			case 'plugin':
 				/* translators: %s: Number of plugins. */
-				$subject = sprintf( _n( '%s plugin', '%s plugins', $items, 'wp-vip-compatibility' ), number_format_i18n( $items ) );
+				$subject = sprintf( _n( '%s plugin', '%s plugins', $items, 'preflight-audit' ), number_format_i18n( $items ) );
 				break;
 			case 'theme':
 				/* translators: %s: Number of themes. */
-				$subject = sprintf( _n( '%s theme', '%s themes', $items, 'wp-vip-compatibility' ), number_format_i18n( $items ) );
+				$subject = sprintf( _n( '%s theme', '%s themes', $items, 'preflight-audit' ), number_format_i18n( $items ) );
 				break;
 			case 'mu-plugin':
 				/* translators: %s: Number of must-use plugins. */
-				$subject = sprintf( _n( '%s must-use plugin', '%s must-use plugins', $items, 'wp-vip-compatibility' ), number_format_i18n( $items ) );
+				$subject = sprintf( _n( '%s must-use plugin', '%s must-use plugins', $items, 'preflight-audit' ), number_format_i18n( $items ) );
 				break;
 			default:
 				/* translators: %s: Number of scanned items. */
-				$subject = sprintf( _n( '%s item', '%s items', $items, 'wp-vip-compatibility' ), number_format_i18n( $items ) );
+				$subject = sprintf( _n( '%s item', '%s items', $items, 'preflight-audit' ), number_format_i18n( $items ) );
 				break;
 		}
 
 		return sprintf(
 			/* translators: 1: What was scanned, already counted, e.g. "12 plugins". 2: Number of PHP files. */
-			_n( 'Scanned %1$s across %2$s PHP file.', 'Scanned %1$s across %2$s PHP files.', $files, 'wp-vip-compatibility' ),
+			_n( 'Scanned %1$s across %2$s PHP file.', 'Scanned %1$s across %2$s PHP files.', $files, 'preflight-audit' ),
 			$subject,
 			number_format_i18n( $files )
 		);
@@ -425,7 +425,7 @@ class Report {
 				array(
 					'status' => Scanner::STATUS_BLOCKED,
 					'state'  => 'not-compatible',
-					'label'  => __( 'Incompatible', 'wp-vip-compatibility' ),
+					'label'  => __( 'Incompatible', 'preflight-audit' ),
 				)
 			);
 		}
@@ -438,7 +438,7 @@ class Report {
 				array(
 					'status' => Scanner::STATUS_REVIEW,
 					'state'  => 'review',
-					'label'  => __( 'Do not migrate', 'wp-vip-compatibility' ),
+					'label'  => __( 'Do not migrate', 'preflight-audit' ),
 				)
 			);
 		}
@@ -449,7 +449,7 @@ class Report {
 				array(
 					'status' => '',
 					'state'  => 'pending',
-					'label'  => __( 'Not scanned yet', 'wp-vip-compatibility' ),
+					'label'  => __( 'Not scanned yet', 'preflight-audit' ),
 				)
 			);
 		}
@@ -541,11 +541,11 @@ class Report {
 	 */
 	public static function areas() {
 		$areas = array(
-			'plugin'      => array( __( 'Plugins', 'wp-vip-compatibility' ), 'plugins', 'plug' ),
-			'theme'       => array( __( 'Themes', 'wp-vip-compatibility' ), 'themes', 'brush' ),
-			'mu-plugin'   => array( __( 'Must-use plugins', 'wp-vip-compatibility' ), 'mu-plugins', 'bolt' ),
-			'database'    => array( __( 'Database tables', 'wp-vip-compatibility' ), 'database', 'database' ),
-			'directories' => array( __( 'wp-content layout', 'wp-vip-compatibility' ), 'directories', 'folder' ),
+			'plugin'      => array( __( 'Plugins', 'preflight-audit' ), 'plugins', 'plug' ),
+			'theme'       => array( __( 'Themes', 'preflight-audit' ), 'themes', 'brush' ),
+			'mu-plugin'   => array( __( 'Must-use plugins', 'preflight-audit' ), 'mu-plugins', 'bolt' ),
+			'database'    => array( __( 'Database tables', 'preflight-audit' ), 'database', 'database' ),
+			'directories' => array( __( 'wp-content layout', 'preflight-audit' ), 'directories', 'folder' ),
 		);
 
 		$rows = array();
@@ -579,52 +579,52 @@ class Report {
 
 		return array(
 			array(
-				'label' => __( 'PHP', 'wp-vip-compatibility' ),
+				'label' => __( 'PHP', 'preflight-audit' ),
 				'value' => PHP_VERSION,
 				'hint'  => $php_ok
-					? __( 'Within the range WordPress VIP runs.', 'wp-vip-compatibility' )
-					: __( 'WordPress VIP runs PHP 8.0 and above. Test on a supported version first.', 'wp-vip-compatibility' ),
+					? __( 'Within the range WordPress VIP runs.', 'preflight-audit' )
+					: __( 'WordPress VIP runs PHP 8.0 and above. Test on a supported version first.', 'preflight-audit' ),
 				'tone'  => $php_ok ? 'ok' : 'warn',
 			),
 			array(
-				'label' => __( 'WordPress', 'wp-vip-compatibility' ),
+				'label' => __( 'WordPress', 'preflight-audit' ),
 				'value' => get_bloginfo( 'version' ),
-				'hint'  => __( 'WordPress VIP tracks the latest release closely.', 'wp-vip-compatibility' ),
+				'hint'  => __( 'WordPress VIP tracks the latest release closely.', 'preflight-audit' ),
 			),
 			array(
-				'label' => __( 'Object cache', 'wp-vip-compatibility' ),
+				'label' => __( 'Object cache', 'preflight-audit' ),
 				'value' => $cache_ok
-					? __( 'Persistent', 'wp-vip-compatibility' )
-					: __( 'Not persistent', 'wp-vip-compatibility' ),
+					? __( 'Persistent', 'preflight-audit' )
+					: __( 'Not persistent', 'preflight-audit' ),
 				'hint'  => $cache_ok
-					? __( 'Matches the WordPress VIP environment, where the object cache is always persistent.', 'wp-vip-compatibility' )
-					: __( 'WordPress VIP always has a persistent object cache. Uncached queries behave differently there.', 'wp-vip-compatibility' ),
+					? __( 'Matches the WordPress VIP environment, where the object cache is always persistent.', 'preflight-audit' )
+					: __( 'WordPress VIP always has a persistent object cache. Uncached queries behave differently there.', 'preflight-audit' ),
 				'tone'  => $cache_ok ? 'ok' : 'warn',
 			),
 			array(
-				'label' => __( 'Install type', 'wp-vip-compatibility' ),
+				'label' => __( 'Install type', 'preflight-audit' ),
 				'value' => is_multisite()
-					? __( 'Multisite', 'wp-vip-compatibility' )
-					: __( 'Single site', 'wp-vip-compatibility' ),
+					? __( 'Multisite', 'preflight-audit' )
+					: __( 'Single site', 'preflight-audit' ),
 				'hint'  => is_multisite()
-					? __( 'A multisite migration needs the network layout agreed with WordPress VIP up front.', 'wp-vip-compatibility' )
+					? __( 'A multisite migration needs the network layout agreed with WordPress VIP up front.', 'preflight-audit' )
 					: '',
 			),
 			array(
-				'label' => __( 'Database size', 'wp-vip-compatibility' ),
+				'label' => __( 'Database size', 'preflight-audit' ),
 				'value' => size_format( (int) $database['bytes'], 1 ),
 				'hint'  => sprintf(
 					/* translators: %s: Number of tables. */
-					_n( '%s table', '%s tables', (int) $database['total'], 'wp-vip-compatibility' ),
+					_n( '%s table', '%s tables', (int) $database['total'], 'preflight-audit' ),
 					number_format_i18n( (int) $database['total'] )
 				),
 			),
 			array(
-				'label' => __( 'Rule set', 'wp-vip-compatibility' ),
+				'label' => __( 'Rule set', 'preflight-audit' ),
 				'value' => Rules::VERSION,
 				'hint'  => sprintf(
 					/* translators: %s: Number of rules. */
-					_n( '%s rule, each mapped to a WordPress VIP requirement.', '%s rules, each mapped to a WordPress VIP requirement.', count( Rules::all() ), 'wp-vip-compatibility' ),
+					_n( '%s rule, each mapped to a WordPress VIP requirement.', '%s rules, each mapped to a WordPress VIP requirement.', count( Rules::all() ), 'preflight-audit' ),
 					number_format_i18n( count( Rules::all() ) )
 				),
 			),
@@ -731,13 +731,13 @@ class Report {
 				'tier'   => 'blocking',
 				'title'  => sprintf(
 					/* translators: %d: Number of plugins. */
-					_n( 'Replace %d plugin WordPress VIP lists as incompatible', 'Replace %d plugins WordPress VIP lists as incompatible', $listed, 'wp-vip-compatibility' ),
+					_n( 'Replace %d plugin WordPress VIP lists as incompatible', 'Replace %d plugins WordPress VIP lists as incompatible', $listed, 'preflight-audit' ),
 					$listed
 				),
-				'detail' => __( 'WordPress VIP documents these as incompatible with the platform. No code change makes them work.', 'wp-vip-compatibility' ),
-				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=wvc-plugins' ) ),
-				'action' => __( 'Open plugins', 'wp-vip-compatibility' ),
-				'source' => __( 'Plugins', 'wp-vip-compatibility' ),
+				'detail' => __( 'WordPress VIP documents these as incompatible with the platform. No code change makes them work.', 'preflight-audit' ),
+				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=pfa-plugins' ) ),
+				'action' => __( 'Open plugins', 'preflight-audit' ),
+				'source' => __( 'Plugins', 'preflight-audit' ),
 			);
 		}
 
@@ -746,13 +746,13 @@ class Report {
 				'tier'   => 'important',
 				'title'  => sprintf(
 					/* translators: %d: Number of must-use plugins. */
-					_n( 'Relocate %d must-use plugin', 'Relocate %d must-use plugins', $mu_to_move, 'wp-vip-compatibility' ),
+					_n( 'Relocate %d must-use plugin', 'Relocate %d must-use plugins', $mu_to_move, 'preflight-audit' ),
 					$mu_to_move
 				),
-				'detail' => __( 'WordPress VIP reserves wp-content/mu-plugins for platform code. Anything you ship belongs in client-mu-plugins/.', 'wp-vip-compatibility' ),
-				'url'    => admin_url( 'admin.php?page=wvc-mu-plugins' ),
-				'action' => __( 'Open must-use', 'wp-vip-compatibility' ),
-				'source' => __( 'Must-use plugins', 'wp-vip-compatibility' ),
+				'detail' => __( 'WordPress VIP reserves wp-content/mu-plugins for platform code. Anything you ship belongs in client-mu-plugins/.', 'preflight-audit' ),
+				'url'    => admin_url( 'admin.php?page=pfa-mu-plugins' ),
+				'action' => __( 'Open must-use', 'preflight-audit' ),
+				'source' => __( 'Must-use plugins', 'preflight-audit' ),
 			);
 		}
 
@@ -775,13 +775,13 @@ class Report {
 				'tier'   => 'blocking',
 				'title'  => sprintf(
 					/* translators: %d: Number of tables. */
-					_n( 'Convert %d table to InnoDB and utf8mb4', 'Convert %d tables to InnoDB and utf8mb4', $schema, 'wp-vip-compatibility' ),
+					_n( 'Convert %d table to InnoDB and utf8mb4', 'Convert %d tables to InnoDB and utf8mb4', $schema, 'preflight-audit' ),
 					$schema
 				),
-				'detail' => __( 'WordPress VIP will not import a database with an unsupported storage engine or collation.', 'wp-vip-compatibility' ),
-				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=wvc-database' ) ),
-				'action' => __( 'Show the SQL', 'wp-vip-compatibility' ),
-				'source' => __( 'Database', 'wp-vip-compatibility' ),
+				'detail' => __( 'WordPress VIP will not import a database with an unsupported storage engine or collation.', 'preflight-audit' ),
+				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=pfa-database' ) ),
+				'action' => __( 'Show the SQL', 'preflight-audit' ),
+				'source' => __( 'Database', 'preflight-audit' ),
 			);
 		}
 
@@ -790,13 +790,13 @@ class Report {
 				'tier'   => 'warning',
 				'title'  => sprintf(
 					/* translators: %d: Number of tables. */
-					_n( 'Report %d non-standard table prefix to WordPress VIP', 'Report %d non-standard table prefixes to WordPress VIP', (int) $database['issues']['prefix'], 'wp-vip-compatibility' ),
+					_n( 'Report %d non-standard table prefix to WordPress VIP', 'Report %d non-standard table prefixes to WordPress VIP', (int) $database['issues']['prefix'], 'preflight-audit' ),
 					(int) $database['issues']['prefix']
 				),
-				'detail' => __( 'The prefix is embedded in option names and user meta keys, so renaming tables without WordPress VIP confirming it breaks roles and capabilities.', 'wp-vip-compatibility' ),
-				'url'    => admin_url( 'admin.php?page=wvc-database' ),
-				'action' => __( 'Open the audit', 'wp-vip-compatibility' ),
-				'source' => __( 'Database', 'wp-vip-compatibility' ),
+				'detail' => __( 'The prefix is embedded in option names and user meta keys, so renaming tables without WordPress VIP confirming it breaks roles and capabilities.', 'preflight-audit' ),
+				'url'    => admin_url( 'admin.php?page=pfa-database' ),
+				'action' => __( 'Open the audit', 'preflight-audit' ),
+				'source' => __( 'Database', 'preflight-audit' ),
 			);
 		}
 
@@ -805,13 +805,13 @@ class Report {
 				'tier'   => 'important',
 				'title'  => sprintf(
 					/* translators: %d: Number of paths. */
-					_n( 'Remove or relocate %d path in wp-content', 'Remove or relocate %d paths in wp-content', (int) $content['unsupported'], 'wp-vip-compatibility' ),
+					_n( 'Remove or relocate %d path in wp-content', 'Remove or relocate %d paths in wp-content', (int) $content['unsupported'], 'preflight-audit' ),
 					(int) $content['unsupported']
 				),
-				'detail' => __( 'These conflict with the WordPress VIP application structure, or with drop-ins the platform installs itself.', 'wp-vip-compatibility' ),
-				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=wvc-directories' ) ),
-				'action' => __( 'Open the audit', 'wp-vip-compatibility' ),
-				'source' => __( 'wp-content', 'wp-vip-compatibility' ),
+				'detail' => __( 'These conflict with the WordPress VIP application structure, or with drop-ins the platform installs itself.', 'preflight-audit' ),
+				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=pfa-directories' ) ),
+				'action' => __( 'Open the audit', 'preflight-audit' ),
+				'source' => __( 'wp-content', 'preflight-audit' ),
 			);
 		}
 
@@ -1053,8 +1053,8 @@ class Report {
 
 		return array(
 			'schema'        => self::SCHEMA_VERSION,
-			'generator'     => 'wp-vip-compatibility',
-			'plugin_version' => defined( 'WP_VIP_COMPATIBILITY_VERSION' ) ? WP_VIP_COMPATIBILITY_VERSION : '',
+			'generator'     => 'preflight-audit',
+			'plugin_version' => defined( 'PREFLIGHT_AUDIT_VERSION' ) ? PREFLIGHT_AUDIT_VERSION : '',
 			'rules_version' => Rules::VERSION,
 			'generated_at'  => gmdate( 'c' ),
 			'site'          => array(

@@ -2,12 +2,12 @@
 /**
  * Plugin manifest class.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Classes;
+namespace PREFLIGHT_AUDIT\Includes\Classes;
 
-use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
+use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -78,7 +78,7 @@ class Plugin {
 	 * @return void
 	 */
 	public function load_textdomain() {
-		load_plugin_textdomain( 'wp-vip-compatibility', false, dirname( plugin_basename( WP_VIP_COMPATIBILITY_FILE ) ) . '/languages' );
+		load_plugin_textdomain( 'preflight-audit', false, dirname( plugin_basename( PREFLIGHT_AUDIT_FILE ) ) . '/languages' );
 	}
 
 	/**
@@ -104,7 +104,7 @@ class Plugin {
 	 */
 	public function get_reference() {
 		if ( null === $this->reference ) {
-			$this->reference = $this->read_json( WP_VIP_COMPATIBILITY_DIR . '/data/data.json' );
+			$this->reference = $this->read_json( PREFLIGHT_AUDIT_DIR . '/data/data.json' );
 		}
 
 		return $this->reference;
@@ -130,7 +130,7 @@ class Plugin {
 	 */
 	public function get_table_sources() {
 		if ( null === $this->table_sources ) {
-			$this->table_sources = $this->read_json( WP_VIP_COMPATIBILITY_DIR . '/data/table-sources.json' );
+			$this->table_sources = $this->read_json( PREFLIGHT_AUDIT_DIR . '/data/table-sources.json' );
 		}
 
 		return $this->table_sources;

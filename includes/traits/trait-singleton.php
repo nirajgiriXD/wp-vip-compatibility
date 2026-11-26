@@ -4,10 +4,10 @@
  *
  * This trait implements the Singleton design pattern.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Traits;
+namespace PREFLIGHT_AUDIT\Includes\Traits;
 
 defined( 'ABSPATH' ) || exit;
 

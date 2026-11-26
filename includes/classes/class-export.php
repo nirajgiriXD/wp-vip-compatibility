@@ -9,13 +9,13 @@
  * through admin-post behind a nonce and a capability check, so the report never
  * exists as a public file.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Classes;
+namespace PREFLIGHT_AUDIT\Includes\Classes;
 
-use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
+use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
+use PREFLIGHT_AUDIT\Includes\Scanner\Report;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -34,12 +34,12 @@ class Export {
 	/**
 	 * Nonce action.
 	 */
-	const NONCE_ACTION = 'wvc_export_report';
+	const NONCE_ACTION = 'preflight_audit_export_report';
 
 	/**
 	 * admin-post action name.
 	 */
-	const ACTION = 'wvc_export';
+	const ACTION = 'preflight_audit_export';
 
 	/**
 	 * Constructor.
@@ -56,20 +56,20 @@ class Export {
 	public static function get_formats() {
 		return array(
 			'json' => array(
-				'label'       => __( 'JSON', 'wp-vip-compatibility' ),
-				'description' => __( 'Every finding, for CI and tooling.', 'wp-vip-compatibility' ),
+				'label'       => __( 'JSON', 'preflight-audit' ),
+				'description' => __( 'Every finding, for CI and tooling.', 'preflight-audit' ),
 				'extension'   => 'json',
 				'mime'        => 'application/json',
 			),
 			'csv'  => array(
-				'label'       => __( 'CSV', 'wp-vip-compatibility' ),
-				'description' => __( 'One row per finding, for a spreadsheet.', 'wp-vip-compatibility' ),
+				'label'       => __( 'CSV', 'preflight-audit' ),
+				'description' => __( 'One row per finding, for a spreadsheet.', 'preflight-audit' ),
 				'extension'   => 'csv',
 				'mime'        => 'text/csv',
 			),
 			'md'   => array(
-				'label'       => __( 'Markdown', 'wp-vip-compatibility' ),
-				'description' => __( 'For pasting into a ticket or PR.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Markdown', 'preflight-audit' ),
+				'description' => __( 'For pasting into a ticket or PR.', 'preflight-audit' ),
 				'extension'   => 'md',
 				'mime'        => 'text/markdown',
 			),
@@ -103,8 +103,8 @@ class Export {
 	public function handle() {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
 			wp_die(
-				esc_html__( 'You do not have permission to export the compatibility report.', 'wp-vip-compatibility' ),
-				esc_html__( 'Forbidden', 'wp-vip-compatibility' ),
+				esc_html__( 'You do not have permission to export the compatibility report.', 'preflight-audit' ),
+				esc_html__( 'Forbidden', 'preflight-audit' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -131,7 +131,7 @@ class Export {
 		}
 
 		$filename = sprintf(
-			'vip-compatibility-%1$s-%2$s.%3$s',
+			'preflight-audit-%1$s-%2$s.%3$s',
 			sanitize_title( (string) wp_parse_url( home_url(), PHP_URL_HOST ) ),
 			gmdate( 'Ymd-His' ),
 			$formats[ $format ]['extension']

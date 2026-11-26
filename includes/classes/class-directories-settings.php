@@ -9,13 +9,13 @@
  * structure" and "incompatible with WordPress VIP" are different things, and treating them
  * the same is what made this audit misleading before.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Classes;
+namespace PREFLIGHT_AUDIT\Includes\Classes;
 
-use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Directory_Audit;
+use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
+use PREFLIGHT_AUDIT\Includes\Scanner\Directory_Audit;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -36,8 +36,8 @@ class Directories_Settings {
 
 		if ( empty( $audit['entries'] ) ) {
 			UI::render_empty_state(
-				__( 'No files or directories found in wp-content', 'wp-vip-compatibility' ),
-				__( 'There is nothing to check here yet.', 'wp-vip-compatibility' )
+				__( 'No files or directories found in wp-content', 'preflight-audit' ),
+				__( 'There is nothing to check here yet.', 'preflight-audit' )
 			);
 
 			return;
@@ -53,9 +53,9 @@ class Directories_Settings {
 	 */
 	public function get_page_guidance() {
 		return array(
-			__( '<strong>"Not deployed" is not a problem.</strong> It marks what WordPress or the local environment maintains — <code>uploads/</code> above all, which is the one path under wp-content that application code may write to on WordPress VIP. It is imported with the WordPress VIP CLI rather than committed.', 'wp-vip-compatibility' ),
-			__( '<strong>"Remove or relocate" is.</strong> Those entries either conflict with the WordPress VIP application structure or duplicate a drop-in the platform installs itself, where a shipped copy is at best ignored and at worst fights the platform.', 'wp-vip-compatibility' ),
-			__( '<strong>"Needs review" means unrecognised.</strong> Work out what created it: if the codebase reads from it, move the contents into <code>uploads/</code> and update the stored paths; if nothing uses it, leave it out of the repository.', 'wp-vip-compatibility' ),
+			__( '<strong>"Not deployed" is not a problem.</strong> It marks what WordPress or the local environment maintains — <code>uploads/</code> above all, which is the one path under wp-content that application code may write to on WordPress VIP. It is imported with the WordPress VIP CLI rather than committed.', 'preflight-audit' ),
+			__( '<strong>"Remove or relocate" is.</strong> Those entries either conflict with the WordPress VIP application structure or duplicate a drop-in the platform installs itself, where a shipped copy is at best ignored and at worst fights the platform.', 'preflight-audit' ),
+			__( '<strong>"Needs review" means unrecognised.</strong> Work out what created it: if the codebase reads from it, move the contents into <code>uploads/</code> and update the stored paths; if nothing uses it, leave it out of the repository.', 'preflight-audit' ),
 		);
 	}
 
@@ -90,31 +90,31 @@ class Directories_Settings {
 
 		UI::render_toolbar(
 			array(
-				'search_label' => __( 'Search files and folders', 'wp-vip-compatibility' ),
-				'placeholder'  => __( 'Search paths…', 'wp-vip-compatibility' ),
+				'search_label' => __( 'Search files and folders', 'preflight-audit' ),
+				'placeholder'  => __( 'Search paths…', 'preflight-audit' ),
 				'groups'       => array(
 					array(
 						'name'    => 'status',
-						'label'   => __( 'Filter by verdict', 'wp-vip-compatibility' ),
+						'label'   => __( 'Filter by verdict', 'preflight-audit' ),
 						'active'  => $this->read_status(),
 						'options' => array(
 							array(
 								'value' => 'all',
-								'label' => __( 'Everything', 'wp-vip-compatibility' ),
+								'label' => __( 'Everything', 'preflight-audit' ),
 							),
 							array(
 								'value' => 'not-compatible',
-								'label' => __( 'Remove or relocate', 'wp-vip-compatibility' ),
+								'label' => __( 'Remove or relocate', 'preflight-audit' ),
 								'dot'   => 'bad',
 							),
 							array(
 								'value' => 'review',
-								'label' => __( 'Needs review', 'wp-vip-compatibility' ),
+								'label' => __( 'Needs review', 'preflight-audit' ),
 								'dot'   => 'warn',
 							),
 							array(
 								'value' => 'compatible',
-								'label' => __( 'No action needed', 'wp-vip-compatibility' ),
+								'label' => __( 'No action needed', 'preflight-audit' ),
 								'dot'   => 'ok',
 							),
 						),
@@ -123,24 +123,24 @@ class Directories_Settings {
 			)
 		);
 
-		echo '<div class="wvc-table-wrap" data-role="table-view">';
-		echo '<table class="wvc-table" aria-label="' . esc_attr__( 'Everything in wp-content', 'wp-vip-compatibility' ) . '">';
+		echo '<div class="pfa-table-wrap" data-role="table-view">';
+		echo '<table class="pfa-table" aria-label="' . esc_attr__( 'Everything in wp-content', 'preflight-audit' ) . '">';
 
 		UI::render_table_head(
 			array(
 				array(
-					'label'    => __( 'Path', 'wp-vip-compatibility' ),
-					'class'    => 'wvc-col-name',
+					'label'    => __( 'Path', 'preflight-audit' ),
+					'class'    => 'pfa-col-name',
 					'sortable' => true,
 				),
 				array(
-					'label'    => __( 'WordPress VIP verdict', 'wp-vip-compatibility' ),
-					'class'    => 'wvc-col-status',
+					'label'    => __( 'WordPress VIP verdict', 'preflight-audit' ),
+					'class'    => 'pfa-col-status',
 					'sortable' => true,
 				),
 				array(
-					'label' => __( 'What to do', 'wp-vip-compatibility' ),
-					'class' => 'wvc-col-notes',
+					'label' => __( 'What to do', 'preflight-audit' ),
+					'class' => 'pfa-col-notes',
 				),
 			)
 		);
@@ -173,17 +173,17 @@ class Directories_Settings {
 
 		$state = $states[ $entry['status'] ] ?? 'review';
 
-		printf( '<tr class="wvc-row" data-status="%s">', esc_attr( $state ) );
+		printf( '<tr class="pfa-row" data-status="%s">', esc_attr( $state ) );
 
 		// The description was a column of its own, repeating "Directory that is
 		// not part of the WordPress VIP application structure" down the page. It belongs
 		// with the path it describes.
-		echo '<td class="wvc-col-name" data-label="' . esc_attr__( 'Path', 'wp-vip-compatibility' ) . '">';
-		echo '<span class="wvc-item">';
-		echo '<code class="wvc-item__name">' . esc_html( $entry['name'] ) . ( $entry['is_dir'] ? '/' : '' ) . '</code>';
+		echo '<td class="pfa-col-name" data-label="' . esc_attr__( 'Path', 'preflight-audit' ) . '">';
+		echo '<span class="pfa-item">';
+		echo '<code class="pfa-item__name">' . esc_html( $entry['name'] ) . ( $entry['is_dir'] ? '/' : '' ) . '</code>';
 
 		if ( '' !== $entry['description'] ) {
-			echo '<span class="wvc-item__meta">' . esc_html( $entry['description'] ) . '</span>';
+			echo '<span class="pfa-item__meta">' . esc_html( $entry['description'] ) . '</span>';
 		}
 
 		echo '</span>';
@@ -191,18 +191,18 @@ class Directories_Settings {
 
 		echo UI::get_status_cell( $state, Directory_Audit::status_label( $entry['status'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
-		echo '<td class="wvc-col-notes" data-label="' . esc_attr__( 'What to do', 'wp-vip-compatibility' ) . '">';
+		echo '<td class="pfa-col-notes" data-label="' . esc_attr__( 'What to do', 'preflight-audit' ) . '">';
 
 		if ( '' === $entry['guidance'] ) {
-			echo '<span class="wvc-dash" aria-hidden="true">—</span>';
+			echo '<span class="pfa-dash" aria-hidden="true">—</span>';
 		} else {
 			echo esc_html( $entry['guidance'] );
 
 			if ( '' !== $entry['doc'] ) {
 				printf(
-					' <a class="wvc-link" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+					' <a class="pfa-link" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
 					esc_url( $entry['doc'] ),
-					esc_html__( 'Reference', 'wp-vip-compatibility' )
+					esc_html__( 'Reference', 'preflight-audit' )
 				);
 			}
 		}

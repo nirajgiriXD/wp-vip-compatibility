@@ -1,4 +1,4 @@
-# WordPress VIP Compatibility
+# Preflight Audit
 
 Analyse a WordPress site against the [WordPress VIP Platform](https://docs.wpvip.com/) requirements, and get an actionable fix for every issue found.
 
@@ -82,9 +82,9 @@ Where it still cannot be sure, it lowers the confidence and explains why in the 
 ### Suppressing a reviewed finding
 
 ```php
-$path = '/wp-content/uploads'; // wvc:ignore filesystem.hardcoded-uploads-path -- Documentation string, not a path we use.
+$path = '/wp-content/uploads'; // pfa:ignore filesystem.hardcoded-uploads-path -- Documentation string, not a path we use.
 
-// wvc:ignore-next-line environment.runtime-ini-change -- CLI-only script, never runs on a web request.
+// pfa:ignore-next-line environment.runtime-ini-change -- CLI-only script, never runs on a web request.
 ini_set( 'memory_limit', '512M' );
 ```
 
@@ -96,7 +96,7 @@ Security findings cannot be suppressed. The annotation lives in the code being s
 
 ```php
 // Add, change or remove rules.
-add_filter( 'wvc_scanner_rules', function ( array $rules ) {
+add_filter( 'preflight_audit_scanner_rules', function ( array $rules ) {
     $rules['acme.custom-rule'] = array( /* … */ );
     unset( $rules['environment.debug-output'] );
 
@@ -104,7 +104,7 @@ add_filter( 'wvc_scanner_rules', function ( array $rules ) {
 } );
 
 // Change which directories are skipped.
-add_filter( 'wvc_scanner_excluded_directories', function ( array $excluded ) {
+add_filter( 'preflight_audit_scanner_excluded_directories', function ( array $excluded ) {
     $excluded[] = 'third-party';
 
     return $excluded;
@@ -119,7 +119,7 @@ composer require --dev automattic/vipwpcs phpcompatibility/phpcompatibility-wp
 phpcs --standard=phpcs.xml .
 
 # Translations.
-wp i18n make-pot . languages/wp-vip-compatibility.pot
+wp i18n make-pot . languages/preflight-audit.pot
 ```
 
 Contribution workflow is in [WORKFLOW.md](WORKFLOW.md).

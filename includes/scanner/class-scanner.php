@@ -9,10 +9,10 @@
  * re-scanned every plugin on every page load and on every one of the five
  * overview AJAX calls.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Scanner;
+namespace PREFLIGHT_AUDIT\Includes\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -199,7 +199,7 @@ class Scanner {
 		 * @param string[] $excluded Lower-case directory names.
 		 */
 		return (array) apply_filters(
-			'wvc_scanner_excluded_directories',
+			'preflight_audit_scanner_excluded_directories',
 			array( 'vendor', 'vendor_prefixed', 'node_modules', 'bower_components', '.git', '.svn', 'dist', 'build' )
 		);
 	}
@@ -341,11 +341,11 @@ class Scanner {
 	public static function status_label( $status ) {
 		switch ( $status ) {
 			case self::STATUS_BLOCKED:
-				return __( 'Blocked', 'wp-vip-compatibility' );
+				return __( 'Blocked', 'preflight-audit' );
 			case self::STATUS_REVIEW:
-				return __( 'Needs review', 'wp-vip-compatibility' );
+				return __( 'Needs review', 'preflight-audit' );
 			default:
-				return __( 'Ready', 'wp-vip-compatibility' );
+				return __( 'Ready', 'preflight-audit' );
 		}
 	}
 }

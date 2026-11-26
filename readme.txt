@@ -1,4 +1,4 @@
-=== WordPress VIP Compatibility ===
+=== Preflight Audit ===
 Contributors: nirajgirixd, mi5t4n
 Tags: vip, compatibility, migration, code analysis, phpcs
 Requires at least: 6.0
@@ -53,7 +53,7 @@ The admin menu carries a count of what must be fixed before migrating, so the wo
 
 = Accuracy =
 
-Results are only as good as their false-positive rate, so the scanner resolves local variable assignments before judging a path, reads `fopen()` modes before calling a read a write, checks whether a query is cached before calling it uncached, and recognises that an admin-only response is not part of the edge cache. Where it still cannot be sure, it lowers the confidence and says why. Findings can be acknowledged in the source with a `// wvc:ignore <rule-id> -- reason` annotation.
+Results are only as good as their false-positive rate, so the scanner resolves local variable assignments before judging a path, reads `fopen()` modes before calling a read a write, checks whether a query is cached before calling it uncached, and recognises that an admin-only response is not part of the edge cache. Where it still cannot be sure, it lowers the confidence and says why. Findings can be acknowledged in the source with a `// pfa:ignore <rule-id> -- reason` annotation.
 
 The plugin holds itself to the same standard: its own source passes `phpcs --standard=WordPress-VIP-Go`.
 
@@ -71,7 +71,7 @@ Not affiliated with or endorsed by Automattic, WordPress VIP, or the WordPress F
 
 == Usage ==
 
-Open **WordPress VIP Compatibility** in the admin menu and run a scan from the header. Results are stored, so screens load without re-analysing the codebase; a target is only re-scanned when its files change or the rule set is updated.
+Open **Preflight Audit** in the admin menu and run a scan from the header. Results are stored, so screens load without re-analysing the codebase; a target is only re-scanned when its files change or the rule set is updated.
 
 **Rescan** re-reads everything. The caret beside it narrows the rescan to one area — plugins, themes, must-use plugins, the database schema or wp-content — which is what you want after updating a single plugin or converting a few tables, and avoids re-tokenising a codebase that has not changed.
 
@@ -93,11 +93,11 @@ Because it is not. `/wp-content/uploads/` is the one path under `wp-content` tha
 
 = Can I suppress a finding I have reviewed? =
 
-Yes. Add `// wvc:ignore <rule-id> -- your reason` to the line, or `// wvc:ignore-next-line <rule-id> -- your reason` above it. A reason is required. Security findings cannot be suppressed, so a plugin cannot hide its own shell calls or unescaped output.
+Yes. Add `// pfa:ignore <rule-id> -- your reason` to the line, or `// pfa:ignore-next-line <rule-id> -- your reason` above it. A reason is required. Security findings cannot be suppressed, so a plugin cannot hide its own shell calls or unescaped output.
 
 = Can I add or change rules? =
 
-Yes. Filter `wvc_scanner_rules` to add, modify or remove rules, and `wvc_scanner_excluded_directories` to change which directories are skipped.
+Yes. Filter `preflight_audit_scanner_rules` to add, modify or remove rules, and `preflight_audit_scanner_excluded_directories` to change which directories are skipped.
 
 = Does this replace WordPress VIP code review? =
 

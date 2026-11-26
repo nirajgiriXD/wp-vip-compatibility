@@ -4,15 +4,15 @@
  *
  * These wrap the scanner classes so that the signatures the plugin has always
  * exposed keep working. New code should use the classes in
- * `WP_VIP_COMPATIBILITY\Includes\Scanner` directly.
+ * `PREFLIGHT_AUDIT\Includes\Scanner` directly.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-use WP_VIP_COMPATIBILITY\Includes\Classes\Plugin;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Scanner;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
+use PREFLIGHT_AUDIT\Includes\Classes\Plugin;
+use PREFLIGHT_AUDIT\Includes\Scanner\Report;
+use PREFLIGHT_AUDIT\Includes\Scanner\Scanner;
+use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -28,22 +28,22 @@ defined( 'ABSPATH' ) || exit;
  * @param string $target The target key, or a legacy filesystem path.
  * @return string One of `Compatible`, `Needs review`, `Incompatible`, or an error message.
  */
-function wvc_check_vip_compatibility( $target ) {
-	$resolved = wvc_resolve_target( $target );
+function preflight_audit_check_compatibility( $target ) {
+	$resolved = preflight_audit_resolve_target( $target );
 
 	if ( null === $resolved ) {
-		return esc_html__( 'Error: Unknown scan target', 'wp-vip-compatibility' );
+		return esc_html__( 'Error: Unknown scan target', 'preflight-audit' );
 	}
 
 	$result = ( new Scanner() )->get_result( $resolved );
 
 	switch ( $result['status'] ) {
 		case Scanner::STATUS_BLOCKED:
-			return esc_html__( 'Incompatible', 'wp-vip-compatibility' );
+			return esc_html__( 'Incompatible', 'preflight-audit' );
 		case Scanner::STATUS_REVIEW:
-			return esc_html__( 'Needs review', 'wp-vip-compatibility' );
+			return esc_html__( 'Needs review', 'preflight-audit' );
 		default:
-			return esc_html__( 'Compatible', 'wp-vip-compatibility' );
+			return esc_html__( 'Compatible', 'preflight-audit' );
 	}
 }
 
@@ -57,7 +57,7 @@ function wvc_check_vip_compatibility( $target ) {
  * @param string $target The target key or filesystem path.
  * @return array<string, mixed>|null The target, or null when it cannot be resolved.
  */
-function wvc_resolve_target( $target ) {
+function preflight_audit_resolve_target( $target ) {
 	$target = (string) $target;
 
 	if ( '' === $target ) {
@@ -87,7 +87,7 @@ function wvc_resolve_target( $target ) {
  *
  * @return array<string, mixed> The reference data.
  */
-function wvc_get_json_data() {
+function preflight_audit_get_json_data() {
 	return Plugin::get_instance()->get_json_data();
 }
 
@@ -102,7 +102,7 @@ function wvc_get_json_data() {
  * @param string $type One of `plugin`, `theme`, `mu-plugin`, `database`, `directories`.
  * @return array<string, int> Counts keyed `compatible`, `needs_review`, `not_compatible`.
  */
-function wvc_get_target_chart_data( $type ) {
+function preflight_audit_get_target_chart_data( $type ) {
 	$counts = Report::area_counts( $type );
 
 	return array(
@@ -119,8 +119,8 @@ function wvc_get_target_chart_data( $type ) {
  *
  * @return array<string, int> The chart data.
  */
-function wvc_get_plugins_chart_data() {
-	return wvc_get_target_chart_data( 'plugin' );
+function preflight_audit_get_plugins_chart_data() {
+	return preflight_audit_get_target_chart_data( 'plugin' );
 }
 
 /**
@@ -128,8 +128,8 @@ function wvc_get_plugins_chart_data() {
  *
  * @return array<string, int> The chart data.
  */
-function wvc_get_mu_plugins_chart_data() {
-	return wvc_get_target_chart_data( 'mu-plugin' );
+function preflight_audit_get_mu_plugins_chart_data() {
+	return preflight_audit_get_target_chart_data( 'mu-plugin' );
 }
 
 /**
@@ -137,8 +137,8 @@ function wvc_get_mu_plugins_chart_data() {
  *
  * @return array<string, int> The chart data.
  */
-function wvc_get_themes_chart_data() {
-	return wvc_get_target_chart_data( 'theme' );
+function preflight_audit_get_themes_chart_data() {
+	return preflight_audit_get_target_chart_data( 'theme' );
 }
 
 /**
@@ -146,8 +146,8 @@ function wvc_get_themes_chart_data() {
  *
  * @return array<string, int> The chart data.
  */
-function wvc_get_database_chart_data() {
-	return wvc_get_target_chart_data( 'database' );
+function preflight_audit_get_database_chart_data() {
+	return preflight_audit_get_target_chart_data( 'database' );
 }
 
 /**
@@ -155,6 +155,6 @@ function wvc_get_database_chart_data() {
  *
  * @return array<string, int> The chart data.
  */
-function wvc_get_directories_chart_data() {
-	return wvc_get_target_chart_data( 'directories' );
+function preflight_audit_get_directories_chart_data() {
+	return preflight_audit_get_target_chart_data( 'directories' );
 }

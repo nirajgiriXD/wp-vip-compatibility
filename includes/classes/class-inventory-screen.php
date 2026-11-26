@@ -16,17 +16,17 @@
  * that is genuinely identical — the toolbar, the async scan hooks, the detail
  * drawer, the verdict resolution — lives here once.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Classes;
+namespace PREFLIGHT_AUDIT\Includes\Classes;
 
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Known_Plugins;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Results_Store;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Scanner;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
+use PREFLIGHT_AUDIT\Includes\Scanner\Known_Plugins;
+use PREFLIGHT_AUDIT\Includes\Scanner\Report;
+use PREFLIGHT_AUDIT\Includes\Scanner\Results_Store;
+use PREFLIGHT_AUDIT\Includes\Scanner\Scanner;
+use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
+use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -171,15 +171,15 @@ abstract class Inventory_Screen {
 			)
 		);
 
-		echo '<div class="wvc-table-wrap" data-role="table-view">';
-		echo '<table class="wvc-table wvc-table--expandable" aria-label="' . esc_attr( $this->get_table_title() ) . '">';
+		echo '<div class="pfa-table-wrap" data-role="table-view">';
+		echo '<table class="pfa-table pfa-table--expandable" aria-label="' . esc_attr( $this->get_table_title() ) . '">';
 
 		UI::render_table_head(
 			array_merge(
 				array(
 					array(
 						'label' => '',
-						'class' => 'wvc-col-toggle',
+						'class' => 'pfa-col-toggle',
 					),
 				),
 				$this->get_columns()
@@ -257,26 +257,26 @@ abstract class Inventory_Screen {
 	protected function get_status_filter() {
 		return array(
 			'name'    => 'status',
-			'label'   => __( 'Filter by verdict', 'wp-vip-compatibility' ),
+			'label'   => __( 'Filter by verdict', 'preflight-audit' ),
 			'active'  => $this->read_status(),
 			'options' => array(
 				array(
 					'value' => 'all',
-					'label' => __( 'All verdicts', 'wp-vip-compatibility' ),
+					'label' => __( 'All verdicts', 'preflight-audit' ),
 				),
 				array(
 					'value' => 'not-compatible',
-					'label' => __( 'Blocked', 'wp-vip-compatibility' ),
+					'label' => __( 'Blocked', 'preflight-audit' ),
 					'dot'   => 'bad',
 				),
 				array(
 					'value' => 'review',
-					'label' => __( 'Review', 'wp-vip-compatibility' ),
+					'label' => __( 'Review', 'preflight-audit' ),
 					'dot'   => 'warn',
 				),
 				array(
 					'value' => 'compatible',
-					'label' => __( 'Ready', 'wp-vip-compatibility' ),
+					'label' => __( 'Ready', 'preflight-audit' ),
 					'dot'   => 'ok',
 				),
 			),
@@ -292,7 +292,7 @@ abstract class Inventory_Screen {
 	 */
 	protected function render_row( array $target, array $context ) {
 		$verdict = $context['verdicts'][ $target['key'] ] ?? Report::verdict( $target, $context['index'] );
-		$detail  = UI::next_id( 'wvc-detail' );
+		$detail  = UI::next_id( 'pfa-detail' );
 
 		$attributes = ' data-status="' . esc_attr( $verdict['state'] ) . '"';
 
@@ -300,14 +300,14 @@ abstract class Inventory_Screen {
 			$attributes .= sprintf( ' data-%s="%s"', esc_attr( $name ), esc_attr( $value ) );
 		}
 
-		echo '<tr class="wvc-row"' . $attributes . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
+		echo '<tr class="pfa-row"' . $attributes . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
 
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		echo UI::get_row_toggle(
 			$detail,
 			sprintf(
 				/* translators: %s: Item name. */
-				__( 'Show details for %s', 'wp-vip-compatibility' ),
+				__( 'Show details for %s', 'preflight-audit' ),
 				$target['label']
 			)
 		);
@@ -335,23 +335,23 @@ abstract class Inventory_Screen {
 		$columns = count( $this->get_columns() ) + 1;
 
 		printf(
-			'<tr class="wvc-row-detail" id="%1$s" hidden><td colspan="%2$d">',
+			'<tr class="pfa-row-detail" id="%1$s" hidden><td colspan="%2$d">',
 			esc_attr( $id ),
 			(int) $columns
 		);
 
-		echo '<div class="wvc-detail">';
+		echo '<div class="pfa-detail">';
 
-		echo UI::get_defs( $this->get_detail_rows( $target, $verdict, $context, $entry ), 'wvc-defs--drawer' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_defs( $this->get_detail_rows( $target, $verdict, $context, $entry ), 'pfa-defs--drawer' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
 		$categories = array_filter( (array) ( $summary['by_category'] ?? array() ) );
 
 		if ( ! empty( $categories ) ) {
 			arsort( $categories );
 
-			echo '<div class="wvc-detail__block">';
-			echo '<h3 class="wvc-detail__title">' . esc_html__( 'What the findings are about', 'wp-vip-compatibility' ) . '</h3>';
-			echo '<div class="wvc-chips">';
+			echo '<div class="pfa-detail__block">';
+			echo '<h3 class="pfa-detail__title">' . esc_html__( 'What the findings are about', 'preflight-audit' ) . '</h3>';
+			echo '<div class="pfa-chips">';
 
 			foreach ( $categories as $category => $count ) {
 				// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
@@ -368,7 +368,7 @@ abstract class Inventory_Screen {
 		if ( ! empty( $entry['truncated'] ) ) {
 			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 			echo UI::get_notice(
-				esc_html__( 'This item is large enough that the scan stopped early. Fix what is listed and rescan to see the rest.', 'wp-vip-compatibility' ),
+				esc_html__( 'This item is large enough that the scan stopped early. Fix what is listed and rescan to see the rest.', 'preflight-audit' ),
 				'info'
 			);
 			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -378,7 +378,7 @@ abstract class Inventory_Screen {
 
 		if ( $verdict['total'] > 0 ) {
 			$actions[] = array(
-				'label'   => __( 'Open the findings', 'wp-vip-compatibility' ),
+				'label'   => __( 'Open the findings', 'preflight-audit' ),
 				'url'     => UI::get_findings_url( $target['key'] ),
 				'icon'    => 'list',
 				'primary' => true,
@@ -387,7 +387,7 @@ abstract class Inventory_Screen {
 
 		if ( is_array( $verdict['known'] ) && ! empty( $verdict['known']['doc'] ) ) {
 			$actions[] = array(
-				'label'    => __( 'WordPress VIP documentation', 'wp-vip-compatibility' ),
+				'label'    => __( 'WordPress VIP documentation', 'preflight-audit' ),
 				'url'      => $verdict['known']['doc'],
 				'icon'     => 'external',
 				'external' => true,
@@ -395,7 +395,7 @@ abstract class Inventory_Screen {
 		}
 
 		if ( ! empty( $actions ) ) {
-			echo '<div class="wvc-detail__actions">';
+			echo '<div class="pfa-detail__actions">';
 
 			foreach ( $actions as $action ) {
 				echo UI::get_action_button( $action ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
@@ -425,27 +425,27 @@ abstract class Inventory_Screen {
 
 		if ( '' !== $target['author'] ) {
 			$rows[] = array(
-				'label' => __( 'Author', 'wp-vip-compatibility' ),
+				'label' => __( 'Author', 'preflight-audit' ),
 				'value' => $target['author'],
 			);
 		}
 
 		$rows[] = array(
-			'label' => __( 'Location', 'wp-vip-compatibility' ),
+			'label' => __( 'Location', 'preflight-audit' ),
 			'html'  => '<code>' . esc_html( $this->get_relative_path( $target ) ) . '</code>',
 		);
 
 		if ( ! empty( $entry ) ) {
 			$rows[] = array(
-				'label' => __( 'Code read', 'wp-vip-compatibility' ),
+				'label' => __( 'Code read', 'preflight-audit' ),
 				'value' => sprintf(
 					/* translators: %s: Number of PHP files. */
-					_n( '%s PHP file', '%s PHP files', (int) ( $entry['files_scanned'] ?? 0 ), 'wp-vip-compatibility' ),
+					_n( '%s PHP file', '%s PHP files', (int) ( $entry['files_scanned'] ?? 0 ), 'preflight-audit' ),
 					number_format_i18n( (int) ( $entry['files_scanned'] ?? 0 ) )
 				),
 				'hint'  => empty( $entry['scanned_at'] ) ? '' : sprintf(
 					/* translators: %s: Human-readable time difference. */
-					__( 'Scanned %s ago', 'wp-vip-compatibility' ),
+					__( 'Scanned %s ago', 'preflight-audit' ),
 					human_time_diff( (int) $entry['scanned_at'] )
 				),
 			);
@@ -455,7 +455,7 @@ abstract class Inventory_Screen {
 
 		if ( '' !== $severity_bar ) {
 			$rows[] = array(
-				'label' => __( 'Findings by importance', 'wp-vip-compatibility' ),
+				'label' => __( 'Findings by importance', 'preflight-audit' ),
 				'html'  => $severity_bar,
 			);
 		}
@@ -472,7 +472,7 @@ abstract class Inventory_Screen {
 			$label  = $known['label'] ?? '';
 
 			$rows[] = array(
-				'label' => __( 'On the WordPress VIP list', 'wp-vip-compatibility' ),
+				'label' => __( 'On the WordPress VIP list', 'preflight-audit' ),
 				'value' => ( '' === $label ) ? $reason : $label,
 				'hint'  => ( '' === $label ) ? '' : $reason,
 				'tone'  => ( Known_Plugins::INCOMPATIBLE === ( $known['classification'] ?? '' ) ) ? 'bad' : 'warn',
@@ -508,16 +508,16 @@ abstract class Inventory_Screen {
 	 * @return void
 	 */
 	protected function render_name_cell( array $target, array $badges = array(), $path = '' ) {
-		echo '<td class="wvc-col-name" data-label="' . esc_attr__( 'Item', 'wp-vip-compatibility' ) . '">';
-		echo '<span class="wvc-item">';
-		echo '<span class="wvc-item__name">' . esc_html( $target['label'] );
+		echo '<td class="pfa-col-name" data-label="' . esc_attr__( 'Item', 'preflight-audit' ) . '">';
+		echo '<span class="pfa-item">';
+		echo '<span class="pfa-item__name">' . esc_html( $target['label'] );
 
 		foreach ( $badges as $badge ) {
 			echo ' ' . $badge; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the caller through UI::get_badge().
 		}
 
 		echo '</span>';
-		echo '<code class="wvc-item__path">' . esc_html( '' === $path ? $target['file'] : $path ) . '</code>';
+		echo '<code class="pfa-item__path">' . esc_html( '' === $path ? $target['file'] : $path ) . '</code>';
 		echo '</span>';
 		echo '</td>';
 	}
@@ -533,27 +533,27 @@ abstract class Inventory_Screen {
 	 * @return void
 	 */
 	protected function render_version_cell( array $target, array $context ) {
-		echo '<td class="wvc-col-version" data-label="' . esc_attr__( 'Version', 'wp-vip-compatibility' ) . '">';
+		echo '<td class="pfa-col-version" data-label="' . esc_attr__( 'Version', 'preflight-audit' ) . '">';
 
 		if ( '' === $target['version'] ) {
-			echo '<span class="wvc-dash" aria-hidden="true">—</span>';
+			echo '<span class="pfa-dash" aria-hidden="true">—</span>';
 			echo '</td>';
 
 			return;
 		}
 
-		echo '<span class="wvc-version">' . esc_html( $target['version'] ) . '</span>';
+		echo '<span class="pfa-version">' . esc_html( $target['version'] ) . '</span>';
 
 		$available = $this->get_available_version( $target, $context );
 
 		if ( '' !== $available ) {
 			printf(
-				'<span class="wvc-version__update" title="%1$s">%2$s</span>',
-				esc_attr__( 'An update is available. Update before you migrate, so WordPress VIP reviews the code you will actually ship.', 'wp-vip-compatibility' ),
+				'<span class="pfa-version__update" title="%1$s">%2$s</span>',
+				esc_attr__( 'An update is available. Update before you migrate, so WordPress VIP reviews the code you will actually ship.', 'preflight-audit' ),
 				esc_html(
 					sprintf(
 						/* translators: %s: Version number. */
-						__( '→ %s', 'wp-vip-compatibility' ),
+						__( '→ %s', 'preflight-audit' ),
 						$available
 					)
 				)
@@ -595,12 +595,12 @@ abstract class Inventory_Screen {
 		$summary = (array) ( $entry['summary']['by_severity'] ?? array() );
 		$bar     = UI::get_severity_bar( $summary, $target['key'] );
 
-		echo '<td class="wvc-col-findings" data-label="' . esc_attr__( 'Findings', 'wp-vip-compatibility' ) . '">';
+		echo '<td class="pfa-col-findings" data-label="' . esc_attr__( 'Findings', 'preflight-audit' ) . '">';
 
 		if ( '' === $bar ) {
 			echo ( 'pending' === $verdict['state'] )
-				? '<span class="wvc-dash" aria-hidden="true">—</span>'
-				: '<span class="wvc-clear">' . esc_html__( 'None', 'wp-vip-compatibility' ) . '</span>';
+				? '<span class="pfa-dash" aria-hidden="true">—</span>'
+				: '<span class="pfa-clear">' . esc_html__( 'None', 'preflight-audit' ) . '</span>';
 		} else {
 			echo $bar; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		}
@@ -620,7 +620,7 @@ abstract class Inventory_Screen {
 		// helpers that build them, and kses strips the inline <svg> arrow out of
 		// the "Fix N findings" link, leaving the one call to action without its
 		// affordance on every row.
-		echo '<td class="wvc-col-notes" data-label="' . esc_attr__( 'What to do', 'wp-vip-compatibility' ) . '">'
+		echo '<td class="pfa-col-notes" data-label="' . esc_attr__( 'What to do', 'preflight-audit' ) . '">'
 			. UI::get_notes_list( $this->get_notes( $target, $verdict ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Every fragment is escaped by get_known_note(), UI::get_findings_link() or esc_html() before it reaches here.
 			. '</td>';
 	}
@@ -689,7 +689,7 @@ abstract class Inventory_Screen {
 		}
 
 		return sprintf(
-			'<a class="wvc-link" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+			'<a class="pfa-link" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
 			esc_url( $doc ),
 			esc_html( $note )
 		);

@@ -1,5 +1,5 @@
 /**
- * WordPress VIP Compatibility — admin interactions.
+ * Preflight Audit — admin interactions.
  *
  * Behaviour is grouped into small controllers, each owning one concern:
  *
@@ -23,7 +23,7 @@
 jQuery(document).ready(function ($) {
 	"use strict";
 
-	var settings = window._WPVC_ || {};
+	var settings = window._PREFLIGHT_AUDIT_ || {};
 	var i18n = settings.i18n || {};
 
 	/* ---------------------------------------------------------------------
@@ -77,10 +77,10 @@ jQuery(document).ready(function ($) {
 			return "";
 		}
 
-		var classes = "wvc-icon";
+		var classes = "pfa-icon";
 
 		if (size) {
-			classes += " wvc-icon--" + size;
+			classes += " pfa-icon--" + size;
 		}
 
 		if (extraClass) {
@@ -110,8 +110,8 @@ jQuery(document).ready(function ($) {
 	function buildPill(state, label) {
 		var modifier = state === "compatible" ? "ok" : state === "review" ? "warn" : "bad";
 
-		return $("<span/>", { class: "wvc-status wvc-status--" + modifier })
-			.append($("<span/>", { class: "wvc-status__glyph", "aria-hidden": "true" }))
+		return $("<span/>", { class: "pfa-status pfa-status--" + modifier })
+			.append($("<span/>", { class: "pfa-status__glyph", "aria-hidden": "true" }))
 			.append($("<span/>").text(label));
 	}
 
@@ -122,8 +122,8 @@ jQuery(document).ready(function ($) {
 	 * @returns {jQuery} The pill element.
 	 */
 	function buildPendingPill(label) {
-		return $("<span/>", { class: "wvc-status wvc-status--pending" })
-			.append($("<span/>", { class: "wvc-spinner wvc-spinner--xs", "aria-hidden": "true" }))
+		return $("<span/>", { class: "pfa-status pfa-status--pending" })
+			.append($("<span/>", { class: "pfa-spinner pfa-spinner--xs", "aria-hidden": "true" }))
 			.append($("<span/>").text(label));
 	}
 
@@ -134,7 +134,7 @@ jQuery(document).ready(function ($) {
 	 * @returns {jQuery} The row and, when present, its detail row.
 	 */
 	function pairOf($row) {
-		var $next = $row.next(".wvc-row-detail");
+		var $next = $row.next(".pfa-row-detail");
 
 		return $next.length ? $row.add($next) : $row;
 	}
@@ -144,7 +144,7 @@ jQuery(document).ready(function ($) {
 	 * ------------------------------------------------------------------ */
 
 	(function menus() {
-		var $menus = $(".wvc-menu");
+		var $menus = $(".pfa-menu");
 
 		if (!$menus.length) {
 			return;
@@ -209,7 +209,7 @@ jQuery(document).ready(function ($) {
 				return;
 			}
 
-			var $search = $(".wvc .wvc-search__input:visible").first();
+			var $search = $(".pfa .pfa-search__input:visible").first();
 
 			if ($search.length) {
 				event.preventDefault();
@@ -224,7 +224,7 @@ jQuery(document).ready(function ($) {
 
 	(function findings() {
 		var $toggle = $("[data-role='expand-all']");
-		var $entries = $(".wvc-fixlist details.wvc-fix");
+		var $entries = $(".pfa-fixlist details.pfa-fix");
 
 		if (!$toggle.length || !$entries.length) {
 			return;
@@ -263,13 +263,13 @@ jQuery(document).ready(function ($) {
 	 * ------------------------------------------------------------------ */
 
 	(function tiers() {
-		var $nav = $(".wvc-findings__toolbar .wvc-segmented");
+		var $nav = $(".pfa-findings__toolbar .pfa-segmented");
 
 		if (!$nav.length) {
 			return;
 		}
 
-		var $groups = $(".wvc-fixlist > .wvc-tiergroup");
+		var $groups = $(".pfa-fixlist > .pfa-tiergroup");
 		var $empty = $("[data-role='tier-empty']");
 		var $count = $("[data-role='findings-count']");
 
@@ -299,14 +299,14 @@ jQuery(document).ready(function ($) {
 		 * @param {boolean} push Whether to add a history entry.
 		 */
 		function select(tier, push) {
-			var $option = $nav.find(".wvc-segmented__option[data-tier='" + tier + "']");
+			var $option = $nav.find(".pfa-segmented__option[data-tier='" + tier + "']");
 
 			if (!$option.length) {
 				tier = "";
-				$option = $nav.find(".wvc-segmented__option[data-tier='']");
+				$option = $nav.find(".pfa-segmented__option[data-tier='']");
 			}
 
-			$nav.find(".wvc-segmented__option").removeClass("active").removeAttr("aria-current");
+			$nav.find(".pfa-segmented__option").removeClass("active").removeAttr("aria-current");
 			$option.addClass("active").attr("aria-current", "true");
 
 			var visible = 0;
@@ -327,7 +327,7 @@ jQuery(document).ready(function ($) {
 				window.history.pushState({ tier: tier }, "", withTier(window.location.href, tier));
 			}
 
-			var $form = $(".wvc-findings__toolbar form.wvc-search");
+			var $form = $(".pfa-findings__toolbar form.pfa-search");
 
 			$form.find("input[name='tier']").remove();
 
@@ -335,12 +335,12 @@ jQuery(document).ready(function ($) {
 				$form.append($('<input type="hidden" name="tier">').val(tier));
 			}
 
-			$(".wvc-findings__active a.wvc-activefilter").each(function () {
+			$(".pfa-findings__active a.pfa-activefilter").each(function () {
 				this.href = withTier(this.href, tier);
 			});
 		}
 
-		$nav.on("click", "a.wvc-segmented__option", function (event) {
+		$nav.on("click", "a.pfa-segmented__option", function (event) {
 			// A modified click still opens the link wherever the reader asked.
 			if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
 				return;
@@ -383,23 +383,23 @@ jQuery(document).ready(function ($) {
 			}
 
 			// Inside the plugin's wrapper so the screen's styles reach it.
-			$dialog = $('<dialog class="wvc-dialog" aria-labelledby="wvc-dialog-title"></dialog>')
-				.append($('<h2 class="wvc-dialog__title" id="wvc-dialog-title"></h2>').text(i18n.confirmTitle || ""))
-				.append($('<p class="wvc-dialog__body"></p>').text(i18n.confirmBody || ""))
+			$dialog = $('<dialog class="pfa-dialog" aria-labelledby="pfa-dialog-title"></dialog>')
+				.append($('<h2 class="pfa-dialog__title" id="pfa-dialog-title"></h2>').text(i18n.confirmTitle || ""))
+				.append($('<p class="pfa-dialog__body"></p>').text(i18n.confirmBody || ""))
 				.append(
-					$('<div class="wvc-dialog__actions"></div>')
+					$('<div class="pfa-dialog__actions"></div>')
 						.append(
-							$('<button type="button" class="wvc-btn wvc-btn--ghost wvc-btn--sm" data-dialog="cancel"></button>').text(
+							$('<button type="button" class="pfa-btn pfa-btn--ghost pfa-btn--sm" data-dialog="cancel"></button>').text(
 								i18n.cancel || ""
 							)
 						)
 						.append(
-							$('<button type="button" class="wvc-btn wvc-btn--primary wvc-btn--sm" data-dialog="confirm"></button>')
+							$('<button type="button" class="pfa-btn pfa-btn--primary pfa-btn--sm" data-dialog="confirm"></button>')
 								.append(icon("refresh", "sm"))
 								.append($("<span/>").text(i18n.confirmAction || ""))
 						)
 				)
-				.appendTo($(".wrap.wvc").first().length ? $(".wrap.wvc").first() : document.body);
+				.appendTo($(".wrap.pfa").first().length ? $(".wrap.pfa").first() : document.body);
 
 			$dialog.on("click", "[data-dialog='cancel']", function () {
 				$dialog[0].close();
@@ -493,8 +493,8 @@ jQuery(document).ready(function ($) {
 		 */
 		// Both shapes a posting form takes: one button on its own, and the menu
 		// of scoped rescans.
-		var FORMS = ".wvc-inline-form, .wvc-menu__form";
-		var SUBMITS = ".wvc-inline-form button[type='submit'], .wvc-menu__form button[type='submit']";
+		var FORMS = ".pfa-inline-form, .pfa-menu__form";
+		var SUBMITS = ".pfa-inline-form button[type='submit'], .pfa-menu__form button[type='submit']";
 		var $pressed = null;
 
 		$(document).on("click", SUBMITS, function () {
@@ -562,7 +562,7 @@ jQuery(document).ready(function ($) {
 			// button has nothing to say, so the icon itself becomes the feedback.
 			var $label = $button.children("span").not(".screen-reader-text").first();
 			var original = $label.length ? $label.text() : "";
-			var timer = $button.data("wvcResetTimer");
+			var timer = $button.data("pfaResetTimer");
 
 			window.clearTimeout(timer);
 
@@ -585,7 +585,7 @@ jQuery(document).ready(function ($) {
 				})
 				.always(function () {
 					$button.data(
-						"wvcResetTimer",
+						"pfaResetTimer",
 						window.setTimeout(function () {
 							$button.removeClass("is-copied");
 
@@ -614,7 +614,7 @@ jQuery(document).ready(function ($) {
 		 */
 		function toggle($button) {
 			var $row = $button.closest("tr");
-			var $detail = $row.next(".wvc-row-detail");
+			var $detail = $row.next(".pfa-row-detail");
 			var open = $button.attr("aria-expanded") !== "true";
 
 			if (!$detail.length) {
@@ -647,7 +647,7 @@ jQuery(document).ready(function ($) {
 		 * Two things have to keep working inside a clickable row: the links in
 		 * it, and selecting text out of it.
 		 */
-		$(document).on("click", ".wvc-table--expandable tbody tr.wvc-row", function (event) {
+		$(document).on("click", ".pfa-table--expandable tbody tr.pfa-row", function (event) {
 			// A click that landed on its own control belongs to that control.
 			// This also covers the toggle button, whose own handler already ran.
 			if ($(event.target).closest("a, button, input, select, textarea, label, summary").length) {
@@ -688,7 +688,7 @@ jQuery(document).ready(function ($) {
 	 */
 	function createTableView(container) {
 		var $container = $(container);
-		var $table = $container.find(".wvc-table").first();
+		var $table = $container.find(".pfa-table").first();
 
 		if (!$table.length) {
 			return null;
@@ -696,13 +696,13 @@ jQuery(document).ready(function ($) {
 
 		// The toolbar sits before the table wrapper, so the closest preceding one
 		// belongs to this view even when the screen renders several.
-		var $toolbar = $container.prevAll(".wvc-toolbar").first();
-		var $scan = $container.prevAll(".wvc-scan").first();
+		var $toolbar = $container.prevAll(".pfa-toolbar").first();
+		var $scan = $container.prevAll(".pfa-scan").first();
 		var $tbody = $table.children("tbody");
-		var $rows = $tbody.children("tr.wvc-row");
+		var $rows = $tbody.children("tr.pfa-row");
 
 		if (!$rows.length) {
-			$rows = $tbody.children("tr").not(".wvc-row-detail").not("[data-empty]");
+			$rows = $tbody.children("tr").not(".pfa-row-detail").not("[data-empty]");
 		}
 
 		var $groups = $toolbar.find("[data-filter-group]");
@@ -726,7 +726,7 @@ jQuery(document).ready(function ($) {
 
 		function getNoResultsRow() {
 			if (!$noResults) {
-				$noResults = $('<tr class="wvc-no-results"><td></td></tr>');
+				$noResults = $('<tr class="pfa-no-results"><td></td></tr>');
 				$noResults
 					.children("td")
 					.attr("colspan", columnCount)
@@ -824,7 +824,7 @@ jQuery(document).ready(function ($) {
 					// yet, so a number would be a guess.
 					var unknown = state.countsPending && name === "status" && value !== "all";
 
-					$button.find(".wvc-segmented__count").text(unknown ? "" : String(count));
+					$button.find(".pfa-segmented__count").text(unknown ? "" : String(count));
 				});
 			});
 		}
@@ -836,20 +836,20 @@ jQuery(document).ready(function ($) {
 		 */
 		function getPager() {
 			if (!$pager) {
-				$pager = $('<nav class="wvc-pager" hidden></nav>').attr("aria-label", i18n.pager || "");
+				$pager = $('<nav class="pfa-pager" hidden></nav>').attr("aria-label", i18n.pager || "");
 
 				$pager
-					.append($('<p class="wvc-pager__range" aria-live="polite"></p>'))
+					.append($('<p class="pfa-pager__range" aria-live="polite"></p>'))
 					.append(
-						$('<div class="wvc-pager__controls"></div>')
+						$('<div class="pfa-pager__controls"></div>')
 							.append(
-								$('<button type="button" class="wvc-btn wvc-btn--ghost wvc-btn--sm" data-page="prev"></button>')
+								$('<button type="button" class="pfa-btn pfa-btn--ghost pfa-btn--sm" data-page="prev"></button>')
 									.append(icon("chevron-left", "sm"))
 									.append($("<span/>").text(i18n.previous || ""))
 							)
-							.append($('<span class="wvc-pager__page"></span>'))
+							.append($('<span class="pfa-pager__page"></span>'))
 							.append(
-								$('<button type="button" class="wvc-btn wvc-btn--ghost wvc-btn--sm" data-page="next"></button>')
+								$('<button type="button" class="pfa-btn pfa-btn--ghost pfa-btn--sm" data-page="next"></button>')
 									.append($("<span/>").text(i18n.next || ""))
 									.append(icon("chevron-right", "sm"))
 							)
@@ -892,8 +892,8 @@ jQuery(document).ready(function ($) {
 			var last = Math.min(state.page * PAGE_SIZE, matched);
 
 			$nav.prop("hidden", false);
-			$nav.find(".wvc-pager__range").text(format(i18n.pageRange, first, last, matched));
-			$nav.find(".wvc-pager__page").text(format(i18n.pageOf, state.page, pages));
+			$nav.find(".pfa-pager__range").text(format(i18n.pageRange, first, last, matched));
+			$nav.find(".pfa-pager__page").text(format(i18n.pageOf, state.page, pages));
 			$nav.find("[data-page='prev']").prop("disabled", state.page <= 1);
 			$nav.find("[data-page='next']").prop("disabled", state.page >= pages);
 		}
@@ -938,7 +938,7 @@ jQuery(document).ready(function ($) {
 				// A hidden row must not leave its drawer behind. `is-open` is the
 				// reader's choice and survives filtering, so a row that comes back
 				// into view comes back expanded if that is how they left it.
-				var $detail = $row.next(".wvc-row-detail");
+				var $detail = $row.next(".pfa-row-detail");
 
 				if ($detail.length) {
 					$detail.toggle(show && $row.hasClass("is-open"));
@@ -1007,7 +1007,7 @@ jQuery(document).ready(function ($) {
 		}
 
 		/* Sorting. */
-		$table.find("thead th.is-sortable .wvc-th__sort").on("click", function () {
+		$table.find("thead th.is-sortable .pfa-th__sort").on("click", function () {
 			var $th = $(this).closest("th");
 			var index = $th.index();
 			var type = $th.data("sort-type") || "text";
@@ -1078,7 +1078,7 @@ jQuery(document).ready(function ($) {
 	 * ------------------------------------------------------------------ */
 
 	(function scanner() {
-		var $statusCells = $("td.wvc-col-status.is-pending[data-target]");
+		var $statusCells = $("td.pfa-col-status.is-pending[data-target]");
 		var total = $statusCells.length;
 
 		// Present only when this page was reached by choosing an area from the
@@ -1106,14 +1106,14 @@ jQuery(document).ready(function ($) {
 				type: "POST",
 				data: {
 					_ajax_nonce: settings.nonce,
-					action: "wvc_scan_complete",
+					action: "preflight_audit_scan_complete",
 					scope: $report.data("scope")
 				}
 			}).always(function () {
 				// Same URL with the parameter switched from the in-progress name
 				// to the finished one, so the reload lands on the confirmation.
 				window.location.replace(
-					window.location.href.replace(/([?&])wvc-scanning=/, "$1wvc-scanned=")
+					window.location.href.replace(/([?&])pfa-scanning=/, "$1pfa-scanned=")
 				);
 			});
 		}
@@ -1129,7 +1129,7 @@ jQuery(document).ready(function ($) {
 		var view = null;
 
 		$.each(views, function (index, candidate) {
-			if (candidate.table.find("td.wvc-col-status.is-pending[data-target]").length) {
+			if (candidate.table.find("td.pfa-col-status.is-pending[data-target]").length) {
 				view = candidate;
 				return false;
 			}
@@ -1212,7 +1212,7 @@ jQuery(document).ready(function ($) {
 
 			if (result.total > 0 && result.url) {
 				$cell.append(
-					$("<a/>", { class: "wvc-status__link", href: result.url, title: result.summary }).text(
+					$("<a/>", { class: "pfa-status__link", href: result.url, title: result.summary }).text(
 						format(i18n.findingCount, result.total)
 					)
 				);
@@ -1249,7 +1249,7 @@ jQuery(document).ready(function ($) {
 				type: "POST",
 				data: {
 					_ajax_nonce: settings.nonce,
-					action: "wvc_scan_target",
+					action: "preflight_audit_scan_target",
 					target: $cell.data("target")
 				},
 				beforeSend: function () {

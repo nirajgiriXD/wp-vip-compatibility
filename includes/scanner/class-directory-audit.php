@@ -15,12 +15,12 @@
  * Anything genuinely unknown is now reported as "needs review" rather than
  * asserted to be incompatible.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Scanner;
+namespace PREFLIGHT_AUDIT\Includes\Scanner;
 
-use WP_VIP_COMPATIBILITY\Includes\Classes\Plugin;
+use PREFLIGHT_AUDIT\Includes\Classes\Plugin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -161,8 +161,8 @@ class Directory_Audit {
 				$defaults,
 				array(
 					'status'      => self::STATUS_UNSUPPORTED,
-					'description' => __( 'WordPress drop-in.', 'wp-vip-compatibility' ),
-					'guidance'    => __( 'WordPress VIP provides its own db.php, object-cache.php and sunrise.php, and no other drop-ins can be added. Put sunrise.php changes in the vip-config directory instead.', 'wp-vip-compatibility' ),
+					'description' => __( 'WordPress drop-in.', 'preflight-audit' ),
+					'guidance'    => __( 'WordPress VIP provides its own db.php, object-cache.php and sunrise.php, and no other drop-ins can be added. Put sunrise.php changes in the vip-config directory instead.', 'preflight-audit' ),
 					'doc'         => 'https://docs.wpvip.com/wordpress-on-vip/drop-ins/',
 				)
 			);
@@ -172,9 +172,9 @@ class Directory_Audit {
 			$defaults,
 			array(
 				'description' => $is_dir
-					? __( 'Directory that is not part of the WordPress VIP application structure.', 'wp-vip-compatibility' )
-					: __( 'File that is not part of the WordPress VIP application structure.', 'wp-vip-compatibility' ),
-				'guidance'    => __( 'Only the directories in the WordPress VIP skeleton are deployed, so this will not exist on the platform. Work out what created it. Move media into uploads/ and files that code reads but visitors must not into private/, then update the paths; if nothing uses it, leave it out of the repository.', 'wp-vip-compatibility' ),
+					? __( 'Directory that is not part of the WordPress VIP application structure.', 'preflight-audit' )
+					: __( 'File that is not part of the WordPress VIP application structure.', 'preflight-audit' ),
+				'guidance'    => __( 'Only the directories in the WordPress VIP skeleton are deployed, so this will not exist on the platform. Work out what created it. Move media into uploads/ and files that code reads but visitors must not into private/, then update the paths; if nothing uses it, leave it out of the repository.', 'preflight-audit' ),
 				'doc'         => 'https://docs.wpvip.com/wordpress-skeleton/',
 			)
 		);
@@ -212,13 +212,13 @@ class Directory_Audit {
 	public static function status_label( $status ) {
 		switch ( $status ) {
 			case self::STATUS_SUPPORTED:
-				return __( 'Supported', 'wp-vip-compatibility' );
+				return __( 'Supported', 'preflight-audit' );
 			case self::STATUS_UNSUPPORTED:
-				return __( 'Remove or relocate', 'wp-vip-compatibility' );
+				return __( 'Remove or relocate', 'preflight-audit' );
 			case self::STATUS_INFORMATIONAL:
-				return __( 'Not deployed', 'wp-vip-compatibility' );
+				return __( 'Not deployed', 'preflight-audit' );
 			default:
-				return __( 'Needs review', 'wp-vip-compatibility' );
+				return __( 'Needs review', 'preflight-audit' );
 		}
 	}
 }

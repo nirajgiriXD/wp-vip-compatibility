@@ -18,15 +18,15 @@
  * - Depth through disclosure. What to do is always visible, the evidence for it
  *   is one interaction away, and how the scanner reached it is two.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Classes;
+namespace PREFLIGHT_AUDIT\Includes\Classes;
 
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Rules;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Scanner;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
+use PREFLIGHT_AUDIT\Includes\Scanner\Report;
+use PREFLIGHT_AUDIT\Includes\Scanner\Rules;
+use PREFLIGHT_AUDIT\Includes\Scanner\Scanner;
+use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -55,9 +55,9 @@ class UI {
 	 */
 	public static function get_groups() {
 		return array(
-			'summary' => __( 'Readiness', 'wp-vip-compatibility' ),
-			'code'    => __( 'Code you ship', 'wp-vip-compatibility' ),
-			'site'    => __( 'Site infrastructure', 'wp-vip-compatibility' ),
+			'summary' => __( 'Readiness', 'preflight-audit' ),
+			'code'    => __( 'Code you ship', 'preflight-audit' ),
+			'site'    => __( 'Site infrastructure', 'preflight-audit' ),
 		);
 	}
 
@@ -69,58 +69,58 @@ class UI {
 	public static function get_screens() {
 		return array(
 			'overview'    => array(
-				'slug'        => 'wp-vip-compatibility',
-				'label'       => __( 'Overview', 'wp-vip-compatibility' ),
-				'title'       => __( 'Migration readiness', 'wp-vip-compatibility' ),
-				'description' => __( 'How ready this site is for the WordPress VIP Platform, where the work is, and what to do first.', 'wp-vip-compatibility' ),
+				'slug'        => 'preflight-audit',
+				'label'       => __( 'Overview', 'preflight-audit' ),
+				'title'       => __( 'Migration readiness', 'preflight-audit' ),
+				'description' => __( 'How ready this site is for the WordPress VIP Platform, where the work is, and what to do first.', 'preflight-audit' ),
 				'icon'        => 'gauge',
 				'group'       => 'summary',
 			),
 			'findings'    => array(
-				'slug'        => 'wvc-findings',
-				'label'       => __( 'Findings', 'wp-vip-compatibility' ),
-				'title'       => __( 'Findings', 'wp-vip-compatibility' ),
-				'description' => __( 'Everything that needs doing before this site moves, worst first, with why it matters and how to fix it.', 'wp-vip-compatibility' ),
+				'slug'        => 'pfa-findings',
+				'label'       => __( 'Findings', 'preflight-audit' ),
+				'title'       => __( 'Findings', 'preflight-audit' ),
+				'description' => __( 'Everything that needs doing before this site moves, worst first, with why it matters and how to fix it.', 'preflight-audit' ),
 				'icon'        => 'list',
 				'group'       => 'summary',
 			),
 			'plugins'     => array(
-				'slug'        => 'wvc-plugins',
-				'label'       => __( 'Plugins', 'wp-vip-compatibility' ),
-				'title'       => __( 'Plugins', 'wp-vip-compatibility' ),
-				'description' => __( 'Every installed plugin with its WordPress VIP verdict, update state and the work it implies.', 'wp-vip-compatibility' ),
+				'slug'        => 'pfa-plugins',
+				'label'       => __( 'Plugins', 'preflight-audit' ),
+				'title'       => __( 'Plugins', 'preflight-audit' ),
+				'description' => __( 'Every installed plugin with its WordPress VIP verdict, update state and the work it implies.', 'preflight-audit' ),
 				'icon'        => 'plug',
 				'group'       => 'code',
 			),
 			'themes'      => array(
-				'slug'        => 'wvc-themes',
-				'label'       => __( 'Themes', 'wp-vip-compatibility' ),
-				'title'       => __( 'Themes', 'wp-vip-compatibility' ),
-				'description' => __( 'Every installed theme, with the active one marked. Inactive themes still ship in the repository.', 'wp-vip-compatibility' ),
+				'slug'        => 'pfa-themes',
+				'label'       => __( 'Themes', 'preflight-audit' ),
+				'title'       => __( 'Themes', 'preflight-audit' ),
+				'description' => __( 'Every installed theme, with the active one marked. Inactive themes still ship in the repository.', 'preflight-audit' ),
 				'icon'        => 'brush',
 				'group'       => 'code',
 			),
 			'mu-plugins'  => array(
-				'slug'        => 'wvc-mu-plugins',
-				'label'       => __( 'Must-use', 'wp-vip-compatibility' ),
-				'title'       => __( 'Must-use plugins', 'wp-vip-compatibility' ),
-				'description' => __( 'WordPress VIP reserves wp-content/mu-plugins for platform code, so everything here needs a decision.', 'wp-vip-compatibility' ),
+				'slug'        => 'pfa-mu-plugins',
+				'label'       => __( 'Must-use', 'preflight-audit' ),
+				'title'       => __( 'Must-use plugins', 'preflight-audit' ),
+				'description' => __( 'WordPress VIP reserves wp-content/mu-plugins for platform code, so everything here needs a decision.', 'preflight-audit' ),
 				'icon'        => 'bolt',
 				'group'       => 'code',
 			),
 			'database'    => array(
-				'slug'        => 'wvc-database',
-				'label'       => __( 'Database', 'wp-vip-compatibility' ),
-				'title'       => __( 'Database', 'wp-vip-compatibility' ),
-				'description' => __( 'The schema measured against the storage engine, collation and prefix WordPress VIP requires on import.', 'wp-vip-compatibility' ),
+				'slug'        => 'pfa-database',
+				'label'       => __( 'Database', 'preflight-audit' ),
+				'title'       => __( 'Database', 'preflight-audit' ),
+				'description' => __( 'The schema measured against the storage engine, collation and prefix WordPress VIP requires on import.', 'preflight-audit' ),
 				'icon'        => 'database',
 				'group'       => 'site',
 			),
 			'directories' => array(
-				'slug'        => 'wvc-directories',
-				'label'       => __( 'wp-content', 'wp-vip-compatibility' ),
-				'title'       => __( 'wp-content layout', 'wp-vip-compatibility' ),
-				'description' => __( 'What sits in wp-content today, and how each entry maps onto the WordPress VIP application structure.', 'wp-vip-compatibility' ),
+				'slug'        => 'pfa-directories',
+				'label'       => __( 'wp-content', 'preflight-audit' ),
+				'title'       => __( 'wp-content layout', 'preflight-audit' ),
+				'description' => __( 'What sits in wp-content today, and how each entry maps onto the WordPress VIP application structure.', 'preflight-audit' ),
 				'icon'        => 'folder',
 				'group'       => 'site',
 			),
@@ -136,7 +136,7 @@ class UI {
 	 */
 	public static function get_screen_url( $key, $args = array() ) {
 		$screens = self::get_screens();
-		$slug    = $screens[ $key ]['slug'] ?? 'wp-vip-compatibility';
+		$slug    = $screens[ $key ]['slug'] ?? 'preflight-audit';
 		$url     = admin_url( 'admin.php?page=' . $slug );
 
 		return empty( $args ) ? $url : add_query_arg( $args, $url );
@@ -258,7 +258,7 @@ class UI {
 	 */
 	public static function get_mark( $tier, $labeled = false ) {
 		return sprintf(
-			'<span class="wvc-mark wvc-mark--%1$s" aria-hidden="%2$s"></span>%3$s',
+			'<span class="pfa-mark pfa-mark--%1$s" aria-hidden="%2$s"></span>%3$s',
 			esc_attr( $tier ),
 			$labeled ? 'false' : 'true',
 			$labeled ? '<span class="screen-reader-text">' . esc_html( self::get_tier_label( $tier ) ) . '</span>' : ''
@@ -317,7 +317,7 @@ class UI {
 		$attrs = wp_parse_args(
 			$attrs,
 			array(
-				'class'       => 'wvc-icon',
+				'class'       => 'pfa-icon',
 				'aria-hidden' => 'true',
 				'focusable'   => 'false',
 			)
@@ -352,13 +352,13 @@ class UI {
 	 * @return void
 	 */
 	public static function render_shell_open( $current ) {
-		echo '<div class="wrap wvc">';
+		echo '<div class="wrap pfa">';
 
 		self::render_bar( $current );
 		self::render_page_head( $current );
 
 		echo '<hr class="wp-header-end" />';
-		echo '<div class="wvc-main" id="wvc-main">';
+		echo '<div class="pfa-main" id="pfa-main">';
 	}
 
 	/**
@@ -383,18 +383,18 @@ class UI {
 		$aggregate = Report::aggregate();
 		$scanned   = $aggregate['targets'] > 0 && $aggregate['scanned_at'] > 0;
 		?>
-		<div class="wvc-bar">
-			<a class="wvc-brand" href="<?php echo esc_url( self::get_screen_url( 'overview' ) ); ?>">
-				<span class="wvc-brand__seal" aria-hidden="true">
+		<div class="pfa-bar">
+			<a class="pfa-brand" href="<?php echo esc_url( self::get_screen_url( 'overview' ) ); ?>">
+				<span class="pfa-brand__seal" aria-hidden="true">
 					<?php echo self::get_icon( 'seal' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 				</span>
-				<span class="wvc-brand__text">
-					<span class="wvc-brand__name"><?php esc_html_e( 'WordPress VIP Compatibility', 'wp-vip-compatibility' ); ?></span>
-					<span class="wvc-brand__meta">
+				<span class="pfa-brand__text">
+					<span class="pfa-brand__name"><?php esc_html_e( 'Preflight Audit', 'preflight-audit' ); ?></span>
+					<span class="pfa-brand__meta">
 						<?php
 						printf(
 							/* translators: 1: Rule set version. 2: Number of rules. */
-							esc_html__( 'Rule set %1$s · %2$d rules', 'wp-vip-compatibility' ),
+							esc_html__( 'Rule set %1$s · %2$d rules', 'preflight-audit' ),
 							esc_html( Rules::VERSION ),
 							count( Rules::all() )
 						);
@@ -403,55 +403,55 @@ class UI {
 				</span>
 			</a>
 
-			<div class="wvc-bar__actions">
-				<span class="wvc-scanstate<?php echo $scanned ? '' : ' is-empty'; ?>">
-					<span class="wvc-scanstate__dot" aria-hidden="true"></span>
+			<div class="pfa-bar__actions">
+				<span class="pfa-scanstate<?php echo $scanned ? '' : ' is-empty'; ?>">
+					<span class="pfa-scanstate__dot" aria-hidden="true"></span>
 					<?php
 					if ( $scanned ) {
 						printf(
 							/* translators: %s: Human-readable time difference. */
-							esc_html__( 'Scanned %s ago', 'wp-vip-compatibility' ),
+							esc_html__( 'Scanned %s ago', 'preflight-audit' ),
 							esc_html( human_time_diff( $aggregate['scanned_at'] ) )
 						);
 					} else {
-						esc_html_e( 'Never scanned', 'wp-vip-compatibility' );
+						esc_html_e( 'Never scanned', 'preflight-audit' );
 					}
 					?>
 				</span>
 
 				<?php self::render_rescan_control( $scanned, $current ); ?>
 
-				<details class="wvc-menu">
-					<summary class="wvc-btn wvc-btn--ghost wvc-btn--sm">
-						<?php echo self::get_icon( 'download', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-						<span><?php esc_html_e( 'Export', 'wp-vip-compatibility' ); ?></span>
+				<details class="pfa-menu">
+					<summary class="pfa-btn pfa-btn--ghost pfa-btn--sm">
+						<?php echo self::get_icon( 'download', array( 'class' => 'pfa-icon pfa-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<span><?php esc_html_e( 'Export', 'preflight-audit' ); ?></span>
 					</summary>
-					<div class="wvc-menu__panel wvc-menu__panel--rich">
-						<p class="wvc-menu__title"><?php esc_html_e( 'Download the full report', 'wp-vip-compatibility' ); ?></p>
+					<div class="pfa-menu__panel pfa-menu__panel--rich">
+						<p class="pfa-menu__title"><?php esc_html_e( 'Download the full report', 'preflight-audit' ); ?></p>
 						<?php foreach ( Export::get_formats() as $slug => $format ) : ?>
-							<a class="wvc-menu__item wvc-menu__row" href="<?php echo esc_url( Export::get_url( $slug ) ); ?>">
-								<span class="wvc-menu__tile wvc-menu__tile--ext" aria-hidden="true"><?php echo esc_html( $format['extension'] ); ?></span>
-								<span class="wvc-menu__text">
-									<span class="wvc-menu__label"><?php echo esc_html( $format['label'] ); ?></span>
-									<span class="wvc-menu__hint"><?php echo esc_html( $format['description'] ); ?></span>
+							<a class="pfa-menu__item pfa-menu__row" href="<?php echo esc_url( Export::get_url( $slug ) ); ?>">
+								<span class="pfa-menu__tile pfa-menu__tile--ext" aria-hidden="true"><?php echo esc_html( $format['extension'] ); ?></span>
+								<span class="pfa-menu__text">
+									<span class="pfa-menu__label"><?php echo esc_html( $format['label'] ); ?></span>
+									<span class="pfa-menu__hint"><?php echo esc_html( $format['description'] ); ?></span>
 								</span>
-								<?php echo self::get_icon( 'download', array( 'class' => 'wvc-icon wvc-icon--sm wvc-menu__go' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+								<?php echo self::get_icon( 'download', array( 'class' => 'pfa-icon pfa-icon--sm pfa-menu__go' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 							</a>
 						<?php endforeach; ?>
 					</div>
 				</details>
 
-				<a class="wvc-btn wvc-btn--quiet wvc-btn--sm" href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">
-					<?php echo self::get_icon( 'external', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-					<span><?php esc_html_e( 'Docs', 'wp-vip-compatibility' ); ?></span>
-					<span class="screen-reader-text"><?php esc_html_e( '(WordPress VIP documentation, opens in a new tab)', 'wp-vip-compatibility' ); ?></span>
+				<a class="pfa-btn pfa-btn--quiet pfa-btn--sm" href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">
+					<?php echo self::get_icon( 'external', array( 'class' => 'pfa-icon pfa-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+					<span><?php esc_html_e( 'Docs', 'preflight-audit' ); ?></span>
+					<span class="screen-reader-text"><?php esc_html_e( '(WordPress VIP documentation, opens in a new tab)', 'preflight-audit' ); ?></span>
 				</a>
 
 				<?php if ( self::has_help() ) : ?>
 					<?php // Opens the WordPress Help panel, whose own floating tab is hidden on these screens. ?>
-					<button type="button" class="wvc-btn wvc-btn--quiet wvc-btn--sm" data-role="help-toggle" aria-controls="contextual-help-wrap" aria-expanded="false">
-						<?php echo self::get_icon( 'info', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-						<span><?php esc_html_e( 'Help', 'wp-vip-compatibility' ); ?></span>
+					<button type="button" class="pfa-btn pfa-btn--quiet pfa-btn--sm" data-role="help-toggle" aria-controls="contextual-help-wrap" aria-expanded="false">
+						<?php echo self::get_icon( 'info', array( 'class' => 'pfa-icon pfa-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<span><?php esc_html_e( 'Help', 'preflight-audit' ); ?></span>
 					</button>
 				<?php endif; ?>
 			</div>
@@ -488,8 +488,8 @@ class UI {
 	private static function render_rescan_control( $scanned, $current ) {
 		$button = self::get_action_button(
 			array(
-				'label'   => $scanned ? __( 'Rescan', 'wp-vip-compatibility' ) : __( 'Run a scan', 'wp-vip-compatibility' ),
-				'submit'  => 'wvc_rescan',
+				'label'   => $scanned ? __( 'Rescan', 'preflight-audit' ) : __( 'Run a scan', 'preflight-audit' ),
+				'submit'  => 'preflight_audit_rescan',
 				'nonce'   => Findings_Settings::RESCAN_ACTION,
 				'fields'  => array( 'scope' => Report::SCOPE_ALL ),
 				'icon'    => 'refresh',
@@ -526,39 +526,39 @@ class UI {
 			);
 		}
 		?>
-		<div class="wvc-split">
+		<div class="pfa-split">
 			<?php echo $button; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
 
-			<details class="wvc-menu wvc-split__more">
-				<summary class="wvc-btn wvc-btn--primary wvc-btn--sm wvc-split__caret">
-					<?php echo self::get_icon( 'chevron-down', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-					<span class="screen-reader-text"><?php esc_html_e( 'Rescan one area only', 'wp-vip-compatibility' ); ?></span>
+			<details class="pfa-menu pfa-split__more">
+				<summary class="pfa-btn pfa-btn--primary pfa-btn--sm pfa-split__caret">
+					<?php echo self::get_icon( 'chevron-down', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+					<span class="screen-reader-text"><?php esc_html_e( 'Rescan one area only', 'preflight-audit' ); ?></span>
 				</summary>
 
-				<div class="wvc-menu__panel wvc-menu__panel--rich">
-					<p class="wvc-menu__title"><?php esc_html_e( 'Rescan one area only', 'wp-vip-compatibility' ); ?></p>
+				<div class="pfa-menu__panel pfa-menu__panel--rich">
+					<p class="pfa-menu__title"><?php esc_html_e( 'Rescan one area only', 'preflight-audit' ); ?></p>
 
-					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="wvc-menu__form">
-						<input type="hidden" name="action" value="wvc_rescan" />
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="pfa-menu__form">
+						<input type="hidden" name="action" value="preflight_audit_rescan" />
 						<?php wp_nonce_field( Findings_Settings::RESCAN_ACTION ); ?>
 
 						<?php foreach ( $grouped as $group => $members ) : ?>
-							<div class="wvc-rescan__group" role="group" aria-label="<?php echo esc_attr( $groups[ $group ] ?? '' ); ?>">
-								<p class="wvc-rescan__heading" aria-hidden="true"><?php echo esc_html( $groups[ $group ] ?? '' ); ?></p>
+							<div class="pfa-rescan__group" role="group" aria-label="<?php echo esc_attr( $groups[ $group ] ?? '' ); ?>">
+								<p class="pfa-rescan__heading" aria-hidden="true"><?php echo esc_html( $groups[ $group ] ?? '' ); ?></p>
 
 								<?php foreach ( $members as $slug => $scope ) : ?>
-									<button type="submit" class="wvc-menu__item wvc-menu__row" name="scope" value="<?php echo esc_attr( $slug ); ?>">
-										<span class="wvc-menu__tile" aria-hidden="true">
-											<?php echo self::get_icon( $scope['icon'], array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+									<button type="submit" class="pfa-menu__item pfa-menu__row" name="scope" value="<?php echo esc_attr( $slug ); ?>">
+										<span class="pfa-menu__tile" aria-hidden="true">
+											<?php echo self::get_icon( $scope['icon'], array( 'class' => 'pfa-icon pfa-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 										</span>
-										<span class="wvc-menu__text">
-											<span class="wvc-menu__label">
+										<span class="pfa-menu__text">
+											<span class="pfa-menu__label">
 												<?php echo esc_html( $scope['label'] ); ?>
 												<?php if ( $scope['current'] ) : ?>
-													<span class="wvc-menu__tag"><?php esc_html_e( 'This page', 'wp-vip-compatibility' ); ?></span>
+													<span class="pfa-menu__tag"><?php esc_html_e( 'This page', 'preflight-audit' ); ?></span>
 												<?php endif; ?>
 											</span>
-											<span class="wvc-menu__hint"><?php echo esc_html( $scope['hint'] ); ?></span>
+											<span class="pfa-menu__hint"><?php echo esc_html( $scope['hint'] ); ?></span>
 										</span>
 									</button>
 								<?php endforeach; ?>
@@ -586,9 +586,9 @@ class UI {
 
 		$screen = $screens[ $current ];
 		?>
-		<header class="wvc-head">
-			<h1 class="wvc-head__title"><?php echo esc_html( $screen['title'] ); ?></h1>
-			<p class="wvc-head__lede"><?php echo esc_html( $screen['description'] ); ?></p>
+		<header class="pfa-head">
+			<h1 class="pfa-head__title"><?php echo esc_html( $screen['title'] ); ?></h1>
+			<p class="pfa-head__lede"><?php echo esc_html( $screen['description'] ); ?></p>
 		</header>
 		<?php
 	}
@@ -604,8 +604,8 @@ class UI {
 	 */
 	public static function render_scan_notice() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Presentation only; the scan itself was nonce-checked in Findings_Settings::handle_rescan().
-		$scanned  = isset( $_GET['wvc-scanned'] ) ? sanitize_key( wp_unslash( $_GET['wvc-scanned'] ) ) : '';
-		$scanning = isset( $_GET['wvc-scanning'] ) ? sanitize_key( wp_unslash( $_GET['wvc-scanning'] ) ) : '';
+		$scanned  = isset( $_GET['pfa-scanned'] ) ? sanitize_key( wp_unslash( $_GET['pfa-scanned'] ) ) : '';
+		$scanning = isset( $_GET['pfa-scanning'] ) ? sanitize_key( wp_unslash( $_GET['pfa-scanning'] ) ) : '';
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		/*
@@ -620,12 +620,12 @@ class UI {
 				'<div data-role="scan-report" data-scope="%1$s">%2$s</div>',
 				esc_attr( $scanning ),
 				self::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-					esc_html__( 'Each row below is being read in turn. The totals above them fill in once it finishes.', 'wp-vip-compatibility' ),
+					esc_html__( 'Each row below is being read in turn. The totals above them fill in once it finishes.', 'preflight-audit' ),
 					'info',
 					esc_html(
 						sprintf(
 							/* translators: %s: The area being rescanned, e.g. "Plugins". */
-							__( 'Rescanning %s', 'wp-vip-compatibility' ),
+							__( 'Rescanning %s', 'preflight-audit' ),
 							Report::get_scope( $scanning )['label']
 						)
 					)
@@ -644,7 +644,7 @@ class UI {
 		echo self::get_notice(
 			esc_html( Report::scope_outcome( Report::resolve_scope( $scanned ) ) ),
 			'success',
-			esc_html__( 'Scan complete', 'wp-vip-compatibility' )
+			esc_html__( 'Scan complete', 'preflight-audit' )
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
@@ -691,13 +691,13 @@ class UI {
 			)
 		);
 
-		$classes = 'wvc-btn ' . ( $action['primary'] ? 'wvc-btn--primary' : 'wvc-btn--ghost' );
+		$classes = 'pfa-btn ' . ( $action['primary'] ? 'pfa-btn--primary' : 'pfa-btn--ghost' );
 
 		if ( $action['small'] ) {
-			$classes .= ' wvc-btn--sm';
+			$classes .= ' pfa-btn--sm';
 		}
 
-		$icon = '' === $action['icon'] ? '' : self::get_icon( $action['icon'], array( 'class' => 'wvc-icon wvc-icon--sm' ) );
+		$icon = '' === $action['icon'] ? '' : self::get_icon( $action['icon'], array( 'class' => 'pfa-icon pfa-icon--sm' ) );
 
 		if ( '' !== $action['submit'] ) {
 			$fields = '';
@@ -711,7 +711,7 @@ class UI {
 			}
 
 			return sprintf(
-				'<form method="post" action="%1$s" class="wvc-inline-form"%8$s><input type="hidden" name="action" value="%2$s" />%3$s%4$s<button type="submit" class="%5$s">%6$s<span>%7$s</span></button></form>',
+				'<form method="post" action="%1$s" class="pfa-inline-form"%8$s><input type="hidden" name="action" value="%2$s" />%3$s%4$s<button type="submit" class="%5$s">%6$s<span>%7$s</span></button></form>',
 				esc_url( admin_url( 'admin-post.php' ) ),
 				esc_attr( $action['submit'] ),
 				$fields,
@@ -731,7 +731,7 @@ class UI {
 			$icon,
 			esc_html( $action['label'] ),
 			$action['external'] ? ' target="_blank" rel="noopener noreferrer"' : '',
-			$action['external'] ? '<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'wp-vip-compatibility' ) . '</span>' : ''
+			$action['external'] ? '<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'preflight-audit' ) . '</span>' : ''
 		);
 	}
 
@@ -744,10 +744,10 @@ class UI {
 	 */
 	public static function get_arrow_link( $url, $label ) {
 		return sprintf(
-			'<a class="wvc-link" href="%1$s"><span>%2$s</span>%3$s</a>',
+			'<a class="pfa-link" href="%1$s"><span>%2$s</span>%3$s</a>',
 			esc_url( $url ),
 			esc_html( $label ),
-			self::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--xs wvc-link__arrow' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+			self::get_icon( 'arrow-right', array( 'class' => 'pfa-icon pfa-icon--xs pfa-link__arrow' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
 		);
 	}
 
@@ -789,26 +789,26 @@ class UI {
 			)
 		);
 
-		$heading_id = self::next_id( 'wvc-section' );
-		$classes    = 'wvc-section' . ( $args['flush'] ? ' wvc-section--sheet' : '' ) . ( '' === $args['modifier'] ? '' : ' ' . $args['modifier'] );
+		$heading_id = self::next_id( 'pfa-section' );
+		$classes    = 'pfa-section' . ( $args['flush'] ? ' pfa-section--sheet' : '' ) . ( '' === $args['modifier'] ? '' : ' ' . $args['modifier'] );
 		?>
 		<section class="<?php echo esc_attr( $classes ); ?>"<?php echo ( '' === $args['title'] ) ? '' : ' aria-labelledby="' . esc_attr( $heading_id ) . '"'; ?>>
 			<?php if ( '' !== $args['title'] ) : ?>
-				<header class="wvc-section__head">
-					<div class="wvc-section__heading">
-						<h2 class="wvc-section__title" id="<?php echo esc_attr( $heading_id ); ?>">
+				<header class="pfa-section__head">
+					<div class="pfa-section__heading">
+						<h2 class="pfa-section__title" id="<?php echo esc_attr( $heading_id ); ?>">
 							<?php echo esc_html( $args['title'] ); ?>
 							<?php if ( '' !== $args['count'] ) : ?>
-								<span class="wvc-section__count"><?php echo esc_html( $args['count'] ); ?></span>
+								<span class="pfa-section__count"><?php echo esc_html( $args['count'] ); ?></span>
 							<?php endif; ?>
 						</h2>
 						<?php if ( '' !== $args['summary'] ) : ?>
-							<p class="wvc-section__summary"><?php echo esc_html( $args['summary'] ); ?></p>
+							<p class="pfa-section__summary"><?php echo esc_html( $args['summary'] ); ?></p>
 						<?php endif; ?>
 					</div>
 
 					<?php if ( ! empty( $args['actions'] ) ) : ?>
-						<div class="wvc-section__actions">
+						<div class="pfa-section__actions">
 							<?php
 							foreach ( $args['actions'] as $action ) {
 								echo self::get_action_button( $action ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
@@ -819,7 +819,7 @@ class UI {
 				</header>
 			<?php endif; ?>
 
-			<div class="wvc-section__body">
+			<div class="pfa-section__body">
 		<?php
 	}
 
@@ -847,12 +847,12 @@ class UI {
 		$items = '';
 
 		foreach ( $rows as $row ) {
-			$tone  = empty( $row['tone'] ) ? '' : ' wvc-def--' . $row['tone'];
-			$hint  = empty( $row['hint'] ) ? '' : '<span class="wvc-def__hint">' . esc_html( $row['hint'] ) . '</span>';
+			$tone  = empty( $row['tone'] ) ? '' : ' pfa-def--' . $row['tone'];
+			$hint  = empty( $row['hint'] ) ? '' : '<span class="pfa-def__hint">' . esc_html( $row['hint'] ) . '</span>';
 			$value = empty( $row['html'] ) ? esc_html( (string) ( $row['value'] ?? '' ) ) : $row['html'];
 
 			$items .= sprintf(
-				'<div class="wvc-def%1$s"><dt class="wvc-def__label">%2$s</dt><dd class="wvc-def__value"><span class="wvc-def__main">%3$s</span>%4$s</dd></div>',
+				'<div class="pfa-def%1$s"><dt class="pfa-def__label">%2$s</dt><dd class="pfa-def__value"><span class="pfa-def__main">%3$s</span>%4$s</dd></div>',
 				esc_attr( $tone ),
 				esc_html( (string) ( $row['label'] ?? '' ) ),
 				$value,
@@ -860,7 +860,7 @@ class UI {
 			);
 		}
 
-		return '<dl class="' . esc_attr( trim( 'wvc-defs ' . $modifier ) ) . '">' . $items . '</dl>';
+		return '<dl class="' . esc_attr( trim( 'pfa-defs ' . $modifier ) ) . '">' . $items . '</dl>';
 	}
 
 	/*
@@ -909,40 +909,40 @@ class UI {
 		$segments = 20;
 		$filled   = (int) round( $score / ( 100 / $segments ) );
 		?>
-		<section class="wvc-verdict wvc-verdict--<?php echo esc_attr( $args['tier'] ); ?>" aria-labelledby="wvc-verdict-title">
-			<div class="wvc-verdict__main">
-				<div class="wvc-verdict__score">
-					<p class="wvc-verdict__figure">
+		<section class="pfa-verdict pfa-verdict--<?php echo esc_attr( $args['tier'] ); ?>" aria-labelledby="pfa-verdict-title">
+			<div class="pfa-verdict__main">
+				<div class="pfa-verdict__score">
+					<p class="pfa-verdict__figure">
 						<?php if ( $scored ) : ?>
-							<span class="wvc-verdict__number"><?php echo esc_html( number_format_i18n( $score ) ); ?></span><span class="wvc-verdict__unit">%</span>
+							<span class="pfa-verdict__number"><?php echo esc_html( number_format_i18n( $score ) ); ?></span><span class="pfa-verdict__unit">%</span>
 						<?php else : ?>
-							<span class="wvc-verdict__number wvc-verdict__number--empty">—</span>
+							<span class="pfa-verdict__number pfa-verdict__number--empty">—</span>
 						<?php endif; ?>
 					</p>
-					<p class="wvc-verdict__caption"><?php esc_html_e( 'ready to move', 'wp-vip-compatibility' ); ?></p>
+					<p class="pfa-verdict__caption"><?php esc_html_e( 'ready to move', 'preflight-audit' ); ?></p>
 
 					<div
-						class="wvc-ruler"
+						class="pfa-ruler"
 						role="meter"
 						aria-valuemin="0"
 						aria-valuemax="100"
 						aria-valuenow="<?php echo esc_attr( (string) $score ); ?>"
-						aria-label="<?php esc_attr_e( 'Readiness', 'wp-vip-compatibility' ); ?>"
-						<?php echo $scored ? '' : 'aria-valuetext="' . esc_attr__( 'Not scanned yet', 'wp-vip-compatibility' ) . '"'; ?>
+						aria-label="<?php esc_attr_e( 'Readiness', 'preflight-audit' ); ?>"
+						<?php echo $scored ? '' : 'aria-valuetext="' . esc_attr__( 'Not scanned yet', 'preflight-audit' ) . '"'; ?>
 					>
 						<?php for ( $i = 0; $i < $segments; $i++ ) : ?>
-							<span class="wvc-ruler__seg<?php echo ( $i < $filled ) ? ' is-on' : ''; ?>" style="--i:<?php echo esc_attr( (string) $i ); ?>"></span>
+							<span class="pfa-ruler__seg<?php echo ( $i < $filled ) ? ' is-on' : ''; ?>" style="--i:<?php echo esc_attr( (string) $i ); ?>"></span>
 						<?php endfor; ?>
 					</div>
-					<p class="wvc-ruler__scale" aria-hidden="true"><span>0</span><span>50</span><span>100</span></p>
+					<p class="pfa-ruler__scale" aria-hidden="true"><span>0</span><span>50</span><span>100</span></p>
 				</div>
 
-				<div class="wvc-verdict__body">
-					<h2 class="wvc-verdict__headline" id="wvc-verdict-title"><?php echo esc_html( $args['headline'] ); ?></h2>
-					<p class="wvc-verdict__summary"><?php echo esc_html( $args['summary'] ); ?></p>
+				<div class="pfa-verdict__body">
+					<h2 class="pfa-verdict__headline" id="pfa-verdict-title"><?php echo esc_html( $args['headline'] ); ?></h2>
+					<p class="pfa-verdict__summary"><?php echo esc_html( $args['summary'] ); ?></p>
 
 					<?php if ( ! empty( $args['actions'] ) ) : ?>
-						<div class="wvc-verdict__actions">
+						<div class="pfa-verdict__actions">
 							<?php
 							foreach ( $args['actions'] as $action ) {
 								echo self::get_action_button( array_merge( $action, array( 'small' => false ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
@@ -952,7 +952,7 @@ class UI {
 					<?php endif; ?>
 
 					<?php if ( '' !== $args['meta'] ) : ?>
-						<p class="wvc-verdict__meta"><?php echo esc_html( $args['meta'] ); ?></p>
+						<p class="pfa-verdict__meta"><?php echo esc_html( $args['meta'] ); ?></p>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -963,19 +963,19 @@ class UI {
 			// this screen exists to give.
 			if ( ! empty( $args['tiers'] ) ) :
 				?>
-				<ul class="wvc-verdict__tiers" aria-label="<?php esc_attr_e( 'Outstanding work', 'wp-vip-compatibility' ); ?>">
+				<ul class="pfa-verdict__tiers" aria-label="<?php esc_attr_e( 'Outstanding work', 'preflight-audit' ); ?>">
 					<?php foreach ( $args['tiers'] as $fact ) : ?>
 						<?php
 						$empty = ( '' === $fact['url'] );
 						$tag   = $empty ? 'span' : 'a';
 						?>
-						<li class="wvc-verdict__tier wvc-verdict__tier--<?php echo esc_attr( $fact['tier'] ); ?><?php echo $empty ? ' is-empty' : ''; ?>">
-							<<?php echo esc_html( $tag ); ?> class="wvc-verdict__tierlink" title="<?php echo esc_attr( $fact['summary'] ); ?>"<?php echo $empty ? '' : ' href="' . esc_url( $fact['url'] ) . '"'; ?>>
+						<li class="pfa-verdict__tier pfa-verdict__tier--<?php echo esc_attr( $fact['tier'] ); ?><?php echo $empty ? ' is-empty' : ''; ?>">
+							<<?php echo esc_html( $tag ); ?> class="pfa-verdict__tierlink" title="<?php echo esc_attr( $fact['summary'] ); ?>"<?php echo $empty ? '' : ' href="' . esc_url( $fact['url'] ) . '"'; ?>>
 								<?php echo self::get_mark( $fact['tier'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-								<span class="wvc-verdict__tierlabel"><?php echo esc_html( $fact['label'] ); ?></span>
-								<span class="wvc-verdict__tiercount"><?php echo esc_html( $fact['value'] ); ?></span>
+								<span class="pfa-verdict__tierlabel"><?php echo esc_html( $fact['label'] ); ?></span>
+								<span class="pfa-verdict__tiercount"><?php echo esc_html( $fact['value'] ); ?></span>
 								<?php if ( ! $empty ) : ?>
-									<?php echo self::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--xs wvc-verdict__tierarrow' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+									<?php echo self::get_icon( 'arrow-right', array( 'class' => 'pfa-icon pfa-icon--xs pfa-verdict__tierarrow' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 								<?php endif; ?>
 							</<?php echo esc_html( $tag ); ?>>
 						</li>
@@ -1010,16 +1010,16 @@ class UI {
 			)
 		);
 
-		$heading_id = self::next_id( 'wvc-card' );
+		$heading_id = self::next_id( 'pfa-card' );
 		?>
-		<section class="<?php echo esc_attr( trim( 'wvc-card ' . $args['modifier'] ) ); ?>" aria-labelledby="<?php echo esc_attr( $heading_id ); ?>">
-			<header class="wvc-card__head">
-				<h2 class="wvc-card__title" id="<?php echo esc_attr( $heading_id ); ?>"><?php echo esc_html( $args['title'] ); ?></h2>
+		<section class="<?php echo esc_attr( trim( 'pfa-card ' . $args['modifier'] ) ); ?>" aria-labelledby="<?php echo esc_attr( $heading_id ); ?>">
+			<header class="pfa-card__head">
+				<h2 class="pfa-card__title" id="<?php echo esc_attr( $heading_id ); ?>"><?php echo esc_html( $args['title'] ); ?></h2>
 				<?php if ( '' !== $args['aside'] ) : ?>
-					<div class="wvc-card__aside"><?php echo $args['aside']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the caller. ?></div>
+					<div class="pfa-card__aside"><?php echo $args['aside']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the caller. ?></div>
 				<?php endif; ?>
 			</header>
-			<div class="wvc-card__body<?php echo $args['flush'] ? ' wvc-card__body--flush' : ''; ?>">
+			<div class="pfa-card__body<?php echo $args['flush'] ? ' pfa-card__body--flush' : ''; ?>">
 		<?php
 	}
 
@@ -1043,12 +1043,12 @@ class UI {
 			return;
 		}
 		?>
-		<ol class="wvc-steps">
+		<ol class="pfa-steps">
 			<?php foreach ( $steps as $position => $step ) : ?>
-				<li class="wvc-step">
-					<span class="wvc-step__rank" aria-hidden="true"><?php echo esc_html( sprintf( '%02d', $position + 1 ) ); ?></span>
-					<strong class="wvc-step__title"><?php echo esc_html( $step['title'] ); ?></strong>
-					<span class="wvc-step__body"><?php echo esc_html( $step['body'] ); ?></span>
+				<li class="pfa-step">
+					<span class="pfa-step__rank" aria-hidden="true"><?php echo esc_html( sprintf( '%02d', $position + 1 ) ); ?></span>
+					<strong class="pfa-step__title"><?php echo esc_html( $step['title'] ); ?></strong>
+					<span class="pfa-step__body"><?php echo esc_html( $step['body'] ); ?></span>
 				</li>
 			<?php endforeach; ?>
 		</ol>
@@ -1062,10 +1062,10 @@ class UI {
 	 */
 	public static function get_buckets() {
 		return array(
-			'blocked' => array( __( 'Blocked', 'wp-vip-compatibility' ), 'bad', 'not-compatible' ),
-			'review'  => array( __( 'Review', 'wp-vip-compatibility' ), 'warn', 'review' ),
-			'pending' => array( __( 'Not scanned', 'wp-vip-compatibility' ), 'pending', 'pending' ),
-			'ready'   => array( __( 'Ready', 'wp-vip-compatibility' ), 'ok', 'compatible' ),
+			'blocked' => array( __( 'Blocked', 'preflight-audit' ), 'bad', 'not-compatible' ),
+			'review'  => array( __( 'Review', 'preflight-audit' ), 'warn', 'review' ),
+			'pending' => array( __( 'Not scanned', 'preflight-audit' ), 'pending', 'pending' ),
+			'ready'   => array( __( 'Ready', 'preflight-audit' ), 'ok', 'compatible' ),
 		);
 	}
 
@@ -1084,7 +1084,7 @@ class UI {
 	public static function render_manifest( array $areas ) {
 		$buckets = self::get_buckets();
 		?>
-		<div class="wvc-manifest">
+		<div class="pfa-manifest">
 			<?php foreach ( $areas as $area ) : ?>
 				<?php
 				$counts    = $area['counts'];
@@ -1098,22 +1098,22 @@ class UI {
 					}
 				}
 				?>
-				<div class="wvc-manifest__row">
-					<div class="wvc-manifest__name">
-						<?php echo self::get_icon( $area['icon'], array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+				<div class="pfa-manifest__row">
+					<div class="pfa-manifest__name">
+						<?php echo self::get_icon( $area['icon'], array( 'class' => 'pfa-icon pfa-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 						<a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $area['label'] ); ?></a>
-						<span class="wvc-manifest__total"><?php echo esc_html( number_format_i18n( (int) $counts['total'] ) ); ?></span>
+						<span class="pfa-manifest__total"><?php echo esc_html( number_format_i18n( (int) $counts['total'] ) ); ?></span>
 					</div>
 
-					<div class="wvc-manifest__cells">
+					<div class="pfa-manifest__cells">
 						<?php if ( empty( $area['items'] ) ) : ?>
-							<span class="wvc-manifest__none"><?php esc_html_e( 'Nothing here', 'wp-vip-compatibility' ); ?></span>
+							<span class="pfa-manifest__none"><?php esc_html_e( 'Nothing here', 'preflight-audit' ); ?></span>
 						<?php else : ?>
 							<span class="screen-reader-text"><?php echo esc_html( implode( ', ', $sentence ) ); ?></span>
-							<span class="wvc-cells" aria-hidden="true">
+							<span class="pfa-cells" aria-hidden="true">
 								<?php foreach ( $area['items'] as $position => $item ) : ?>
 									<span
-										class="wvc-cell wvc-cell--<?php echo esc_attr( $buckets[ $item['bucket'] ][1] ?? 'pending' ); ?>"
+										class="pfa-cell pfa-cell--<?php echo esc_attr( $buckets[ $item['bucket'] ][1] ?? 'pending' ); ?>"
 										title="<?php echo esc_attr( $item['name'] . ' — ' . ( $buckets[ $item['bucket'] ][0] ?? '' ) ); ?>"
 										style="--i:<?php echo esc_attr( (string) min( $position, 60 ) ); ?>"
 									></span>
@@ -1122,7 +1122,7 @@ class UI {
 						<?php endif; ?>
 					</div>
 
-					<ul class="wvc-manifest__counts">
+					<ul class="pfa-manifest__counts">
 						<?php foreach ( $buckets as $bucket => $definition ) : ?>
 							<?php
 							if ( empty( $counts[ $bucket ] ) || 'ready' === $bucket ) {
@@ -1131,15 +1131,15 @@ class UI {
 							?>
 							<li>
 								<a href="<?php echo esc_url( add_query_arg( 'status', $definition[2], $url ) ); ?>">
-									<span class="wvc-dot wvc-dot--<?php echo esc_attr( $definition[1] ); ?>" aria-hidden="true"></span>
-									<span class="wvc-manifest__num"><?php echo esc_html( number_format_i18n( (int) $counts[ $bucket ] ) ); ?></span>
+									<span class="pfa-dot pfa-dot--<?php echo esc_attr( $definition[1] ); ?>" aria-hidden="true"></span>
+									<span class="pfa-manifest__num"><?php echo esc_html( number_format_i18n( (int) $counts[ $bucket ] ) ); ?></span>
 									<?php echo esc_html( strtolower( $definition[0] ) ); ?>
 								</a>
 							</li>
 						<?php endforeach; ?>
 					</ul>
 
-					<div class="wvc-manifest__action">
+					<div class="pfa-manifest__action">
 						<?php if ( $attention > 0 ) : ?>
 							<?php
 							// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
@@ -1147,18 +1147,18 @@ class UI {
 								$url,
 								sprintf(
 									/* translators: %s: Number of items. */
-									_n( 'Work through %s', 'Work through %s', $attention, 'wp-vip-compatibility' ),
+									_n( 'Work through %s', 'Work through %s', $attention, 'preflight-audit' ),
 									number_format_i18n( $attention )
 								)
 							);
 							// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 							?>
 						<?php elseif ( (int) $counts['total'] > 0 && (int) $counts['pending'] === (int) $counts['total'] ) : ?>
-							<span class="wvc-manifest__clear is-pending"><?php esc_html_e( 'Awaiting a scan', 'wp-vip-compatibility' ); ?></span>
+							<span class="pfa-manifest__clear is-pending"><?php esc_html_e( 'Awaiting a scan', 'preflight-audit' ); ?></span>
 						<?php else : ?>
-							<span class="wvc-manifest__clear">
-								<?php echo self::get_icon( 'check', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-								<?php esc_html_e( 'Clear', 'wp-vip-compatibility' ); ?>
+							<span class="pfa-manifest__clear">
+								<?php echo self::get_icon( 'check', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+								<?php esc_html_e( 'Clear', 'preflight-audit' ); ?>
 							</span>
 						<?php endif; ?>
 					</div>
@@ -1178,13 +1178,13 @@ class UI {
 
 		foreach ( self::get_buckets() as $definition ) {
 			$items .= sprintf(
-				'<li><span class="wvc-cell wvc-cell--%1$s"></span>%2$s</li>',
+				'<li><span class="pfa-cell pfa-cell--%1$s"></span>%2$s</li>',
 				esc_attr( $definition[1] ),
 				esc_html( $definition[0] )
 			);
 		}
 
-		return '<ul class="wvc-legend" aria-hidden="true">' . $items . '</ul>';
+		return '<ul class="pfa-legend" aria-hidden="true">' . $items . '</ul>';
 	}
 
 	/**
@@ -1217,7 +1217,7 @@ class UI {
 		$last = explode( ',', end( $points ) );
 
 		return sprintf(
-			'<svg class="wvc-spark" viewBox="0 0 %1$d %2$d" width="%1$d" height="%2$d" role="img" aria-label="%3$s" preserveAspectRatio="none"><line class="wvc-spark__base" x1="0" y1="%4$s" x2="%1$d" y2="%4$s"/><polyline class="wvc-spark__line" points="%5$s"/><circle class="wvc-spark__dot" cx="%6$s" cy="%7$s" r="3"/></svg>',
+			'<svg class="pfa-spark" viewBox="0 0 %1$d %2$d" width="%1$d" height="%2$d" role="img" aria-label="%3$s" preserveAspectRatio="none"><line class="pfa-spark__base" x1="0" y1="%4$s" x2="%1$d" y2="%4$s"/><polyline class="pfa-spark__line" points="%5$s"/><circle class="pfa-spark__dot" cx="%6$s" cy="%7$s" r="3"/></svg>',
 			(int) $width,
 			(int) $height,
 			esc_attr( $label ),
@@ -1259,21 +1259,21 @@ class UI {
 			$args,
 			array(
 				'groups'        => array(),
-				'search_label'  => __( 'Search results', 'wp-vip-compatibility' ),
-				'placeholder'   => __( 'Search…', 'wp-vip-compatibility' ),
+				'search_label'  => __( 'Search results', 'preflight-audit' ),
+				'placeholder'   => __( 'Search…', 'preflight-audit' ),
 				'show_search'   => true,
 				'show_progress' => false,
 				'actions'       => '',
 			)
 		);
 
-		$search_id = self::next_id( 'wvc-search' );
+		$search_id = self::next_id( 'pfa-search' );
 		?>
-		<div class="wvc-toolbar">
-			<div class="wvc-toolbar__filters">
+		<div class="pfa-toolbar">
+			<div class="pfa-toolbar__filters">
 				<?php foreach ( $args['groups'] as $group ) : ?>
 					<div
-						class="wvc-segmented"
+						class="pfa-segmented"
 						role="group"
 						data-filter-group="<?php echo esc_attr( $group['name'] ); ?>"
 						aria-label="<?php echo esc_attr( $group['label'] ); ?>"
@@ -1287,33 +1287,33 @@ class UI {
 								aria-pressed="<?php echo $is_active ? 'true' : 'false'; ?>"
 							>
 								<?php if ( ! empty( $option['dot'] ) ) : ?>
-									<span class="wvc-dot wvc-dot--<?php echo esc_attr( $option['dot'] ); ?>" aria-hidden="true"></span>
+									<span class="pfa-dot pfa-dot--<?php echo esc_attr( $option['dot'] ); ?>" aria-hidden="true"></span>
 								<?php endif; ?>
 								<span><?php echo esc_html( $option['label'] ); ?></span>
-								<span class="wvc-segmented__count" data-count="<?php echo esc_attr( $option['value'] ); ?>"></span>
+								<span class="pfa-segmented__count" data-count="<?php echo esc_attr( $option['value'] ); ?>"></span>
 							</button>
 						<?php endforeach; ?>
 					</div>
 				<?php endforeach; ?>
 			</div>
 
-			<div class="wvc-toolbar__tools">
-				<p class="wvc-result-count" data-role="result-count" role="status" aria-live="polite"></p>
+			<div class="pfa-toolbar__tools">
+				<p class="pfa-result-count" data-role="result-count" role="status" aria-live="polite"></p>
 
 				<?php if ( $args['show_search'] ) : ?>
-					<div class="wvc-search">
-						<?php echo self::get_icon( 'search', array( 'class' => 'wvc-icon wvc-icon--sm wvc-search__icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+					<div class="pfa-search">
+						<?php echo self::get_icon( 'search', array( 'class' => 'pfa-icon pfa-icon--sm pfa-search__icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 						<label class="screen-reader-text" for="<?php echo esc_attr( $search_id ); ?>"><?php echo esc_html( $args['search_label'] ); ?></label>
 						<input
 							type="search"
 							id="<?php echo esc_attr( $search_id ); ?>"
-							class="wvc-search__input"
+							class="pfa-search__input"
 							data-role="table-search"
 							placeholder="<?php echo esc_attr( $args['placeholder'] ); ?>"
 							autocomplete="off"
 							spellcheck="false"
 						/>
-						<kbd class="wvc-search__key" aria-hidden="true">/</kbd>
+						<kbd class="pfa-search__key" aria-hidden="true">/</kbd>
 					</div>
 				<?php endif; ?>
 
@@ -1322,13 +1322,13 @@ class UI {
 		</div>
 
 		<?php if ( $args['show_progress'] ) : ?>
-			<div class="wvc-scan" data-role="scan" hidden>
-				<div class="wvc-scan__head">
-					<span class="wvc-spinner" aria-hidden="true"></span>
-					<span class="wvc-scan__label" data-role="scan-label" role="status" aria-live="polite"></span>
+			<div class="pfa-scan" data-role="scan" hidden>
+				<div class="pfa-scan__head">
+					<span class="pfa-spinner" aria-hidden="true"></span>
+					<span class="pfa-scan__label" data-role="scan-label" role="status" aria-live="polite"></span>
 				</div>
-				<div class="wvc-scan__track">
-					<div class="wvc-scan__bar" data-role="scan-bar" style="width:0%"></div>
+				<div class="pfa-scan__track">
+					<div class="pfa-scan__bar" data-role="scan-bar" style="width:0%"></div>
 				</div>
 			</div>
 			<?php
@@ -1346,7 +1346,7 @@ class UI {
 		echo '<thead><tr>';
 
 		foreach ( $columns as $index => $column ) {
-			$classes = array( 'wvc-th' );
+			$classes = array( 'pfa-th' );
 
 			if ( ! empty( $column['class'] ) ) {
 				$classes[] = $column['class'];
@@ -1367,12 +1367,12 @@ class UI {
 			);
 
 			if ( '' === ( $column['label'] ?? '' ) ) {
-				echo '<span class="screen-reader-text">' . esc_html__( 'Details', 'wp-vip-compatibility' ) . '</span>';
+				echo '<span class="screen-reader-text">' . esc_html__( 'Details', 'preflight-audit' ) . '</span>';
 			} elseif ( $sortable ) {
 				printf(
-					'<button type="button" class="wvc-th__sort"><span>%1$s</span>%2$s</button>',
+					'<button type="button" class="pfa-th__sort"><span>%1$s</span>%2$s</button>',
 					esc_html( $column['label'] ),
-					self::get_icon( 'sort', array( 'class' => 'wvc-icon wvc-icon--xs wvc-th__icon' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+					self::get_icon( 'sort', array( 'class' => 'pfa-icon pfa-icon--xs pfa-th__icon' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
 				);
 			} else {
 				echo '<span>' . esc_html( $column['label'] ) . '</span>';
@@ -1390,7 +1390,7 @@ class UI {
 	 * @param string $prefix An identifier prefix.
 	 * @return string The id.
 	 */
-	public static function next_id( $prefix = 'wvc' ) {
+	public static function next_id( $prefix = 'pfa' ) {
 		++self::$sequence;
 
 		return $prefix . '-' . self::$sequence;
@@ -1405,10 +1405,10 @@ class UI {
 	 */
 	public static function get_row_toggle( $target_id, $label ) {
 		return sprintf(
-			'<td class="wvc-col-toggle"><button type="button" class="wvc-rowtoggle" data-role="row-toggle" aria-expanded="false" aria-controls="%1$s"><span class="screen-reader-text">%2$s</span>%3$s</button></td>',
+			'<td class="pfa-col-toggle"><button type="button" class="pfa-rowtoggle" data-role="row-toggle" aria-expanded="false" aria-controls="%1$s"><span class="screen-reader-text">%2$s</span>%3$s</button></td>',
 			esc_attr( $target_id ),
 			esc_html( $label ),
-			self::get_icon( 'chevron', array( 'class' => 'wvc-icon wvc-icon--xs' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+			self::get_icon( 'chevron', array( 'class' => 'pfa-icon pfa-icon--xs' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
 		);
 	}
 
@@ -1432,7 +1432,7 @@ class UI {
 	public static function get_status_pill( $state, $label ) {
 		if ( 'pending' === $state ) {
 			return sprintf(
-				'<span class="wvc-status wvc-status--pending"><span class="wvc-spinner wvc-spinner--xs" aria-hidden="true"></span><span>%s</span></span>',
+				'<span class="pfa-status pfa-status--pending"><span class="pfa-spinner pfa-spinner--xs" aria-hidden="true"></span><span>%s</span></span>',
 				esc_html( $label )
 			);
 		}
@@ -1444,7 +1444,7 @@ class UI {
 		);
 
 		return sprintf(
-			'<span class="wvc-status wvc-status--%1$s"><span class="wvc-status__glyph" aria-hidden="true"></span><span>%2$s</span></span>',
+			'<span class="pfa-status pfa-status--%1$s"><span class="pfa-status__glyph" aria-hidden="true"></span><span>%2$s</span></span>',
 			esc_attr( $modifiers[ $state ] ?? 'warn' ),
 			esc_html( $label )
 		);
@@ -1466,10 +1466,10 @@ class UI {
 		}
 
 		return sprintf(
-			'<td class="wvc-col-status is-%1$s"%2$s data-label="%3$s">%4$s</td>',
+			'<td class="pfa-col-status is-%1$s"%2$s data-label="%3$s">%4$s</td>',
 			esc_attr( $state ),
 			$attr_string,
-			esc_attr__( 'WordPress VIP verdict', 'wp-vip-compatibility' ),
+			esc_attr__( 'WordPress VIP verdict', 'preflight-audit' ),
 			self::get_status_pill( $state, $label )
 		);
 	}
@@ -1511,7 +1511,7 @@ class UI {
 
 			$title = sprintf(
 				/* translators: 1: Number of findings. 2: Tier label, e.g. "must fix". */
-				_n( '%1$s finding: %2$s', '%1$s findings: %2$s', $count, 'wp-vip-compatibility' ),
+				_n( '%1$s finding: %2$s', '%1$s findings: %2$s', $count, 'preflight-audit' ),
 				number_format_i18n( $count ),
 				strtolower( self::get_tier_label( $tier ) )
 			);
@@ -1524,16 +1524,16 @@ class UI {
 			);
 
 			$parts .= ( '' === $target_key )
-				? sprintf( '<span class="wvc-sev" title="%1$s">%2$s</span>', esc_attr( $title ), $body )
+				? sprintf( '<span class="pfa-sev" title="%1$s">%2$s</span>', esc_attr( $title ), $body )
 				: sprintf(
-					'<a class="wvc-sev" href="%1$s" title="%2$s">%3$s</a>',
+					'<a class="pfa-sev" href="%1$s" title="%2$s">%3$s</a>',
 					esc_url( self::get_findings_url( $target_key, $tier ) ),
 					esc_attr( $title ),
 					$body
 				);
 		}
 
-		return ( '' === $parts ) ? '' : '<span class="wvc-sevbar">' . $parts . '</span>';
+		return ( '' === $parts ) ? '' : '<span class="pfa-sevbar">' . $parts . '</span>';
 	}
 
 	/**
@@ -1556,13 +1556,13 @@ class UI {
 		if ( Scanner::STATUS_BLOCKED === ( $verdict['status'] ?? '' ) ) {
 			$label = sprintf(
 				/* translators: %d: Number of findings. */
-				_n( 'Fix %d finding', 'Fix %d findings', $total, 'wp-vip-compatibility' ),
+				_n( 'Fix %d finding', 'Fix %d findings', $total, 'preflight-audit' ),
 				$total
 			);
 		} else {
 			$label = sprintf(
 				/* translators: %d: Number of findings. */
-				_n( 'Review %d finding', 'Review %d findings', $total, 'wp-vip-compatibility' ),
+				_n( 'Review %d finding', 'Review %d findings', $total, 'preflight-audit' ),
 				$total
 			);
 		}
@@ -1585,10 +1585,10 @@ class UI {
 		);
 
 		if ( empty( $parts ) ) {
-			return '<span class="wvc-dash" aria-hidden="true">—</span>';
+			return '<span class="pfa-dash" aria-hidden="true">—</span>';
 		}
 
-		return '<ul class="wvc-notes"><li>' . implode( '</li><li>', $parts ) . '</li></ul>';
+		return '<ul class="pfa-notes"><li>' . implode( '</li><li>', $parts ) . '</li></ul>';
 	}
 
 	/**
@@ -1599,7 +1599,7 @@ class UI {
 	 */
 	public static function get_tier_pill( $tier ) {
 		return sprintf(
-			'<span class="wvc-tier wvc-tier--%1$s">%2$s%3$s</span>',
+			'<span class="pfa-tier pfa-tier--%1$s">%2$s%3$s</span>',
 			esc_attr( $tier ),
 			self::get_mark( $tier ),
 			esc_html( self::get_tier_label( $tier ) )
@@ -1616,7 +1616,7 @@ class UI {
 	 */
 	public static function get_meta_chip( $label, $value, $title = '' ) {
 		return sprintf(
-			'<span class="wvc-chip"%3$s><span class="wvc-chip__label">%1$s</span><span class="wvc-chip__value">%2$s</span></span>',
+			'<span class="pfa-chip"%3$s><span class="pfa-chip__label">%1$s</span><span class="pfa-chip__value">%2$s</span></span>',
 			esc_html( $label ),
 			esc_html( $value ),
 			'' === $title ? '' : ' title="' . esc_attr( $title ) . '"'
@@ -1633,7 +1633,7 @@ class UI {
 	 */
 	public static function get_badge( $label, $tone = 'neutral', $title = '' ) {
 		return sprintf(
-			'<span class="wvc-badge wvc-badge--%1$s"%3$s>%2$s</span>',
+			'<span class="pfa-badge pfa-badge--%1$s"%3$s>%2$s</span>',
 			esc_attr( $tone ),
 			esc_html( $label ),
 			'' === $title ? '' : ' title="' . esc_attr( $title ) . '"'
@@ -1649,10 +1649,10 @@ class UI {
 	public static function render_tier_heading( $tier ) {
 		$tiers = self::get_tiers();
 		?>
-		<h2 class="wvc-tierhead wvc-tierhead--<?php echo esc_attr( $tier ); ?>">
+		<h2 class="pfa-tierhead pfa-tierhead--<?php echo esc_attr( $tier ); ?>">
 			<?php echo self::get_mark( $tier ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-			<span class="wvc-tierhead__label"><?php echo esc_html( $tiers[ $tier ]['label'] ?? $tier ); ?></span>
-			<span class="wvc-tierhead__summary"><?php echo esc_html( $tiers[ $tier ]['summary'] ?? '' ); ?></span>
+			<span class="pfa-tierhead__label"><?php echo esc_html( $tiers[ $tier ]['label'] ?? $tier ); ?></span>
+			<span class="pfa-tierhead__summary"><?php echo esc_html( $tiers[ $tier ]['summary'] ?? '' ); ?></span>
 		</h2>
 		<?php
 	}
@@ -1670,34 +1670,34 @@ class UI {
 	public static function render_task_card( array $action ) {
 		$tier = $action['tier'];
 		?>
-		<div class="wvc-fix wvc-fix--task wvc-fix--<?php echo esc_attr( $tier ); ?>" data-tier="<?php echo esc_attr( $tier ); ?>">
-			<div class="wvc-fix__summary">
-				<span class="wvc-fix__mark"><?php echo self::get_mark( $tier, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?></span>
+		<div class="pfa-fix pfa-fix--task pfa-fix--<?php echo esc_attr( $tier ); ?>" data-tier="<?php echo esc_attr( $tier ); ?>">
+			<div class="pfa-fix__summary">
+				<span class="pfa-fix__mark"><?php echo self::get_mark( $tier, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?></span>
 
-				<span class="wvc-fix__main">
-					<strong class="wvc-fix__title"><?php echo esc_html( $action['title'] ); ?></strong>
+				<span class="pfa-fix__main">
+					<strong class="pfa-fix__title"><?php echo esc_html( $action['title'] ); ?></strong>
 
-					<span class="wvc-fix__where">
+					<span class="pfa-fix__where">
 						<?php if ( ! empty( $action['source'] ) ) : ?>
-							<span class="wvc-fix__target"><?php echo esc_html( $action['source'] ); ?></span>
+							<span class="pfa-fix__target"><?php echo esc_html( $action['source'] ); ?></span>
 						<?php endif; ?>
-						<span class="wvc-fix__places" title="<?php esc_attr_e( 'Found by auditing the site rather than by reading code, so there is no file and line to show.', 'wp-vip-compatibility' ); ?>">
-							<?php esc_html_e( 'Site audit', 'wp-vip-compatibility' ); ?>
+						<span class="pfa-fix__places" title="<?php esc_attr_e( 'Found by auditing the site rather than by reading code, so there is no file and line to show.', 'preflight-audit' ); ?>">
+							<?php esc_html_e( 'Site audit', 'preflight-audit' ); ?>
 						</span>
 					</span>
 
-					<span class="wvc-fix__lead">
-						<span class="wvc-fix__lead-text">
-							<span class="screen-reader-text"><?php esc_html_e( 'Why:', 'wp-vip-compatibility' ); ?></span>
+					<span class="pfa-fix__lead">
+						<span class="pfa-fix__lead-text">
+							<span class="screen-reader-text"><?php esc_html_e( 'Why:', 'preflight-audit' ); ?></span>
 							<?php echo esc_html( $action['detail'] ); ?>
 						</span>
 					</span>
 				</span>
 
-				<span class="wvc-fix__aside">
-					<a class="wvc-btn wvc-btn--ghost wvc-btn--sm" href="<?php echo esc_url( $action['url'] ); ?>">
+				<span class="pfa-fix__aside">
+					<a class="pfa-btn pfa-btn--ghost pfa-btn--sm" href="<?php echo esc_url( $action['url'] ); ?>">
 						<span><?php echo esc_html( $action['action'] ); ?></span>
-						<?php echo self::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<?php echo self::get_icon( 'arrow-right', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 					</a>
 				</span>
 			</div>
@@ -1724,29 +1724,29 @@ class UI {
 		$count       = count( $occurrences );
 		$effort      = Taxonomy::get_fixability_short( $group['fixability'] );
 		?>
-		<details class="wvc-fix wvc-fix--<?php echo esc_attr( $tier ); ?>"
+		<details class="pfa-fix pfa-fix--<?php echo esc_attr( $tier ); ?>"
 			data-tier="<?php echo esc_attr( $tier ); ?>"
 			data-severity="<?php echo esc_attr( $group['severity'] ); ?>"
 			data-type="<?php echo esc_attr( $group['type'] ); ?>"
 			data-category="<?php echo esc_attr( $group['category'] ); ?>"
 			data-target="<?php echo esc_attr( $group['target_key'] ); ?>">
 
-			<summary class="wvc-fix__summary">
-				<span class="wvc-fix__mark"><?php echo self::get_mark( $tier, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?></span>
+			<summary class="pfa-fix__summary">
+				<span class="pfa-fix__mark"><?php echo self::get_mark( $tier, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?></span>
 
-				<span class="wvc-fix__main">
-					<strong class="wvc-fix__title"><?php echo esc_html( $group['title'] ); ?></strong>
+				<span class="pfa-fix__main">
+					<strong class="pfa-fix__title"><?php echo esc_html( $group['title'] ); ?></strong>
 
-					<span class="wvc-fix__where">
-						<span class="wvc-fix__target"><?php echo esc_html( $group['target_label'] ); ?></span>
-						<span class="wvc-fix__places">
+					<span class="pfa-fix__where">
+						<span class="pfa-fix__target"><?php echo esc_html( $group['target_label'] ); ?></span>
+						<span class="pfa-fix__places">
 							<?php if ( 1 === $count ) : ?>
 								<code><?php echo esc_html( $occurrences[0]['file'] . ':' . $occurrences[0]['line'] ); ?></code>
 							<?php else : ?>
 								<?php
 								printf(
 									/* translators: %d: Number of places in the code. */
-									esc_html( _n( '%d place', '%d places', $count, 'wp-vip-compatibility' ) ),
+									esc_html( _n( '%d place', '%d places', $count, 'preflight-audit' ) ),
 									(int) $count
 								);
 								?>
@@ -1754,69 +1754,69 @@ class UI {
 						</span>
 					</span>
 
-					<span class="wvc-fix__lead">
-						<?php echo self::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--xs wvc-fix__lead-icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-						<span class="wvc-fix__lead-text">
-							<span class="screen-reader-text"><?php esc_html_e( 'Fix:', 'wp-vip-compatibility' ); ?></span>
+					<span class="pfa-fix__lead">
+						<?php echo self::get_icon( 'arrow-right', array( 'class' => 'pfa-icon pfa-icon--xs pfa-fix__lead-icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<span class="pfa-fix__lead-text">
+							<span class="screen-reader-text"><?php esc_html_e( 'Fix:', 'preflight-audit' ); ?></span>
 							<?php echo esc_html( $group['remediation'] ); ?>
 						</span>
 					</span>
 				</span>
 
-				<span class="wvc-fix__aside">
+				<span class="pfa-fix__aside">
 					<?php if ( '' !== $effort ) : ?>
-						<span class="wvc-fix__effort" title="<?php echo esc_attr( $fixes[ $group['fixability'] ]['description'] ?? '' ); ?>"><?php echo esc_html( $effort ); ?></span>
+						<span class="pfa-fix__effort" title="<?php echo esc_attr( $fixes[ $group['fixability'] ]['description'] ?? '' ); ?>"><?php echo esc_html( $effort ); ?></span>
 					<?php endif; ?>
-					<?php echo self::get_icon( 'chevron-down', array( 'class' => 'wvc-icon wvc-icon--xs wvc-fix__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+					<?php echo self::get_icon( 'chevron-down', array( 'class' => 'pfa-icon pfa-icon--xs pfa-fix__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 				</span>
 			</summary>
 
-			<div class="wvc-fix__body">
-				<dl class="wvc-fix__answer">
+			<div class="pfa-fix__body">
+				<dl class="pfa-fix__answer">
 					<div>
-						<dt><?php esc_html_e( 'Why it matters on WordPress VIP', 'wp-vip-compatibility' ); ?></dt>
+						<dt><?php esc_html_e( 'Why it matters on WordPress VIP', 'preflight-audit' ); ?></dt>
 						<dd><?php echo esc_html( $group['why'] ); ?></dd>
 					</div>
 
 					<?php if ( '' !== $group['alternative'] ) : ?>
 						<div>
-							<dt><?php esc_html_e( 'Another way to do it', 'wp-vip-compatibility' ); ?></dt>
+							<dt><?php esc_html_e( 'Another way to do it', 'preflight-audit' ); ?></dt>
 							<dd><?php echo esc_html( $group['alternative'] ); ?></dd>
 						</div>
 					<?php endif; ?>
 				</dl>
 
-				<div class="wvc-occurrences">
-					<h3 class="wvc-occurrences__title">
+				<div class="pfa-occurrences">
+					<h3 class="pfa-occurrences__title">
 						<?php
 						printf(
 							/* translators: %d: Number of occurrences. */
-							esc_html( _n( '%d location', '%d locations', $count, 'wp-vip-compatibility' ) ),
+							esc_html( _n( '%d location', '%d locations', $count, 'preflight-audit' ) ),
 							(int) $count
 						);
 						?>
 					</h3>
 
-					<ol class="wvc-occurrences__list">
+					<ol class="pfa-occurrences__list">
 						<?php foreach ( $occurrences as $occurrence ) : ?>
-							<li class="wvc-occurrence">
-								<p class="wvc-occurrence__where">
-									<code class="wvc-occurrence__file"><?php echo esc_html( $occurrence['file'] ); ?></code>
-									<span class="wvc-occurrence__line">
+							<li class="pfa-occurrence">
+								<p class="pfa-occurrence__where">
+									<code class="pfa-occurrence__file"><?php echo esc_html( $occurrence['file'] ); ?></code>
+									<span class="pfa-occurrence__line">
 										<?php
 										printf(
 											/* translators: %d: Line number. */
-											esc_html__( 'line %d', 'wp-vip-compatibility' ),
+											esc_html__( 'line %d', 'preflight-audit' ),
 											(int) $occurrence['line']
 										);
 										?>
 									</span>
 									<?php if ( '' !== $occurrence['scope'] ) : ?>
-										<span class="wvc-occurrence__scope">
+										<span class="pfa-occurrence__scope">
 											<?php
 											printf(
 												/* translators: %s: Function or method name. */
-												esc_html__( 'in %s()', 'wp-vip-compatibility' ),
+												esc_html__( 'in %s()', 'preflight-audit' ),
 												esc_html( $occurrence['scope'] )
 											);
 											?>
@@ -1825,60 +1825,60 @@ class UI {
 								</p>
 
 								<?php if ( '' !== $occurrence['evidence'] ) : ?>
-									<pre class="wvc-code"><span class="wvc-code__gutter" aria-hidden="true"><?php echo esc_html( (string) (int) $occurrence['line'] ); ?></span><code><?php echo esc_html( $occurrence['evidence'] ); ?></code></pre>
+									<pre class="pfa-code"><span class="pfa-code__gutter" aria-hidden="true"><?php echo esc_html( (string) (int) $occurrence['line'] ); ?></span><code><?php echo esc_html( $occurrence['evidence'] ); ?></code></pre>
 								<?php endif; ?>
 
 								<?php if ( '' !== $occurrence['note'] ) : ?>
-									<p class="wvc-occurrence__note"><?php echo esc_html( $occurrence['note'] ); ?></p>
+									<p class="pfa-occurrence__note"><?php echo esc_html( $occurrence['note'] ); ?></p>
 								<?php endif; ?>
 							</li>
 						<?php endforeach; ?>
 					</ol>
 				</div>
 
-				<div class="wvc-fix__foot">
-					<details class="wvc-subdetails">
-						<summary class="wvc-subdetails__summary">
-							<?php echo self::get_icon( 'chevron', array( 'class' => 'wvc-icon wvc-icon--xs wvc-subdetails__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-							<span><?php esc_html_e( 'How this was detected', 'wp-vip-compatibility' ); ?></span>
+				<div class="pfa-fix__foot">
+					<details class="pfa-subdetails">
+						<summary class="pfa-subdetails__summary">
+							<?php echo self::get_icon( 'chevron', array( 'class' => 'pfa-icon pfa-icon--xs pfa-subdetails__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+							<span><?php esc_html_e( 'How this was detected', 'preflight-audit' ); ?></span>
 						</summary>
 
-						<div class="wvc-subdetails__body">
-							<p class="wvc-fix__detected"><?php echo esc_html( $group['detected'] ); ?></p>
+						<div class="pfa-subdetails__body">
+							<p class="pfa-fix__detected"><?php echo esc_html( $group['detected'] ); ?></p>
 
-							<div class="wvc-chips">
+							<div class="pfa-chips">
 								<?php
 								$chips = array(
 									self::get_meta_chip(
-										__( 'Severity', 'wp-vip-compatibility' ),
+										__( 'Severity', 'preflight-audit' ),
 										Taxonomy::get_label( 'severity', $group['severity'] )
 									),
 									self::get_meta_chip(
-										__( 'Confidence', 'wp-vip-compatibility' ),
+										__( 'Confidence', 'preflight-audit' ),
 										Taxonomy::get_label( 'confidence', $group['confidence'] ),
 										$confidences[ $group['confidence'] ]['description'] ?? ''
 									),
 									self::get_meta_chip(
-										__( 'Fix', 'wp-vip-compatibility' ),
+										__( 'Fix', 'preflight-audit' ),
 										Taxonomy::get_label( 'fixability', $group['fixability'] ),
 										$fixes[ $group['fixability'] ]['description'] ?? ''
 									),
 									self::get_meta_chip(
-										__( 'Type', 'wp-vip-compatibility' ),
+										__( 'Type', 'preflight-audit' ),
 										Taxonomy::get_label( 'type', $group['type'] )
 									),
 									self::get_meta_chip(
-										__( 'Category', 'wp-vip-compatibility' ),
+										__( 'Category', 'preflight-audit' ),
 										Taxonomy::get_label( 'category', $group['category'] )
 									),
-									self::get_meta_chip( __( 'Rule', 'wp-vip-compatibility' ), $group['rule'] ),
+									self::get_meta_chip( __( 'Rule', 'preflight-audit' ), $group['rule'] ),
 								);
 
 								if ( '' !== $group['phpcs'] ) {
 									$chips[] = self::get_meta_chip(
-										__( 'PHPCS', 'wp-vip-compatibility' ),
+										__( 'PHPCS', 'preflight-audit' ),
 										$group['phpcs'],
-										__( 'The WordPress-VIP-Go sniff that reports the same pattern.', 'wp-vip-compatibility' )
+										__( 'The WordPress-VIP-Go sniff that reports the same pattern.', 'preflight-audit' )
 									);
 								}
 
@@ -1889,11 +1889,11 @@ class UI {
 							</div>
 
 							<?php if ( ! empty( $group['also_matched'] ) ) : ?>
-								<p class="wvc-fix__also">
+								<p class="pfa-fix__also">
 									<?php
 									printf(
 										/* translators: %s: Comma-separated list of rule identifiers. */
-										esc_html__( 'Also matched on these lines: %s', 'wp-vip-compatibility' ),
+										esc_html__( 'Also matched on these lines: %s', 'preflight-audit' ),
 										esc_html( implode( ', ', $group['also_matched'] ) )
 									);
 									?>
@@ -1903,10 +1903,10 @@ class UI {
 					</details>
 
 					<?php if ( '' !== $group['doc'] ) : ?>
-						<a class="wvc-link wvc-fix__doc" href="<?php echo esc_url( $group['doc'] ); ?>" target="_blank" rel="noopener noreferrer">
-							<span><?php esc_html_e( 'WordPress VIP documentation', 'wp-vip-compatibility' ); ?></span>
-							<?php echo self::get_icon( 'external', array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-							<span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'wp-vip-compatibility' ); ?></span>
+						<a class="pfa-link pfa-fix__doc" href="<?php echo esc_url( $group['doc'] ); ?>" target="_blank" rel="noopener noreferrer">
+							<span><?php esc_html_e( 'WordPress VIP documentation', 'preflight-audit' ); ?></span>
+							<?php echo self::get_icon( 'external', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+							<span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'preflight-audit' ); ?></span>
 						</a>
 					<?php endif; ?>
 				</div>
@@ -1930,12 +1930,12 @@ class UI {
 	 */
 	public static function get_code_snippet( $code, $block = false ) {
 		return sprintf(
-			'<span class="wvc-snippet%5$s"><code>%1$s</code><button type="button" class="wvc-snippet__copy" data-role="copy" data-clipboard="%2$s" aria-label="%3$s" title="%3$s">%4$s</button></span>',
+			'<span class="pfa-snippet%5$s"><code>%1$s</code><button type="button" class="pfa-snippet__copy" data-role="copy" data-clipboard="%2$s" aria-label="%3$s" title="%3$s">%4$s</button></span>',
 			esc_html( $code ),
 			esc_attr( $code ),
-			esc_attr__( 'Copy to clipboard', 'wp-vip-compatibility' ),
-			self::get_icon( 'copy', array( 'class' => 'wvc-icon wvc-icon--xs' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
-			$block ? ' wvc-snippet--block' : ''
+			esc_attr__( 'Copy to clipboard', 'preflight-audit' ),
+			self::get_icon( 'copy', array( 'class' => 'pfa-icon pfa-icon--xs' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+			$block ? ' pfa-snippet--block' : ''
 		);
 	}
 
@@ -1958,10 +1958,10 @@ class UI {
 		$role = in_array( $type, array( 'success', 'error' ), true ) ? ' role="status"' : '';
 
 		return sprintf(
-			'<div class="wvc-notice wvc-notice--%1$s"%5$s>%2$s<div class="wvc-notice__body">%3$s%4$s</div></div>',
+			'<div class="pfa-notice pfa-notice--%1$s"%5$s>%2$s<div class="pfa-notice__body">%3$s%4$s</div></div>',
 			esc_attr( $type ),
-			self::get_icon( $icons[ $type ] ?? 'info', array( 'class' => 'wvc-icon wvc-icon--sm wvc-notice__icon' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
-			$title ? '<strong class="wvc-notice__title">' . esc_html( $title ) . '</strong> ' : '',
+			self::get_icon( $icons[ $type ] ?? 'info', array( 'class' => 'pfa-icon pfa-icon--sm pfa-notice__icon' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+			$title ? '<strong class="pfa-notice__title">' . esc_html( $title ) . '</strong> ' : '',
 			wp_kses_post( $message ),
 			$role
 		);
@@ -1977,16 +1977,16 @@ class UI {
 	 */
 	public static function render_empty_state( $title, $message = '', $action = array() ) {
 		?>
-		<div class="wvc-empty">
-			<span class="wvc-empty__icon" aria-hidden="true">
+		<div class="pfa-empty">
+			<span class="pfa-empty__icon" aria-hidden="true">
 				<?php echo self::get_icon( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 			</span>
-			<p class="wvc-empty__title"><?php echo esc_html( $title ); ?></p>
+			<p class="pfa-empty__title"><?php echo esc_html( $title ); ?></p>
 			<?php if ( $message ) : ?>
-				<p class="wvc-empty__message"><?php echo esc_html( $message ); ?></p>
+				<p class="pfa-empty__message"><?php echo esc_html( $message ); ?></p>
 			<?php endif; ?>
 			<?php if ( ! empty( $action ) ) : ?>
-				<p class="wvc-empty__action">
+				<p class="pfa-empty__action">
 					<?php echo self::get_action_button( array_merge( $action, array( 'small' => false ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
 				</p>
 			<?php endif; ?>
