@@ -4,10 +4,9 @@
  *
  * WordPress VIP states three requirements for a database it will import — the InnoDB
  * storage engine, a supported utf8mb4 collation, and the standard wp_ prefix —
- * and every one of them is fixed by running a statement. The screen is built
- * around that: the shape of the schema first, then the work grouped by the
- * requirement it belongs to with the SQL attached, then the full table listing
- * for anyone who needs to look up a specific table.
+ * and every one of them is fixed by running a statement. The screen is the table
+ * listing, with the tables that need a change sorted to the top and every
+ * statement copyable in one go.
  *
  * @package wp-vip-compatibility
  */
@@ -43,372 +42,47 @@ class Database_Settings {
 			return;
 		}
 
-		$this->render_stats( $audit );
-		$this->render_issues( $audit );
-		$this->render_shape( $audit );
 		$this->render_tables( $audit );
 	}
 
 	/**
-	 * Renders the headline statistics.
+	 * Returns the notes shown in the WordPress Help tab.
 	 *
-	 * @param array<string, mixed> $audit The audit result.
-	 * @return void
+	 * @return array<int, string> Note paragraphs, already containing limited HTML.
 	 */
-	private function render_stats( array $audit ) {
-		$summary = $audit['summary'];
-		$rows    = 0;
-
-		foreach ( $audit['tables'] as $table ) {
-			$rows += (int) $table['rows'];
-		}
-
-		UI::render_stats(
-			array(
-				array(
-					'label' => __( 'Tables', 'wp-vip-compatibility' ),
-					'value' => number_format_i18n( (int) $summary['total'] ),
-					'meta'  => sprintf(
-						/* translators: %s: Approximate number of rows. */
-						__( '≈ %s rows in total', 'wp-vip-compatibility' ),
-						number_format_i18n( $rows )
-					),
-					'tone'  => 'neutral',
-				),
-				array(
-					'label' => __( 'Size on disk', 'wp-vip-compatibility' ),
-					'value' => size_format( (int) $summary['bytes'], 1 ),
-					'meta'  => __( 'Data and indexes together', 'wp-vip-compatibility' ),
-					'tone'  => 'neutral',
-				),
-				array(
-					'label' => __( 'Needs changes', 'wp-vip-compatibility' ),
-					'value' => number_format_i18n( (int) $summary['incompatible'] ),
-					'meta'  => __( 'Tables WordPress VIP will not import as they are', 'wp-vip-compatibility' ),
-					'tone'  => $summary['incompatible'] > 0 ? 'bad' : 'ok',
-					'url'   => $summary['incompatible'] > 0
-						? UI::get_screen_url( 'database', array( 'status' => 'not-compatible' ) )
-						: '',
-				),
-				array(
-					'label' => __( 'Ready', 'wp-vip-compatibility' ),
-					'value' => number_format_i18n( (int) $summary['compatible'] ),
-					'meta'  => __( 'Engine, collation and prefix all match', 'wp-vip-compatibility' ),
-					'tone'  => 'ok',
-				),
-			)
+	public function get_page_guidance() {
+		return array(
+			__( '<strong>Run the SQL against a backup first.</strong> Convert engines and collations before the final export rather than after the import. The statements are ordered engine first, then collation, then prefix.', 'wp-vip-compatibility' ),
+			__( '<strong>Prefixes are the exception.</strong> Report a non-standard prefix to WordPress VIP and only rename tables if WordPress VIP confirms it, because the prefix is also embedded in option names and user meta keys that control roles and capabilities.', 'wp-vip-compatibility' ),
 		);
 	}
 
 	/**
-	 * Renders the work, grouped by the requirement it belongs to.
-	 *
-	 * Twenty tables with the wrong collation are one job, not twenty. Grouping by
-	 * requirement means the SQL for all of them can be copied in one go, which is
-	 * how the change is actually made.
-	 *
-	 * @param array<string, mixed> $audit The audit result.
-	 * @return void
-	 */
-	private function render_issues( array $audit ) {
-		$summary = $audit['summary'];
-		$issues  = (int) $summary['issues']['engine'] + (int) $summary['issues']['collation'] + (int) $summary['issues']['prefix'];
-
-		if ( 0 === $issues ) {
-			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-			echo UI::get_notice(
-				esc_html__( 'Every table uses InnoDB, a supported utf8mb4 collation and the standard wp_ prefix. Nothing has to change before the export.', 'wp-vip-compatibility' ),
-				'success',
-				esc_html__( 'The schema is ready to import', 'wp-vip-compatibility' )
-			);
-			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-
-			return;
-		}
-
-		$groups = $this->group_findings( $audit['tables'] );
-		$all    = array();
-
-		foreach ( $groups as $group ) {
-			$all = array_merge( $all, $group['sql'] );
-		}
-
-		UI::render_panel_open(
-			array(
-				'title'   => __( 'What has to change', 'wp-vip-compatibility' ),
-				'count'   => number_format_i18n( $issues ),
-				'summary' => __( 'Grouped by requirement, because one requirement is one job however many tables it covers.', 'wp-vip-compatibility' ),
-			)
-		);
-
-		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-		echo UI::get_notice(
-			esc_html__( 'Run these against a backup first, and convert collations before the final export rather than after the import. Table prefixes are the exception: report a non-standard prefix to WordPress VIP and only rename tables if WordPress VIP confirms it, because the prefix is also embedded in option names and user meta keys that control roles and capabilities.', 'wp-vip-compatibility' ),
-			'warning',
-			esc_html__( 'Before you run any SQL', 'wp-vip-compatibility' )
-		);
-		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-
-		echo '<ol class="wvc-issues">';
-
-		foreach ( $groups as $kind => $group ) {
-			$id = UI::next_id( 'wvc-sql' );
-			?>
-			<li class="wvc-issue wvc-issue--<?php echo esc_attr( $group['tone'] ); ?>">
-				<div class="wvc-issue__head">
-					<h3 class="wvc-issue__title"><?php echo esc_html( $group['label'] ); ?></h3>
-					<span class="wvc-issue__count">
-						<?php
-						printf(
-							/* translators: %s: Number of tables. */
-							esc_html( _n( '%s table', '%s tables', count( $group['tables'] ), 'wp-vip-compatibility' ) ),
-							esc_html( number_format_i18n( count( $group['tables'] ) ) )
-						);
-						?>
-					</span>
-				</div>
-
-				<p class="wvc-issue__detail"><?php echo esc_html( $group['remediation'] ); ?></p>
-
-				<p class="wvc-issue__tables">
-					<?php foreach ( array_slice( $group['tables'], 0, 8 ) as $name ) : ?>
-						<code><?php echo esc_html( $name ); ?></code>
-					<?php endforeach; ?>
-					<?php if ( count( $group['tables'] ) > 8 ) : ?>
-						<span class="wvc-issue__more">
-							<?php
-							printf(
-								/* translators: %s: Number of further tables. */
-								esc_html__( 'and %s more', 'wp-vip-compatibility' ),
-								esc_html( number_format_i18n( count( $group['tables'] ) - 8 ) )
-							);
-							?>
-						</span>
-					<?php endif; ?>
-				</p>
-
-				<?php if ( ! empty( $group['sql'] ) ) : ?>
-					<details class="wvc-sql" id="<?php echo esc_attr( $id ); ?>">
-						<summary class="wvc-sql__summary">
-							<?php echo UI::get_icon( 'chevron-down', array( 'class' => 'wvc-icon wvc-icon--xs wvc-sql__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-							<span>
-								<?php
-								printf(
-									/* translators: %s: Number of statements. */
-									esc_html( _n( 'Show the %s statement', 'Show the %s statements', count( $group['sql'] ), 'wp-vip-compatibility' ) ),
-									esc_html( number_format_i18n( count( $group['sql'] ) ) )
-								);
-								?>
-							</span>
-						</summary>
-
-						<div class="wvc-sql__body">
-							<button
-								type="button"
-								class="wvc-btn wvc-btn--ghost wvc-btn--sm"
-								data-role="copy"
-								data-clipboard="<?php echo esc_attr( implode( "\n", $group['sql'] ) ); ?>"
-							>
-								<?php echo UI::get_icon( 'copy', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-								<span><?php esc_html_e( 'Copy this group', 'wp-vip-compatibility' ); ?></span>
-							</button>
-
-							<pre class="wvc-code wvc-code--block"><code><?php echo esc_html( implode( "\n", $group['sql'] ) ); ?></code></pre>
-						</div>
-					</details>
-				<?php endif; ?>
-			</li>
-			<?php
-			unset( $kind );
-		}
-
-		echo '</ol>';
-
-		if ( ! empty( $all ) ) {
-			?>
-			<div class="wvc-issues__footer">
-				<button
-					type="button"
-					class="wvc-btn wvc-btn--primary wvc-btn--sm"
-					data-role="copy"
-					data-clipboard="<?php echo esc_attr( implode( "\n", $all ) ); ?>"
-				>
-					<?php echo UI::get_icon( 'copy', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-					<span>
-						<?php
-						printf(
-							/* translators: %s: Number of statements. */
-							esc_html( _n( 'Copy all %s statements', 'Copy all %s statements', count( $all ), 'wp-vip-compatibility' ) ),
-							esc_html( number_format_i18n( count( $all ) ) )
-						);
-						?>
-					</span>
-				</button>
-				<p class="wvc-issues__hint"><?php esc_html_e( 'Statements are ordered engine first, then collation, then prefix.', 'wp-vip-compatibility' ); ?></p>
-			</div>
-			<?php
-		}
-
-		UI::render_panel_close();
-	}
-
-	/**
-	 * Collapses per-table findings into one entry per requirement.
+	 * Returns every statement the audit proposes, in the order they should run.
 	 *
 	 * @param array<int, array<string, mixed>> $tables The examined tables.
-	 * @return array<string, array<string, mixed>> Groups keyed by finding kind.
+	 * @return string[] SQL statements: engine first, then collation, then prefix.
 	 */
-	private function group_findings( array $tables ) {
-		$order = array(
-			'engine'    => 'bad',
-			'collation' => 'bad',
-			'prefix'    => 'warn',
+	private function get_all_sql( array $tables ) {
+		$sql = array(
+			'engine'    => array(),
+			'collation' => array(),
+			'prefix'    => array(),
+			'other'     => array(),
 		);
-
-		$groups = array();
 
 		foreach ( $tables as $table ) {
 			foreach ( $table['findings'] as $finding ) {
-				$kind = $finding['kind'];
-
-				if ( ! isset( $groups[ $kind ] ) ) {
-					$groups[ $kind ] = array(
-						'label'       => $finding['label'],
-						'remediation' => $finding['remediation'],
-						'tone'        => $order[ $kind ] ?? 'warn',
-						'tables'      => array(),
-						'sql'         => array(),
-					);
+				if ( '' === $finding['sql'] ) {
+					continue;
 				}
 
-				$groups[ $kind ]['tables'][] = $table['name'];
-
-				if ( '' !== $finding['sql'] ) {
-					$groups[ $kind ]['sql'][] = $finding['sql'];
-				}
+				$kind           = isset( $sql[ $finding['kind'] ] ) ? $finding['kind'] : 'other';
+				$sql[ $kind ][] = $finding['sql'];
 			}
 		}
 
-		// Engine, then collation, then prefix — the order the statements run in.
-		$sorted = array();
-
-		foreach ( array_keys( $order ) as $kind ) {
-			if ( isset( $groups[ $kind ] ) ) {
-				$sorted[ $kind ] = $groups[ $kind ];
-			}
-		}
-
-		return $sorted;
-	}
-
-	/**
-	 * Renders the shape of the schema: which engines and collations are in use.
-	 *
-	 * Drawn as bars to scale rather than as a row of counted chips, so the one
-	 * MyISAM table among two hundred reads as the sliver it is. A bar is marked
-	 * as a problem only when the audit itself raised a finding against a table
-	 * carrying that engine or collation — this view never applies a rule of its own.
-	 *
-	 * @param array<string, mixed> $audit The audit result.
-	 * @return void
-	 */
-	private function render_shape( array $audit ) {
-		$engines    = array();
-		$collations = array();
-		$flagged    = array(
-			'engine'    => array(),
-			'collation' => array(),
-		);
-		$largest    = $audit['tables'];
-
-		foreach ( $audit['tables'] as $table ) {
-			$engine    = '' === $table['engine'] ? __( 'Unknown', 'wp-vip-compatibility' ) : $table['engine'];
-			$collation = '' === $table['collation'] ? __( 'Unknown', 'wp-vip-compatibility' ) : $table['collation'];
-
-			$engines[ $engine ]       = ( $engines[ $engine ] ?? 0 ) + 1;
-			$collations[ $collation ] = ( $collations[ $collation ] ?? 0 ) + 1;
-
-			foreach ( $table['findings'] as $finding ) {
-				if ( 'engine' === $finding['kind'] ) {
-					$flagged['engine'][ $engine ] = true;
-				}
-
-				if ( 'collation' === $finding['kind'] ) {
-					$flagged['collation'][ $collation ] = true;
-				}
-			}
-		}
-
-		arsort( $engines );
-		arsort( $collations );
-
-		usort(
-			$largest,
-			static function ( $a, $b ) {
-				return $b['bytes'] <=> $a['bytes'];
-			}
-		);
-
-		$engine_rows = array();
-
-		foreach ( $engines as $engine => $count ) {
-			$engine_rows[] = array(
-				'label'   => $engine,
-				'value'   => $count,
-				'display' => number_format_i18n( $count ),
-				'tone'    => isset( $flagged['engine'][ $engine ] ) ? 'bad' : 'ok',
-			);
-		}
-
-		$collation_rows = array();
-
-		foreach ( $collations as $collation => $count ) {
-			$collation_rows[] = array(
-				'label'   => $collation,
-				'value'   => $count,
-				'display' => number_format_i18n( $count ),
-				'tone'    => isset( $flagged['collation'][ $collation ] ) ? 'bad' : 'ok',
-				'mono'    => true,
-			);
-		}
-
-		$size_rows = array();
-
-		foreach ( array_slice( $largest, 0, 5 ) as $table ) {
-			$size_rows[] = array(
-				'label'   => $table['name'],
-				'value'   => (int) $table['bytes'],
-				'display' => size_format( (int) $table['bytes'], 1 ),
-				'tone'    => 'neutral',
-				'mono'    => true,
-			);
-		}
-
-		UI::render_panel_open(
-			array(
-				'title'   => __( 'Schema at a glance', 'wp-vip-compatibility' ),
-				'summary' => __( 'What the schema is made of today, and where its weight sits. Red marks what the audit flagged.', 'wp-vip-compatibility' ),
-			)
-		);
-		?>
-		<div class="wvc-columns">
-			<div class="wvc-columns__col">
-				<h3 class="wvc-detail__title"><?php esc_html_e( 'Storage engines', 'wp-vip-compatibility' ); ?></h3>
-				<?php echo UI::get_bars( $engine_rows ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-			</div>
-
-			<div class="wvc-columns__col">
-				<h3 class="wvc-detail__title"><?php esc_html_e( 'Collations', 'wp-vip-compatibility' ); ?></h3>
-				<?php echo UI::get_bars( $collation_rows ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-			</div>
-
-			<div class="wvc-columns__col">
-				<h3 class="wvc-detail__title"><?php esc_html_e( 'Largest tables', 'wp-vip-compatibility' ); ?></h3>
-				<?php echo UI::get_bars( $size_rows ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-			</div>
-		</div>
-		<?php
-		UI::render_panel_close();
+		return array_merge( $sql['engine'], $sql['collation'], $sql['prefix'], $sql['other'] );
 	}
 
 	/**
@@ -418,18 +92,48 @@ class Database_Settings {
 	 * @return void
 	 */
 	private function render_tables( array $audit ) {
-		UI::render_panel_open(
-			array(
-				'title' => __( 'Every table', 'wp-vip-compatibility' ),
-				'count' => number_format_i18n( (int) $audit['summary']['total'] ),
-				'flush' => true,
-			)
+		$tables = $audit['tables'];
+		$sql    = $this->get_all_sql( $tables );
+
+		// Tables that need a change lead, so the work is at the top of the list.
+		// PHP sorts are only stable from 8.0, so ties fall back to the original
+		// position to keep the audit's order within each group.
+		$order = array_flip( array_keys( $tables ) );
+		uksort(
+			$tables,
+			static function ( $a, $b ) use ( $tables, $order ) {
+				$diff = (int) empty( $tables[ $a ]['findings'] ) <=> (int) empty( $tables[ $b ]['findings'] );
+
+				return 0 !== $diff ? $diff : $order[ $a ] <=> $order[ $b ];
+			}
 		);
+
+		$actions = '';
+
+		if ( ! empty( $sql ) ) {
+			$actions = sprintf(
+				'<button type="button" class="wvc-btn wvc-btn--ghost wvc-btn--sm" data-role="copy" data-clipboard="%1$s" title="%2$s">%3$s<span>%4$s</span></button>',
+				esc_attr( implode( "\n", $sql ) ),
+				esc_attr__( 'Engine first, then collation, then prefix. Run them against a backup, and see Help before renaming tables for a prefix.', 'wp-vip-compatibility' ),
+				UI::get_icon( 'copy', array( 'class' => 'wvc-icon wvc-icon--sm' ) ),
+				esc_html(
+					sprintf(
+						/* translators: %s: Number of SQL statements. */
+						_n( 'Copy %s SQL statement', 'Copy all %s SQL statements', count( $sql ), 'wp-vip-compatibility' ),
+						number_format_i18n( count( $sql ) )
+					)
+				)
+			);
+		}
+
+		// No heading: the page title already names the list.
+		UI::render_panel_open( array( 'flush' => true ) );
 
 		UI::render_toolbar(
 			array(
 				'search_label' => __( 'Search database tables by name or owner', 'wp-vip-compatibility' ),
 				'placeholder'  => __( 'Search tables…', 'wp-vip-compatibility' ),
+				'actions'      => $actions,
 				'groups'       => array(
 					array(
 						'name'    => 'status',
@@ -457,7 +161,7 @@ class Database_Settings {
 		);
 
 		echo '<div class="wvc-table-wrap" data-role="table-view">';
-		echo '<table class="wvc-table">';
+		echo '<table class="wvc-table" aria-label="' . esc_attr__( 'Every table', 'wp-vip-compatibility' ) . '">';
 
 		UI::render_table_head(
 			array(
@@ -502,7 +206,7 @@ class Database_Settings {
 
 		echo '<tbody>';
 
-		foreach ( $audit['tables'] as $table ) {
+		foreach ( $tables as $table ) {
 			$this->render_row( $table );
 		}
 

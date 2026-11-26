@@ -58,7 +58,7 @@ The WordPress admin menu carries a count of what must be fixed before migrating,
 - **Plugins** — every installed plugin with its verdict, activation state, available update and severity split; each row expands to its evidence.
 - **Themes** — the active theme in detail, plus every other theme that still ships in the repository.
 - **Must-use** — everything in `wp-content/mu-plugins`, separated into what to relocate and what to drop.
-- **Database** — the schema's shape, the work grouped by requirement with copyable SQL, and every table's engine, collation, rows, size and owner.
+- **Database** — every table's engine, collation, rows, size and owner, with the tables that need a change listed first and their SQL copyable in one go.
 - **wp-content** — every entry measured against the WordPress VIP application structure.
 
 ## Export

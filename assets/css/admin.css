@@ -1701,64 +1701,6 @@ body.wvc-screen,
 	padding-top: 2px;
 }
 
-/* Bars to scale. */
-.wvc-bars__row {
-	display: grid;
-	grid-template-columns: minmax(0, 1.3fr) minmax(48px, 1fr) auto;
-	gap: 12px;
-	align-items: center;
-	padding: 7px 0;
-	border-bottom: 1px dotted var(--wvc-rule-2);
-}
-
-.wvc-bars__label {
-	overflow: hidden;
-	color: var(--wvc-ink);
-	font-size: 13px;
-	font-weight: 500;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.wvc-bars__label.is-mono {
-	font-family: var(--wvc-mono);
-	font-size: 12px;
-}
-
-.wvc-bars__track {
-	height: 8px;
-	border-radius: 1px;
-	background: var(--wvc-paper-2);
-}
-
-.wvc-bars__fill {
-	display: block;
-	height: 100%;
-	border-radius: 1px;
-	background: var(--wvc-ink-3);
-	transform-origin: left;
-	animation: wvc-grow 0.6s var(--wvc-ease) both;
-}
-
-.wvc-bars__row--ok .wvc-bars__fill {
-	background: var(--wvc-ok-quiet);
-}
-
-.wvc-bars__row--bad .wvc-bars__fill {
-	background: var(--wvc-block);
-}
-
-.wvc-bars__row--bad .wvc-bars__label {
-	color: var(--wvc-block-ink);
-}
-
-.wvc-bars__value {
-	color: var(--wvc-ink-2);
-	font-family: var(--wvc-mono);
-	font-size: 12px;
-	text-align: right;
-}
-
 /* -------------------------------------------------------------------------
  * 9. Toolbar, segmented filters, search, scan progress
  * ---------------------------------------------------------------------- */
@@ -2091,11 +2033,6 @@ body.wvc-screen,
 /* Lets a long snippet shrink to the cell instead of widening the table. */
 .wvc-table td.wvc-col-notes {
 	overflow-wrap: anywhere;
-}
-
-.wvc-issue--warn::before {
-	border-color: var(--wvc-imp);
-	color: var(--wvc-imp-ink);
 }
 
 .wvc .wvc-rowtoggle {
@@ -2868,162 +2805,6 @@ code.wvc-item__name {
  * 13. Database and themes
  * ---------------------------------------------------------------------- */
 
-.wvc-issues {
-	counter-reset: wvc-issue;
-	margin-top: 4px !important;
-}
-
-.wvc-issue {
-	position: relative;
-	padding: 22px 0 22px 56px;
-	border-bottom: 1px solid var(--wvc-rule);
-	counter-increment: wvc-issue;
-}
-
-.wvc-issue::before {
-	content: counter(wvc-issue, decimal-leading-zero);
-	position: absolute;
-	top: 20px;
-	left: 0;
-	display: grid;
-	place-items: center;
-	width: 36px;
-	height: 36px;
-	border: 1px solid var(--wvc-ink);
-	border-radius: 50%;
-	color: var(--wvc-ink);
-	font-family: var(--wvc-mono);
-	font-size: 12px;
-	font-weight: 600;
-}
-
-.wvc-issue--bad::before {
-	border-color: var(--wvc-block);
-	background: var(--wvc-block);
-	color: #fff;
-}
-
-.wvc-issue__head {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: baseline;
-	gap: 4px 12px;
-}
-
-.wvc .wvc-issue__title {
-	margin: 0;
-	padding: 0;
-	color: var(--wvc-ink);
-	font-size: 16px;
-	font-weight: 600;
-}
-
-.wvc-issue__count {
-	color: var(--wvc-ink-3);
-	font-family: var(--wvc-mono);
-	font-size: 12px;
-}
-
-.wvc-issue__detail {
-	max-width: 80ch;
-	margin-top: 6px !important;
-	color: var(--wvc-ink-2);
-	font-size: 13.5px;
-}
-
-.wvc-issue__tables {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
-	margin-top: 12px !important;
-}
-
-.wvc-issue__tables code {
-	padding: 2px 7px;
-	border: 1px solid var(--wvc-rule);
-	border-radius: 3px;
-	background: var(--wvc-sheet);
-	color: var(--wvc-ink);
-	font-size: 11.5px;
-}
-
-.wvc-issue__more {
-	align-self: center;
-	color: var(--wvc-ink-3);
-	font-size: 12px;
-}
-
-.wvc-sql {
-	margin-top: 14px;
-}
-
-.wvc-sql__summary {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	color: var(--wvc-accent-ink);
-	font-size: 13px;
-	font-weight: 600;
-	list-style: none;
-	cursor: pointer;
-}
-
-.wvc-sql__summary::-webkit-details-marker {
-	display: none;
-}
-
-.wvc-sql__caret {
-	transition: transform 0.2s var(--wvc-ease);
-}
-
-.wvc-sql[open] .wvc-sql__caret {
-	transform: rotate(180deg);
-}
-
-.wvc-sql__body {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 10px;
-	margin-top: 12px;
-	animation: wvc-rise 0.2s var(--wvc-ease);
-}
-
-.wvc-sql__body .wvc-code {
-	align-self: stretch;
-}
-
-.wvc-issues__footer {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 10px 16px;
-	padding-top: 20px;
-}
-
-.wvc-issues__hint {
-	color: var(--wvc-ink-3);
-	font-family: var(--wvc-mono);
-	font-size: 11.5px;
-}
-
-.wvc-issues + .wvc-notice,
-.wvc-notice + .wvc-issues {
-	margin-top: 8px;
-}
-
-.wvc-columns {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 32px 40px;
-}
-
-.wvc-columns .wvc-detail__title {
-	padding-bottom: 8px;
-	border-bottom: 1px solid var(--wvc-rule-2);
-	margin-bottom: 4px !important;
-}
-
 /* -------------------------------------------------------------------------
  * 14. Notices, guidance, empty states, steps
  * ---------------------------------------------------------------------- */
@@ -3328,16 +3109,6 @@ body.wvc-screen #screen-meta .help-tab-content {
 	}
 }
 
-@keyframes wvc-grow {
-	from {
-		transform: scaleX(0);
-	}
-
-	to {
-		transform: none;
-	}
-}
-
 @keyframes wvc-draw {
 	from {
 		stroke-dashoffset: 600;
@@ -3428,7 +3199,6 @@ body.wvc-screen #screen-meta .help-tab-content {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.wvc-columns,
 	.wvc-steps {
 		grid-template-columns: minmax(0, 1fr);
 	}
@@ -3528,11 +3298,6 @@ body.wvc-screen #screen-meta .help-tab-content {
 
 	.wvc-fix__body {
 		padding: 2px 14px 20px 30px;
-	}
-
-	.wvc-issue {
-		padding-left: 0;
-		padding-top: 64px;
 	}
 
 	/* Tables become stacked records. */

@@ -1211,6 +1211,7 @@ class UI {
 	 *     @type string $placeholder   Search placeholder.
 	 *     @type bool   $show_search   Whether to render the search field.
 	 *     @type bool   $show_progress Whether to render the scan progress bar.
+	 *     @type string $actions       Markup for buttons after the search field, escaped by the caller.
 	 * }
 	 * @return void
 	 */
@@ -1223,6 +1224,7 @@ class UI {
 				'placeholder'   => __( 'Search…', 'wp-vip-compatibility' ),
 				'show_search'   => true,
 				'show_progress' => false,
+				'actions'       => '',
 			)
 		);
 
@@ -1275,6 +1277,8 @@ class UI {
 						<kbd class="wvc-search__key" aria-hidden="true">/</kbd>
 					</div>
 				<?php endif; ?>
+
+				<?php echo $args['actions']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the caller. ?>
 			</div>
 		</div>
 
@@ -1690,47 +1694,6 @@ class UI {
 			'' === $title ? '' : ' title="' . esc_attr( $title ) . '"'
 		);
 	}
-
-	/**
-	 * Builds a horizontal bar list: label, a bar to scale, and its value.
-	 *
-	 * @param array<int, array<string, mixed>> $rows Each with `label`, `value` (number), `display` and optional `tone` and `mono`.
-	 * @return string The list markup.
-	 */
-	public static function get_bars( array $rows ) {
-		if ( empty( $rows ) ) {
-			return '';
-		}
-
-		$max = 0;
-
-		foreach ( $rows as $row ) {
-			$max = max( $max, (float) $row['value'] );
-		}
-
-		$items = '';
-
-		foreach ( $rows as $row ) {
-			$share = ( $max > 0 ) ? round( ( (float) $row['value'] / $max ) * 100, 1 ) : 0;
-
-			$items .= sprintf(
-				'<li class="wvc-bars__row wvc-bars__row--%1$s"><span class="wvc-bars__label%5$s">%2$s</span><span class="wvc-bars__track" aria-hidden="true"><span class="wvc-bars__fill" style="width:%3$s%%"></span></span><span class="wvc-bars__value">%4$s</span></li>',
-				esc_attr( $row['tone'] ?? 'neutral' ),
-				esc_html( $row['label'] ),
-				esc_attr( (string) $share ),
-				esc_html( $row['display'] ),
-				empty( $row['mono'] ) ? '' : ' is-mono'
-			);
-		}
-
-		return '<ul class="wvc-bars">' . $items . '</ul>';
-	}
-
-	/*
-	 * ---------------------------------------------------------------------
-	 * Findings
-	 * ------------------------------------------------------------------
-	 */
 
 	/**
 	 * Renders the heading that opens one tier of the ranked list.
