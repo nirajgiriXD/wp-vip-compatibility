@@ -6,12 +6,12 @@
  * by a badge beside the name. Inactive themes stay in the list because they
  * still ship in the repository and are still read by WordPress VIP's code review.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Classes;
+namespace PREFLIGHT_AUDIT\Includes\Classes;
 
-use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
+use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -37,7 +37,7 @@ class Themes_Settings extends Inventory_Screen {
 	 * @return string The label.
 	 */
 	protected function get_search_label() {
-		return __( 'Search themes by name or author', 'wp-vip-compatibility' );
+		return __( 'Search themes by name or author', 'preflight-audit' );
 	}
 
 	/**
@@ -46,7 +46,7 @@ class Themes_Settings extends Inventory_Screen {
 	 * @return string The title.
 	 */
 	protected function get_table_title() {
-		return __( 'Installed themes', 'wp-vip-compatibility' );
+		return __( 'Installed themes', 'preflight-audit' );
 	}
 
 	/**
@@ -56,8 +56,8 @@ class Themes_Settings extends Inventory_Screen {
 	 */
 	protected function get_empty_state() {
 		return array(
-			__( 'No themes are installed', 'wp-vip-compatibility' ),
-			__( 'There is nothing here to check against the WordPress VIP Platform.', 'wp-vip-compatibility' ),
+			__( 'No themes are installed', 'preflight-audit' ),
+			__( 'There is nothing here to check against the WordPress VIP Platform.', 'preflight-audit' ),
 		);
 	}
 
@@ -68,9 +68,9 @@ class Themes_Settings extends Inventory_Screen {
 	 */
 	protected function get_guidance_notes() {
 		return array(
-			__( '<strong>Inactive themes.</strong> They are still committed to the WordPress VIP repository and still scanned by the Code Analysis Bot. Unless a theme is a live parent or a planned redesign, leaving it out of the repository removes its findings entirely.', 'wp-vip-compatibility' ),
-			__( '<strong>Parent themes.</strong> A child theme is only as portable as the parent it inherits from, so a parent is listed and scanned in its own right even when it is never activated directly.', 'wp-vip-compatibility' ),
-			__( '<strong>Themes are where most filesystem findings come from.</strong> Writing generated CSS, caching markup to disk or resizing images at request time all work locally and none of them work on WordPress VIP.', 'wp-vip-compatibility' ),
+			__( '<strong>Inactive themes.</strong> They are still committed to the WordPress VIP repository and still scanned by the Code Analysis Bot. Unless a theme is a live parent or a planned redesign, leaving it out of the repository removes its findings entirely.', 'preflight-audit' ),
+			__( '<strong>Parent themes.</strong> A child theme is only as portable as the parent it inherits from, so a parent is listed and scanned in its own right even when it is never activated directly.', 'preflight-audit' ),
+			__( '<strong>Themes are where most filesystem findings come from.</strong> Writing generated CSS, caching markup to disk or resizing images at request time all work locally and none of them work on WordPress VIP.', 'preflight-audit' ),
 		);
 	}
 
@@ -82,27 +82,27 @@ class Themes_Settings extends Inventory_Screen {
 	protected function get_columns() {
 		return array(
 			array(
-				'label'    => __( 'Theme', 'wp-vip-compatibility' ),
-				'class'    => 'wvc-col-name',
+				'label'    => __( 'Theme', 'preflight-audit' ),
+				'class'    => 'pfa-col-name',
 				'sortable' => true,
 			),
 			array(
-				'label' => __( 'Version', 'wp-vip-compatibility' ),
-				'class' => 'wvc-col-version',
+				'label' => __( 'Version', 'preflight-audit' ),
+				'class' => 'pfa-col-version',
 			),
 			array(
-				'label'    => __( 'WordPress VIP verdict', 'wp-vip-compatibility' ),
-				'class'    => 'wvc-col-status',
+				'label'    => __( 'WordPress VIP verdict', 'preflight-audit' ),
+				'class'    => 'pfa-col-status',
 				'sortable' => true,
 			),
 			array(
-				'label' => __( 'Findings', 'wp-vip-compatibility' ),
-				'class' => 'wvc-col-findings',
-				'hint'  => __( 'Findings grouped by what to do about them: must fix, should fix, worth checking, FYI.', 'wp-vip-compatibility' ),
+				'label' => __( 'Findings', 'preflight-audit' ),
+				'class' => 'pfa-col-findings',
+				'hint'  => __( 'Findings grouped by what to do about them: must fix, should fix, worth checking, FYI.', 'preflight-audit' ),
 			),
 			array(
-				'label' => __( 'What to do', 'wp-vip-compatibility' ),
-				'class' => 'wvc-col-notes',
+				'label' => __( 'What to do', 'preflight-audit' ),
+				'class' => 'pfa-col-notes',
 			),
 		);
 	}
@@ -122,20 +122,20 @@ class Themes_Settings extends Inventory_Screen {
 		return array(
 			array(
 				'name'    => 'role',
-				'label'   => __( 'Filter by role', 'wp-vip-compatibility' ),
+				'label'   => __( 'Filter by role', 'preflight-audit' ),
 				'active'  => in_array( $role, array( 'live', 'inactive' ), true ) ? $role : 'all',
 				'options' => array(
 					array(
 						'value' => 'all',
-						'label' => __( 'All themes', 'wp-vip-compatibility' ),
+						'label' => __( 'All themes', 'preflight-audit' ),
 					),
 					array(
 						'value' => 'live',
-						'label' => __( 'In use', 'wp-vip-compatibility' ),
+						'label' => __( 'In use', 'preflight-audit' ),
 					),
 					array(
 						'value' => 'inactive',
-						'label' => __( 'Inactive', 'wp-vip-compatibility' ),
+						'label' => __( 'Inactive', 'preflight-audit' ),
 					),
 				),
 			),
@@ -182,8 +182,8 @@ class Themes_Settings extends Inventory_Screen {
 		// theme is the default and needs no label.
 		$role   = $this->get_role( $target, $context );
 		$labels = array(
-			'active' => array( __( 'Active', 'wp-vip-compatibility' ), 'accent', __( 'The site renders through this theme.', 'wp-vip-compatibility' ) ),
-			'parent' => array( __( 'Parent', 'wp-vip-compatibility' ), 'neutral', __( 'The active theme inherits from this one.', 'wp-vip-compatibility' ) ),
+			'active' => array( __( 'Active', 'preflight-audit' ), 'accent', __( 'The site renders through this theme.', 'preflight-audit' ) ),
+			'parent' => array( __( 'Parent', 'preflight-audit' ), 'neutral', __( 'The active theme inherits from this one.', 'preflight-audit' ) ),
 		);
 		$badges = isset( $labels[ $role ] ) ? array( UI::get_badge( ...$labels[ $role ] ) ) : array();
 

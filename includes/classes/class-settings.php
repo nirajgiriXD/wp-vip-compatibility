@@ -2,14 +2,14 @@
 /**
  * Class to handle plugin settings.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Classes;
+namespace PREFLIGHT_AUDIT\Includes\Classes;
 
-use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
+use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
+use PREFLIGHT_AUDIT\Includes\Scanner\Report;
+use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,6 +19,17 @@ defined( 'ABSPATH' ) || exit;
 class Settings {
 
 	use Singleton;
+
+	/**
+	 * The admin menu icon: the plugin logo as a single-colour 20x20 SVG.
+	 *
+	 * Base64 because that is the only form WordPress recolours to match the
+	 * admin colour scheme. Every shape sets `fill`, which is what it rewrites.
+	 * The source is the plane, flight path and tick from assets/icon.svg.
+	 *
+	 * @var string
+	 */
+	const MENU_ICON = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCAyMCI+PHBhdGggZmlsbD0iYmxhY2siIGQ9Ik0xOSAxLjYgNy44IDYuMmwzLjcgMS42ek0xOSAxLjZsLTYuOCA2LjkgMS40IDMuN3pNMSAxNS4ybDEuNC0xLjQgMS40IDEuNCAzLjgtMy44TDkgMTIuOCAzLjggMTh6TTExLjUgMTQuOEgxOGExIDEgMCAwIDEgMCAyaC02LjVhMSAxIDAgMCAxIDAtMnoiLz48Y2lyY2xlIGZpbGw9ImJsYWNrIiBjeD0iMS44IiBjeT0iOS40IiByPSIwLjc1Ii8+PGNpcmNsZSBmaWxsPSJibGFjayIgY3g9IjQuMyIgY3k9IjkuNiIgcj0iMC43NSIvPjxjaXJjbGUgZmlsbD0iYmxhY2siIGN4PSI2LjgiIGN5PSI5IiByPSIwLjc1Ii8+PC9zdmc+';
 
 	/**
 	 * Holds registered settings classes.
@@ -60,7 +71,7 @@ class Settings {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen detection on a GET request.
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 
-		if ( ! in_array( $page, array( 'wvc-inventory', 'wvc-site' ), true ) ) {
+		if ( ! in_array( $page, array( 'pfa-inventory', 'pfa-site' ), true ) ) {
 			return;
 		}
 
@@ -78,7 +89,7 @@ class Settings {
 			'database'    => 'database',
 		);
 
-		if ( 'wvc-inventory' === $page ) {
+		if ( 'pfa-inventory' === $page ) {
 			$key = $targets[ $kind ] ?? 'plugins';
 		} else {
 			$key = $targets[ $section ] ?? 'database';
@@ -149,12 +160,12 @@ class Settings {
 		// The overview is also the first submenu entry, so the menu never shows a
 		// duplicate of the parent under a different name.
 		add_menu_page(
-			__( 'WordPress VIP Compatibility', 'wp-vip-compatibility' ),
-			__( 'WordPress VIP Compatibility', 'wp-vip-compatibility' ) . $this->get_menu_badge(),
+			__( 'Preflight Audit', 'preflight-audit' ),
+			__( 'Preflight Audit', 'preflight-audit' ) . $this->get_menu_badge(),
 			'manage_options',
 			$screens['overview']['slug'],
 			fn() => $this->render_settings_page( 'overview' ),
-			'dashicons-shield-alt'
+			self::MENU_ICON
 		);
 
 		$headed = array();
@@ -171,15 +182,15 @@ class Settings {
 			if ( ! isset( $headed[ $group ] ) && isset( $groups[ $group ] ) ) {
 				// The first heading sits directly under the menu title, where a
 				// separator above it would divide nothing.
-				$modifier         = empty( $headed ) ? ' wvc-menu-group--first' : '';
+				$modifier         = empty( $headed ) ? ' pfa-menu-group--first' : '';
 				$headed[ $group ] = true;
-				$label            = '<span class="wvc-menu-group' . $modifier . '" aria-hidden="true">' . esc_html( $groups[ $group ] ) . '</span>' . $label;
+				$label            = '<span class="pfa-menu-group' . $modifier . '" aria-hidden="true">' . esc_html( $groups[ $group ] ) . '</span>' . $label;
 			}
 
 			$hook = add_submenu_page(
 				$screens['overview']['slug'],
 				/* translators: %s: Submenu title */
-				sprintf( __( 'WordPress VIP Compatibility — %s', 'wp-vip-compatibility' ), $screen['title'] ),
+				sprintf( __( 'Preflight Audit — %s', 'preflight-audit' ), $screen['title'] ),
 				$label,
 				'manage_options',
 				$screen['slug'],
@@ -223,15 +234,15 @@ class Settings {
 
 		// The overview is a report rather than a list.
 		$title = ( 'overview' === $key )
-			? __( 'About this report', 'wp-vip-compatibility' )
-			: __( 'How to read this list', 'wp-vip-compatibility' );
+			? __( 'About this report', 'preflight-audit' )
+			: __( 'How to read this list', 'preflight-audit' );
 
 		$screen->add_help_tab(
 			array(
-				'id'      => 'wvc-how-to-read',
+				'id'      => 'pfa-how-to-read',
 				'title'   => $title,
-				'content' => '<p class="wvc-help__title">' . esc_html( $title ) . '</p>'
-					. '<div class="wvc-help__notes">' . wp_kses_post( '<p>' . implode( '</p><p>', $notes ) . '</p>' ) . '</div>',
+				'content' => '<p class="pfa-help__title">' . esc_html( $title ) . '</p>'
+					. '<div class="pfa-help__notes">' . wp_kses_post( '<p>' . implode( '</p><p>', $notes ) . '</p>' ) . '</div>',
 			)
 		);
 	}
@@ -264,7 +275,7 @@ class Settings {
 			esc_html(
 				sprintf(
 					/* translators: %s: Number of findings. */
-					_n( '%s finding must be fixed before migrating', '%s findings must be fixed before migrating', $count, 'wp-vip-compatibility' ),
+					_n( '%s finding must be fixed before migrating', '%s findings must be fixed before migrating', $count, 'preflight-audit' ),
 					number_format_i18n( $count )
 				)
 			)

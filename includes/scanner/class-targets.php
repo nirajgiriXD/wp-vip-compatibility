@@ -12,10 +12,10 @@
  * that WordPress itself reports. A key that does not resolve is simply rejected,
  * so no caller-supplied path ever reaches the filesystem layer.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Scanner;
+namespace PREFLIGHT_AUDIT\Includes\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 

@@ -18,16 +18,16 @@
  * an option is measured against the filters that would still apply after
  * clicking it, so an option that says 4 always yields 4 cards.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Classes;
+namespace PREFLIGHT_AUDIT\Includes\Classes;
 
-use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Results_Store;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
+use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
+use PREFLIGHT_AUDIT\Includes\Scanner\Report;
+use PREFLIGHT_AUDIT\Includes\Scanner\Results_Store;
+use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
+use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -41,13 +41,13 @@ class Findings_Settings {
 	/**
 	 * Nonce action for the rescan button.
 	 */
-	const RESCAN_ACTION = 'wvc_rescan_all';
+	const RESCAN_ACTION = 'preflight_audit_rescan_all';
 
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
-		add_action( 'admin_post_wvc_rescan', array( $this, 'handle_rescan' ) );
+		add_action( 'admin_post_preflight_audit_rescan', array( $this, 'handle_rescan' ) );
 	}
 
 	/**
@@ -58,8 +58,8 @@ class Findings_Settings {
 	public function handle_rescan() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die(
-				esc_html__( 'You do not have permission to run compatibility scans.', 'wp-vip-compatibility' ),
-				esc_html__( 'Forbidden', 'wp-vip-compatibility' ),
+				esc_html__( 'You do not have permission to run compatibility scans.', 'preflight-audit' ),
+				esc_html__( 'Forbidden', 'preflight-audit' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -87,7 +87,7 @@ class Findings_Settings {
 		if ( ! empty( $definition['async'] ) ) {
 			Report::clear_scope( $scope );
 
-			wp_safe_redirect( $this->get_redirect_url( $definition['screen'], 'wvc-scanning', $scope ) );
+			wp_safe_redirect( $this->get_redirect_url( $definition['screen'], 'pfa-scanning', $scope ) );
 			exit;
 		}
 
@@ -111,7 +111,7 @@ class Findings_Settings {
 
 		// The scope rides back on the redirect so the confirmation can report
 		// what was actually read rather than the site-wide totals.
-		wp_safe_redirect( $this->get_redirect_url( $definition['screen'], 'wvc-scanned', $scope ) );
+		wp_safe_redirect( $this->get_redirect_url( $definition['screen'], 'pfa-scanned', $scope ) );
 		exit;
 	}
 
@@ -185,7 +185,7 @@ class Findings_Settings {
 			 * replay a finished scan's confirmation, or restart a rescan, on the
 			 * next press. Everything else is the reader's view and is kept.
 			 */
-			unset( $query['page'], $query['wvc-scanned'], $query['wvc-scanning'] );
+			unset( $query['page'], $query['pfa-scanned'], $query['pfa-scanning'] );
 
 			$args = array();
 
@@ -218,11 +218,11 @@ class Findings_Settings {
 
 		if ( 0 === $aggregate['targets'] ) {
 			UI::render_empty_state(
-				__( 'No scan results yet', 'wp-vip-compatibility' ),
-				__( 'Run a scan to analyse every plugin, theme and must-use plugin against the WordPress VIP Platform requirements.', 'wp-vip-compatibility' ),
+				__( 'No scan results yet', 'preflight-audit' ),
+				__( 'Run a scan to analyse every plugin, theme and must-use plugin against the WordPress VIP Platform requirements.', 'preflight-audit' ),
 				array(
-					'label'   => __( 'Run the first scan', 'wp-vip-compatibility' ),
-					'submit'  => 'wvc_rescan',
+					'label'   => __( 'Run the first scan', 'preflight-audit' ),
+					'submit'  => 'preflight_audit_rescan',
 					'nonce'   => self::RESCAN_ACTION,
 					'icon'    => 'refresh',
 					'primary' => true,
@@ -271,21 +271,21 @@ class Findings_Settings {
 
 		// The filters are a card of their own, and each tier below is a card, so
 		// the "Everything" view reads as a few clear blocks rather than one list.
-		echo '<div class="wvc-findings">';
-		echo '<div class="wvc-findings__controls wvc-sheet">';
+		echo '<div class="pfa-findings">';
+		echo '<div class="pfa-findings__controls pfa-sheet">';
 
 		$this->render_toolbar( $filters, $scope, $other, $findings, $shown, $base );
 		$this->render_active_filters( $filters, $base );
 
 		echo '</div>';
-		echo '<div class="wvc-findings__main">';
+		echo '<div class="pfa-findings__main">';
 
 		if ( empty( $findings ) && empty( $shown ) ) {
 			UI::render_empty_state(
-				__( 'Nothing matches these filters', 'wp-vip-compatibility' ),
-				__( 'Clear them to see everything the last scan reported.', 'wp-vip-compatibility' ),
+				__( 'Nothing matches these filters', 'preflight-audit' ),
+				__( 'Clear them to see everything the last scan reported.', 'preflight-audit' ),
 				array(
-					'label' => __( 'Clear filters', 'wp-vip-compatibility' ),
+					'label' => __( 'Clear filters', 'preflight-audit' ),
 					'url'   => $base,
 				)
 			);
@@ -432,7 +432,7 @@ class Findings_Settings {
 			// pluralised here so the script never has to.
 			$options[ $index ]['summary'] = sprintf(
 				/* translators: %s: Number of issues on screen. */
-				_n( '%s issue', '%s issues', (int) $option['count'], 'wp-vip-compatibility' ),
+				_n( '%s issue', '%s issues', (int) $option['count'], 'preflight-audit' ),
 				number_format_i18n( (int) $option['count'] )
 			);
 
@@ -441,16 +441,16 @@ class Findings_Settings {
 			}
 		}
 		?>
-		<div class="wvc-toolbar wvc-findings__toolbar">
-			<div class="wvc-toolbar__filters">
-				<nav class="wvc-segmented" aria-label="<?php esc_attr_e( 'Filter by what to do', 'wp-vip-compatibility' ); ?>">
+		<div class="pfa-toolbar pfa-findings__toolbar">
+			<div class="pfa-toolbar__filters">
+				<nav class="pfa-segmented" aria-label="<?php esc_attr_e( 'Filter by what to do', 'preflight-audit' ); ?>">
 					<?php foreach ( $options as $option ) : ?>
 						<?php
-						$classes = 'wvc-segmented__option' . ( $option['active'] ? ' active' : '' ) . ( ! empty( $option['empty'] ) ? ' is-empty' : '' );
+						$classes = 'pfa-segmented__option' . ( $option['active'] ? ' active' : '' ) . ( ! empty( $option['empty'] ) ? ' is-empty' : '' );
 						$data    = sprintf( ' data-tier="%1$s" data-summary="%2$s"', esc_attr( $option['tier'] ?? '' ), esc_attr( $option['summary'] ) );
 						$inner   = ( empty( $option['tier'] ) ? '' : UI::get_mark( $option['tier'] ) )
 							. '<span>' . esc_html( $option['label'] ) . '</span>'
-							. '<span class="wvc-segmented__count">' . esc_html( number_format_i18n( (int) $option['count'] ) ) . '</span>';
+							. '<span class="pfa-segmented__count">' . esc_html( number_format_i18n( (int) $option['count'] ) ) . '</span>';
 						?>
 						<?php if ( ! empty( $option['empty'] ) ) : ?>
 							<span class="<?php echo esc_attr( $classes ); ?>" title="<?php echo esc_attr( $option['title'] ?? '' ); ?>"<?php echo $data; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?>><?php echo $inner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?></span>
@@ -462,16 +462,16 @@ class Findings_Settings {
 
 			</div>
 
-			<div class="wvc-toolbar__tools">
-				<p class="wvc-result-count" data-role="findings-count" aria-live="polite"><?php echo esc_html( $summary ); ?></p>
+			<div class="pfa-toolbar__tools">
+				<p class="pfa-result-count" data-role="findings-count" aria-live="polite"><?php echo esc_html( $summary ); ?></p>
 
 				<?php $this->render_search( $filters ); ?>
 
 				<?php if ( ! empty( $findings ) ) : ?>
 					<?php // Revealed by the script, which is what makes it work. ?>
-					<button type="button" class="wvc-btn wvc-btn--ghost wvc-btn--sm wvc-findings__expand" data-role="expand-all" aria-pressed="false" hidden>
-						<?php echo UI::get_icon( 'expand', array( 'class' => 'wvc-icon wvc-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-						<span><?php esc_html_e( 'Expand all', 'wp-vip-compatibility' ); ?></span>
+					<button type="button" class="pfa-btn pfa-btn--ghost pfa-btn--sm pfa-findings__expand" data-role="expand-all" aria-pressed="false" hidden>
+						<?php echo UI::get_icon( 'expand', array( 'class' => 'pfa-icon pfa-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<span><?php esc_html_e( 'Expand all', 'preflight-audit' ); ?></span>
 					</button>
 				<?php endif; ?>
 			</div>
@@ -493,25 +493,25 @@ class Findings_Settings {
 	private function render_search( array $filters ) {
 		?>
 		<?php // The slug comes from the screen map rather than a literal, so it cannot drift away from the page it posts to. ?>
-		<form class="wvc-search wvc-search--form" method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" role="search">
+		<form class="pfa-search pfa-search--form" method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" role="search">
 			<input type="hidden" name="page" value="<?php echo esc_attr( UI::get_screens()['findings']['slug'] ); ?>" />
 			<?php foreach ( $this->query_args( $filters, 'search' ) as $name => $value ) : ?>
 				<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
 			<?php endforeach; ?>
 
-			<?php echo UI::get_icon( 'search', array( 'class' => 'wvc-icon wvc-icon--sm wvc-search__icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-			<label class="screen-reader-text" for="wvc-findings-search"><?php esc_html_e( 'Search findings by rule, file or function', 'wp-vip-compatibility' ); ?></label>
+			<?php echo UI::get_icon( 'search', array( 'class' => 'pfa-icon pfa-icon--sm pfa-search__icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+			<label class="screen-reader-text" for="pfa-findings-search"><?php esc_html_e( 'Search findings by rule, file or function', 'preflight-audit' ); ?></label>
 			<input
 				type="search"
-				id="wvc-findings-search"
-				class="wvc-search__input"
+				id="pfa-findings-search"
+				class="pfa-search__input"
 				name="s"
 				value="<?php echo esc_attr( $filters['search'] ); ?>"
-				placeholder="<?php esc_attr_e( 'Search findings…', 'wp-vip-compatibility' ); ?>"
+				placeholder="<?php esc_attr_e( 'Search findings…', 'preflight-audit' ); ?>"
 				autocomplete="off"
 				spellcheck="false"
 			/>
-			<kbd class="wvc-search__key" aria-hidden="true">/</kbd>
+			<kbd class="pfa-search__key" aria-hidden="true">/</kbd>
 		</form>
 		<?php
 	}
@@ -552,7 +552,7 @@ class Findings_Settings {
 
 		$options = array(
 			array(
-				'label'  => __( 'Everything', 'wp-vip-compatibility' ),
+				'label'  => __( 'Everything', 'preflight-audit' ),
 				'url'    => add_query_arg( $this->query_args( $filters, 'tier' ), $base ),
 				'count'  => $total,
 				'active' => ( '' === $filters['tier'] ),
@@ -631,7 +631,7 @@ class Findings_Settings {
 			$pills[] = array(
 				'label' => sprintf(
 					/* translators: %s: The search term. */
-					__( 'Matching “%s”', 'wp-vip-compatibility' ),
+					__( 'Matching “%s”', 'preflight-audit' ),
 					$filters['search']
 				),
 				'url'   => add_query_arg( $this->query_args( $filters, 'search' ), $base ),
@@ -642,14 +642,14 @@ class Findings_Settings {
 			return;
 		}
 		?>
-		<div class="wvc-findings__active">
-			<ul class="wvc-activefilters">
+		<div class="pfa-findings__active">
+			<ul class="pfa-activefilters">
 				<?php foreach ( $pills as $pill ) : ?>
 					<li>
-						<a class="wvc-activefilter" href="<?php echo esc_url( $pill['url'] ); ?>">
+						<a class="pfa-activefilter" href="<?php echo esc_url( $pill['url'] ); ?>">
 							<span><?php echo esc_html( $pill['label'] ); ?></span>
-							<span class="wvc-activefilter__remove" aria-hidden="true">&times;</span>
-							<span class="screen-reader-text"><?php esc_html_e( 'Remove this filter', 'wp-vip-compatibility' ); ?></span>
+							<span class="pfa-activefilter__remove" aria-hidden="true">&times;</span>
+							<span class="screen-reader-text"><?php esc_html_e( 'Remove this filter', 'preflight-audit' ); ?></span>
 						</a>
 					</li>
 				<?php endforeach; ?>
@@ -693,12 +693,12 @@ class Findings_Settings {
 			esc_html(
 				sprintf(
 					/* translators: %s: Comma-separated item names. */
-					__( 'The scan stopped early on %s because of their size, so this list is not complete for them. Fix what is here and rescan to see the rest.', 'wp-vip-compatibility' ),
+					__( 'The scan stopped early on %s because of their size, so this list is not complete for them. Fix what is here and rescan to see the rest.', 'preflight-audit' ),
 					implode( ', ', $truncated )
 				)
 			),
 			'info',
-			esc_html__( 'Partial results', 'wp-vip-compatibility' )
+			esc_html__( 'Partial results', 'preflight-audit' )
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
@@ -737,7 +737,7 @@ class Findings_Settings {
 			$tasks_by_tier[ $task['tier'] ][] = $task;
 		}
 
-		echo '<div class="wvc-fixlist">';
+		echo '<div class="pfa-fixlist">';
 
 		$visible = 0;
 
@@ -755,7 +755,7 @@ class Findings_Settings {
 			$visible += $show ? 1 : 0;
 
 			printf(
-				'<section class="wvc-tiergroup wvc-tiergroup--%1$s" data-tier="%1$s"%2$s>',
+				'<section class="pfa-tiergroup pfa-tiergroup--%1$s" data-tier="%1$s"%2$s>',
 				esc_attr( $tier ),
 				$show ? '' : ' hidden'
 			);
@@ -778,8 +778,8 @@ class Findings_Settings {
 		// Shown by the script when the selected tier has nothing in it.
 		printf( '<div data-role="tier-empty"%s>', $visible ? ' hidden' : '' );
 		UI::render_empty_state(
-			__( 'Nothing in this tier', 'wp-vip-compatibility' ),
-			__( 'Choose another tier above, or Everything to see the whole list.', 'wp-vip-compatibility' )
+			__( 'Nothing in this tier', 'preflight-audit' ),
+			__( 'Choose another tier above, or Everything to see the whole list.', 'preflight-audit' )
 		);
 		echo '</div>';
 	}

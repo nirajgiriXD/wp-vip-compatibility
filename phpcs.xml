@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ruleset name="WP VIP Compatibility">
+<ruleset name="Preflight Audit">
 	<description>The WordPress VIP coding standards, applied to this plugin's own source.</description>
 
 	<arg name="extensions" value="php"/>
@@ -29,7 +29,7 @@
 		the loader class it contains.
 	-->
 	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
-		<exclude-pattern>*/wp-vip-compatibility.php</exclude-pattern>
+		<exclude-pattern>*/preflight-audit.php</exclude-pattern>
 	</rule>
 
 	<exclude-pattern>*/build/*</exclude-pattern>

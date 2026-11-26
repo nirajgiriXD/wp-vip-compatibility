@@ -15,12 +15,12 @@
  * "works on WordPress VIP" list: that is a claim about someone else's product
  * this plugin cannot source.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Scanner;
+namespace PREFLIGHT_AUDIT\Includes\Scanner;
 
-use WP_VIP_COMPATIBILITY\Includes\Classes\Plugin;
+use PREFLIGHT_AUDIT\Includes\Classes\Plugin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -100,11 +100,11 @@ class Known_Plugins {
 	public static function label( $classification ) {
 		switch ( $classification ) {
 			case self::INCOMPATIBLE:
-				return __( 'Listed incompatible by WordPress VIP', 'wp-vip-compatibility' );
+				return __( 'Listed incompatible by WordPress VIP', 'preflight-audit' );
 			case self::CAUTION:
-				return __( 'Needs testing on WordPress VIP', 'wp-vip-compatibility' );
+				return __( 'Needs testing on WordPress VIP', 'preflight-audit' );
 			default:
-				return __( 'Provided by the WordPress VIP platform', 'wp-vip-compatibility' );
+				return __( 'Provided by the WordPress VIP platform', 'preflight-audit' );
 		}
 	}
 

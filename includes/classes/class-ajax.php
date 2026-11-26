@@ -12,16 +12,16 @@
  *   plugins WordPress reports; anything else is rejected.
  * - `filename` was interpolated into a path with no traversal guard.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Classes;
+namespace PREFLIGHT_AUDIT\Includes\Classes;
 
-use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Scanner;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
+use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
+use PREFLIGHT_AUDIT\Includes\Scanner\Report;
+use PREFLIGHT_AUDIT\Includes\Scanner\Scanner;
+use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
+use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -50,8 +50,8 @@ class Ajax {
 	 * @return void
 	 */
 	private function setup_hooks() {
-		add_action( 'wp_ajax_wvc_scan_target', array( $this, 'scan_target' ) );
-		add_action( 'wp_ajax_wvc_scan_complete', array( $this, 'scan_complete' ) );
+		add_action( 'wp_ajax_preflight_audit_scan_target', array( $this, 'scan_target' ) );
+		add_action( 'wp_ajax_preflight_audit_scan_complete', array( $this, 'scan_complete' ) );
 	}
 
 	/**
@@ -64,13 +64,13 @@ class Ajax {
 	private function authorize() {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
 			wp_send_json_error(
-				array( 'message' => __( 'You do not have permission to run compatibility scans.', 'wp-vip-compatibility' ) ),
+				array( 'message' => __( 'You do not have permission to run compatibility scans.', 'preflight-audit' ) ),
 				403
 			);
 		}
 
 		// check_ajax_referer() handles unslashing and dies on failure.
-		check_ajax_referer( 'wvc_ajax_nonce', '_ajax_nonce' );
+		check_ajax_referer( 'preflight_audit_ajax_nonce', '_ajax_nonce' );
 	}
 
 	/**
@@ -84,13 +84,13 @@ class Ajax {
 		$key = isset( $_POST['target'] ) ? sanitize_text_field( wp_unslash( $_POST['target'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce and capability are verified by authorize() at the top of this handler.
 
 		if ( '' === $key ) {
-			wp_send_json_error( array( 'message' => __( 'No scan target was supplied.', 'wp-vip-compatibility' ) ), 400 );
+			wp_send_json_error( array( 'message' => __( 'No scan target was supplied.', 'preflight-audit' ) ), 400 );
 		}
 
 		$target = Targets::get( $key );
 
 		if ( null === $target ) {
-			wp_send_json_error( array( 'message' => __( 'Unknown scan target.', 'wp-vip-compatibility' ) ), 404 );
+			wp_send_json_error( array( 'message' => __( 'Unknown scan target.', 'preflight-audit' ) ), 404 );
 		}
 
 		$force  = ! empty( $_POST['force'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce and capability are verified by authorize() at the top of this handler.
@@ -109,7 +109,7 @@ class Ajax {
 				'url'      => UI::get_findings_url( $result['key'] ),
 				'summary'  => sprintf(
 					/* translators: 1: Number of findings. 2: Number of PHP files scanned. */
-					_n( '%1$d finding across %2$d PHP file.', '%1$d findings across %2$d PHP files.', (int) $result['summary']['total'], 'wp-vip-compatibility' ),
+					_n( '%1$d finding across %2$d PHP file.', '%1$d findings across %2$d PHP files.', (int) $result['summary']['total'], 'preflight-audit' ),
 					(int) $result['summary']['total'],
 					(int) $result['files_scanned']
 				),

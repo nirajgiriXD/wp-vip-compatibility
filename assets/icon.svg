@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="preflight-audit-title">
+	<title id="preflight-audit-title">Preflight Audit</title>
+
+	<!-- Tile. Colours are the admin UI's ink and paper tokens. -->
+	<rect width="256" height="256" rx="56" fill="#17191e"/>
+
+	<!-- The audit: a checklist, every item ticked. -->
+	<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M46 160l12 12 24-26" stroke="#34d399" stroke-width="14"/>
+		<path d="M46 210l12 12 24-26" stroke="#34d399" stroke-width="14"/>
+		<path d="M110 160h86" stroke="#fffefb" stroke-width="12" opacity="0.85"/>
+		<path d="M110 210h58" stroke="#fffefb" stroke-width="12" opacity="0.85"/>
+	</g>
+
+	<!-- The flight path the site takes once the checklist is clear. -->
+	<path d="M40 118Q86 124 122 98" fill="none" stroke="#34d399" stroke-width="7" stroke-linecap="round" stroke-dasharray="0.5 15"/>
+
+	<!-- The plane: cleared for take-off. -->
+	<path d="M214 42 110 84l40 16z" fill="#fffefb"/>
+	<path d="M214 42 150 100l16 40z" fill="#b9c6c9"/>
+</svg>

@@ -8,13 +8,13 @@
  * listing, with the tables that need a change sorted to the top and every
  * statement copyable in one go.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Classes;
+namespace PREFLIGHT_AUDIT\Includes\Classes;
 
-use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Database_Audit;
+use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
+use PREFLIGHT_AUDIT\Includes\Scanner\Database_Audit;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,8 +35,8 @@ class Database_Settings {
 
 		if ( empty( $audit['tables'] ) ) {
 			UI::render_empty_state(
-				__( 'No tables found in the database', 'wp-vip-compatibility' ),
-				__( 'There is nothing to check here yet.', 'wp-vip-compatibility' )
+				__( 'No tables found in the database', 'preflight-audit' ),
+				__( 'There is nothing to check here yet.', 'preflight-audit' )
 			);
 
 			return;
@@ -52,8 +52,8 @@ class Database_Settings {
 	 */
 	public function get_page_guidance() {
 		return array(
-			__( '<strong>Run the SQL against a backup first.</strong> Convert engines and collations before the final export rather than after the import. The statements are ordered engine first, then collation, then prefix.', 'wp-vip-compatibility' ),
-			__( '<strong>Prefixes are the exception.</strong> Report a non-standard prefix to WordPress VIP and only rename tables if WordPress VIP confirms it, because the prefix is also embedded in option names and user meta keys that control roles and capabilities.', 'wp-vip-compatibility' ),
+			__( '<strong>Run the SQL against a backup first.</strong> Convert engines and collations before the final export rather than after the import. The statements are ordered engine first, then collation, then prefix.', 'preflight-audit' ),
+			__( '<strong>Prefixes are the exception.</strong> Report a non-standard prefix to WordPress VIP and only rename tables if WordPress VIP confirms it, because the prefix is also embedded in option names and user meta keys that control roles and capabilities.', 'preflight-audit' ),
 		);
 	}
 
@@ -112,14 +112,14 @@ class Database_Settings {
 
 		if ( ! empty( $sql ) ) {
 			$actions = sprintf(
-				'<button type="button" class="wvc-btn wvc-btn--ghost wvc-btn--sm" data-role="copy" data-clipboard="%1$s" title="%2$s">%3$s<span>%4$s</span></button>',
+				'<button type="button" class="pfa-btn pfa-btn--ghost pfa-btn--sm" data-role="copy" data-clipboard="%1$s" title="%2$s">%3$s<span>%4$s</span></button>',
 				esc_attr( implode( "\n", $sql ) ),
-				esc_attr__( 'Engine first, then collation, then prefix. Run them against a backup, and see Help before renaming tables for a prefix.', 'wp-vip-compatibility' ),
-				UI::get_icon( 'copy', array( 'class' => 'wvc-icon wvc-icon--sm' ) ),
+				esc_attr__( 'Engine first, then collation, then prefix. Run them against a backup, and see Help before renaming tables for a prefix.', 'preflight-audit' ),
+				UI::get_icon( 'copy', array( 'class' => 'pfa-icon pfa-icon--sm' ) ),
 				esc_html(
 					sprintf(
 						/* translators: %s: Number of SQL statements. */
-						_n( 'Copy %s SQL statement', 'Copy all %s SQL statements', count( $sql ), 'wp-vip-compatibility' ),
+						_n( 'Copy %s SQL statement', 'Copy all %s SQL statements', count( $sql ), 'preflight-audit' ),
 						number_format_i18n( count( $sql ) )
 					)
 				)
@@ -131,27 +131,27 @@ class Database_Settings {
 
 		UI::render_toolbar(
 			array(
-				'search_label' => __( 'Search database tables by name or owner', 'wp-vip-compatibility' ),
-				'placeholder'  => __( 'Search tables…', 'wp-vip-compatibility' ),
+				'search_label' => __( 'Search database tables by name or owner', 'preflight-audit' ),
+				'placeholder'  => __( 'Search tables…', 'preflight-audit' ),
 				'actions'      => $actions,
 				'groups'       => array(
 					array(
 						'name'    => 'status',
-						'label'   => __( 'Filter by verdict', 'wp-vip-compatibility' ),
+						'label'   => __( 'Filter by verdict', 'preflight-audit' ),
 						'active'  => $this->read_status(),
 						'options' => array(
 							array(
 								'value' => 'all',
-								'label' => __( 'All tables', 'wp-vip-compatibility' ),
+								'label' => __( 'All tables', 'preflight-audit' ),
 							),
 							array(
 								'value' => 'not-compatible',
-								'label' => __( 'Needs changes', 'wp-vip-compatibility' ),
+								'label' => __( 'Needs changes', 'preflight-audit' ),
 								'dot'   => 'bad',
 							),
 							array(
 								'value' => 'compatible',
-								'label' => __( 'Ready', 'wp-vip-compatibility' ),
+								'label' => __( 'Ready', 'preflight-audit' ),
 								'dot'   => 'ok',
 							),
 						),
@@ -160,46 +160,46 @@ class Database_Settings {
 			)
 		);
 
-		echo '<div class="wvc-table-wrap" data-role="table-view">';
-		echo '<table class="wvc-table" aria-label="' . esc_attr__( 'Every table', 'wp-vip-compatibility' ) . '">';
+		echo '<div class="pfa-table-wrap" data-role="table-view">';
+		echo '<table class="pfa-table" aria-label="' . esc_attr__( 'Every table', 'preflight-audit' ) . '">';
 
 		UI::render_table_head(
 			array(
 				array(
-					'label'    => __( 'Table', 'wp-vip-compatibility' ),
-					'class'    => 'wvc-col-name',
+					'label'    => __( 'Table', 'preflight-audit' ),
+					'class'    => 'pfa-col-name',
 					'sortable' => true,
 				),
 				array(
-					'label'    => __( 'Engine', 'wp-vip-compatibility' ),
+					'label'    => __( 'Engine', 'preflight-audit' ),
 					'sortable' => true,
 				),
 				array(
-					'label'    => __( 'Collation', 'wp-vip-compatibility' ),
-					'class'    => 'wvc-col-mono',
+					'label'    => __( 'Collation', 'preflight-audit' ),
+					'class'    => 'pfa-col-mono',
 					'sortable' => true,
 				),
 				array(
-					'label'    => __( 'Rows', 'wp-vip-compatibility' ),
-					'class'    => 'wvc-col-number',
-					'sortable' => true,
-					'sort'     => 'number',
-					'hint'     => __( 'An estimate reported by the storage engine, not an exact count.', 'wp-vip-compatibility' ),
-				),
-				array(
-					'label'    => __( 'Size', 'wp-vip-compatibility' ),
-					'class'    => 'wvc-col-number',
+					'label'    => __( 'Rows', 'preflight-audit' ),
+					'class'    => 'pfa-col-number',
 					'sortable' => true,
 					'sort'     => 'number',
+					'hint'     => __( 'An estimate reported by the storage engine, not an exact count.', 'preflight-audit' ),
 				),
 				array(
-					'label'    => __( 'WordPress VIP verdict', 'wp-vip-compatibility' ),
-					'class'    => 'wvc-col-status',
+					'label'    => __( 'Size', 'preflight-audit' ),
+					'class'    => 'pfa-col-number',
+					'sortable' => true,
+					'sort'     => 'number',
+				),
+				array(
+					'label'    => __( 'WordPress VIP verdict', 'preflight-audit' ),
+					'class'    => 'pfa-col-status',
 					'sortable' => true,
 				),
 				array(
-					'label' => __( 'What to do', 'wp-vip-compatibility' ),
-					'class' => 'wvc-col-notes',
+					'label' => __( 'What to do', 'preflight-audit' ),
+					'class' => 'pfa-col-notes',
 				),
 			)
 		);
@@ -226,39 +226,39 @@ class Database_Settings {
 		$compatible = empty( $table['findings'] );
 		$state      = $compatible ? 'compatible' : 'not-compatible';
 
-		printf( '<tr class="wvc-row" data-status="%s">', esc_attr( $state ) );
+		printf( '<tr class="pfa-row" data-status="%s">', esc_attr( $state ) );
 
 		// The owner used to be a column. It only ever matters alongside a
 		// verdict, so it rides with the name instead.
-		echo '<td class="wvc-col-name" data-label="' . esc_attr__( 'Table', 'wp-vip-compatibility' ) . '">';
-		echo '<span class="wvc-item">';
-		echo '<code class="wvc-item__name">' . esc_html( $table['name'] ) . '</code>';
-		echo '<span class="wvc-item__meta">' . esc_html( $table['source'] ) . '</span>';
+		echo '<td class="pfa-col-name" data-label="' . esc_attr__( 'Table', 'preflight-audit' ) . '">';
+		echo '<span class="pfa-item">';
+		echo '<code class="pfa-item__name">' . esc_html( $table['name'] ) . '</code>';
+		echo '<span class="pfa-item__meta">' . esc_html( $table['source'] ) . '</span>';
 		echo '</span>';
 		echo '</td>';
 
-		echo '<td data-label="' . esc_attr__( 'Engine', 'wp-vip-compatibility' ) . '">' . esc_html( $table['engine'] ) . '</td>';
-		echo '<td class="wvc-col-mono" data-label="' . esc_attr__( 'Collation', 'wp-vip-compatibility' ) . '">' . esc_html( $table['collation'] ) . '</td>';
-		echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Rows', 'wp-vip-compatibility' ) . '">' . esc_html( number_format_i18n( (int) $table['rows'] ) ) . '</td>';
-		echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Size', 'wp-vip-compatibility' ) . '">' . esc_html( size_format( (int) $table['bytes'], 1 ) ) . '</td>';
+		echo '<td data-label="' . esc_attr__( 'Engine', 'preflight-audit' ) . '">' . esc_html( $table['engine'] ) . '</td>';
+		echo '<td class="pfa-col-mono" data-label="' . esc_attr__( 'Collation', 'preflight-audit' ) . '">' . esc_html( $table['collation'] ) . '</td>';
+		echo '<td class="pfa-col-number" data-label="' . esc_attr__( 'Rows', 'preflight-audit' ) . '">' . esc_html( number_format_i18n( (int) $table['rows'] ) ) . '</td>';
+		echo '<td class="pfa-col-number" data-label="' . esc_attr__( 'Size', 'preflight-audit' ) . '">' . esc_html( size_format( (int) $table['bytes'], 1 ) ) . '</td>';
 
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		echo UI::get_status_cell(
 			$state,
-			$compatible ? __( 'Ready', 'wp-vip-compatibility' ) : __( 'Needs changes', 'wp-vip-compatibility' )
+			$compatible ? __( 'Ready', 'preflight-audit' ) : __( 'Needs changes', 'preflight-audit' )
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		echo '<td class="wvc-col-notes" data-label="' . esc_attr__( 'What to do', 'wp-vip-compatibility' ) . '">';
+		echo '<td class="pfa-col-notes" data-label="' . esc_attr__( 'What to do', 'preflight-audit' ) . '">';
 
 		if ( $compatible ) {
-			echo '<span class="wvc-dash" aria-hidden="true">—</span>';
+			echo '<span class="pfa-dash" aria-hidden="true">—</span>';
 		} else {
-			echo '<ul class="wvc-notes">';
+			echo '<ul class="pfa-notes">';
 
 			foreach ( $table['findings'] as $finding ) {
 				echo '<li>';
-				echo '<span class="wvc-note__label">' . esc_html( $finding['label'] ) . '</span> ';
+				echo '<span class="pfa-note__label">' . esc_html( $finding['label'] ) . '</span> ';
 				echo esc_html( $finding['detail'] );
 
 				if ( '' !== $finding['sql'] ) {

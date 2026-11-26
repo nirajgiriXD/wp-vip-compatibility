@@ -16,10 +16,10 @@
  * them into a single "incompatible" flag is what produced the false positives
  * in the original implementation.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Scanner;
+namespace PREFLIGHT_AUDIT\Includes\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -95,43 +95,43 @@ class Taxonomy {
 	public static function get_types() {
 		return array(
 			self::TYPE_INCOMPATIBLE             => array(
-				'label'       => __( 'Incompatible', 'wp-vip-compatibility' ),
-				'description' => __( 'Expected to fail or behave incorrectly on the WordPress VIP Platform.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Incompatible', 'preflight-audit' ),
+				'description' => __( 'Expected to fail or behave incorrectly on the WordPress VIP Platform.', 'preflight-audit' ),
 				'blocking'    => true,
 			),
 			self::TYPE_POTENTIALLY_INCOMPATIBLE => array(
-				'label'       => __( 'Potentially incompatible', 'wp-vip-compatibility' ),
-				'description' => __( 'Depends on runtime conditions static analysis cannot resolve. Needs a human check.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Potentially incompatible', 'preflight-audit' ),
+				'description' => __( 'Depends on runtime conditions static analysis cannot resolve. Needs a human check.', 'preflight-audit' ),
 				'blocking'    => true,
 			),
 			self::TYPE_PERFORMANCE              => array(
-				'label'       => __( 'Performance concern', 'wp-vip-compatibility' ),
-				'description' => __( 'Works on WordPress VIP, but can create unacceptable performance characteristics at scale.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Performance concern', 'preflight-audit' ),
+				'description' => __( 'Works on WordPress VIP, but can create unacceptable performance characteristics at scale.', 'preflight-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_SECURITY                 => array(
-				'label'       => __( 'Security concern', 'wp-vip-compatibility' ),
-				'description' => __( 'Flagged by the WordPress VIP code review process as a security risk.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Security concern', 'preflight-audit' ),
+				'description' => __( 'Flagged by the WordPress VIP code review process as a security risk.', 'preflight-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_REDUNDANT                => array(
-				'label'       => __( 'Redundant on WordPress VIP', 'wp-vip-compatibility' ),
-				'description' => __( 'The platform already provides this capability; the local implementation can conflict with it.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Redundant on WordPress VIP', 'preflight-audit' ),
+				'description' => __( 'The platform already provides this capability; the local implementation can conflict with it.', 'preflight-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_STANDARDS                => array(
-				'label'       => __( 'Coding-standard violation', 'wp-vip-compatibility' ),
-				'description' => __( 'Reported by the WordPress-VIP-Go PHPCS standard used in WordPress VIP code review.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Coding-standard violation', 'preflight-audit' ),
+				'description' => __( 'Reported by the WordPress-VIP-Go PHPCS standard used in WordPress VIP code review.', 'preflight-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_RECOMMENDATION           => array(
-				'label'       => __( 'Recommendation', 'wp-vip-compatibility' ),
-				'description' => __( 'Not a blocker, but worth changing before migrating.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Recommendation', 'preflight-audit' ),
+				'description' => __( 'Not a blocker, but worth changing before migrating.', 'preflight-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_INFORMATIONAL            => array(
-				'label'       => __( 'Informational', 'wp-vip-compatibility' ),
-				'description' => __( 'Context that helps plan the migration. No action necessarily required.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Informational', 'preflight-audit' ),
+				'description' => __( 'Context that helps plan the migration. No action necessarily required.', 'preflight-audit' ),
 				'blocking'    => false,
 			),
 		);
@@ -145,23 +145,23 @@ class Taxonomy {
 	public static function get_severities() {
 		return array(
 			self::SEVERITY_CRITICAL => array(
-				'label'  => __( 'Critical', 'wp-vip-compatibility' ),
+				'label'  => __( 'Critical', 'preflight-audit' ),
 				'weight' => 5,
 			),
 			self::SEVERITY_HIGH     => array(
-				'label'  => __( 'High', 'wp-vip-compatibility' ),
+				'label'  => __( 'High', 'preflight-audit' ),
 				'weight' => 4,
 			),
 			self::SEVERITY_MEDIUM   => array(
-				'label'  => __( 'Medium', 'wp-vip-compatibility' ),
+				'label'  => __( 'Medium', 'preflight-audit' ),
 				'weight' => 3,
 			),
 			self::SEVERITY_LOW      => array(
-				'label'  => __( 'Low', 'wp-vip-compatibility' ),
+				'label'  => __( 'Low', 'preflight-audit' ),
 				'weight' => 2,
 			),
 			self::SEVERITY_INFO     => array(
-				'label'  => __( 'Info', 'wp-vip-compatibility' ),
+				'label'  => __( 'Info', 'preflight-audit' ),
 				'weight' => 1,
 			),
 		);
@@ -175,23 +175,23 @@ class Taxonomy {
 	public static function get_tiers() {
 		return array(
 			self::TIER_BLOCKING  => array(
-				'label'      => __( 'Must fix', 'wp-vip-compatibility' ),
-				'summary'    => __( 'Expected to fail on the WordPress VIP Platform. The migration waits on these.', 'wp-vip-compatibility' ),
+				'label'      => __( 'Must fix', 'preflight-audit' ),
+				'summary'    => __( 'Expected to fail on the WordPress VIP Platform. The migration waits on these.', 'preflight-audit' ),
 				'severities' => array( self::SEVERITY_CRITICAL ),
 			),
 			self::TIER_IMPORTANT => array(
-				'label'      => __( 'Should fix', 'wp-vip-compatibility' ),
-				'summary'    => __( 'Will not stop the migration, but should be dealt with before it.', 'wp-vip-compatibility' ),
+				'label'      => __( 'Should fix', 'preflight-audit' ),
+				'summary'    => __( 'Will not stop the migration, but should be dealt with before it.', 'preflight-audit' ),
 				'severities' => array( self::SEVERITY_HIGH ),
 			),
 			self::TIER_WARNING   => array(
-				'label'      => __( 'Worth checking', 'wp-vip-compatibility' ),
-				'summary'    => __( 'A possible concern. Read it, decide, and move on.', 'wp-vip-compatibility' ),
+				'label'      => __( 'Worth checking', 'preflight-audit' ),
+				'summary'    => __( 'A possible concern. Read it, decide, and move on.', 'preflight-audit' ),
 				'severities' => array( self::SEVERITY_MEDIUM ),
 			),
 			self::TIER_INFO      => array(
-				'label'      => __( 'FYI', 'wp-vip-compatibility' ),
-				'summary'    => __( 'Context that helps plan the migration. Nothing to do.', 'wp-vip-compatibility' ),
+				'label'      => __( 'FYI', 'preflight-audit' ),
+				'summary'    => __( 'Context that helps plan the migration. Nothing to do.', 'preflight-audit' ),
 				'severities' => array( self::SEVERITY_LOW, self::SEVERITY_INFO ),
 			),
 		);
@@ -233,20 +233,20 @@ class Taxonomy {
 	public static function get_confidences() {
 		return array(
 			self::CONFIDENCE_DEFINITIVE => array(
-				'label'       => __( 'Definitive', 'wp-vip-compatibility' ),
-				'description' => __( 'The pattern itself is the problem; no further context can make it acceptable.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Definitive', 'preflight-audit' ),
+				'description' => __( 'The pattern itself is the problem; no further context can make it acceptable.', 'preflight-audit' ),
 			),
 			self::CONFIDENCE_HIGH       => array(
-				'label'       => __( 'High', 'wp-vip-compatibility' ),
-				'description' => __( 'Surrounding code was analysed and supports the finding.', 'wp-vip-compatibility' ),
+				'label'       => __( 'High', 'preflight-audit' ),
+				'description' => __( 'Surrounding code was analysed and supports the finding.', 'preflight-audit' ),
 			),
 			self::CONFIDENCE_MEDIUM     => array(
-				'label'       => __( 'Medium', 'wp-vip-compatibility' ),
-				'description' => __( 'Heuristic match. Review the code before acting on it.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Medium', 'preflight-audit' ),
+				'description' => __( 'Heuristic match. Review the code before acting on it.', 'preflight-audit' ),
 			),
 			self::CONFIDENCE_LOW        => array(
-				'label'       => __( 'Low', 'wp-vip-compatibility' ),
-				'description' => __( 'Weak signal, reported for completeness. Expect false positives.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Low', 'preflight-audit' ),
+				'description' => __( 'Weak signal, reported for completeness. Expect false positives.', 'preflight-audit' ),
 			),
 		);
 	}
@@ -259,24 +259,24 @@ class Taxonomy {
 	public static function get_fixabilities() {
 		return array(
 			self::FIX_AUTOMATIC     => array(
-				'label'       => __( 'Automatically fixable', 'wp-vip-compatibility' ),
-				'short'       => __( 'Quick fix', 'wp-vip-compatibility' ),
-				'description' => __( 'A mechanical substitution resolves it.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Automatically fixable', 'preflight-audit' ),
+				'short'       => __( 'Quick fix', 'preflight-audit' ),
+				'description' => __( 'A mechanical substitution resolves it.', 'preflight-audit' ),
 			),
 			self::FIX_MANUAL        => array(
-				'label'       => __( 'Manually fixable', 'wp-vip-compatibility' ),
-				'short'       => __( 'Code change', 'wp-vip-compatibility' ),
-				'description' => __( 'A developer must rewrite the affected code.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Manually fixable', 'preflight-audit' ),
+				'short'       => __( 'Code change', 'preflight-audit' ),
+				'description' => __( 'A developer must rewrite the affected code.', 'preflight-audit' ),
 			),
 			self::FIX_CONFIGURATION => array(
-				'label'       => __( 'Configurable', 'wp-vip-compatibility' ),
-				'short'       => __( 'Config change', 'wp-vip-compatibility' ),
-				'description' => __( 'Resolved through configuration, a constant, or a filter rather than a code change.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Configurable', 'preflight-audit' ),
+				'short'       => __( 'Config change', 'preflight-audit' ),
+				'description' => __( 'Resolved through configuration, a constant, or a filter rather than a code change.', 'preflight-audit' ),
 			),
 			self::FIX_ARCHITECTURAL => array(
-				'label'       => __( 'Requires architectural change', 'wp-vip-compatibility' ),
-				'short'       => __( 'Redesign', 'wp-vip-compatibility' ),
-				'description' => __( 'The feature has to be redesigned around the platform.', 'wp-vip-compatibility' ),
+				'label'       => __( 'Requires architectural change', 'preflight-audit' ),
+				'short'       => __( 'Redesign', 'preflight-audit' ),
+				'description' => __( 'The feature has to be redesigned around the platform.', 'preflight-audit' ),
 			),
 		);
 	}
@@ -304,16 +304,16 @@ class Taxonomy {
 	 */
 	public static function get_categories() {
 		return array(
-			'filesystem'  => __( 'Filesystem and media', 'wp-vip-compatibility' ),
-			'database'    => __( 'Database', 'wp-vip-compatibility' ),
-			'caching'     => __( 'Caching', 'wp-vip-compatibility' ),
-			'performance' => __( 'Performance', 'wp-vip-compatibility' ),
-			'security'    => __( 'Security', 'wp-vip-compatibility' ),
-			'cron'        => __( 'Cron and scheduling', 'wp-vip-compatibility' ),
-			'http'        => __( 'External requests', 'wp-vip-compatibility' ),
-			'environment' => __( 'Environment and configuration', 'wp-vip-compatibility' ),
-			'platform'    => __( 'Platform overlap', 'wp-vip-compatibility' ),
-			'standards'   => __( 'Coding standards', 'wp-vip-compatibility' ),
+			'filesystem'  => __( 'Filesystem and media', 'preflight-audit' ),
+			'database'    => __( 'Database', 'preflight-audit' ),
+			'caching'     => __( 'Caching', 'preflight-audit' ),
+			'performance' => __( 'Performance', 'preflight-audit' ),
+			'security'    => __( 'Security', 'preflight-audit' ),
+			'cron'        => __( 'Cron and scheduling', 'preflight-audit' ),
+			'http'        => __( 'External requests', 'preflight-audit' ),
+			'environment' => __( 'Environment and configuration', 'preflight-audit' ),
+			'platform'    => __( 'Platform overlap', 'preflight-audit' ),
+			'standards'   => __( 'Coding standards', 'preflight-audit' ),
 		);
 	}
 

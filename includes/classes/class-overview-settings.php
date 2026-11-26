@@ -8,20 +8,20 @@
  * into the screen that owns the detail. What the report is and how to read it
  * lives in the Help panel rather than on the page.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Classes;
+namespace PREFLIGHT_AUDIT\Includes\Classes;
 
-use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Database_Audit;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Directory_Audit;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Report;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Results_Store;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Rules;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Scanner;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Targets;
-use WP_VIP_COMPATIBILITY\Includes\Scanner\Taxonomy;
+use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
+use PREFLIGHT_AUDIT\Includes\Scanner\Database_Audit;
+use PREFLIGHT_AUDIT\Includes\Scanner\Directory_Audit;
+use PREFLIGHT_AUDIT\Includes\Scanner\Report;
+use PREFLIGHT_AUDIT\Includes\Scanner\Results_Store;
+use PREFLIGHT_AUDIT\Includes\Scanner\Rules;
+use PREFLIGHT_AUDIT\Includes\Scanner\Scanner;
+use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
+use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -51,7 +51,7 @@ class Overview_Settings {
 		$aggregate = Report::aggregate();
 		$scanned   = $aggregate['targets'] > 0;
 
-		echo '<div class="wvc-overview">';
+		echo '<div class="pfa-overview">';
 
 		$this->render_verdict( $aggregate, $scanned );
 
@@ -63,7 +63,7 @@ class Overview_Settings {
 		}
 
 		// Reference rather than work, so the two sit side by side below it.
-		echo '<div class="wvc-overview__pair">';
+		echo '<div class="pfa-overview__pair">';
 		$this->render_environment();
 
 		if ( $scanned ) {
@@ -81,13 +81,13 @@ class Overview_Settings {
 	 */
 	public function get_page_guidance() {
 		return array(
-			__( '<strong>Readiness</strong> comes from the verdict on every scanned plugin, theme and must-use plugin: a ready item counts in full, one that needs review counts for a little over half, and a blocked one counts for nothing.', 'wp-vip-compatibility' ),
-			__( '<strong>Where the work is</strong> has one square for every plugin, theme, table and path on the site, worst first. Hover a square to see which one it is.', 'wp-vip-compatibility' ),
-			__( '<strong>Environment</strong> is what this site runs on today, measured against what it will run on at WordPress VIP. None of it is visible to a code scan.', 'wp-vip-compatibility' ),
-			__( '<strong>A starting point, not a certificate.</strong> The scan reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Where it cannot resolve a value, a finding records its confidence rather than asserting an incompatibility it cannot prove.', 'wp-vip-compatibility' ),
+			__( '<strong>Readiness</strong> comes from the verdict on every scanned plugin, theme and must-use plugin: a ready item counts in full, one that needs review counts for a little over half, and a blocked one counts for nothing.', 'preflight-audit' ),
+			__( '<strong>Where the work is</strong> has one square for every plugin, theme, table and path on the site, worst first. Hover a square to see which one it is.', 'preflight-audit' ),
+			__( '<strong>Environment</strong> is what this site runs on today, measured against what it will run on at WordPress VIP. None of it is visible to a code scan.', 'preflight-audit' ),
+			__( '<strong>A starting point, not a certificate.</strong> The scan reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Where it cannot resolve a value, a finding records its confidence rather than asserting an incompatibility it cannot prove.', 'preflight-audit' ),
 			sprintf(
 				/* translators: 1: Rule set version. 2: Number of rules. */
-				__( '<strong>What gets checked.</strong> The filesystem and media, the database, caching, cron and outbound requests, security and the environment, and plugins that overlap with what the platform provides. Rule set %1$s has %2$d rules, each mapped to the WordPress VIP requirement it comes from.', 'wp-vip-compatibility' ),
+				__( '<strong>What gets checked.</strong> The filesystem and media, the database, caching, cron and outbound requests, security and the environment, and plugins that overlap with what the platform provides. Rule set %1$s has %2$d rules, each mapped to the WordPress VIP requirement it comes from.', 'preflight-audit' ),
 				Rules::VERSION,
 				count( Rules::all() )
 			),
@@ -102,24 +102,24 @@ class Overview_Settings {
 	private function render_getting_started() {
 		UI::render_card_open(
 			array(
-				'title' => __( 'How this works', 'wp-vip-compatibility' ),
-				'aside' => '<span class="wvc-card__note">' . esc_html__( 'Three steps, repeated until the list is empty.', 'wp-vip-compatibility' ) . '</span>',
+				'title' => __( 'How this works', 'preflight-audit' ),
+				'aside' => '<span class="pfa-card__note">' . esc_html__( 'Three steps, repeated until the list is empty.', 'preflight-audit' ) . '</span>',
 			)
 		);
 
 		UI::render_steps(
 			array(
 				array(
-					'title' => __( 'Scan', 'wp-vip-compatibility' ),
-					'body'  => __( 'Every plugin, theme and must-use plugin is read against the WordPress VIP Platform requirements, along with the database schema and the wp-content layout. The code is read, never run, so this is safe on a live site.', 'wp-vip-compatibility' ),
+					'title' => __( 'Scan', 'preflight-audit' ),
+					'body'  => __( 'Every plugin, theme and must-use plugin is read against the WordPress VIP Platform requirements, along with the database schema and the wp-content layout. The code is read, never run, so this is safe on a live site.', 'preflight-audit' ),
 				),
 				array(
-					'title' => __( 'Work through the findings', 'wp-vip-compatibility' ),
-					'body'  => __( 'Findings are ranked, must-fix first. Each one names the file and line, says why it matters on WordPress VIP specifically, and gives you the change to make.', 'wp-vip-compatibility' ),
+					'title' => __( 'Work through the findings', 'preflight-audit' ),
+					'body'  => __( 'Findings are ranked, must-fix first. Each one names the file and line, says why it matters on WordPress VIP specifically, and gives you the change to make.', 'preflight-audit' ),
 				),
 				array(
-					'title' => __( 'Rescan', 'wp-vip-compatibility' ),
-					'body'  => __( 'Run it again to see the list shrink and the readiness score climb. Export it as JSON, CSV or Markdown whenever the work needs to move into a ticket or a pull request.', 'wp-vip-compatibility' ),
+					'title' => __( 'Rescan', 'preflight-audit' ),
+					'body'  => __( 'Run it again to see the list shrink and the readiness score climb. Export it as JSON, CSV or Markdown whenever the work needs to move into a ticket or a pull request.', 'preflight-audit' ),
 				),
 			)
 		);
@@ -197,8 +197,8 @@ class Overview_Settings {
 	 */
 	private function resolve_verdict( array $aggregate, $scanned ) {
 		$rescan = array(
-			'label'   => __( 'Rescan everything', 'wp-vip-compatibility' ),
-			'submit'  => 'wvc_rescan',
+			'label'   => __( 'Rescan everything', 'preflight-audit' ),
+			'submit'  => 'preflight_audit_rescan',
 			'nonce'   => Findings_Settings::RESCAN_ACTION,
 			'icon'    => 'refresh',
 			'primary' => false,
@@ -208,13 +208,13 @@ class Overview_Settings {
 		if ( ! $scanned ) {
 			return array(
 				'tier'     => 'ready',
-				'headline' => __( 'Nothing has been scanned yet', 'wp-vip-compatibility' ),
-				'summary'  => __( 'Run a scan to check every plugin, theme and must-use plugin against the WordPress VIP Platform requirements. It reads code without running it, so it is safe to run on a live site.', 'wp-vip-compatibility' ),
+				'headline' => __( 'Nothing has been scanned yet', 'preflight-audit' ),
+				'summary'  => __( 'Run a scan to check every plugin, theme and must-use plugin against the WordPress VIP Platform requirements. It reads code without running it, so it is safe to run on a live site.', 'preflight-audit' ),
 				'actions'  => array(
 					array_merge(
 						$rescan,
 						array(
-							'label'   => __( 'Run the first scan', 'wp-vip-compatibility' ),
+							'label'   => __( 'Run the first scan', 'preflight-audit' ),
 							'primary' => true,
 							'confirm' => false,
 						)
@@ -230,21 +230,21 @@ class Overview_Settings {
 		if ( $blocked > 0 ) {
 			return array(
 				'tier'     => Taxonomy::TIER_BLOCKING,
-				'headline' => __( 'Not ready to migrate', 'wp-vip-compatibility' ),
+				'headline' => __( 'Not ready to migrate', 'preflight-audit' ),
 				'summary'  => sprintf(
 					/* translators: 1: Number of blocked targets. 2: Total number of targets. */
 					_n(
 						'%1$d of %2$d scanned items is expected to fail on the WordPress VIP Platform and has to be resolved first.',
 						'%1$d of %2$d scanned items are expected to fail on the WordPress VIP Platform and have to be resolved first.',
 						$blocked,
-						'wp-vip-compatibility'
+						'preflight-audit'
 					),
 					$blocked,
 					$total
 				),
 				'actions'  => array(
 					array(
-						'label'   => __( 'Start with the blockers', 'wp-vip-compatibility' ),
+						'label'   => __( 'Start with the blockers', 'preflight-audit' ),
 						'url'     => UI::get_findings_url( '', Taxonomy::TIER_BLOCKING ),
 						'icon'    => 'arrow-right',
 						'primary' => true,
@@ -257,20 +257,20 @@ class Overview_Settings {
 		if ( $review > 0 ) {
 			return array(
 				'tier'     => Taxonomy::TIER_WARNING,
-				'headline' => __( 'Nothing will fail outright', 'wp-vip-compatibility' ),
+				'headline' => __( 'Nothing will fail outright', 'preflight-audit' ),
 				'summary'  => sprintf(
 					/* translators: %d: Number of targets needing review. */
 					_n(
 						'%d scanned item needs a decision before you migrate, but none is expected to break on the platform.',
 						'%d scanned items need a decision before you migrate, but none is expected to break on the platform.',
 						$review,
-						'wp-vip-compatibility'
+						'preflight-audit'
 					),
 					$review
 				),
 				'actions'  => array(
 					array(
-						'label'   => __( 'Review the findings', 'wp-vip-compatibility' ),
+						'label'   => __( 'Review the findings', 'preflight-audit' ),
 						'url'     => UI::get_findings_url(),
 						'icon'    => 'arrow-right',
 						'primary' => true,
@@ -282,11 +282,11 @@ class Overview_Settings {
 
 		return array(
 			'tier'     => 'ready',
-			'headline' => __( 'Ready to migrate', 'wp-vip-compatibility' ),
-			'summary'  => __( 'Every scanned plugin, theme and must-use plugin passed. Check the database and wp-content audits before you export.', 'wp-vip-compatibility' ),
+			'headline' => __( 'Ready to migrate', 'preflight-audit' ),
+			'summary'  => __( 'Every scanned plugin, theme and must-use plugin passed. Check the database and wp-content audits before you export.', 'preflight-audit' ),
 			'actions'  => array(
 				array(
-					'label'   => __( 'Check the database', 'wp-vip-compatibility' ),
+					'label'   => __( 'Check the database', 'preflight-audit' ),
 					'url'     => UI::get_screen_url( 'database' ),
 					'icon'    => 'database',
 					'primary' => true,
@@ -310,7 +310,7 @@ class Overview_Settings {
 
 		return sprintf(
 			/* translators: 1: What was scanned, e.g. "3 plugins, 1 theme and 1 must-use plugin". 2: Number of PHP files. */
-			__( '%1$s scanned across %2$s PHP files', 'wp-vip-compatibility' ),
+			__( '%1$s scanned across %2$s PHP files', 'preflight-audit' ),
 			$this->scanned_kinds( $aggregate ),
 			number_format_i18n( (int) $aggregate['totals']['files'] )
 		);
@@ -337,17 +337,17 @@ class Overview_Settings {
 			switch ( $kind ) {
 				case 'theme':
 					/* translators: %s: Number of themes. */
-					$items[] = sprintf( _n( '%s theme', '%s themes', $count, 'wp-vip-compatibility' ), $number );
+					$items[] = sprintf( _n( '%s theme', '%s themes', $count, 'preflight-audit' ), $number );
 					break;
 
 				case 'mu-plugin':
 					/* translators: %s: Number of must-use plugins. */
-					$items[] = sprintf( _n( '%s must-use plugin', '%s must-use plugins', $count, 'wp-vip-compatibility' ), $number );
+					$items[] = sprintf( _n( '%s must-use plugin', '%s must-use plugins', $count, 'preflight-audit' ), $number );
 					break;
 
 				default:
 					/* translators: %s: Number of plugins. */
-					$items[] = sprintf( _n( '%s plugin', '%s plugins', $count, 'wp-vip-compatibility' ), $number );
+					$items[] = sprintf( _n( '%s plugin', '%s plugins', $count, 'preflight-audit' ), $number );
 			}
 		}
 
@@ -395,7 +395,7 @@ class Overview_Settings {
 						'where' => $fix['target_label'] . ' · ' . ( ( 1 === $count )
 							? $fix['occurrences'][0]['file'] . ':' . $fix['occurrences'][0]['line']
 							/* translators: %d: Number of places in the code. */
-							: sprintf( _n( '%d place', '%d places', $count, 'wp-vip-compatibility' ), $count ) ),
+							: sprintf( _n( '%d place', '%d places', $count, 'preflight-audit' ), $count ) ),
 						'url'   => UI::get_findings_url( $fix['target_key'], $tier ),
 					);
 				}
@@ -411,34 +411,34 @@ class Overview_Settings {
 
 		UI::render_card_open(
 			array(
-				'title' => __( 'Start here', 'wp-vip-compatibility' ),
+				'title' => __( 'Start here', 'preflight-audit' ),
 				'aside' => UI::get_arrow_link(
 					UI::get_findings_url(),
 					$total > self::NEXT_LIMIT
 						? sprintf(
 							/* translators: %s: Number of further items. */
-							_n( '%s more in Findings', '%s more in Findings', $total - self::NEXT_LIMIT, 'wp-vip-compatibility' ),
+							_n( '%s more in Findings', '%s more in Findings', $total - self::NEXT_LIMIT, 'preflight-audit' ),
 							number_format_i18n( $total - self::NEXT_LIMIT )
 						)
-						: __( 'Open Findings', 'wp-vip-compatibility' )
+						: __( 'Open Findings', 'preflight-audit' )
 				),
 				'flush' => true,
 			)
 		);
 		?>
-		<ol class="wvc-next">
+		<ol class="pfa-next">
 			<?php foreach ( $queue as $position => $item ) : ?>
-				<li class="wvc-next__item wvc-next__item--<?php echo esc_attr( $item['tier'] ); ?>">
-					<a class="wvc-next__link" href="<?php echo esc_url( $item['url'] ); ?>">
-						<span class="wvc-next__rank" aria-hidden="true"><?php echo esc_html( sprintf( '%02d', $position + 1 ) ); ?></span>
-						<span class="wvc-next__tier"><?php echo UI::get_tier_pill( $item['tier'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?></span>
-						<span class="wvc-next__text">
-							<span class="wvc-next__title"><?php echo esc_html( $item['title'] ); ?></span>
+				<li class="pfa-next__item pfa-next__item--<?php echo esc_attr( $item['tier'] ); ?>">
+					<a class="pfa-next__link" href="<?php echo esc_url( $item['url'] ); ?>">
+						<span class="pfa-next__rank" aria-hidden="true"><?php echo esc_html( sprintf( '%02d', $position + 1 ) ); ?></span>
+						<span class="pfa-next__tier"><?php echo UI::get_tier_pill( $item['tier'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?></span>
+						<span class="pfa-next__text">
+							<span class="pfa-next__title"><?php echo esc_html( $item['title'] ); ?></span>
 							<?php if ( '' !== $item['where'] ) : ?>
-								<span class="wvc-next__where"><?php echo esc_html( $item['where'] ); ?></span>
+								<span class="pfa-next__where"><?php echo esc_html( $item['where'] ); ?></span>
 							<?php endif; ?>
 						</span>
-						<?php echo UI::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--sm wvc-next__arrow' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<?php echo UI::get_icon( 'arrow-right', array( 'class' => 'pfa-icon pfa-icon--sm pfa-next__arrow' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 					</a>
 				</li>
 			<?php endforeach; ?>
@@ -467,7 +467,7 @@ class Overview_Settings {
 
 		UI::render_card_open(
 			array(
-				'title' => __( 'Where the work is', 'wp-vip-compatibility' ),
+				'title' => __( 'Where the work is', 'preflight-audit' ),
 				'aside' => UI::get_manifest_legend(),
 				'flush' => true,
 			)
@@ -554,12 +554,12 @@ class Overview_Settings {
 	private function render_environment() {
 		UI::render_card_open(
 			array(
-				'title' => __( 'Environment', 'wp-vip-compatibility' ),
+				'title' => __( 'Environment', 'preflight-audit' ),
 				'flush' => true,
 			)
 		);
 
-		echo UI::get_defs( Report::environment(), 'wvc-defs--spec' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_defs( Report::environment(), 'pfa-defs--spec' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
 		UI::render_card_close();
 	}
@@ -589,13 +589,13 @@ class Overview_Settings {
 
 		UI::render_card_open(
 			array(
-				'title' => __( 'Recent scans', 'wp-vip-compatibility' ),
+				'title' => __( 'Recent scans', 'preflight-audit' ),
 				'flush' => true,
 			)
 		);
 		?>
-		<div class="wvc-trend">
-			<div class="wvc-trend__chart">
+		<div class="pfa-trend">
+			<div class="pfa-trend__chart">
 				<?php
 				// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 				echo UI::get_sparkline(
@@ -603,7 +603,7 @@ class Overview_Settings {
 					100,
 					sprintf(
 						/* translators: 1: Number of scans. 2: First score. 3: Latest score. */
-						__( 'Readiness over the last %1$d scans, from %2$d%% to %3$d%%.', 'wp-vip-compatibility' ),
+						__( 'Readiness over the last %1$d scans, from %2$d%% to %3$d%%.', 'preflight-audit' ),
 						count( $scores ),
 						(int) $first['score'],
 						(int) $last['score']
@@ -612,16 +612,16 @@ class Overview_Settings {
 				// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 				?>
 			</div>
-			<p class="wvc-trend__text">
-				<span class="wvc-trend__value"><?php echo esc_html( sprintf( '%d%%', (int) $last['score'] ) ); ?></span>
-				<span class="wvc-trend__delta wvc-trend__delta--<?php echo esc_attr( $shift > 0 ? 'up' : ( $shift < 0 ? 'down' : 'flat' ) ); ?>">
+			<p class="pfa-trend__text">
+				<span class="pfa-trend__value"><?php echo esc_html( sprintf( '%d%%', (int) $last['score'] ) ); ?></span>
+				<span class="pfa-trend__delta pfa-trend__delta--<?php echo esc_attr( $shift > 0 ? 'up' : ( $shift < 0 ? 'down' : 'flat' ) ); ?>">
 					<?php
 					if ( 0 === $shift ) {
-						esc_html_e( 'No change in readiness', 'wp-vip-compatibility' );
+						esc_html_e( 'No change in readiness', 'preflight-audit' );
 					} else {
 						printf(
 							/* translators: 1: Signed change in points, e.g. "+12". 2: Number of scans. */
-							esc_html__( '%1$s points over %2$d scans', 'wp-vip-compatibility' ),
+							esc_html__( '%1$s points over %2$d scans', 'preflight-audit' ),
 							esc_html( sprintf( '%+d', $shift ) ),
 							count( $recent )
 						);
@@ -633,26 +633,26 @@ class Overview_Settings {
 		<?php
 		$rows = array_reverse( array_slice( $history, -5 ) );
 
-		echo '<div class="wvc-table-wrap">';
-		echo '<table class="wvc-table wvc-table--compact">';
+		echo '<div class="pfa-table-wrap">';
+		echo '<table class="pfa-table pfa-table--compact">';
 
 		UI::render_table_head(
 			array(
 				array(
-					'label' => __( 'When', 'wp-vip-compatibility' ),
-					'class' => 'wvc-col-name',
+					'label' => __( 'When', 'preflight-audit' ),
+					'class' => 'pfa-col-name',
 				),
 				array(
-					'label' => __( 'Readiness', 'wp-vip-compatibility' ),
-					'class' => 'wvc-col-number',
+					'label' => __( 'Readiness', 'preflight-audit' ),
+					'class' => 'pfa-col-number',
 				),
 				array(
-					'label' => __( 'Findings', 'wp-vip-compatibility' ),
-					'class' => 'wvc-col-number',
+					'label' => __( 'Findings', 'preflight-audit' ),
+					'class' => 'pfa-col-number',
 				),
 				array(
-					'label' => __( 'Change', 'wp-vip-compatibility' ),
-					'class' => 'wvc-col-number',
+					'label' => __( 'Change', 'preflight-audit' ),
+					'class' => 'pfa-col-number',
 				),
 			)
 		);
@@ -663,34 +663,34 @@ class Overview_Settings {
 			$previous = $rows[ $position + 1 ] ?? null;
 			$delta    = ( null === $previous ) ? null : (int) $snapshot['total'] - (int) $previous['total'];
 
-			echo '<tr class="wvc-row">';
+			echo '<tr class="pfa-row">';
 
-			echo '<td class="wvc-col-name" data-label="' . esc_attr__( 'When', 'wp-vip-compatibility' ) . '">'
+			echo '<td class="pfa-col-name" data-label="' . esc_attr__( 'When', 'preflight-audit' ) . '">'
 				. esc_html(
 					sprintf(
 						/* translators: %s: Human-readable time difference. */
-						__( '%s ago', 'wp-vip-compatibility' ),
+						__( '%s ago', 'preflight-audit' ),
 						human_time_diff( (int) $snapshot['recorded_at'] )
 					)
 				)
 				. '</td>';
 
-			echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Readiness', 'wp-vip-compatibility' ) . '">'
+			echo '<td class="pfa-col-number" data-label="' . esc_attr__( 'Readiness', 'preflight-audit' ) . '">'
 				. esc_html( sprintf( '%d%%', (int) $snapshot['score'] ) )
 				. '</td>';
 
-			echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Findings', 'wp-vip-compatibility' ) . '">'
+			echo '<td class="pfa-col-number" data-label="' . esc_attr__( 'Findings', 'preflight-audit' ) . '">'
 				. esc_html( number_format_i18n( (int) $snapshot['total'] ) )
 				. '</td>';
 
-			echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Change', 'wp-vip-compatibility' ) . '">';
+			echo '<td class="pfa-col-number" data-label="' . esc_attr__( 'Change', 'preflight-audit' ) . '">';
 
 			if ( null === $delta || 0 === $delta ) {
-				echo '<span class="wvc-dash" aria-hidden="true">—</span>';
+				echo '<span class="pfa-dash" aria-hidden="true">—</span>';
 			} else {
 				// Fewer findings is the good direction, so a negative delta is "down" and green.
 				printf(
-					'<span class="wvc-delta wvc-delta--%1$s">%2$s</span>',
+					'<span class="pfa-delta pfa-delta--%1$s">%2$s</span>',
 					esc_attr( $delta < 0 ? 'down' : 'up' ),
 					esc_html( sprintf( '%+d', $delta ) )
 				);

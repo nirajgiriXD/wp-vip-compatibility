@@ -1,12 +1,12 @@
 <?php
 /**
- * Plugin Name:       WordPress VIP Compatibility
+ * Plugin Name:       Preflight Audit
  * Description:       Analyse a WordPress site against the WordPress VIP Platform requirements, with an actionable fix for every issue found.
- * Plugin URI:        https://github.com/nirajgiriXD/wp-vip-compatibility
+ * Plugin URI:        https://github.com/nirajgiriXD/preflight-audit
  * Version:           2.0.0
  * Author:            Niraj Giri
  * Author URI:        https://github.com/nirajgiriXD/
- * Text Domain:       wp-vip-compatibility
+ * Text Domain:       preflight-audit
  * Domain Path:       /languages/
  * License:           GPLv3 or later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -14,7 +14,7 @@
  * Tested up to:      6.7.0
  * Requires PHP:      7.4
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -22,33 +22,33 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Define plugin constants.
  */
-if ( ! defined( 'WP_VIP_COMPATIBILITY_FILE' ) ) {
-	define( 'WP_VIP_COMPATIBILITY_FILE', __FILE__ );
+if ( ! defined( 'PREFLIGHT_AUDIT_FILE' ) ) {
+	define( 'PREFLIGHT_AUDIT_FILE', __FILE__ );
 }
 
-if ( ! defined( 'WP_VIP_COMPATIBILITY_DIR' ) ) {
-	define( 'WP_VIP_COMPATIBILITY_DIR', __DIR__ );
+if ( ! defined( 'PREFLIGHT_AUDIT_DIR' ) ) {
+	define( 'PREFLIGHT_AUDIT_DIR', __DIR__ );
 }
 
-if ( ! defined( 'WP_VIP_COMPATIBILITY_URL' ) ) {
-	define( 'WP_VIP_COMPATIBILITY_URL', plugin_dir_url( __FILE__ ) );
+if ( ! defined( 'PREFLIGHT_AUDIT_URL' ) ) {
+	define( 'PREFLIGHT_AUDIT_URL', plugin_dir_url( __FILE__ ) );
 }
 
-if ( ! defined( 'WP_VIP_COMPATIBILITY_VERSION' ) ) {
-	define( 'WP_VIP_COMPATIBILITY_VERSION', '2.0.0' );
+if ( ! defined( 'PREFLIGHT_AUDIT_VERSION' ) ) {
+	define( 'PREFLIGHT_AUDIT_VERSION', '2.0.0' );
 }
 
 // Require necessary files.
-require_once WP_VIP_COMPATIBILITY_DIR . '/includes/helpers/class-autoloader.php';
-require_once WP_VIP_COMPATIBILITY_DIR . '/functions.php';
+require_once PREFLIGHT_AUDIT_DIR . '/includes/helpers/class-autoloader.php';
+require_once PREFLIGHT_AUDIT_DIR . '/functions.php';
 
-use WP_VIP_COMPATIBILITY\Includes\Traits\Singleton;
-use WP_VIP_COMPATIBILITY\Includes\Classes\Plugin;
+use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
+use PREFLIGHT_AUDIT\Includes\Classes\Plugin;
 
 /**
- * Main class for WordPress VIP Compatibility.
+ * Main class for Preflight Audit.
  */
-class WP_VIP_Compatibility {
+class Preflight_Audit {
 
 	use Singleton;
 
@@ -102,4 +102,4 @@ class WP_VIP_Compatibility {
 }
 
 // Initialize the main plugin class.
-WP_VIP_Compatibility::get_instance();
+Preflight_Audit::get_instance();

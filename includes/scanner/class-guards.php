@@ -15,10 +15,10 @@
  * - an array of overrides  (`confidence`, `severity`, `note`) to report it with
  *                          the accuracy the evidence actually supports.
  *
- * @package wp-vip-compatibility
+ * @package preflight-audit
  */
 
-namespace WP_VIP_COMPATIBILITY\Includes\Scanner;
+namespace PREFLIGHT_AUDIT\Includes\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -172,7 +172,7 @@ class Guards {
 		if ( self::mentions( $target, self::$writable_markers ) || false !== stripos( $target, 'uploads' ) ) {
 			return array(
 				'confidence' => Taxonomy::CONFIDENCE_HIGH,
-				'note'       => __( 'The traversal target resolves to the uploads directory, which has no real directory structure on WordPress VIP.', 'wp-vip-compatibility' ),
+				'note'       => __( 'The traversal target resolves to the uploads directory, which has no real directory structure on WordPress VIP.', 'preflight-audit' ),
 			);
 		}
 
@@ -184,7 +184,7 @@ class Guards {
 		return array(
 			'confidence' => Taxonomy::CONFIDENCE_LOW,
 			'severity'   => Taxonomy::SEVERITY_LOW,
-			'note'       => __( 'The traversal target could not be resolved statically. Confirm it never points at the uploads directory.', 'wp-vip-compatibility' ),
+			'note'       => __( 'The traversal target could not be resolved statically. Confirm it never points at the uploads directory.', 'preflight-audit' ),
 		);
 	}
 
@@ -224,7 +224,7 @@ class Guards {
 			'severity'   => $executable ? Taxonomy::SEVERITY_CRITICAL : Taxonomy::SEVERITY_HIGH,
 			'confidence' => Taxonomy::CONFIDENCE_HIGH,
 			/* translators: %s: File extension, for example "css". */
-			'note'       => sprintf( __( 'The write target is a .%s file.', 'wp-vip-compatibility' ), $extension ),
+			'note'       => sprintf( __( 'The write target is a .%s file.', 'preflight-audit' ), $extension ),
 		);
 	}
 
@@ -264,7 +264,7 @@ class Guards {
 
 			return array(
 				'confidence' => Taxonomy::CONFIDENCE_MEDIUM,
-				'note'       => __( 'The SQL is held in a variable and no $wpdb->prepare() call appears in the same function.', 'wp-vip-compatibility' ),
+				'note'       => __( 'The SQL is held in a variable and no $wpdb->prepare() call appears in the same function.', 'preflight-audit' ),
 			);
 		}
 
@@ -286,7 +286,7 @@ class Guards {
 			return array(
 				'severity'   => Taxonomy::SEVERITY_LOW,
 				'confidence' => Taxonomy::CONFIDENCE_HIGH,
-				'note'       => __( 'Direct write to the database. Confirm the affected cache keys are invalidated afterwards.', 'wp-vip-compatibility' ),
+				'note'       => __( 'Direct write to the database. Confirm the affected cache keys are invalidated afterwards.', 'preflight-audit' ),
 			);
 		}
 
@@ -301,7 +301,7 @@ class Guards {
 			return array(
 				'severity'   => Taxonomy::SEVERITY_LOW,
 				'confidence' => Taxonomy::CONFIDENCE_LOW,
-				'note'       => __( 'This file does cache elsewhere, but not inside the function holding the query. Confirm this particular result is cached.', 'wp-vip-compatibility' ),
+				'note'       => __( 'This file does cache elsewhere, but not inside the function holding the query. Confirm this particular result is cached.', 'preflight-audit' ),
 			);
 		}
 
@@ -320,13 +320,13 @@ class Guards {
 		if ( preg_match( '/[\'"](posts_per_page|numberposts|number|posts_per_archive_page)[\'"]\s*=>\s*-\s*1/', $args, $matches ) ) {
 			return array(
 				/* translators: %s: Query argument name, for example "posts_per_page". */
-				'note' => sprintf( __( '%s is set to -1, so the query is bounded only by how much content the site holds.', 'wp-vip-compatibility' ), $matches[1] ),
+				'note' => sprintf( __( '%s is set to -1, so the query is bounded only by how much content the site holds.', 'preflight-audit' ), $matches[1] ),
 			);
 		}
 
 		if ( preg_match( '/[\'"]nopaging[\'"]\s*=>\s*true/i', $args ) ) {
 			return array(
-				'note' => __( 'nopaging is true, which removes the result limit entirely.', 'wp-vip-compatibility' ),
+				'note' => __( 'nopaging is true, which removes the result limit entirely.', 'preflight-audit' ),
 			);
 		}
 
@@ -361,7 +361,7 @@ class Guards {
 
 		return array(
 			/* translators: %s: Comma-separated list of query arguments. */
-			'note' => sprintf( __( 'Expensive query arguments in use: %s.', 'wp-vip-compatibility' ), implode( ', ', $found ) ),
+			'note' => sprintf( __( 'Expensive query arguments in use: %s.', 'preflight-audit' ), implode( ', ', $found ) ),
 		);
 	}
 
@@ -423,13 +423,13 @@ class Guards {
 			return array(
 				'severity'   => Taxonomy::SEVERITY_LOW,
 				'confidence' => Taxonomy::CONFIDENCE_HIGH,
-				'note'       => __( 'The response is cached, but no explicit timeout is set. A slow endpoint still blocks the request that refreshes the cache.', 'wp-vip-compatibility' ),
+				'note'       => __( 'The response is cached, but no explicit timeout is set. A slow endpoint still blocks the request that refreshes the cache.', 'preflight-audit' ),
 			);
 		}
 
 		if ( ! $has_timeout ) {
 			return array(
-				'note' => __( 'No caching and no explicit timeout: every cache miss waits on the remote service for the PHP default timeout.', 'wp-vip-compatibility' ),
+				'note' => __( 'No caching and no explicit timeout: every cache miss waits on the remote service for the PHP default timeout.', 'preflight-audit' ),
 			);
 		}
 
@@ -467,7 +467,7 @@ class Guards {
 		return array(
 			'severity'   => Taxonomy::SEVERITY_LOW,
 			'confidence' => Taxonomy::CONFIDENCE_LOW,
-			'note'       => __( 'A cache header is set by hand. Confirm the value matches what the WordPress VIP edge cache should do with this response.', 'wp-vip-compatibility' ),
+			'note'       => __( 'A cache header is set by hand. Confirm the value matches what the WordPress VIP edge cache should do with this response.', 'preflight-audit' ),
 		);
 	}
 
@@ -530,7 +530,7 @@ class Guards {
 			return array(
 				'confidence' => Taxonomy::CONFIDENCE_HIGH,
 				/* translators: %s: The SQL statement type, for example "CREATE TABLE". */
-				'note'       => sprintf( __( 'The query issues a %s statement.', 'wp-vip-compatibility' ), strtoupper( preg_replace( '/\s+/', ' ', $matches[1] ) ) ),
+				'note'       => sprintf( __( 'The query issues a %s statement.', 'preflight-audit' ), strtoupper( preg_replace( '/\s+/', ' ', $matches[1] ) ) ),
 			);
 		}
 
@@ -539,7 +539,7 @@ class Guards {
 			&& preg_match( '/\b(CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE|TRUNCATE\s+TABLE)\b/i', $occurrence['scope_source'] ) ) {
 			return array(
 				'confidence' => Taxonomy::CONFIDENCE_MEDIUM,
-				'note'       => __( 'DDL appears in the same function as this query.', 'wp-vip-compatibility' ),
+				'note'       => __( 'DDL appears in the same function as this query.', 'preflight-audit' ),
 			);
 		}
 
@@ -569,7 +569,7 @@ class Guards {
 			return array(
 				'severity'   => Taxonomy::SEVERITY_LOW,
 				'confidence' => Taxonomy::CONFIDENCE_LOW,
-				'note'       => __( 'The path is anchored to a known base directory, so the risk depends entirely on how the variable part is validated.', 'wp-vip-compatibility' ),
+				'note'       => __( 'The path is anchored to a known base directory, so the risk depends entirely on how the variable part is validated.', 'preflight-audit' ),
 			);
 		}
 
@@ -648,7 +648,7 @@ class Guards {
 		if ( self::mentions( $target, self::$unwritable_markers ) ) {
 			return array(
 				'confidence' => Taxonomy::CONFIDENCE_HIGH,
-				'note'       => __( 'The path is built from the application directory, which is read-only on WordPress VIP.', 'wp-vip-compatibility' ),
+				'note'       => __( 'The path is built from the application directory, which is read-only on WordPress VIP.', 'preflight-audit' ),
 			);
 		}
 
@@ -656,7 +656,7 @@ class Guards {
 		return array(
 			'severity'   => Taxonomy::SEVERITY_MEDIUM,
 			'confidence' => Taxonomy::CONFIDENCE_LOW,
-			'note'       => __( 'The destination could not be resolved statically. Confirm it resolves to the uploads directory or /tmp/ at runtime.', 'wp-vip-compatibility' ),
+			'note'       => __( 'The destination could not be resolved statically. Confirm it resolves to the uploads directory or /tmp/ at runtime.', 'preflight-audit' ),
 		);
 	}
 
