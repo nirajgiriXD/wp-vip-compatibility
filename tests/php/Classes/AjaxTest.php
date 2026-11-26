@@ -142,10 +142,9 @@ class AjaxTest extends TestCase {
 	}
 
 	/**
-	 * The plural form is chosen by the number of findings, so the file count
-	 * is pluralised to match it rather than itself.
+	 * The findings and the files are counted separately, so each takes the
+	 * plural its own number calls for.
 	 *
-	 * @group known-bug
 	 * @dataProvider plural_cases
 	 */
 	public function test_the_file_count_has_its_own_plural( array $files, $summary ) {

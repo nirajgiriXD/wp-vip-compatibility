@@ -78,11 +78,25 @@ msgstr ""
 msgid "Unknown scan target."
 msgstr ""
 
-#. translators: 1: Number of findings. 2: Number of PHP files scanned.
-#: includes/classes/class-ajax.php:112
+#. translators: 1: Number of findings, e.g. "3 findings". 2: Number of files, e.g. "1 PHP file".
+#: includes/classes/class-ajax.php:113
 #, php-format
-msgid "%1$d finding across %2$d PHP file."
-msgid_plural "%1$d findings across %2$d PHP files."
+msgid "%1$s across %2$s."
+msgstr ""
+
+#. translators: %d: Number of findings.
+#: includes/classes/class-ajax.php:116
+#, php-format
+msgid "%d finding"
+msgid_plural "%d findings"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: Number of PHP files scanned.
+#: includes/classes/class-ajax.php:121
+#, php-format
+msgid "%d PHP file"
+msgid_plural "%d PHP files"
 msgstr[0] ""
 msgstr[1] ""
 

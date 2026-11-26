@@ -107,11 +107,20 @@ class Ajax {
 				'severity' => $this->highest_severity( $result['summary']['by_severity'] ),
 				'files'    => (int) $result['files_scanned'],
 				'url'      => UI::get_findings_url( $result['key'] ),
+				// Two counts, so two plural forms: one _n() cannot pluralise both.
 				'summary'  => sprintf(
-					/* translators: 1: Number of findings. 2: Number of PHP files scanned. */
-					_n( '%1$d finding across %2$d PHP file.', '%1$d findings across %2$d PHP files.', (int) $result['summary']['total'], 'preflight-audit' ),
-					(int) $result['summary']['total'],
-					(int) $result['files_scanned']
+					/* translators: 1: Number of findings, e.g. "3 findings". 2: Number of files, e.g. "1 PHP file". */
+					__( '%1$s across %2$s.', 'preflight-audit' ),
+					sprintf(
+						/* translators: %d: Number of findings. */
+						_n( '%d finding', '%d findings', (int) $result['summary']['total'], 'preflight-audit' ),
+						(int) $result['summary']['total']
+					),
+					sprintf(
+						/* translators: %d: Number of PHP files scanned. */
+						_n( '%d PHP file', '%d PHP files', (int) $result['files_scanned'], 'preflight-audit' ),
+						(int) $result['files_scanned']
+					)
 				),
 			)
 		);
