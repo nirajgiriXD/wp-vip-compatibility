@@ -323,18 +323,6 @@ body.wvc-screen,
 	padding: 40px 0 0;
 }
 
-.wvc-head__eyebrow {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	margin-bottom: 10px !important;
-	color: var(--wvc-ink-3);
-	font-family: var(--wvc-mono);
-	font-size: 11px;
-	letter-spacing: 0.1em;
-	text-transform: uppercase;
-}
-
 .wvc .wvc-head__title {
 	margin: 0;
 	padding: 0;

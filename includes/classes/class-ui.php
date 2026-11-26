@@ -525,13 +525,8 @@ class UI {
 		}
 
 		$screen = $screens[ $current ];
-		$groups = self::get_groups();
 		?>
 		<header class="wvc-head">
-			<p class="wvc-head__eyebrow">
-				<?php echo self::get_icon( $screen['icon'], array( 'class' => 'wvc-icon wvc-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-				<span><?php echo esc_html( $groups[ $screen['group'] ] ?? '' ); ?></span>
-			</p>
 			<h1 class="wvc-head__title"><?php echo esc_html( $screen['title'] ); ?></h1>
 			<p class="wvc-head__lede"><?php echo esc_html( $screen['description'] ); ?></p>
 		</header>
