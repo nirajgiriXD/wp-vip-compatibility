@@ -445,6 +445,10 @@ function is_multisite() {
 	return WP::$multisite;
 }
 
+function get_current_blog_id() {
+	return WP::$blog_id;
+}
+
 function get_sites( $args = array() ) {
 	return WP::$sites;
 }

@@ -51,9 +51,14 @@ class Results_Store {
 	 * kept in step with every write below rather than simply invalidated, so a
 	 * caller never sees a stale copy.
 	 *
-	 * @var array<string, array<string, mixed>>|null
+	 * Copies are kept per site. Each site on a network has its own options
+	 * table, so after switch_to_blog() a copy read on another site describes
+	 * the wrong results — uninstall used to clear the first site's index on
+	 * every site and leave the others' results behind.
+	 *
+	 * @var array<int, array<string, array<string, mixed>>>
 	 */
-	private static $index = null;
+	private static $index = array();
 
 	/**
 	 * Incremented on every write, so derived caches can tell they are stale.
@@ -128,7 +133,7 @@ class Results_Store {
 
 		update_option( self::INDEX_OPTION, $index, false );
 
-		self::$index = $index;
+		self::$index[ get_current_blog_id() ] = $index;
 		++self::$generation;
 	}
 
@@ -138,13 +143,15 @@ class Results_Store {
 	 * @return array<string, array<string, mixed>> Summaries keyed by target key.
 	 */
 	public static function get_index() {
-		if ( null === self::$index ) {
+		$site = get_current_blog_id();
+
+		if ( ! isset( self::$index[ $site ] ) ) {
 			$index = get_option( self::INDEX_OPTION, array() );
 
-			self::$index = is_array( $index ) ? $index : array();
+			self::$index[ $site ] = is_array( $index ) ? $index : array();
 		}
 
-		return self::$index;
+		return self::$index[ $site ];
 	}
 
 	/**
@@ -156,7 +163,7 @@ class Results_Store {
 	 * @return void
 	 */
 	public static function flush_index() {
-		self::$index = null;
+		self::$index = array();
 		++self::$generation;
 	}
 
@@ -202,7 +209,7 @@ class Results_Store {
 		if ( $removed > 0 ) {
 			update_option( self::INDEX_OPTION, $index, false );
 
-			self::$index = $index;
+			self::$index[ get_current_blog_id() ] = $index;
 			++self::$generation;
 		}
 
@@ -236,7 +243,7 @@ class Results_Store {
 		if ( $removed > 0 ) {
 			update_option( self::INDEX_OPTION, $index, false );
 
-			self::$index = $index;
+			self::$index[ get_current_blog_id() ] = $index;
 			++self::$generation;
 		}
 
@@ -256,7 +263,7 @@ class Results_Store {
 		delete_option( self::INDEX_OPTION );
 		delete_option( self::HISTORY_OPTION );
 
-		self::$index = array();
+		self::$index[ get_current_blog_id() ] = array();
 		++self::$generation;
 	}
 
