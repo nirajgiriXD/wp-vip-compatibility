@@ -4,6 +4,7 @@
  * Behaviour is grouped into small controllers, each owning one concern:
  *
  *   - menus     : single-open disclosure menus that close on outside click and Escape
+ *   - confirm   : asking before a full rescan
  *   - shortcuts : "/" to jump to the screen's search field
  *   - findings  : expanding and collapsing every entry in the fix list at once
  *   - clipboard : copying SQL, both single statements and whole groups
@@ -52,6 +53,9 @@ jQuery(document).ready(function ($) {
 
 	var ICON_PATHS = {
 		check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+		refresh:
+			'<path d="M20 6v5h-5"/><path d="M4 18v-5h5"/>' +
+			'<path d="M19.5 11a7.5 7.5 0 0 0-13-3.5L4 10"/><path d="M4.5 13a7.5 7.5 0 0 0 13 3.5L20 14"/>',
 		copy:
 			'<rect x="9" y="9" width="11" height="11" rx="2"/>' +
 			'<path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5V5A1.5 1.5 0 0 1 4.5 3.5H13A1.5 1.5 0 0 1 14.5 5v.5"/>',
@@ -256,6 +260,110 @@ jQuery(document).ready(function ($) {
 	/* ---------------------------------------------------------------------
 	 * Submitting state
 	 * ------------------------------------------------------------------ */
+
+	(function confirmRescan() {
+		/*
+		 * A full rescan replaces every result and can run for a while, so it
+		 * asks first. Registered before the submitting controller so a cancelled
+		 * submit never reaches it and the button never shows as busy.
+		 */
+		var $dialog = null;
+		var $pending = null;
+
+		function getDialog() {
+			if ($dialog) {
+				return $dialog;
+			}
+
+			// Inside the plugin's wrapper so the screen's styles reach it.
+			$dialog = $('<dialog class="wvc-dialog" aria-labelledby="wvc-dialog-title"></dialog>')
+				.append($('<h2 class="wvc-dialog__title" id="wvc-dialog-title"></h2>').text(i18n.confirmTitle || ""))
+				.append($('<p class="wvc-dialog__body"></p>').text(i18n.confirmBody || ""))
+				.append(
+					$('<div class="wvc-dialog__actions"></div>')
+						.append(
+							$('<button type="button" class="wvc-btn wvc-btn--ghost wvc-btn--sm" data-dialog="cancel"></button>').text(
+								i18n.cancel || ""
+							)
+						)
+						.append(
+							$('<button type="button" class="wvc-btn wvc-btn--primary wvc-btn--sm" data-dialog="confirm"></button>')
+								.append(icon("refresh", "sm"))
+								.append($("<span/>").text(i18n.confirmAction || ""))
+						)
+				)
+				.appendTo($(".wrap.wvc").first().length ? $(".wrap.wvc").first() : document.body);
+
+			$dialog.on("click", "[data-dialog='cancel']", function () {
+				$dialog[0].close();
+			});
+
+			// A click on the backdrop lands on the dialog element itself.
+			$dialog.on("click", function (event) {
+				if (event.target === this) {
+					this.close();
+				}
+			});
+
+			$dialog.on("click", "[data-dialog='confirm']", function () {
+				var form = $pending && $pending[0];
+
+				$dialog[0].close();
+
+				if (!form) {
+					return;
+				}
+
+				form.setAttribute("data-confirmed", "true");
+
+				// requestSubmit() fires the submit event, so the button shows as
+				// busy exactly as it does for an unconfirmed submit.
+				if (typeof form.requestSubmit === "function") {
+					form.requestSubmit();
+				} else {
+					$(form).find("button[type='submit']").addClass("is-busy");
+					form.submit();
+				}
+			});
+
+			$dialog.on("close", function () {
+				if ($pending && !$pending.attr("data-confirmed")) {
+					$pending.find("button[type='submit']").trigger("focus");
+				}
+
+				$pending = null;
+			});
+
+			return $dialog;
+		}
+
+		$(document).on("submit", "form[data-confirm='rescan-all']", function (event) {
+			var $form = $(this);
+
+			if ($form.attr("data-confirmed")) {
+				return;
+			}
+
+			var dialog = getDialog()[0];
+
+			// Without <dialog> support, fall back to the browser's own prompt.
+			if (typeof dialog.showModal !== "function") {
+				if (!window.confirm((i18n.confirmTitle || "") + "\n\n" + (i18n.confirmBody || ""))) {
+					event.preventDefault();
+					event.stopImmediatePropagation();
+				}
+
+				return;
+			}
+
+			event.preventDefault();
+			event.stopImmediatePropagation();
+
+			$pending = $form;
+			dialog.showModal();
+			$(dialog).find("[data-dialog='confirm']").trigger("focus");
+		});
+	})();
 
 	(function submitting() {
 		/*

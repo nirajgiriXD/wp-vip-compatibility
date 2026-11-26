@@ -180,6 +180,7 @@ class Overview_Settings {
 			'nonce'   => Findings_Settings::RESCAN_ACTION,
 			'icon'    => 'refresh',
 			'primary' => false,
+			'confirm' => true,
 		);
 
 		if ( ! $scanned ) {
@@ -193,6 +194,7 @@ class Overview_Settings {
 						array(
 							'label'   => __( 'Run the first scan', 'wp-vip-compatibility' ),
 							'primary' => true,
+							'confirm' => false,
 						)
 					),
 				),

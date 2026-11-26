@@ -215,6 +215,11 @@ class Assets {
 						'noResults'       => esc_html__( 'No matching results', 'wp-vip-compatibility' ),
 						'noResultsHint'   => esc_html__( 'Try a different search term, or widen the filters above.', 'wp-vip-compatibility' ),
 
+						'confirmTitle'    => esc_html__( 'Rescan everything?', 'wp-vip-compatibility' ),
+						'confirmBody'     => esc_html__( 'This re-reads every plugin, theme and must-use plugin, and rechecks the database and wp-content. It can take a while on a large site, and the current results are replaced when it finishes.', 'wp-vip-compatibility' ),
+						'confirmAction'   => esc_html__( 'Rescan everything', 'wp-vip-compatibility' ),
+						'cancel'          => esc_html__( 'Cancel', 'wp-vip-compatibility' ),
+
 						'pager'           => esc_html__( 'Table pages', 'wp-vip-compatibility' ),
 						'previous'        => esc_html__( 'Previous', 'wp-vip-compatibility' ),
 						'next'            => esc_html__( 'Next', 'wp-vip-compatibility' ),

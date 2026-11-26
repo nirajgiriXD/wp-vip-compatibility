@@ -494,6 +494,8 @@ class UI {
 				'fields'  => array( 'scope' => Report::SCOPE_ALL ),
 				'icon'    => 'refresh',
 				'primary' => true,
+				// A first scan has nothing to replace, so only a rescan asks.
+				'confirm' => $scanned,
 			)
 		);
 
@@ -668,6 +670,7 @@ class UI {
 	 *     @type bool   $primary  Whether it is the primary action.
 	 *     @type bool   $small    Whether to render the compact size.
 	 *     @type bool   $external Whether the link opens in a new tab.
+	 *     @type bool   $confirm  Whether a form button asks before a full rescan.
 	 * }
 	 * @return string The button markup.
 	 */
@@ -684,6 +687,7 @@ class UI {
 				'primary'  => false,
 				'small'    => true,
 				'external' => false,
+				'confirm'  => false,
 			)
 		);
 
@@ -707,14 +711,16 @@ class UI {
 			}
 
 			return sprintf(
-				'<form method="post" action="%1$s" class="wvc-inline-form"><input type="hidden" name="action" value="%2$s" />%3$s%4$s<button type="submit" class="%5$s">%6$s<span>%7$s</span></button></form>',
+				'<form method="post" action="%1$s" class="wvc-inline-form"%8$s><input type="hidden" name="action" value="%2$s" />%3$s%4$s<button type="submit" class="%5$s">%6$s<span>%7$s</span></button></form>',
 				esc_url( admin_url( 'admin-post.php' ) ),
 				esc_attr( $action['submit'] ),
 				$fields,
 				wp_nonce_field( $action['nonce'], '_wpnonce', true, false ),
 				esc_attr( $classes ),
 				$icon,
-				esc_html( $action['label'] )
+				esc_html( $action['label'] ),
+				// Asks before posting; the wording comes from the script's strings.
+				$action['confirm'] ? ' data-confirm="rescan-all"' : ''
 			);
 		}
 
