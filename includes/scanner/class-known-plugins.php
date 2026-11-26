@@ -2,7 +2,7 @@
 /**
  * Lookups against the curated plugin and must-use plugin lists.
  *
- * A plugin can be known to us in four ways, and they call for different
+ * A plugin can be known to us in three ways, and they call for different
  * actions, so they are kept apart rather than collapsed into one
  * "incompatible" flag:
  *
@@ -10,7 +10,10 @@
  * - caution      : works, but has a documented failure mode to test for.
  * - redundant    : the platform already provides it. Shipping it duplicates
  *                  or fights platform code.
- * - verified     : checked against WordPress VIP and found to behave.
+ *
+ * Every entry has to be backed by WordPress VIP documentation. There is no
+ * "works on WordPress VIP" list: that is a claim about someone else's product
+ * this plugin cannot source.
  *
  * @package wp-vip-compatibility
  */
@@ -32,7 +35,6 @@ class Known_Plugins {
 	const INCOMPATIBLE = 'incompatible';
 	const CAUTION      = 'caution';
 	const REDUNDANT    = 'redundant';
-	const VERIFIED     = 'verified';
 
 	/**
 	 * Classifies a plugin slug.
@@ -55,18 +57,6 @@ class Known_Plugins {
 					'doc'            => self::doc( $classification ),
 				);
 			}
-		}
-
-		$verified = (array) ( $lists['verified'] ?? array() );
-
-		if ( in_array( $slug, $verified, true ) ) {
-			return array(
-				'classification' => self::VERIFIED,
-				'reason'         => __( 'Tested against the WordPress VIP Platform and found to behave correctly.', 'wp-vip-compatibility' ),
-				'label'          => self::label( self::VERIFIED ),
-				'severity'       => Taxonomy::SEVERITY_INFO,
-				'doc'            => '',
-			);
 		}
 
 		return null;
@@ -113,10 +103,8 @@ class Known_Plugins {
 				return __( 'Listed incompatible by WordPress VIP', 'wp-vip-compatibility' );
 			case self::CAUTION:
 				return __( 'Needs testing on WordPress VIP', 'wp-vip-compatibility' );
-			case self::REDUNDANT:
-				return __( 'Provided by the WordPress VIP platform', 'wp-vip-compatibility' );
 			default:
-				return __( 'Verified on WordPress VIP', 'wp-vip-compatibility' );
+				return __( 'Provided by the WordPress VIP platform', 'wp-vip-compatibility' );
 		}
 	}
 
@@ -132,10 +120,8 @@ class Known_Plugins {
 				return Taxonomy::SEVERITY_HIGH;
 			case self::CAUTION:
 				return Taxonomy::SEVERITY_MEDIUM;
-			case self::REDUNDANT:
-				return Taxonomy::SEVERITY_LOW;
 			default:
-				return Taxonomy::SEVERITY_INFO;
+				return Taxonomy::SEVERITY_LOW;
 		}
 	}
 

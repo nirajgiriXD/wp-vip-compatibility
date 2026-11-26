@@ -458,19 +458,6 @@
             "wp-crontrol": "WordPress VIP runs scheduled events through Cron Control.",
             "application-passwords": "Merged into WordPress core in 5.6 and no longer needed as a plugin.",
             "wordpress-importer": "Provided by the WordPress VIP platform and enabled by default."
-        },
-        "verified": [
-            "wp-vip-compatibility",
-            "aryo-activity-log",
-            "memberpress-importer",
-            "memberpress-pdf-invoice",
-            "memberpress",
-            "miniorange-2-factor-authentication",
-            "miniorange-saml-20-single-sign-on",
-            "post-smtp",
-            "cc-post-to-pdf",
-            "tiny-compress-images",
-            "zoom-meeting"
-        ]
+        }
     }
 }
