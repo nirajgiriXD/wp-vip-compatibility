@@ -550,6 +550,11 @@ body.wvc-screen,
 	transition: background-color 0.12s ease;
 }
 
+/* A sliver between rows, so a hovered row never merges with a selected one. */
+.wvc .wvc-menu__item + .wvc-menu__item {
+	margin-top: 2px;
+}
+
 .wvc .wvc-menu__item:hover {
 	background: var(--wvc-paper-2);
 	color: var(--wvc-ink);
