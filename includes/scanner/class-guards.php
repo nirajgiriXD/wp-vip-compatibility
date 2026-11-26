@@ -494,8 +494,11 @@ class Guards {
 			return false;
 		}
 
-		// A delimited pattern such as `#...#i` or `/.../`.
-		if ( preg_match( '{^([#~/%!]).*\1[imsuxADSUXJn]*$}', $value ) ) {
+		// A delimited pattern such as `#...#i` or `/.../`. A pattern cannot hold
+		// its own delimiter unescaped, so `/wp-content/uploads/2024/` — which
+		// starts and ends with a slash but has slashes inside — is a path.
+		if ( preg_match( '{^([#~/%!])(.*)\1[imsuxADSUXJn]*$}s', $value, $delimited )
+			&& ! preg_match( '/(?<!\\\\)' . preg_quote( $delimited[1], '/' ) . '/', $delimited[2] ) ) {
 			return false;
 		}
 
