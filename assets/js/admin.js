@@ -4,6 +4,8 @@
  * Behaviour is grouped into small controllers, each owning one concern:
  *
  *   - menus     : single-open disclosure menus that close on outside click and Escape
+ *   - shortcuts : "/" to jump to the screen's search field
+ *   - findings  : expanding and collapsing every entry in the fix list at once
  *   - clipboard : copying SQL, both single statements and whole groups
  *   - tableView : filtering, searching, sorting and live counts
  *   - rows      : the per-row detail drawers
@@ -50,10 +52,6 @@ jQuery(document).ready(function ($) {
 
 	var ICON_PATHS = {
 		check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
-		alert:
-			'<path d="M12 8.5v5"/><path d="M12 17h.01"/>' +
-			'<path d="M10.3 3.9 2.6 17.4A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3.1L13.7 3.9a2 2 0 0 0-3.4 0Z"/>',
-		info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
 		copy:
 			'<rect x="9" y="9" width="11" height="11" rx="2"/>' +
 			'<path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5V5A1.5 1.5 0 0 1 4.5 3.5H13A1.5 1.5 0 0 1 14.5 5v.5"/>'
@@ -93,18 +91,20 @@ jQuery(document).ready(function ($) {
 	}
 
 	/**
-	 * Builds a resolved status pill.
+	 * Builds a resolved verdict tag, matching UI::get_status_pill().
+	 *
+	 * The glyph is drawn by the stylesheet from the modifier, so a tag is only
+	 * ever a class and a word.
 	 *
 	 * @param {string} state One of `compatible`, `review`, `not-compatible`.
 	 * @param {string} label Visible text.
-	 * @returns {jQuery} The pill element.
+	 * @returns {jQuery} The tag element.
 	 */
 	function buildPill(state, label) {
 		var modifier = state === "compatible" ? "ok" : state === "review" ? "warn" : "bad";
-		var glyph = state === "compatible" ? "check" : state === "review" ? "info" : "alert";
 
 		return $("<span/>", { class: "wvc-status wvc-status--" + modifier })
-			.append(icon(glyph, "xs"))
+			.append($("<span/>", { class: "wvc-status__glyph", "aria-hidden": "true" }))
 			.append($("<span/>").text(label));
 	}
 
@@ -163,6 +163,70 @@ jQuery(document).ready(function ($) {
 				}
 			});
 		});
+	})();
+
+	/* ---------------------------------------------------------------------
+	 * Keyboard shortcut: "/" focuses search
+	 * ------------------------------------------------------------------ */
+
+	(function shortcuts() {
+		$(document).on("keydown", function (event) {
+			if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey) {
+				return;
+			}
+
+			// Typing a slash into a field is typing, not a shortcut.
+			if ($(event.target).closest("input, textarea, select, [contenteditable='true']").length) {
+				return;
+			}
+
+			var $search = $(".wvc .wvc-search__input:visible").first();
+
+			if ($search.length) {
+				event.preventDefault();
+				$search.trigger("focus").trigger("select");
+			}
+		});
+	})();
+
+	/* ---------------------------------------------------------------------
+	 * Findings: expand or collapse every entry
+	 * ------------------------------------------------------------------ */
+
+	(function findings() {
+		var $toggle = $("[data-role='expand-all']");
+		var $entries = $(".wvc-fixlist details.wvc-fix");
+
+		if (!$toggle.length || !$entries.length) {
+			return;
+		}
+
+		var $label = $toggle.children("span").first();
+
+		/**
+		 * Brings the button in line with the entries, however they were opened.
+		 */
+		function sync() {
+			var allOpen = $entries.filter(":not([open])").length === 0;
+
+			$toggle.attr("aria-pressed", allOpen ? "true" : "false");
+			$label.text(allOpen ? i18n.collapseAll || "" : i18n.expandAll || "");
+		}
+
+		// The button only works with the script, so it only appears with it.
+		$toggle.removeAttr("hidden");
+
+		$toggle.on("click", function () {
+			var open = $toggle.attr("aria-pressed") !== "true";
+
+			$entries.prop("open", open);
+			sync();
+		});
+
+		// `toggle` does not bubble, so it is listened for on each entry.
+		$entries.on("toggle", sync);
+
+		sync();
 	})();
 
 	/* ---------------------------------------------------------------------

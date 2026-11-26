@@ -35,6 +35,25 @@ class Assets {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'admin_head', array( $this, 'print_menu_styles' ) );
+		add_filter( 'admin_body_class', array( $this, 'add_body_class' ) );
+	}
+
+	/**
+	 * Marks the plugin's own screens on the admin body.
+	 *
+	 * The screens are drawn on their own paper ground, and that ground has to
+	 * reach the edges of the content area and the footer rather than stopping at
+	 * the edge of the wrap — which only a class on the body can scope.
+	 *
+	 * @param string $classes Space-separated body classes.
+	 * @return string The classes.
+	 */
+	public function add_body_class( $classes ) {
+		if ( '' === $this->get_current_screen_key() ) {
+			return $classes;
+		}
+
+		return $classes . ' wvc-screen';
 	}
 
 	/**
@@ -161,6 +180,9 @@ class Assets {
 						'copy'            => esc_html__( 'Copy to clipboard', 'wp-vip-compatibility' ),
 						'copied'          => esc_html__( 'Copied', 'wp-vip-compatibility' ),
 						'copyFailed'      => esc_html__( 'Press Ctrl+C to copy', 'wp-vip-compatibility' ),
+
+						'expandAll'       => esc_html__( 'Expand all', 'wp-vip-compatibility' ),
+						'collapseAll'     => esc_html__( 'Collapse all', 'wp-vip-compatibility' ),
 					),
 				)
 			);

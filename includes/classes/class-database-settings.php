@@ -115,11 +115,13 @@ class Database_Settings {
 		$issues  = (int) $summary['issues']['engine'] + (int) $summary['issues']['collation'] + (int) $summary['issues']['prefix'];
 
 		if ( 0 === $issues ) {
-			echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			echo UI::get_notice(
 				esc_html__( 'Every table uses InnoDB, a supported utf8mb4 collation and the standard wp_ prefix. Nothing has to change before the export.', 'wp-vip-compatibility' ),
 				'success',
 				esc_html__( 'The schema is ready to import', 'wp-vip-compatibility' )
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
 			return;
 		}
@@ -139,20 +141,22 @@ class Database_Settings {
 			)
 		);
 
-		echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_notice(
 			esc_html__( 'Run these against a backup first, and convert collations before the final export rather than after the import. Table prefixes are the exception: report a non-standard prefix to WordPress VIP and only rename tables if WordPress VIP confirms it, because the prefix is also embedded in option names and user meta keys that control roles and capabilities.', 'wp-vip-compatibility' ),
 			'warning',
 			esc_html__( 'Before you run any SQL', 'wp-vip-compatibility' )
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		echo '<ul class="wvc-issues">';
+		echo '<ol class="wvc-issues">';
 
 		foreach ( $groups as $kind => $group ) {
 			$id = UI::next_id( 'wvc-sql' );
 			?>
 			<li class="wvc-issue wvc-issue--<?php echo esc_attr( $group['tone'] ); ?>">
 				<div class="wvc-issue__head">
-					<h4 class="wvc-issue__title"><?php echo esc_html( $group['label'] ); ?></h4>
+					<h3 class="wvc-issue__title"><?php echo esc_html( $group['label'] ); ?></h3>
 					<span class="wvc-issue__count">
 						<?php
 						printf(
@@ -209,7 +213,7 @@ class Database_Settings {
 								<span><?php esc_html_e( 'Copy this group', 'wp-vip-compatibility' ); ?></span>
 							</button>
 
-							<pre class="wvc-sql__code"><code><?php echo esc_html( implode( "\n", $group['sql'] ) ); ?></code></pre>
+							<pre class="wvc-code wvc-code--block"><code><?php echo esc_html( implode( "\n", $group['sql'] ) ); ?></code></pre>
 						</div>
 					</details>
 				<?php endif; ?>
@@ -218,7 +222,7 @@ class Database_Settings {
 			unset( $kind );
 		}
 
-		echo '</ul>';
+		echo '</ol>';
 
 		if ( ! empty( $all ) ) {
 			?>
@@ -300,13 +304,22 @@ class Database_Settings {
 	/**
 	 * Renders the shape of the schema: which engines and collations are in use.
 	 *
+	 * Drawn as bars to scale rather than as a row of counted chips, so the one
+	 * MyISAM table among two hundred reads as the sliver it is. A bar is marked
+	 * as a problem only when the audit itself raised a finding against a table
+	 * carrying that engine or collation — this view never applies a rule of its own.
+	 *
 	 * @param array<string, mixed> $audit The audit result.
 	 * @return void
 	 */
 	private function render_shape( array $audit ) {
 		$engines    = array();
 		$collations = array();
-		$largest    = array();
+		$flagged    = array(
+			'engine'    => array(),
+			'collation' => array(),
+		);
+		$largest    = $audit['tables'];
 
 		foreach ( $audit['tables'] as $table ) {
 			$engine    = '' === $table['engine'] ? __( 'Unknown', 'wp-vip-compatibility' ) : $table['engine'];
@@ -314,7 +327,16 @@ class Database_Settings {
 
 			$engines[ $engine ]       = ( $engines[ $engine ] ?? 0 ) + 1;
 			$collations[ $collation ] = ( $collations[ $collation ] ?? 0 ) + 1;
-			$largest[]                = $table;
+
+			foreach ( $table['findings'] as $finding ) {
+				if ( 'engine' === $finding['kind'] ) {
+					$flagged['engine'][ $engine ] = true;
+				}
+
+				if ( 'collation' === $finding['kind'] ) {
+					$flagged['collation'][ $collation ] = true;
+				}
+			}
 		}
 
 		arsort( $engines );
@@ -327,42 +349,62 @@ class Database_Settings {
 			}
 		);
 
+		$engine_rows = array();
+
+		foreach ( $engines as $engine => $count ) {
+			$engine_rows[] = array(
+				'label'   => $engine,
+				'value'   => $count,
+				'display' => number_format_i18n( $count ),
+				'tone'    => isset( $flagged['engine'][ $engine ] ) ? 'bad' : 'ok',
+			);
+		}
+
+		$collation_rows = array();
+
+		foreach ( $collations as $collation => $count ) {
+			$collation_rows[] = array(
+				'label'   => $collation,
+				'value'   => $count,
+				'display' => number_format_i18n( $count ),
+				'tone'    => isset( $flagged['collation'][ $collation ] ) ? 'bad' : 'ok',
+				'mono'    => true,
+			);
+		}
+
+		$size_rows = array();
+
+		foreach ( array_slice( $largest, 0, 5 ) as $table ) {
+			$size_rows[] = array(
+				'label'   => $table['name'],
+				'value'   => (int) $table['bytes'],
+				'display' => size_format( (int) $table['bytes'], 1 ),
+				'tone'    => 'neutral',
+				'mono'    => true,
+			);
+		}
+
 		UI::render_panel_open(
 			array(
 				'title'   => __( 'Schema at a glance', 'wp-vip-compatibility' ),
-				'summary' => __( 'What the schema is made of today, and where its weight sits.', 'wp-vip-compatibility' ),
+				'summary' => __( 'What the schema is made of today, and where its weight sits. Red marks what the audit flagged.', 'wp-vip-compatibility' ),
 			)
 		);
 		?>
 		<div class="wvc-columns">
 			<div class="wvc-columns__col">
-				<h5 class="wvc-detail__title"><?php esc_html_e( 'Storage engines', 'wp-vip-compatibility' ); ?></h5>
-				<div class="wvc-chips">
-					<?php foreach ( $engines as $engine => $count ) : ?>
-						<?php echo UI::get_meta_chip( $engine, number_format_i18n( $count ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-					<?php endforeach; ?>
-				</div>
+				<h3 class="wvc-detail__title"><?php esc_html_e( 'Storage engines', 'wp-vip-compatibility' ); ?></h3>
+				<?php echo UI::get_bars( $engine_rows ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
 			</div>
 
 			<div class="wvc-columns__col">
-				<h5 class="wvc-detail__title"><?php esc_html_e( 'Collations', 'wp-vip-compatibility' ); ?></h5>
-				<div class="wvc-chips">
-					<?php foreach ( $collations as $collation => $count ) : ?>
-						<?php echo UI::get_meta_chip( $collation, number_format_i18n( $count ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-					<?php endforeach; ?>
-				</div>
+				<h3 class="wvc-detail__title"><?php esc_html_e( 'Collations', 'wp-vip-compatibility' ); ?></h3>
+				<?php echo UI::get_bars( $collation_rows ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
 			</div>
 
 			<div class="wvc-columns__col">
-				<h5 class="wvc-detail__title"><?php esc_html_e( 'Largest tables', 'wp-vip-compatibility' ); ?></h5>
-				<ul class="wvc-ranklist">
-					<?php foreach ( array_slice( $largest, 0, 5 ) as $table ) : ?>
-						<li>
-							<code><?php echo esc_html( $table['name'] ); ?></code>
-							<span><?php echo esc_html( size_format( (int) $table['bytes'], 1 ) ); ?></span>
-						</li>
-					<?php endforeach; ?>
-				</ul>
+				<h3 class="wvc-detail__title"><?php esc_html_e( 'Largest tables', 'wp-vip-compatibility' ); ?></h3>
+				<?php echo UI::get_bars( $size_rows ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
 			</div>
 		</div>
 		<?php
@@ -496,10 +538,12 @@ class Database_Settings {
 		echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Rows', 'wp-vip-compatibility' ) . '">' . esc_html( number_format_i18n( (int) $table['rows'] ) ) . '</td>';
 		echo '<td class="wvc-col-number" data-label="' . esc_attr__( 'Size', 'wp-vip-compatibility' ) . '">' . esc_html( size_format( (int) $table['bytes'], 1 ) ) . '</td>';
 
-		echo UI::get_status_cell( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_status_cell(
 			$state,
 			$compatible ? __( 'Ready', 'wp-vip-compatibility' ) : __( 'Needs changes', 'wp-vip-compatibility' )
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		echo '<td class="wvc-col-notes" data-label="' . esc_attr__( 'What to do', 'wp-vip-compatibility' ) . '">';
 

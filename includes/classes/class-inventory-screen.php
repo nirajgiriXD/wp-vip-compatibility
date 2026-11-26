@@ -124,9 +124,11 @@ abstract class Inventory_Screen {
 	 */
 	abstract protected function get_table_title();
 
-	/* ---------------------------------------------------------------------
+	/*
+	 * ---------------------------------------------------------------------
 	 * Rendering
-	 * ------------------------------------------------------------------ */
+	 * ------------------------------------------------------------------
+	 */
 
 	/**
 	 * Renders the screen.
@@ -153,10 +155,12 @@ abstract class Inventory_Screen {
 		$notes = $this->get_guidance_notes();
 
 		if ( ! empty( $notes ) ) {
-			echo UI::get_guidance( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			echo UI::get_guidance(
 				'<p>' . implode( '</p><p>', $notes ) . '</p>',
 				__( 'How to read this list', 'wp-vip-compatibility' )
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		UI::render_panel_open(
@@ -376,7 +380,8 @@ abstract class Inventory_Screen {
 
 		echo '<tr class="wvc-row"' . $attributes . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
 
-		echo UI::get_row_toggle( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_row_toggle(
 			$detail,
 			sprintf(
 				/* translators: %s: Item name. */
@@ -384,6 +389,7 @@ abstract class Inventory_Screen {
 				$target['label']
 			)
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		$this->render_cells( $target, $verdict, $context );
 
@@ -414,7 +420,7 @@ abstract class Inventory_Screen {
 
 		echo '<div class="wvc-detail">';
 
-		echo UI::get_defs( $this->get_detail_rows( $target, $verdict, $context, $entry ), 'wvc-defs--boxed' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_defs( $this->get_detail_rows( $target, $verdict, $context, $entry ), 'wvc-defs--drawer' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
 		$categories = array_filter( (array) ( $summary['by_category'] ?? array() ) );
 
@@ -422,24 +428,28 @@ abstract class Inventory_Screen {
 			arsort( $categories );
 
 			echo '<div class="wvc-detail__block">';
-			echo '<h5 class="wvc-detail__title">' . esc_html__( 'What the findings are about', 'wp-vip-compatibility' ) . '</h5>';
+			echo '<h3 class="wvc-detail__title">' . esc_html__( 'What the findings are about', 'wp-vip-compatibility' ) . '</h3>';
 			echo '<div class="wvc-chips">';
 
 			foreach ( $categories as $category => $count ) {
-				echo UI::get_meta_chip( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+				// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+				echo UI::get_meta_chip(
 					Taxonomy::get_label( 'category', $category ),
 					number_format_i18n( (int) $count )
 				);
+				// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 
 			echo '</div></div>';
 		}
 
 		if ( ! empty( $entry['truncated'] ) ) {
-			echo UI::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			echo UI::get_notice(
 				esc_html__( 'This item is large enough that the scan stopped early. Fix what is listed and rescan to see the rest.', 'wp-vip-compatibility' ),
 				'info'
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		$actions = array();

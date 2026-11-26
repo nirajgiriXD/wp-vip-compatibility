@@ -216,12 +216,12 @@ class Themes_Settings extends Inventory_Screen {
 			<?php endif; ?>
 
 			<div class="wvc-spotlight__body">
-				<h4 class="wvc-spotlight__name">
+				<h3 class="wvc-spotlight__name">
 					<?php echo esc_html( $theme->get( 'Name' ) ); ?>
 					<?php if ( ! empty( $verdict['state'] ) ) : ?>
 						<?php echo UI::get_status_pill( $verdict['state'], $verdict['label'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
 					<?php endif; ?>
-				</h4>
+				</h3>
 
 				<?php if ( $theme->get( 'Description' ) ) : ?>
 					<p class="wvc-spotlight__description"><?php echo esc_html( wp_strip_all_tags( $theme->get( 'Description' ) ) ); ?></p>
@@ -312,6 +312,6 @@ class Themes_Settings extends Inventory_Screen {
 			return 'active';
 		}
 
-		return ( $target['slug'] === ( $context['active_template'] ?? '' ) ) ? 'parent' : 'inactive';
+		return ( ( $context['active_template'] ?? '' ) === $target['slug'] ) ? 'parent' : 'inactive';
 	}
 }

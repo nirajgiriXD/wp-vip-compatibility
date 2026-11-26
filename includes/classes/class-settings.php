@@ -121,14 +121,9 @@ class Settings {
 			return;
 		}
 
-		UI::render_shell_open();
-		UI::render_page_head( $key );
-
-		echo '<div class="wvc-container" id="' . esc_attr( $key ) . '">';
+		UI::render_shell_open( $key );
 		UI::render_scan_notice();
 		$settings->render_settings_page();
-		echo '</div>';
-
 		UI::render_shell_close();
 	}
 
@@ -185,14 +180,12 @@ class Settings {
 				$label,
 				'manage_options',
 				$screen['slug'],
-				/*
-				 * The overview is listed as its own first submenu entry so the
-				 * menu does not show the plugin name twice under itself. It must be
-				 * registered without a callback: add_menu_page() already hooked
-				 * one, and because the slugs match, add_submenu_page() resolves
-				 * to the same `toplevel_page_*` hook — passing a callback here
-				 * hooks it a second time and renders the whole screen twice.
-				 */
+				// The overview is listed as its own first submenu entry so the
+				// menu does not show the plugin name twice under itself. It must be
+				// registered without a callback: add_menu_page() already hooked
+				// one, and because the slugs match, add_submenu_page() resolves
+				// to the same `toplevel_page_*` hook — passing a callback here
+				// hooks it a second time and renders the whole screen twice.
 				$is_parent ? null : fn() => $this->render_settings_page( $key )
 			);
 		}
