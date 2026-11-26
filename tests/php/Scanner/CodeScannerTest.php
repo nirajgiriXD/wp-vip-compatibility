@@ -83,7 +83,7 @@ class CodeScannerTest extends TestCase {
 	}
 
 	public function detection_cases() {
-		return array(
+		$cases = array(
 			'function call'                 => array( "shell_exec( 'ls' );", 'security.command-execution' ),
 			'backtick operator'             => array( '$out = `ls -la`;', 'security.command-execution' ),
 			'eval construct'                => array( 'eval( $code );', 'security.dynamic-code' ),
@@ -92,7 +92,6 @@ class CodeScannerTest extends TestCase {
 			'class instantiation'           => array( '$it = new DirectoryIterator( wp_upload_dir()["basedir"] );', 'filesystem.directory-iteration' ),
 			'namespaced class instantiation' => array( '$img = new \\Imagick( $file );', 'filesystem.image-manipulation' ),
 			'method on $wpdb'               => array( '$wpdb->query( "DELETE FROM t WHERE id = $id" );', 'database.unprepared-query' ),
-			'nullsafe method on $wpdb'      => array( '$wpdb?->get_var( "SELECT 1" );', 'database.direct-query' ),
 			'constant reference'            => array( 'if ( DISABLE_WP_CRON ) {}', 'cron.core-constant-override' ),
 			'defined() check'               => array( "if ( defined( 'WP_CACHE' ) ) {}", 'caching.custom-page-cache' ),
 			'define() of a core constant'   => array( "define( 'WP_CONTENT_DIR', '/srv/content' );", 'environment.core-constant-override' ),
@@ -128,6 +127,13 @@ class CodeScannerTest extends TestCase {
 			'manual cron'                   => array( 'spawn_cron();', 'cron.manual-invocation' ),
 			'uncached remote request'       => array( 'wp_remote_get( $url );', 'http.uncached-remote-request' ),
 		);
+
+		// `?->` only exists from PHP 8; older tokenisers split it into `?` and `->`.
+		if ( PHP_VERSION_ID >= 80000 ) {
+			$cases['nullsafe method on $wpdb'] = array( '$wpdb?->get_var( "SELECT 1" );', 'database.direct-query' );
+		}
+
+		return $cases;
 	}
 
 	/**
