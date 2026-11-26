@@ -85,6 +85,10 @@ class Code_Scanner {
 	 *
 	 * A reason after `--` is required, so a suppression always records why.
 	 *
+	 * Security findings cannot be suppressed. The annotation lives in the code
+	 * being scanned, so honouring it for those would let any third-party plugin
+	 * hide its own shell calls or unescaped output from the site owner.
+	 *
 	 * @param array<int, array<string, mixed>> $findings The findings.
 	 * @param string                           $source   The file source.
 	 * @return array<int, array<string, mixed>> The surviving findings.
@@ -121,6 +125,11 @@ class Code_Scanner {
 				$findings,
 				static function ( $finding ) use ( $suppressed ) {
 					$rules = $suppressed[ $finding['line'] ] ?? array();
+					$rule  = Rules::get( $finding['rule'] );
+
+					if ( Taxonomy::TYPE_SECURITY === ( $rule['type'] ?? '' ) ) {
+						return true;
+					}
 
 					return ! in_array( '*', $rules, true ) && ! in_array( $finding['rule'], $rules, true );
 				}

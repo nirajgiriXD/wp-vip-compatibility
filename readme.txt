@@ -89,7 +89,7 @@ Because it is not. `/wp-content/uploads/` is the one path under `wp-content` tha
 
 = Can I suppress a finding I have reviewed? =
 
-Yes. Add `// wvc:ignore <rule-id> -- your reason` to the line, or `// wvc:ignore-next-line <rule-id> -- your reason` above it. A reason is required.
+Yes. Add `// wvc:ignore <rule-id> -- your reason` to the line, or `// wvc:ignore-next-line <rule-id> -- your reason` above it. A reason is required. Security findings cannot be suppressed, so a plugin cannot hide its own shell calls or unescaped output.
 
 = Can I add or change rules? =
 
