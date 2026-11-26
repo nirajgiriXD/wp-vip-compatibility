@@ -1,0 +1,20 @@
+{
+  "name": "preflight-audit",
+  "private": true,
+  "description": "Checks a WordPress site against the WordPress VIP Platform requirements before migrating.",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "roots": [
+      "<rootDir>/tests/js"
+    ]
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jquery": "^3.7.1"
+  }
+}
