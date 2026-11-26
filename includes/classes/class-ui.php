@@ -342,7 +342,7 @@ class UI {
 	 */
 
 	/**
-	 * Opens the shell: the bar, the section index and the page heading.
+	 * Opens the shell: the bar and the page heading.
 	 *
 	 * The page title is the screen's `h1`, followed by `wp-header-end`, so the
 	 * notices WordPress and other plugins print land under the heading instead of
@@ -355,7 +355,6 @@ class UI {
 		echo '<div class="wrap wvc">';
 
 		self::render_bar();
-		self::render_index( $current );
 		self::render_page_head( $current );
 
 		echo '<hr class="wp-header-end" />';
@@ -509,107 +508,6 @@ class UI {
 				</div>
 			</details>
 		</div>
-		<?php
-	}
-
-	/**
-	 * Returns how much work each screen holds, for the section index.
-	 *
-	 * The admin menu can only say how many things must be fixed overall. The
-	 * index says where: each screen carries its own count of items that need a
-	 * decision, marked with the worst thing among them.
-	 *
-	 * @return array<string, array<string, mixed>> Signals keyed by screen, each with `count` and `tone`.
-	 */
-	private static function get_section_signals() {
-		$signals   = array();
-		$aggregate = Report::aggregate();
-		$scanned   = $aggregate['targets'] > 0;
-
-		foreach ( Report::areas() as $area ) {
-			$counts = $area['counts'];
-
-			// An unscanned code area has no verdict to count yet.
-			if ( ! $scanned && in_array( $area['key'], array( 'plugin', 'theme', 'mu-plugin' ), true ) ) {
-				continue;
-			}
-
-			$attention = (int) $counts['blocked'] + (int) $counts['review'];
-
-			if ( $attention > 0 ) {
-				$signals[ $area['screen'] ] = array(
-					'count' => $attention,
-					'tone'  => $counts['blocked'] > 0 ? 'bad' : 'warn',
-				);
-			}
-		}
-
-		if ( $scanned ) {
-			$total    = (int) $aggregate['totals']['findings'] + count( Report::other_work() );
-			$blocking = (int) $aggregate['totals']['blocking'] + Report::other_work_in_tier( Taxonomy::TIER_BLOCKING );
-
-			if ( $total > 0 ) {
-				$signals['findings'] = array(
-					'count' => $total,
-					'tone'  => $blocking > 0 ? 'bad' : 'warn',
-				);
-			}
-		}
-
-		return $signals;
-	}
-
-	/**
-	 * Renders the section index: every screen, grouped, with where the work is.
-	 *
-	 * @param string $current The current settings key.
-	 * @return void
-	 */
-	private static function render_index( $current ) {
-		$screens = self::get_screens();
-		$groups  = self::get_groups();
-		$signals = self::get_section_signals();
-		$grouped = array();
-
-		foreach ( $screens as $key => $screen ) {
-			$grouped[ $screen['group'] ][ $key ] = $screen;
-		}
-		?>
-		<nav class="wvc-index" aria-label="<?php esc_attr_e( 'VIP Compatibility sections', 'wp-vip-compatibility' ); ?>">
-			<?php foreach ( $grouped as $group => $members ) : ?>
-				<div class="wvc-index__group">
-					<span class="wvc-index__label"><?php echo esc_html( $groups[ $group ] ?? '' ); ?></span>
-					<ul class="wvc-index__list">
-						<?php foreach ( $members as $key => $screen ) : ?>
-							<?php $signal = $signals[ $key ] ?? null; ?>
-							<li>
-								<a
-									class="wvc-index__link<?php echo ( $key === $current ) ? ' is-current' : ''; ?>"
-									href="<?php echo esc_url( self::get_screen_url( $key ) ); ?>"
-									<?php echo ( $key === $current ) ? 'aria-current="page"' : ''; ?>
-								>
-									<span><?php echo esc_html( $screen['label'] ); ?></span>
-									<?php if ( null !== $signal ) : ?>
-										<span class="wvc-index__count wvc-index__count--<?php echo esc_attr( $signal['tone'] ); ?>">
-											<span aria-hidden="true"><?php echo esc_html( number_format_i18n( $signal['count'] ) ); ?></span>
-											<span class="screen-reader-text">
-												<?php
-												printf(
-													/* translators: %s: Number of items. */
-													esc_html( _n( '(%s needs attention)', '(%s need attention)', $signal['count'], 'wp-vip-compatibility' ) ),
-													esc_html( number_format_i18n( $signal['count'] ) )
-												);
-												?>
-											</span>
-										</span>
-									<?php endif; ?>
-								</a>
-							</li>
-						<?php endforeach; ?>
-					</ul>
-				</div>
-			<?php endforeach; ?>
-		</nav>
 		<?php
 	}
 

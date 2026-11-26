@@ -51,7 +51,7 @@ A target ends up in one of three states: **ready**, **needs review** (work to do
 
 The screens are designed as a migration manifest: a ruled document on a paper ground rather than a dashboard of cards. Colour is spent on urgency only, and every urgency level also has its own shape, so the scale reads without colour.
 
-The WordPress admin menu carries a count of what must be fixed before migrating, split under headings into three groups — readiness, the code you ship, and the site's own infrastructure. Inside the plugin, a section index repeats those groups and marks each screen with how many items in it need attention.
+The WordPress admin menu carries a count of what must be fixed before migrating, split under headings into three groups — readiness, the code you ship, and the site's own infrastructure.
 
 - **Overview** — readiness score, the outstanding work by tier, the first three things to do, a map of every item on the site by verdict, the environment the site runs on, and how the report has moved over recent scans.
 - **Findings** — one flat list of fixes, worst first, each entry carrying the recommended fix on its face. Filters sit in a sticky column of links — what to do about it, then what it is about — applied on click and reflected in the URL. Press `/` to jump to search.
