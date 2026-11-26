@@ -67,7 +67,8 @@ class Assets {
 	 * @return void
 	 */
 	public function print_menu_styles() {
-		$slug = UI::get_screens()['overview']['slug'];
+		$slug  = UI::get_screens()['overview']['slug'];
+		$color = $this->get_menu_group_color();
 		?>
 		<style id="wvc-menu-styles">
 			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .wvc-menu-group {
@@ -75,6 +76,9 @@ class Assets {
 				margin: 10px -13px 3px;
 				padding: 8px 13px 0;
 				border-top: 1px solid rgba(240, 246, 252, 0.14);
+				<?php if ( '' !== $color ) : ?>
+				color: <?php echo esc_html( $color ); ?>;
+				<?php endif; ?>
 				font-size: 10px;
 				font-weight: 600;
 				line-height: 1.4;
@@ -88,8 +92,42 @@ class Assets {
 				padding-top: 0;
 				border-top: 0;
 			}
+
+			/*
+			 * The heading sits inside the link, so core's hover bar (an inset
+			 * box-shadow) would run down the heading too. Redraw it as a
+			 * background sized to the item's own line plus its bottom padding.
+			 */
+			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .wp-submenu a:has(.wvc-menu-group):hover,
+			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .wp-submenu a:has(.wvc-menu-group):focus {
+				box-shadow: none;
+				background: linear-gradient(currentColor, currentColor) left bottom / 4px calc(1.4em + 5px) no-repeat;
+			}
 		</style>
 		<?php
+	}
+
+	/**
+	 * Returns the resting colour of the admin menu for the user's colour scheme.
+	 *
+	 * The group heading is inside the submenu link, so without a colour of its
+	 * own it would pick up the link's hover colour. Pinning it to the scheme's
+	 * resting icon colour keeps it still while the item under it lights up.
+	 *
+	 * @return string A hex colour, or an empty string when the scheme has none.
+	 */
+	private function get_menu_group_color() {
+		global $_wp_admin_css_colors;
+
+		$scheme = get_user_option( 'admin_color' );
+
+		if ( empty( $scheme ) || ! isset( $_wp_admin_css_colors[ $scheme ] ) ) {
+			$scheme = 'fresh';
+		}
+
+		$base = $_wp_admin_css_colors[ $scheme ]->icon_colors['base'] ?? '';
+
+		return (string) sanitize_hex_color( $base );
 	}
 
 	/**
