@@ -3014,55 +3014,6 @@ code.wvc-item__name {
 	margin-bottom: 4px !important;
 }
 
-.wvc-spotlight {
-	display: grid;
-	grid-template-columns: 240px minmax(0, 1fr);
-	gap: 32px;
-	align-items: start;
-}
-
-.wvc-spotlight__shot {
-	display: block;
-	width: 100%;
-	height: auto;
-	border: 1px solid var(--wvc-rule-2);
-	border-radius: var(--wvc-radius);
-	background: var(--wvc-sheet);
-	box-shadow: 8px 8px 0 var(--wvc-paper-3);
-	transform: rotate(-1deg);
-	transition: transform 0.3s var(--wvc-ease);
-}
-
-.wvc-spotlight:hover .wvc-spotlight__shot {
-	transform: none;
-}
-
-.wvc .wvc-spotlight__name {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 8px 16px;
-	margin: 0;
-	padding: 0;
-	color: var(--wvc-ink);
-	font-family: var(--wvc-serif);
-	font-size: 26px;
-	font-weight: 600;
-	line-height: 1.15;
-}
-
-.wvc-spotlight__name .wvc-status {
-	font-family: var(--wvc-sans);
-}
-
-.wvc-spotlight__description {
-	max-width: 72ch;
-	margin: 10px 0 16px !important;
-	color: var(--wvc-ink-2);
-	font-size: 13.5px;
-	line-height: 1.6;
-}
-
 /* -------------------------------------------------------------------------
  * 14. Notices, guidance, empty states, steps
  * ---------------------------------------------------------------------- */
@@ -3462,11 +3413,6 @@ code.wvc-item__name {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.wvc-spotlight {
-		grid-template-columns: 160px minmax(0, 1fr);
-		gap: 20px;
-	}
-
 	.wvc-tierhead__summary {
 		flex-basis: 100%;
 		margin-left: 22px;
@@ -3543,14 +3489,6 @@ code.wvc-item__name {
 
 	.wvc-defs--spec .wvc-def {
 		grid-template-columns: minmax(0, 1fr);
-	}
-
-	.wvc-spotlight {
-		grid-template-columns: minmax(0, 1fr);
-	}
-
-	.wvc-spotlight__shot {
-		max-width: 240px;
 	}
 
 	.wvc-toolbar__tools,
