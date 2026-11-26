@@ -2271,113 +2271,80 @@ code.wvc-item__name {
  * 11. Findings
  * ---------------------------------------------------------------------- */
 
-.wvc-findings {
-	display: grid;
-	grid-template-columns: 250px minmax(0, 1fr);
-	gap: 48px;
-	align-items: start;
+/* The filters are one card; each tier below is a card of its own. */
+.wvc-findings__toolbar {
+	border-radius: var(--wvc-radius-lg) var(--wvc-radius-lg) 0 0;
 }
 
-.wvc-facets {
-	position: sticky;
-	top: 52px;
+/* Alone in the card, the toolbar takes all four corners and drops its rule. */
+.wvc-findings__toolbar:last-child {
+	border-bottom: 0;
+	border-radius: var(--wvc-radius-lg);
+}
+
+.wvc-findings__main {
+	margin-top: 20px;
+}
+
+.wvc-fixlist {
 	display: flex;
 	flex-direction: column;
-	gap: 30px;
+	gap: 20px;
 }
 
-.wvc-facets .wvc-search__input {
-	width: 100%;
+/* A tier: a card of its own, so each one is found at a glance. */
+.wvc-tiergroup {
+	overflow: hidden;
+	border: 1px solid var(--wvc-rule-2);
+	border-radius: var(--wvc-radius-lg);
+	background: var(--wvc-sheet);
+	box-shadow: 0 1px 0 rgba(23, 25, 30, 0.03);
 }
 
-.wvc .wvc-facet__title {
-	margin: 0 0 6px;
-	padding: 0 0 8px;
-	border-bottom: 1px solid var(--wvc-ink);
-	color: var(--wvc-ink-2);
-	font-family: var(--wvc-mono);
-	font-size: 10.5px;
-	font-weight: 500;
-	letter-spacing: 0.1em;
-	text-transform: uppercase;
-}
-
-.wvc .wvc-facet__option {
-	display: flex;
+/* Tier options are links here, styled as the segmented buttons elsewhere. */
+.wvc .wvc-segmented__option {
+	display: inline-flex;
 	align-items: center;
-	gap: 10px;
-	margin: 1px -10px;
-	padding: 7px 10px;
-	border-radius: var(--wvc-radius);
+	gap: 7px;
+	height: 28px;
+	padding: 0 10px;
+	border-radius: 5px;
 	color: var(--wvc-ink-2);
-	font-size: 13.5px;
-	line-height: 1.3;
+	font-size: 12.5px;
+	font-weight: 500;
 	text-decoration: none;
-	transition: background-color 0.12s ease, color 0.12s ease;
+	transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.wvc a.wvc-facet__option:hover {
-	background: var(--wvc-paper-2);
+.wvc a.wvc-segmented__option:hover {
 	color: var(--wvc-ink);
 }
 
-.wvc .wvc-facet__option.is-active {
-	background: var(--wvc-ink);
-	color: var(--wvc-ink-inverse);
+.wvc .wvc-segmented__option.active {
+	background: var(--wvc-sheet);
+	color: var(--wvc-ink);
 	font-weight: 600;
+	box-shadow: 0 0 0 1px var(--wvc-rule-2), 0 1px 2px rgba(23, 25, 30, 0.08);
 }
 
-.wvc .wvc-facet__option.is-active .wvc-facet__count {
-	color: rgba(247, 244, 237, 0.75);
+.wvc .wvc-segmented__option:focus-visible {
+	outline: none;
+	box-shadow: var(--wvc-focus);
 }
 
-.wvc-facet__option.is-active .wvc-mark--warning {
-	border-color: #9aa9dd;
+.wvc-segmented__option.is-empty {
+	opacity: 0.5;
+	cursor: default;
 }
 
-.wvc-facet__option.is-empty {
-	color: var(--wvc-ink-3);
-	opacity: 0.6;
-}
-
-.wvc-facet__label {
-	flex: 1;
-	min-width: 0;
-}
-
-.wvc-facet__count {
-	color: var(--wvc-ink-3);
-	font-family: var(--wvc-mono);
-	font-size: 12px;
-	font-variant-numeric: tabular-nums;
-}
-
-/* The list bar. */
-.wvc-listbar {
+/* Filters that arrived with the link, each removable on its own. */
+.wvc-findings__active {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 10px 14px;
-	padding-bottom: 14px;
-	border-bottom: 1px solid var(--wvc-ink);
-}
-
-.wvc-listbar__count {
-	display: inline-flex;
-	align-items: baseline;
-	gap: 8px;
-	color: var(--wvc-ink-2);
-	font-size: 15px;
-}
-
-.wvc-listbar__total {
-	color: var(--wvc-ink);
-	font-family: var(--wvc-serif);
-	font-size: 34px;
-	font-weight: 600;
-	line-height: 1;
-	letter-spacing: -0.02em;
-	font-variant-numeric: lining-nums;
+	gap: 8px 14px;
+	padding: 10px 14px;
+	border-bottom: 1px solid var(--wvc-rule);
 }
 
 .wvc-activefilters {
@@ -2390,18 +2357,19 @@ code.wvc-item__name {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
-	padding: 4px 6px 4px 10px;
+	padding: 3px 5px 3px 10px;
+	border: 1px solid var(--wvc-rule-2);
 	border-radius: 4px;
-	background: var(--wvc-ink);
-	color: var(--wvc-ink-inverse);
+	background: var(--wvc-sheet);
+	color: var(--wvc-ink);
 	font-size: 12.5px;
 	font-weight: 500;
 	text-decoration: none;
 }
 
 .wvc .wvc-activefilter:hover {
-	background: #30333b;
-	color: #fff;
+	border-color: var(--wvc-ink);
+	color: var(--wvc-ink);
 }
 
 .wvc-activefilter__remove {
@@ -2410,19 +2378,10 @@ code.wvc-item__name {
 	width: 16px;
 	height: 16px;
 	border-radius: 3px;
-	background: rgba(255, 255, 255, 0.14);
+	background: var(--wvc-paper-2);
+	color: var(--wvc-ink-2);
 	font-size: 13px;
 	line-height: 1;
-}
-
-.wvc .wvc-listbar__clear {
-	color: var(--wvc-accent-ink);
-	font-size: 12.5px;
-	font-weight: 600;
-}
-
-.wvc .wvc-listbar__expand {
-	margin-left: auto;
 }
 
 /* Tier headings. */
@@ -2431,19 +2390,17 @@ code.wvc-item__name {
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 4px 10px;
-	margin: 36px 0 0;
-	padding: 0 0 10px;
-	border-bottom: 1px solid var(--wvc-rule-2);
+	margin: 0;
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--wvc-rule);
+	background: var(--wvc-sheet-2);
 	color: var(--wvc-ink);
 	font-family: var(--wvc-sans);
-	font-size: 15px;
+	font-size: 14px;
 	font-weight: 700;
 	line-height: 1.3;
 }
 
-.wvc .wvc-fixlist > .wvc-tierhead:first-child {
-	margin-top: 24px;
-}
 
 .wvc-tierhead .wvc-mark {
 	width: 12px;
@@ -2469,7 +2426,7 @@ code.wvc-item__name {
 .wvc-tierhead__summary {
 	margin-left: auto;
 	color: var(--wvc-ink-3);
-	font-size: 12.5px;
+	font-size: 12px;
 	font-weight: 400;
 }
 
@@ -2480,11 +2437,16 @@ code.wvc-item__name {
 	transition: background-color 0.2s ease;
 }
 
+/* The card's own border closes the tier. */
+.wvc-tiergroup > .wvc-fix:last-child {
+	border-bottom: 0;
+}
+
 .wvc-fix__summary {
 	display: grid;
 	grid-template-columns: 22px minmax(0, 1fr) auto;
 	gap: 4px 14px;
-	padding: 18px 14px 18px 6px;
+	padding: 16px 16px 16px 12px;
 	list-style: none;
 	cursor: pointer;
 	transition: background-color 0.15s ease;
@@ -2551,27 +2513,14 @@ code.wvc-item__name {
 
 .wvc-fix__lead {
 	display: flex;
-	gap: 10px;
-	align-items: baseline;
+	gap: 8px;
+	align-items: flex-start;
+	margin-top: 2px;
+}
+
+.wvc-fix__lead-icon {
 	margin-top: 4px;
-}
-
-.wvc-fix__lead-label {
-	flex: none;
-	padding: 1px 6px;
-	border: 1px solid currentColor;
-	border-radius: 3px;
 	color: var(--wvc-accent-ink);
-	font-family: var(--wvc-mono);
-	font-size: 10px;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	line-height: 1.5;
-	text-transform: uppercase;
-}
-
-.wvc-fix--task .wvc-fix__lead-label {
-	color: var(--wvc-ink-3);
 }
 
 .wvc-fix__lead-text {
@@ -2607,23 +2556,6 @@ code.wvc-item__name {
 .wvc-fix[open] {
 	border-color: var(--wvc-rule-2);
 	background: var(--wvc-sheet);
-	box-shadow: inset 3px 0 0 var(--wvc-fix-edge, var(--wvc-ink-3));
-}
-
-.wvc-fix--blocking {
-	--wvc-fix-edge: var(--wvc-block);
-}
-
-.wvc-fix--important {
-	--wvc-fix-edge: var(--wvc-imp);
-}
-
-.wvc-fix--warning {
-	--wvc-fix-edge: var(--wvc-warn);
-}
-
-.wvc-fix--info {
-	--wvc-fix-edge: var(--wvc-info);
 }
 
 .wvc-fix[open] > .wvc-fix__summary:hover {
@@ -2947,7 +2879,7 @@ code.wvc-item__name {
 }
 
 .wvc-findings__main > .wvc-notice {
-	margin-top: 18px;
+	margin-bottom: 20px;
 }
 
 /*
@@ -3035,9 +2967,6 @@ body.wvc-screen #screen-meta .help-tab-content {
 	text-align: center;
 }
 
-.wvc-findings__main > .wvc-empty {
-	margin-top: 24px;
-}
 
 .wvc-empty__icon {
 	display: grid;
@@ -3217,18 +3146,6 @@ body.wvc-screen #screen-meta .help-tab-content {
  * ---------------------------------------------------------------------- */
 
 @media screen and (max-width: 1180px) {
-	.wvc-findings {
-		grid-template-columns: minmax(0, 1fr);
-		gap: 28px;
-	}
-
-	.wvc-facets {
-		position: static;
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-		gap: 20px 32px;
-	}
-
 	.wvc-manifest__row {
 		grid-template-columns: 190px minmax(0, 1fr);
 	}
@@ -3476,7 +3393,7 @@ body.wvc-screen #screen-meta .help-tab-content {
 		background: CanvasText;
 	}
 
-	.wvc-facet__option.is-active {
+	.wvc-segmented__option.active {
 		outline: 2px solid Highlight;
 	}
 }
@@ -3486,10 +3403,9 @@ body.wvc-screen #screen-meta .help-tab-content {
 	body.wvc-screen #wpadminbar,
 	body.wvc-screen #wpfooter,
 	.wvc-bar__actions,
-	.wvc-facets,
 	.wvc-toolbar,
+	.wvc-findings__active,
 	.wvc-pager,
-	.wvc-listbar__expand,
 	.wvc-rowtoggle,
 	.wvc-verdict__actions,
 	.wvc-snippet__copy {
@@ -3498,10 +3414,6 @@ body.wvc-screen #screen-meta .help-tab-content {
 
 	body.wvc-screen #wpcontent {
 		margin-left: 0;
-	}
-
-	.wvc-findings {
-		display: block;
 	}
 
 	.wvc-fix__body {

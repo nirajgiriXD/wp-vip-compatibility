@@ -1285,100 +1285,6 @@ class UI {
 	}
 
 	/**
-	 * Renders one facet of the findings filters as a list of links.
-	 *
-	 * Links rather than checkboxes: one click, no Apply button, a URL that can be
-	 * bookmarked or pasted into a migration ticket, and a filter that still works
-	 * if the script never loads.
-	 *
-	 * @param array $args {
-	 *     Facet arguments.
-	 *
-	 *     @type string $title   Visible facet heading.
-	 *     @type array  $options Each with `label`, `url`, and optional `count`,
-	 *                           `active`, `dot`, `title`, `empty` and `reset`.
-	 * }
-	 * @return void
-	 */
-	public static function render_facet( array $args ) {
-		$args = wp_parse_args(
-			$args,
-			array(
-				'title'   => '',
-				'options' => array(),
-			)
-		);
-
-		if ( empty( $args['options'] ) ) {
-			return;
-		}
-
-		$heading_id = self::next_id( 'wvc-facet' );
-		?>
-		<div class="wvc-facet">
-			<h2 class="wvc-facet__title" id="<?php echo esc_attr( $heading_id ); ?>"><?php echo esc_html( $args['title'] ); ?></h2>
-			<ul class="wvc-facet__list" aria-labelledby="<?php echo esc_attr( $heading_id ); ?>">
-				<?php foreach ( $args['options'] as $option ) : ?>
-					<?php
-					$option = wp_parse_args(
-						$option,
-						array(
-							'label'  => '',
-							'url'    => '',
-							'count'  => null,
-							'active' => false,
-							'dot'    => '',
-							'title'  => '',
-							'empty'  => false,
-							'reset'  => false,
-						)
-					);
-
-					$classes = 'wvc-facet__option';
-
-					if ( $option['active'] ) {
-						$classes .= ' is-active';
-					}
-
-					if ( $option['empty'] ) {
-						$classes .= ' is-empty';
-					}
-
-					if ( $option['reset'] ) {
-						$classes .= ' is-reset';
-					}
-
-					// An option with nothing behind it stays in place but stops
-					// being a control: it is reporting a zero, not offering a choice.
-					$tag        = $option['empty'] ? 'span' : 'a';
-					$attributes = $option['empty'] ? '' : ' href="' . esc_url( $option['url'] ) . '"';
-
-					if ( $option['active'] ) {
-						$attributes .= ' aria-current="true"';
-					}
-
-					if ( '' !== $option['title'] ) {
-						$attributes .= ' title="' . esc_attr( $option['title'] ) . '"';
-					}
-					?>
-					<li>
-						<<?php echo esc_html( $tag ); ?> class="<?php echo esc_attr( $classes ); ?>"<?php echo $attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?>>
-							<?php if ( '' !== $option['dot'] ) : ?>
-								<?php echo self::get_mark( $option['dot'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-							<?php endif; ?>
-							<span class="wvc-facet__label"><?php echo esc_html( $option['label'] ); ?></span>
-							<?php if ( null !== $option['count'] ) : ?>
-								<span class="wvc-facet__count"><?php echo esc_html( number_format_i18n( (int) $option['count'] ) ); ?></span>
-							<?php endif; ?>
-						</<?php echo esc_html( $tag ); ?>>
-					</li>
-				<?php endforeach; ?>
-			</ul>
-		</div>
-		<?php
-	}
-
-	/**
 	 * Renders a table head from a column definition list.
 	 *
 	 * @param array $columns List of columns. Each column accepts `label`, `class`,
@@ -1730,8 +1636,10 @@ class UI {
 					</span>
 
 					<span class="wvc-fix__lead">
-						<span class="wvc-fix__lead-label"><?php esc_html_e( 'Why', 'wp-vip-compatibility' ); ?></span>
-						<span class="wvc-fix__lead-text"><?php echo esc_html( $action['detail'] ); ?></span>
+						<span class="wvc-fix__lead-text">
+							<span class="screen-reader-text"><?php esc_html_e( 'Why:', 'wp-vip-compatibility' ); ?></span>
+							<?php echo esc_html( $action['detail'] ); ?>
+						</span>
 					</span>
 				</span>
 
@@ -1796,8 +1704,11 @@ class UI {
 					</span>
 
 					<span class="wvc-fix__lead">
-						<span class="wvc-fix__lead-label"><?php esc_html_e( 'Fix', 'wp-vip-compatibility' ); ?></span>
-						<span class="wvc-fix__lead-text"><?php echo esc_html( $group['remediation'] ); ?></span>
+						<?php echo self::get_icon( 'arrow-right', array( 'class' => 'wvc-icon wvc-icon--xs wvc-fix__lead-icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<span class="wvc-fix__lead-text">
+							<span class="screen-reader-text"><?php esc_html_e( 'Fix:', 'wp-vip-compatibility' ); ?></span>
+							<?php echo esc_html( $group['remediation'] ); ?>
+						</span>
 					</span>
 				</span>
 
