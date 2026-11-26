@@ -50,10 +50,11 @@ body.wvc-screen,
 	--wvc-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	--wvc-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
-	/* Ground. */
-	--wvc-paper: #f4f1ea;
-	--wvc-paper-2: #ebe7dd;
-	--wvc-paper-3: #e2ddd1;
+	/* Ground. Paper is the WordPress admin background, so the screens sit on
+	 * the same ground as every other admin page. */
+	--wvc-paper: #f0f0f1;
+	--wvc-paper-2: #e6e6e7;
+	--wvc-paper-3: #dcdcde;
 	--wvc-sheet: #fffefb;
 	--wvc-sheet-2: #faf8f3;
 	--wvc-rule: #e2ddd2;
@@ -104,18 +105,6 @@ body.wvc-screen,
 /* -------------------------------------------------------------------------
  * 2. Ground and base
  * ---------------------------------------------------------------------- */
-
-/* The paper reaches the edges of the content area and the footer. */
-body.wvc-screen #wpwrap,
-body.wvc-screen #wpcontent,
-body.wvc-screen #wpbody-content,
-body.wvc-screen #wpfooter {
-	background: var(--wvc-paper);
-}
-
-body.wvc-screen #wpfooter {
-	color: var(--wvc-ink-3);
-}
 
 .wvc {
 	max-width: 1320px;
