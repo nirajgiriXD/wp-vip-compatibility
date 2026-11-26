@@ -428,14 +428,32 @@ class GuardsTest extends TestCase {
 	}
 
 	/**
-	 * A path that starts and ends with a slash is a path, not a `/.../` regex.
+	 * A path that starts and ends with a slash is a path, not a `/.../` regex:
+	 * a pattern cannot hold its own delimiter unescaped.
 	 *
-	 * @group known-bug
+	 * @dataProvider slash_cases
 	 */
-	public function test_a_path_wrapped_in_slashes_is_a_literal_value() {
-		$this->assertTrue(
-			Guards::string_is_literal_value( $this->occurrence( '/wp-content/uploads/2024/', array(), array( 'kind' => 'string' ) ) )
+	public function test_a_path_wrapped_in_slashes_is_a_literal_value( $value, $expected ) {
+		$this->assertSame(
+			$expected,
+			Guards::string_is_literal_value( $this->occurrence( $value, array(), array( 'kind' => 'string' ) ) )
 		);
+	}
+
+	public function slash_cases() {
+		return array(
+			'path in slashes'              => array( '/wp-content/uploads/2024/', true ),
+			'path in hashes'               => array( '#/srv/a#b/c#', true ),
+			'slash-delimited regex'        => array( '/wp-content\/uploads/i', false ),
+			'regex with no inner slash'    => array( '/uploads/', false ),
+			'hash-delimited regex'         => array( '#wp-content/uploads#', false ),
+		);
+	}
+
+	public function test_a_hard_coded_uploads_path_in_slashes_is_reported() {
+		$source = "<?php\ndefined( 'ABSPATH' ) || exit;\n\$dir = '/wp-content/uploads/2024/';\n";
+
+		$this->assertContains( 'filesystem.hardcoded-uploads-path', $this->rules_in( $source ) );
 	}
 
 	public function test_schema_changes() {

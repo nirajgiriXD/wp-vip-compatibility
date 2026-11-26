@@ -54,11 +54,8 @@ class UninstallTest extends TestCase {
 
 	/**
 	 * Every site on the network keeps its own results, so every site has to be
-	 * cleaned. The results store keeps a per-request copy of the index, though,
-	 * and does not drop it when the blog switches, so from the second site on
-	 * it deletes the first site's (already empty) list instead of its own.
-	 *
-	 * @group known-bug
+	 * cleaned — which needs the results store to read each site's own index
+	 * after switch_to_blog(), not the copy it read on the first site.
 	 */
 	public function test_uninstall_on_multisite_cleans_every_site() {
 		WP::$multisite = true;
