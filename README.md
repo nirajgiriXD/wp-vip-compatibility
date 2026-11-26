@@ -2,6 +2,8 @@
 
 Analyse a WordPress site against the [WordPress VIP Platform](https://docs.wpvip.com/) requirements, and get an actionable fix for every issue found.
 
+> Not affiliated with or endorsed by Automattic, WordPress VIP, or the WordPress Foundation.
+
 ## What it does
 
 The plugin scans every plugin, theme and must-use plugin on the site and reports what has to change before the site can move to WordPress VIP — and what to change it to.
