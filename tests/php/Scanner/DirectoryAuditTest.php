@@ -2,18 +2,18 @@
 /**
  * Tests for the wp-content audit.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Scanner;
+namespace SWITCHRAIL_AUDIT\Tests\Scanner;
 
-use CUTOVER_AUDIT\Includes\Classes\Plugin;
-use CUTOVER_AUDIT\Includes\Scanner\Directory_Audit;
-use CUTOVER_AUDIT\Tests\Support\Sandbox;
-use CUTOVER_AUDIT\Tests\TestCase;
+use SWITCHRAIL_AUDIT\Includes\Classes\Plugin;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Directory_Audit;
+use SWITCHRAIL_AUDIT\Tests\Support\Sandbox;
+use SWITCHRAIL_AUDIT\Tests\TestCase;
 
 /**
- * @covers \CUTOVER_AUDIT\Includes\Scanner\Directory_Audit
+ * @covers \SWITCHRAIL_AUDIT\Includes\Scanner\Directory_Audit
  */
 class DirectoryAuditTest extends TestCase {
 

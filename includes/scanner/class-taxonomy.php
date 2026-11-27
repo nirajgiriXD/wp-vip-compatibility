@@ -16,10 +16,10 @@
  * them into a single "incompatible" flag is what produced the false positives
  * in the original implementation.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Scanner;
+namespace SWITCHRAIL_AUDIT\Includes\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -95,43 +95,43 @@ class Taxonomy {
 	public static function get_types() {
 		return array(
 			self::TYPE_INCOMPATIBLE             => array(
-				'label'       => __( 'Incompatible', 'cutover-audit' ),
-				'description' => __( 'Likely to fail or behave unexpectedly on the WordPress VIP platform.', 'cutover-audit' ),
+				'label'       => __( 'Incompatible', 'switchrail-audit' ),
+				'description' => __( 'Likely to fail or behave unexpectedly on the WordPress VIP platform.', 'switchrail-audit' ),
 				'blocking'    => true,
 			),
 			self::TYPE_POTENTIALLY_INCOMPATIBLE => array(
-				'label'       => __( 'Potentially incompatible', 'cutover-audit' ),
-				'description' => __( 'Depends on runtime conditions static analysis cannot resolve. Needs a human check.', 'cutover-audit' ),
+				'label'       => __( 'Potentially incompatible', 'switchrail-audit' ),
+				'description' => __( 'Depends on runtime conditions static analysis cannot resolve. Needs a human check.', 'switchrail-audit' ),
 				'blocking'    => true,
 			),
 			self::TYPE_PERFORMANCE              => array(
-				'label'       => __( 'Performance concern', 'cutover-audit' ),
-				'description' => __( 'Works on WordPress VIP, but can create unacceptable performance characteristics at scale.', 'cutover-audit' ),
+				'label'       => __( 'Performance concern', 'switchrail-audit' ),
+				'description' => __( 'Works on WordPress VIP, but can create unacceptable performance characteristics at scale.', 'switchrail-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_SECURITY                 => array(
-				'label'       => __( 'Security concern', 'cutover-audit' ),
-				'description' => __( 'Flagged by the WordPress VIP code review process as a security risk.', 'cutover-audit' ),
+				'label'       => __( 'Security concern', 'switchrail-audit' ),
+				'description' => __( 'Flagged by the WordPress VIP code review process as a security risk.', 'switchrail-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_REDUNDANT                => array(
-				'label'       => __( 'Redundant on WordPress VIP', 'cutover-audit' ),
-				'description' => __( 'The platform already provides this capability; the local implementation can conflict with it.', 'cutover-audit' ),
+				'label'       => __( 'Redundant on WordPress VIP', 'switchrail-audit' ),
+				'description' => __( 'The platform already provides this capability; the local implementation can conflict with it.', 'switchrail-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_STANDARDS                => array(
-				'label'       => __( 'Coding-standard violation', 'cutover-audit' ),
-				'description' => __( 'Reported by the WordPress-VIP-Go PHPCS standard used in WordPress VIP code review.', 'cutover-audit' ),
+				'label'       => __( 'Coding-standard violation', 'switchrail-audit' ),
+				'description' => __( 'Reported by the WordPress-VIP-Go PHPCS standard used in WordPress VIP code review.', 'switchrail-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_RECOMMENDATION           => array(
-				'label'       => __( 'Recommendation', 'cutover-audit' ),
-				'description' => __( 'A small improvement worth considering.', 'cutover-audit' ),
+				'label'       => __( 'Recommendation', 'switchrail-audit' ),
+				'description' => __( 'A small improvement worth considering.', 'switchrail-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_INFORMATIONAL            => array(
-				'label'       => __( 'Informational', 'cutover-audit' ),
-				'description' => __( 'Useful context. No action necessarily required.', 'cutover-audit' ),
+				'label'       => __( 'Informational', 'switchrail-audit' ),
+				'description' => __( 'Useful context. No action necessarily required.', 'switchrail-audit' ),
 				'blocking'    => false,
 			),
 		);
@@ -145,23 +145,23 @@ class Taxonomy {
 	public static function get_severities() {
 		return array(
 			self::SEVERITY_CRITICAL => array(
-				'label'  => __( 'Critical', 'cutover-audit' ),
+				'label'  => __( 'Critical', 'switchrail-audit' ),
 				'weight' => 5,
 			),
 			self::SEVERITY_HIGH     => array(
-				'label'  => __( 'High', 'cutover-audit' ),
+				'label'  => __( 'High', 'switchrail-audit' ),
 				'weight' => 4,
 			),
 			self::SEVERITY_MEDIUM   => array(
-				'label'  => __( 'Medium', 'cutover-audit' ),
+				'label'  => __( 'Medium', 'switchrail-audit' ),
 				'weight' => 3,
 			),
 			self::SEVERITY_LOW      => array(
-				'label'  => __( 'Low', 'cutover-audit' ),
+				'label'  => __( 'Low', 'switchrail-audit' ),
 				'weight' => 2,
 			),
 			self::SEVERITY_INFO     => array(
-				'label'  => __( 'Info', 'cutover-audit' ),
+				'label'  => __( 'Info', 'switchrail-audit' ),
 				'weight' => 1,
 			),
 		);
@@ -175,23 +175,23 @@ class Taxonomy {
 	public static function get_tiers() {
 		return array(
 			self::TIER_BLOCKING  => array(
-				'label'      => __( 'Must fix', 'cutover-audit' ),
-				'summary'    => __( 'Likely to cause problems on the WordPress VIP platform. Best fixed first.', 'cutover-audit' ),
+				'label'      => __( 'Must fix', 'switchrail-audit' ),
+				'summary'    => __( 'Likely to cause problems on the WordPress VIP platform. Best fixed first.', 'switchrail-audit' ),
 				'severities' => array( self::SEVERITY_CRITICAL ),
 			),
 			self::TIER_IMPORTANT => array(
-				'label'      => __( 'Should fix', 'cutover-audit' ),
-				'summary'    => __( 'Unlikely to break anything, but worth fixing soon.', 'cutover-audit' ),
+				'label'      => __( 'Should fix', 'switchrail-audit' ),
+				'summary'    => __( 'Unlikely to break anything, but worth fixing soon.', 'switchrail-audit' ),
 				'severities' => array( self::SEVERITY_HIGH ),
 			),
 			self::TIER_WARNING   => array(
-				'label'      => __( 'Worth checking', 'cutover-audit' ),
-				'summary'    => __( 'A possible concern. Read it, decide, and move on.', 'cutover-audit' ),
+				'label'      => __( 'Worth checking', 'switchrail-audit' ),
+				'summary'    => __( 'A possible concern. Read it, decide, and move on.', 'switchrail-audit' ),
 				'severities' => array( self::SEVERITY_MEDIUM ),
 			),
 			self::TIER_INFO      => array(
-				'label'      => __( 'FYI', 'cutover-audit' ),
-				'summary'    => __( 'For context. No action needed.', 'cutover-audit' ),
+				'label'      => __( 'FYI', 'switchrail-audit' ),
+				'summary'    => __( 'For context. No action needed.', 'switchrail-audit' ),
 				'severities' => array( self::SEVERITY_LOW, self::SEVERITY_INFO ),
 			),
 		);
@@ -233,20 +233,20 @@ class Taxonomy {
 	public static function get_confidences() {
 		return array(
 			self::CONFIDENCE_DEFINITIVE => array(
-				'label'       => __( 'Definitive', 'cutover-audit' ),
-				'description' => __( 'The pattern itself is the problem; no further context can make it acceptable.', 'cutover-audit' ),
+				'label'       => __( 'Definitive', 'switchrail-audit' ),
+				'description' => __( 'The pattern itself is the problem; no further context can make it acceptable.', 'switchrail-audit' ),
 			),
 			self::CONFIDENCE_HIGH       => array(
-				'label'       => __( 'High', 'cutover-audit' ),
-				'description' => __( 'Surrounding code was analysed and supports the finding.', 'cutover-audit' ),
+				'label'       => __( 'High', 'switchrail-audit' ),
+				'description' => __( 'Surrounding code was analysed and supports the finding.', 'switchrail-audit' ),
 			),
 			self::CONFIDENCE_MEDIUM     => array(
-				'label'       => __( 'Medium', 'cutover-audit' ),
-				'description' => __( 'Heuristic match. Review the code before acting on it.', 'cutover-audit' ),
+				'label'       => __( 'Medium', 'switchrail-audit' ),
+				'description' => __( 'Heuristic match. Review the code before acting on it.', 'switchrail-audit' ),
 			),
 			self::CONFIDENCE_LOW        => array(
-				'label'       => __( 'Low', 'cutover-audit' ),
-				'description' => __( 'Weak signal, reported for completeness. Expect false positives.', 'cutover-audit' ),
+				'label'       => __( 'Low', 'switchrail-audit' ),
+				'description' => __( 'Weak signal, reported for completeness. Expect false positives.', 'switchrail-audit' ),
 			),
 		);
 	}
@@ -259,24 +259,24 @@ class Taxonomy {
 	public static function get_fixabilities() {
 		return array(
 			self::FIX_AUTOMATIC     => array(
-				'label'       => __( 'Automatically fixable', 'cutover-audit' ),
-				'short'       => __( 'Quick fix', 'cutover-audit' ),
-				'description' => __( 'A mechanical substitution resolves it.', 'cutover-audit' ),
+				'label'       => __( 'Automatically fixable', 'switchrail-audit' ),
+				'short'       => __( 'Quick fix', 'switchrail-audit' ),
+				'description' => __( 'A mechanical substitution resolves it.', 'switchrail-audit' ),
 			),
 			self::FIX_MANUAL        => array(
-				'label'       => __( 'Manually fixable', 'cutover-audit' ),
-				'short'       => __( 'Code change', 'cutover-audit' ),
-				'description' => __( 'A developer must rewrite the affected code.', 'cutover-audit' ),
+				'label'       => __( 'Manually fixable', 'switchrail-audit' ),
+				'short'       => __( 'Code change', 'switchrail-audit' ),
+				'description' => __( 'A developer must rewrite the affected code.', 'switchrail-audit' ),
 			),
 			self::FIX_CONFIGURATION => array(
-				'label'       => __( 'Configurable', 'cutover-audit' ),
-				'short'       => __( 'Config change', 'cutover-audit' ),
-				'description' => __( 'Resolved through configuration, a constant, or a filter rather than a code change.', 'cutover-audit' ),
+				'label'       => __( 'Configurable', 'switchrail-audit' ),
+				'short'       => __( 'Config change', 'switchrail-audit' ),
+				'description' => __( 'Resolved through configuration, a constant, or a filter rather than a code change.', 'switchrail-audit' ),
 			),
 			self::FIX_ARCHITECTURAL => array(
-				'label'       => __( 'Requires architectural change', 'cutover-audit' ),
-				'short'       => __( 'Redesign', 'cutover-audit' ),
-				'description' => __( 'The feature has to be redesigned around the platform.', 'cutover-audit' ),
+				'label'       => __( 'Requires architectural change', 'switchrail-audit' ),
+				'short'       => __( 'Redesign', 'switchrail-audit' ),
+				'description' => __( 'The feature has to be redesigned around the platform.', 'switchrail-audit' ),
 			),
 		);
 	}
@@ -304,16 +304,16 @@ class Taxonomy {
 	 */
 	public static function get_categories() {
 		return array(
-			'filesystem'  => __( 'Filesystem and media', 'cutover-audit' ),
-			'database'    => __( 'Database', 'cutover-audit' ),
-			'caching'     => __( 'Caching', 'cutover-audit' ),
-			'performance' => __( 'Performance', 'cutover-audit' ),
-			'security'    => __( 'Security', 'cutover-audit' ),
-			'cron'        => __( 'Cron and scheduling', 'cutover-audit' ),
-			'http'        => __( 'External requests', 'cutover-audit' ),
-			'environment' => __( 'Environment and configuration', 'cutover-audit' ),
-			'platform'    => __( 'Platform overlap', 'cutover-audit' ),
-			'standards'   => __( 'Coding standards', 'cutover-audit' ),
+			'filesystem'  => __( 'Filesystem and media', 'switchrail-audit' ),
+			'database'    => __( 'Database', 'switchrail-audit' ),
+			'caching'     => __( 'Caching', 'switchrail-audit' ),
+			'performance' => __( 'Performance', 'switchrail-audit' ),
+			'security'    => __( 'Security', 'switchrail-audit' ),
+			'cron'        => __( 'Cron and scheduling', 'switchrail-audit' ),
+			'http'        => __( 'External requests', 'switchrail-audit' ),
+			'environment' => __( 'Environment and configuration', 'switchrail-audit' ),
+			'platform'    => __( 'Platform overlap', 'switchrail-audit' ),
+			'standards'   => __( 'Coding standards', 'switchrail-audit' ),
 		);
 	}
 

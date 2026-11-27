@@ -6,12 +6,12 @@
  * by a badge beside the name. Inactive themes stay in the list because they
  * still ship in the repository and are still read by WordPress VIP's code review.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Classes;
+namespace SWITCHRAIL_AUDIT\Includes\Classes;
 
-use CUTOVER_AUDIT\Includes\Traits\Singleton;
+use SWITCHRAIL_AUDIT\Includes\Traits\Singleton;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -37,7 +37,7 @@ class Themes_Settings extends Inventory_Screen {
 	 * @return string The label.
 	 */
 	protected function get_search_label() {
-		return __( 'Search themes by name or author', 'cutover-audit' );
+		return __( 'Search themes by name or author', 'switchrail-audit' );
 	}
 
 	/**
@@ -46,7 +46,7 @@ class Themes_Settings extends Inventory_Screen {
 	 * @return string The title.
 	 */
 	protected function get_table_title() {
-		return __( 'Installed themes', 'cutover-audit' );
+		return __( 'Installed themes', 'switchrail-audit' );
 	}
 
 	/**
@@ -56,8 +56,8 @@ class Themes_Settings extends Inventory_Screen {
 	 */
 	protected function get_empty_state() {
 		return array(
-			__( 'No themes are installed', 'cutover-audit' ),
-			__( 'There is nothing here to check against the WordPress VIP Platform.', 'cutover-audit' ),
+			__( 'No themes are installed', 'switchrail-audit' ),
+			__( 'There is nothing here to check against the WordPress VIP Platform.', 'switchrail-audit' ),
 		);
 	}
 
@@ -68,9 +68,9 @@ class Themes_Settings extends Inventory_Screen {
 	 */
 	protected function get_guidance_notes() {
 		return array(
-			__( '<strong>Inactive themes.</strong> They are still committed to the WordPress VIP repository and still scanned by the Code Analysis Bot. Unless a theme is a live parent or a planned redesign, leaving it out of the repository removes its findings entirely.', 'cutover-audit' ),
-			__( '<strong>Parent themes.</strong> A child theme is only as portable as the parent it inherits from, so a parent is listed and scanned in its own right even when it is never activated directly.', 'cutover-audit' ),
-			__( '<strong>Themes are where most filesystem findings come from.</strong> Writing generated CSS, caching markup to disk or resizing images at request time all work locally and none of them work on WordPress VIP.', 'cutover-audit' ),
+			__( '<strong>Inactive themes.</strong> They are still committed to the WordPress VIP repository and still scanned by the Code Analysis Bot. Unless a theme is a live parent or a planned redesign, leaving it out of the repository removes its findings entirely.', 'switchrail-audit' ),
+			__( '<strong>Parent themes.</strong> A child theme is only as portable as the parent it inherits from, so a parent is listed and scanned in its own right even when it is never activated directly.', 'switchrail-audit' ),
+			__( '<strong>Themes are where most filesystem findings come from.</strong> Writing generated CSS, caching markup to disk or resizing images at request time all work locally and none of them work on WordPress VIP.', 'switchrail-audit' ),
 		);
 	}
 
@@ -82,27 +82,27 @@ class Themes_Settings extends Inventory_Screen {
 	protected function get_columns() {
 		return array(
 			array(
-				'label'    => __( 'Theme', 'cutover-audit' ),
-				'class'    => 'cutover-audit-col-name',
+				'label'    => __( 'Theme', 'switchrail-audit' ),
+				'class'    => 'switchrail-audit-col-name',
 				'sortable' => true,
 			),
 			array(
-				'label' => __( 'Version', 'cutover-audit' ),
-				'class' => 'cutover-audit-col-version',
+				'label' => __( 'Version', 'switchrail-audit' ),
+				'class' => 'switchrail-audit-col-version',
 			),
 			array(
-				'label'    => __( 'Verdict', 'cutover-audit' ),
-				'class'    => 'cutover-audit-col-status',
+				'label'    => __( 'Verdict', 'switchrail-audit' ),
+				'class'    => 'switchrail-audit-col-status',
 				'sortable' => true,
 			),
 			array(
-				'label' => __( 'Findings', 'cutover-audit' ),
-				'class' => 'cutover-audit-col-findings',
-				'hint'  => __( 'Findings grouped by what to do about them: must fix, should fix, worth checking, FYI.', 'cutover-audit' ),
+				'label' => __( 'Findings', 'switchrail-audit' ),
+				'class' => 'switchrail-audit-col-findings',
+				'hint'  => __( 'Findings grouped by what to do about them: must fix, should fix, worth checking, FYI.', 'switchrail-audit' ),
 			),
 			array(
-				'label' => __( 'What to do', 'cutover-audit' ),
-				'class' => 'cutover-audit-col-notes',
+				'label' => __( 'What to do', 'switchrail-audit' ),
+				'class' => 'switchrail-audit-col-notes',
 			),
 		);
 	}
@@ -122,20 +122,20 @@ class Themes_Settings extends Inventory_Screen {
 		return array(
 			array(
 				'name'    => 'role',
-				'label'   => __( 'Filter by role', 'cutover-audit' ),
+				'label'   => __( 'Filter by role', 'switchrail-audit' ),
 				'active'  => in_array( $role, array( 'live', 'inactive' ), true ) ? $role : 'all',
 				'options' => array(
 					array(
 						'value' => 'all',
-						'label' => __( 'All themes', 'cutover-audit' ),
+						'label' => __( 'All themes', 'switchrail-audit' ),
 					),
 					array(
 						'value' => 'live',
-						'label' => __( 'In use', 'cutover-audit' ),
+						'label' => __( 'In use', 'switchrail-audit' ),
 					),
 					array(
 						'value' => 'inactive',
-						'label' => __( 'Inactive', 'cutover-audit' ),
+						'label' => __( 'Inactive', 'switchrail-audit' ),
 					),
 				),
 			),
@@ -182,8 +182,8 @@ class Themes_Settings extends Inventory_Screen {
 		// theme is the default and needs no label.
 		$role   = $this->get_role( $target, $context );
 		$labels = array(
-			'active' => array( __( 'Active', 'cutover-audit' ), 'accent', __( 'The site renders through this theme.', 'cutover-audit' ) ),
-			'parent' => array( __( 'Parent', 'cutover-audit' ), 'neutral', __( 'The active theme inherits from this one.', 'cutover-audit' ) ),
+			'active' => array( __( 'Active', 'switchrail-audit' ), 'accent', __( 'The site renders through this theme.', 'switchrail-audit' ) ),
+			'parent' => array( __( 'Parent', 'switchrail-audit' ), 'neutral', __( 'The active theme inherits from this one.', 'switchrail-audit' ) ),
 		);
 		$badges = isset( $labels[ $role ] ) ? array( UI::get_badge( ...$labels[ $role ] ) ) : array();
 

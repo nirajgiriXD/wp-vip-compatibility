@@ -7,7 +7,7 @@
  *   npm run bump -- major     2.0.0 -> 3.0.0
  *   npm run bump -- 2.3.4     set an exact version
  *
- * The header in cutover-audit.php is the source of truth for the current
+ * The header in switchrail-audit.php is the source of truth for the current
  * version. Every other file must already agree with it, otherwise the script
  * stops rather than guess which one is right.
  */
@@ -22,11 +22,11 @@ const SEMVER = /^\d+\.\d+\.\d+$/;
 
 // Each pattern has exactly three groups: before, the version, after.
 const TARGETS = [
-	{ file: 'cutover-audit.php', pattern: /^(\s*\*\s*Version:\s+)(\S+)()/m },
-	{ file: 'cutover-audit.php', pattern: /(define\( 'CUTOVER_AUDIT_VERSION', ')([^']+)(' \))/ },
+	{ file: 'switchrail-audit.php', pattern: /^(\s*\*\s*Version:\s+)(\S+)()/m },
+	{ file: 'switchrail-audit.php', pattern: /(define\( 'SWITCHRAIL_AUDIT_VERSION', ')([^']+)(' \))/ },
 	{ file: 'readme.txt', pattern: /^(Stable tag:\s+)(\S+)()/m },
-	{ file: 'languages/cutover-audit.pot', pattern: /^("Project-Id-Version: Cutover Audit )([^\\]+)(\\n")/m },
-	{ file: 'tests/php/bootstrap.php', pattern: /(define\( 'CUTOVER_AUDIT_VERSION', ')([^']+)(' \))/ },
+	{ file: 'languages/switchrail-audit.pot', pattern: /^("Project-Id-Version: Switchrail Audit )([^\\]+)(\\n")/m },
+	{ file: 'tests/php/bootstrap.php', pattern: /(define\( 'SWITCHRAIL_AUDIT_VERSION', ')([^']+)(' \))/ },
 ];
 
 function fail( message ) {
@@ -58,10 +58,10 @@ function nextVersion( current, arg ) {
 }
 
 const arg = process.argv[ 2 ];
-const header = read( 'cutover-audit.php' ).match( TARGETS[ 0 ].pattern );
+const header = read( 'switchrail-audit.php' ).match( TARGETS[ 0 ].pattern );
 
 if ( ! header || ! SEMVER.test( header[ 2 ] ) ) {
-	fail( 'could not read an x.y.z Version from the cutover-audit.php header.' );
+	fail( 'could not read an x.y.z Version from the switchrail-audit.php header.' );
 }
 
 const current = header[ 2 ];

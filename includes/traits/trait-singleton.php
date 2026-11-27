@@ -4,10 +4,10 @@
  *
  * This trait implements the Singleton design pattern.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Traits;
+namespace SWITCHRAIL_AUDIT\Includes\Traits;
 
 defined( 'ABSPATH' ) || exit;
 

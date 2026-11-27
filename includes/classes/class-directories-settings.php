@@ -9,13 +9,13 @@
  * structure" and "incompatible with WordPress VIP" are different things, and treating them
  * the same is what made this audit misleading before.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Classes;
+namespace SWITCHRAIL_AUDIT\Includes\Classes;
 
-use CUTOVER_AUDIT\Includes\Traits\Singleton;
-use CUTOVER_AUDIT\Includes\Scanner\Directory_Audit;
+use SWITCHRAIL_AUDIT\Includes\Traits\Singleton;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Directory_Audit;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -36,8 +36,8 @@ class Directories_Settings {
 
 		if ( empty( $audit['entries'] ) ) {
 			UI::render_empty_state(
-				__( 'No files or directories found in wp-content', 'cutover-audit' ),
-				__( 'There is nothing to check here yet.', 'cutover-audit' )
+				__( 'No files or directories found in wp-content', 'switchrail-audit' ),
+				__( 'There is nothing to check here yet.', 'switchrail-audit' )
 			);
 
 			return;
@@ -53,9 +53,9 @@ class Directories_Settings {
 	 */
 	public function get_page_guidance() {
 		return array(
-			__( '<strong>"Not deployed" is not a problem.</strong> It marks what WordPress or the local environment maintains — <code>uploads/</code> above all, which is the one path under wp-content that application code may write to on WordPress VIP. It is imported with the WordPress VIP CLI rather than committed.', 'cutover-audit' ),
-			__( '<strong>"Remove or relocate" is.</strong> Those entries either conflict with the WordPress VIP application structure or duplicate a drop-in the platform installs itself, where a shipped copy is at best ignored and at worst fights the platform.', 'cutover-audit' ),
-			__( '<strong>"Needs review" means unrecognised.</strong> Work out what created it: if the codebase reads from it, move the contents into <code>uploads/</code> and update the stored paths; if nothing uses it, leave it out of the repository.', 'cutover-audit' ),
+			__( '<strong>"Not deployed" is not a problem.</strong> It marks what WordPress or the local environment maintains — <code>uploads/</code> above all, which is the one path under wp-content that application code may write to on WordPress VIP. It is imported with the WordPress VIP CLI rather than committed.', 'switchrail-audit' ),
+			__( '<strong>"Remove or relocate" is.</strong> Those entries either conflict with the WordPress VIP application structure or duplicate a drop-in the platform installs itself, where a shipped copy is at best ignored and at worst fights the platform.', 'switchrail-audit' ),
+			__( '<strong>"Needs review" means unrecognised.</strong> Work out what created it: if the codebase reads from it, move the contents into <code>uploads/</code> and update the stored paths; if nothing uses it, leave it out of the repository.', 'switchrail-audit' ),
 		);
 	}
 
@@ -90,31 +90,31 @@ class Directories_Settings {
 
 		UI::render_toolbar(
 			array(
-				'search_label' => __( 'Search files and folders', 'cutover-audit' ),
-				'placeholder'  => __( 'Search paths…', 'cutover-audit' ),
+				'search_label' => __( 'Search files and folders', 'switchrail-audit' ),
+				'placeholder'  => __( 'Search paths…', 'switchrail-audit' ),
 				'groups'       => array(
 					array(
 						'name'    => 'status',
-						'label'   => __( 'Filter by verdict', 'cutover-audit' ),
+						'label'   => __( 'Filter by verdict', 'switchrail-audit' ),
 						'active'  => $this->read_status(),
 						'options' => array(
 							array(
 								'value' => 'all',
-								'label' => __( 'Everything', 'cutover-audit' ),
+								'label' => __( 'Everything', 'switchrail-audit' ),
 							),
 							array(
 								'value' => 'not-compatible',
-								'label' => __( 'Remove or relocate', 'cutover-audit' ),
+								'label' => __( 'Remove or relocate', 'switchrail-audit' ),
 								'dot'   => 'bad',
 							),
 							array(
 								'value' => 'review',
-								'label' => __( 'Needs review', 'cutover-audit' ),
+								'label' => __( 'Needs review', 'switchrail-audit' ),
 								'dot'   => 'warn',
 							),
 							array(
 								'value' => 'compatible',
-								'label' => __( 'No action needed', 'cutover-audit' ),
+								'label' => __( 'No action needed', 'switchrail-audit' ),
 								'dot'   => 'ok',
 							),
 						),
@@ -123,24 +123,24 @@ class Directories_Settings {
 			)
 		);
 
-		echo '<div class="cutover-audit-table-wrap" data-role="table-view">';
-		echo '<table class="cutover-audit-table" aria-label="' . esc_attr__( 'Everything in wp-content', 'cutover-audit' ) . '">';
+		echo '<div class="switchrail-audit-table-wrap" data-role="table-view">';
+		echo '<table class="switchrail-audit-table" aria-label="' . esc_attr__( 'Everything in wp-content', 'switchrail-audit' ) . '">';
 
 		UI::render_table_head(
 			array(
 				array(
-					'label'    => __( 'Path', 'cutover-audit' ),
-					'class'    => 'cutover-audit-col-name',
+					'label'    => __( 'Path', 'switchrail-audit' ),
+					'class'    => 'switchrail-audit-col-name',
 					'sortable' => true,
 				),
 				array(
-					'label'    => __( 'Verdict', 'cutover-audit' ),
-					'class'    => 'cutover-audit-col-status',
+					'label'    => __( 'Verdict', 'switchrail-audit' ),
+					'class'    => 'switchrail-audit-col-status',
 					'sortable' => true,
 				),
 				array(
-					'label' => __( 'What to do', 'cutover-audit' ),
-					'class' => 'cutover-audit-col-notes',
+					'label' => __( 'What to do', 'switchrail-audit' ),
+					'class' => 'switchrail-audit-col-notes',
 				),
 			)
 		);
@@ -173,17 +173,17 @@ class Directories_Settings {
 
 		$state = $states[ $entry['status'] ] ?? 'review';
 
-		printf( '<tr class="cutover-audit-row" data-status="%s">', esc_attr( $state ) );
+		printf( '<tr class="switchrail-audit-row" data-status="%s">', esc_attr( $state ) );
 
 		// The description was a column of its own, repeating "Directory that is
 		// not part of the WordPress VIP application structure" down the page. It belongs
 		// with the path it describes.
-		echo '<td class="cutover-audit-col-name" data-label="' . esc_attr__( 'Path', 'cutover-audit' ) . '">';
-		echo '<span class="cutover-audit-item">';
-		echo '<code class="cutover-audit-item__name">' . esc_html( $entry['name'] ) . ( $entry['is_dir'] ? '/' : '' ) . '</code>';
+		echo '<td class="switchrail-audit-col-name" data-label="' . esc_attr__( 'Path', 'switchrail-audit' ) . '">';
+		echo '<span class="switchrail-audit-item">';
+		echo '<code class="switchrail-audit-item__name">' . esc_html( $entry['name'] ) . ( $entry['is_dir'] ? '/' : '' ) . '</code>';
 
 		if ( '' !== $entry['description'] ) {
-			echo '<span class="cutover-audit-item__meta">' . esc_html( $entry['description'] ) . '</span>';
+			echo '<span class="switchrail-audit-item__meta">' . esc_html( $entry['description'] ) . '</span>';
 		}
 
 		echo '</span>';
@@ -191,18 +191,18 @@ class Directories_Settings {
 
 		echo UI::get_status_cell( $state, Directory_Audit::status_label( $entry['status'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
-		echo '<td class="cutover-audit-col-notes" data-label="' . esc_attr__( 'What to do', 'cutover-audit' ) . '">';
+		echo '<td class="switchrail-audit-col-notes" data-label="' . esc_attr__( 'What to do', 'switchrail-audit' ) . '">';
 
 		if ( '' === $entry['guidance'] ) {
-			echo '<span class="cutover-audit-dash" aria-hidden="true">—</span>';
+			echo '<span class="switchrail-audit-dash" aria-hidden="true">—</span>';
 		} else {
 			echo esc_html( $entry['guidance'] );
 
 			if ( '' !== $entry['doc'] ) {
 				printf(
-					' <a class="cutover-audit-link" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+					' <a class="switchrail-audit-link" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
 					esc_url( $entry['doc'] ),
-					esc_html__( 'Reference', 'cutover-audit' )
+					esc_html__( 'Reference', 'switchrail-audit' )
 				);
 			}
 		}

@@ -2,17 +2,17 @@
 /**
  * Tests for script and style loading.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Classes;
+namespace SWITCHRAIL_AUDIT\Tests\Classes;
 
-use CUTOVER_AUDIT\Includes\Classes\Assets;
-use CUTOVER_AUDIT\Tests\Support\WP;
-use CUTOVER_AUDIT\Tests\TestCase;
+use SWITCHRAIL_AUDIT\Includes\Classes\Assets;
+use SWITCHRAIL_AUDIT\Tests\Support\WP;
+use SWITCHRAIL_AUDIT\Tests\TestCase;
 
 /**
- * @covers \CUTOVER_AUDIT\Includes\Classes\Assets
+ * @covers \SWITCHRAIL_AUDIT\Includes\Classes\Assets
  */
 class AssetsTest extends TestCase {
 
@@ -43,47 +43,47 @@ class AssetsTest extends TestCase {
 
 		( new Assets() )->admin_enqueue_scripts();
 
-		$this->assertSame( array( 'cutover-audit-admin-styles' ), WP::$assets['enqueued_styles'] );
-		$this->assertSame( array( 'cutover-audit-admin-script' ), WP::$assets['enqueued_scripts'] );
+		$this->assertSame( array( 'switchrail-audit-admin-styles' ), WP::$assets['enqueued_styles'] );
+		$this->assertSame( array( 'switchrail-audit-admin-script' ), WP::$assets['enqueued_scripts'] );
 	}
 
 	public function plugin_pages() {
 		return array(
-			array( 'cutover-audit' ),
-			array( 'cutover-audit-findings' ),
-			array( 'cutover-audit-plugins' ),
-			array( 'cutover-audit-themes' ),
-			array( 'cutover-audit-mu-plugins' ),
-			array( 'cutover-audit-database' ),
-			array( 'cutover-audit-directories' ),
+			array( 'switchrail-audit' ),
+			array( 'switchrail-audit-findings' ),
+			array( 'switchrail-audit-plugins' ),
+			array( 'switchrail-audit-themes' ),
+			array( 'switchrail-audit-mu-plugins' ),
+			array( 'switchrail-audit-database' ),
+			array( 'switchrail-audit-directories' ),
 		);
 	}
 
 	public function test_files_are_versioned_by_modification_time_and_the_script_loads_in_the_footer() {
-		$_GET['page'] = 'cutover-audit-plugins';
+		$_GET['page'] = 'switchrail-audit-plugins';
 
 		( new Assets() )->admin_enqueue_scripts();
 
-		$style  = WP::$assets['registered_styles']['cutover-audit-admin-styles'];
-		$script = WP::$assets['registered_scripts']['cutover-audit-admin-script'];
+		$style  = WP::$assets['registered_styles']['switchrail-audit-admin-styles'];
+		$script = WP::$assets['registered_scripts']['switchrail-audit-admin-script'];
 
-		$this->assertSame( CUTOVER_AUDIT_URL . 'assets/css/admin.css', $style['src'] );
-		$this->assertSame( CUTOVER_AUDIT_URL . 'assets/js/admin.js', $script['src'] );
-		$this->assertSame( filemtime( CUTOVER_AUDIT_DIR . '/assets/css/admin.css' ), $style['ver'] );
+		$this->assertSame( SWITCHRAIL_AUDIT_URL . 'assets/css/admin.css', $style['src'] );
+		$this->assertSame( SWITCHRAIL_AUDIT_URL . 'assets/js/admin.js', $script['src'] );
+		$this->assertSame( filemtime( SWITCHRAIL_AUDIT_DIR . '/assets/css/admin.css' ), $style['ver'] );
 		$this->assertSame( array( 'jquery' ), $script['deps'] );
 		$this->assertTrue( $script['args'] );
 	}
 
 	public function test_the_script_gets_the_ajax_url_a_nonce_and_its_strings() {
-		$_GET['page'] = 'cutover-audit-plugins';
+		$_GET['page'] = 'switchrail-audit-plugins';
 
 		( new Assets() )->admin_enqueue_scripts();
 
-		$localized = WP::$assets['localized']['cutover-audit-admin-script'];
+		$localized = WP::$assets['localized']['switchrail-audit-admin-script'];
 
-		$this->assertSame( '_CUTOVER_AUDIT_', $localized['name'] );
+		$this->assertSame( '_SWITCHRAIL_AUDIT_', $localized['name'] );
 		$this->assertSame( 'https://example.test/wp-admin/admin-ajax.php', $localized['data']['ajax_url'] );
-		$this->assertSame( wp_create_nonce( 'cutover_audit_ajax_nonce' ), $localized['data']['nonce'] );
+		$this->assertSame( wp_create_nonce( 'switchrail_audit_ajax_nonce' ), $localized['data']['nonce'] );
 
 		foreach ( array( 'checking', 'error', 'scanning', 'findingCount', 'showingFiltered', 'showingAll', 'noResults', 'confirmTitle', 'confirmAction', 'cancel', 'pageRange', 'copied', 'expandAll' ) as $key ) {
 			$this->assertNotSame( '', $localized['data']['i18n'][ $key ] ?? '', $key );
@@ -95,9 +95,9 @@ class AssetsTest extends TestCase {
 
 		$this->assertSame( 'folded', $assets->add_body_class( 'folded' ) );
 
-		$_GET['page'] = 'cutover-audit-findings';
+		$_GET['page'] = 'switchrail-audit-findings';
 
-		$this->assertSame( 'folded cutover-audit-screen', $assets->add_body_class( 'folded' ) );
+		$this->assertSame( 'folded switchrail-audit-screen', $assets->add_body_class( 'folded' ) );
 	}
 
 	/**
@@ -110,7 +110,7 @@ class AssetsTest extends TestCase {
 
 		( new Assets() )->enqueue_menu_styles();
 
-		return implode( '', WP::$assets['inline_styles']['cutover-audit-menu'] ?? array() );
+		return implode( '', WP::$assets['inline_styles']['switchrail-audit-menu'] ?? array() );
 	}
 
 	public function test_menu_styles_load_on_every_admin_screen_without_a_file_or_a_style_tag() {
@@ -118,14 +118,14 @@ class AssetsTest extends TestCase {
 
 		$css = $this->menu_styles();
 
-		$this->assertSame( array( 'cutover-audit-menu' ), WP::$assets['enqueued_styles'] );
-		$this->assertFalse( WP::$assets['registered_styles']['cutover-audit-menu']['src'] );
+		$this->assertSame( array( 'switchrail-audit-menu' ), WP::$assets['enqueued_styles'] );
+		$this->assertFalse( WP::$assets['registered_styles']['switchrail-audit-menu']['src'] );
 		$this->assertNotSame( '', $css );
 		$this->assertStringNotContainsString( '<style', $css );
 	}
 
 	public function test_the_menu_icon_is_shown_at_full_opacity() {
-		$this->assertStringContainsString( '#toplevel_page_cutover-audit .wp-menu-image img{opacity:1', $this->menu_styles() );
+		$this->assertStringContainsString( '#toplevel_page_switchrail-audit .wp-menu-image img{opacity:1', $this->menu_styles() );
 	}
 
 	public function test_menu_styles_use_the_admin_colour_scheme() {
@@ -136,7 +136,7 @@ class AssetsTest extends TestCase {
 
 		$css = $this->menu_styles();
 
-		$this->assertStringContainsString( '#toplevel_page_cutover-audit .cutover-audit-menu-group{', $css );
+		$this->assertStringContainsString( '#toplevel_page_switchrail-audit .switchrail-audit-menu-group{', $css );
 		$this->assertStringContainsString( 'color:#a7aaad;', $css, 'falls back to the default scheme' );
 
 		WP::$user_options['admin_color'] = 'midnight';

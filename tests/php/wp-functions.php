@@ -11,15 +11,15 @@
  * This file must be loaded after Composer's autoloader: Brain Monkey can only
  * redefine functions declared in files Patchwork has seen being loaded.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
 // phpcs:disable -- Test support code that mirrors WordPress signatures.
 
-use CUTOVER_AUDIT\Tests\Support\Json_Response;
-use CUTOVER_AUDIT\Tests\Support\Redirect;
-use CUTOVER_AUDIT\Tests\Support\WP;
-use CUTOVER_AUDIT\Tests\Support\Wp_Die;
+use SWITCHRAIL_AUDIT\Tests\Support\Json_Response;
+use SWITCHRAIL_AUDIT\Tests\Support\Redirect;
+use SWITCHRAIL_AUDIT\Tests\Support\WP;
+use SWITCHRAIL_AUDIT\Tests\Support\Wp_Die;
 
 /*
  * ---------------------------------------------------------------------
@@ -537,7 +537,7 @@ function add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $call
 function add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $callback = '', $position = null ) {
 	WP::$submenu[] = compact( 'parent_slug', 'page_title', 'menu_title', 'capability', 'menu_slug', 'callback', 'position' );
 
-	return ( $parent_slug === $menu_slug ? 'toplevel_page_' : 'cutover-audit_page_' ) . $menu_slug;
+	return ( $parent_slug === $menu_slug ? 'toplevel_page_' : 'switchrail-audit_page_' ) . $menu_slug;
 }
 
 function wp_register_style( $handle, $src, $deps = array(), $ver = false, $media = 'all' ) {

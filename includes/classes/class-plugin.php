@@ -2,13 +2,13 @@
 /**
  * Plugin manifest class.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Classes;
+namespace SWITCHRAIL_AUDIT\Includes\Classes;
 
-use CUTOVER_AUDIT\Includes\Traits\Singleton;
-use CUTOVER_AUDIT\Includes\Scanner\Report;
+use SWITCHRAIL_AUDIT\Includes\Traits\Singleton;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Report;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -89,11 +89,11 @@ class Plugin {
 		$capability = is_multisite() ? 'manage_network_options' : 'manage_options';
 
 		/**
-		 * Filters the capability required to use Cutover Audit.
+		 * Filters the capability required to use Switchrail Audit.
 		 *
 		 * @param string $capability `manage_network_options` on multisite, `manage_options` otherwise.
 		 */
-		return (string) apply_filters( 'cutover_audit_capability', $capability );
+		return (string) apply_filters( 'switchrail_audit_capability', $capability );
 	}
 
 	/**
@@ -119,7 +119,7 @@ class Plugin {
 	 */
 	public function get_reference() {
 		if ( null === $this->reference ) {
-			$this->reference = $this->read_json( CUTOVER_AUDIT_DIR . '/data/data.json' );
+			$this->reference = $this->read_json( SWITCHRAIL_AUDIT_DIR . '/data/data.json' );
 		}
 
 		return $this->reference;
@@ -145,7 +145,7 @@ class Plugin {
 	 */
 	public function get_table_sources() {
 		if ( null === $this->table_sources ) {
-			$this->table_sources = $this->read_json( CUTOVER_AUDIT_DIR . '/data/table-sources.json' );
+			$this->table_sources = $this->read_json( SWITCHRAIL_AUDIT_DIR . '/data/table-sources.json' );
 		}
 
 		return $this->table_sources;

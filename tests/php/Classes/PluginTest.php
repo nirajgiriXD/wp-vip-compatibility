@@ -2,18 +2,18 @@
 /**
  * Tests for the plugin service container and reference data.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Classes;
+namespace SWITCHRAIL_AUDIT\Tests\Classes;
 
-use CUTOVER_AUDIT\Includes\Classes\Plugin;
-use CUTOVER_AUDIT\Tests\Support\Sandbox;
-use CUTOVER_AUDIT\Tests\TestCase;
+use SWITCHRAIL_AUDIT\Includes\Classes\Plugin;
+use SWITCHRAIL_AUDIT\Tests\Support\Sandbox;
+use SWITCHRAIL_AUDIT\Tests\TestCase;
 
 /**
- * @covers \CUTOVER_AUDIT\Includes\Classes\Plugin
- * @covers \CUTOVER_AUDIT\Includes\Traits\Singleton
+ * @covers \SWITCHRAIL_AUDIT\Includes\Classes\Plugin
+ * @covers \SWITCHRAIL_AUDIT\Includes\Traits\Singleton
  */
 class PluginTest extends TestCase {
 
@@ -22,7 +22,7 @@ class PluginTest extends TestCase {
 		// that exists is not constructed again. Forget them so their hooks are
 		// registered in this test.
 		foreach ( array( 'Assets', 'Ajax', 'Settings', 'Export', 'Findings_Settings' ) as $service ) {
-			$property = new \ReflectionProperty( 'CUTOVER_AUDIT\\Includes\\Classes\\' . $service, 'instance' );
+			$property = new \ReflectionProperty( 'SWITCHRAIL_AUDIT\\Includes\\Classes\\' . $service, 'instance' );
 			$property->setAccessible( true );
 			$property->setValue( null, null );
 		}
@@ -31,8 +31,8 @@ class PluginTest extends TestCase {
 
 		$this->assertNotFalse( has_action( 'admin_enqueue_scripts' ) );
 		$this->assertNotFalse( has_action( 'admin_menu' ) );
-		$this->assertNotFalse( has_action( 'wp_ajax_cutover_audit_scan_target' ) );
-		$this->assertNotFalse( has_action( 'admin_post_cutover_audit_export' ) );
+		$this->assertNotFalse( has_action( 'wp_ajax_switchrail_audit_scan_target' ) );
+		$this->assertNotFalse( has_action( 'admin_post_switchrail_audit_export' ) );
 		$this->assertNotFalse( has_action( 'upgrader_process_complete' ) );
 	}
 
@@ -80,7 +80,7 @@ class PluginTest extends TestCase {
 
 	public function test_the_bundled_data_files_are_valid_json() {
 		foreach ( array( 'data.json', 'table-sources.json' ) as $file ) {
-			json_decode( file_get_contents( CUTOVER_AUDIT_DIR . '/data/' . $file ), true );
+			json_decode( file_get_contents( SWITCHRAIL_AUDIT_DIR . '/data/' . $file ), true );
 
 			$this->assertSame( JSON_ERROR_NONE, json_last_error(), $file );
 		}

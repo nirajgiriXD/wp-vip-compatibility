@@ -2,18 +2,18 @@
 /**
  * Tests for the database schema audit.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Scanner;
+namespace SWITCHRAIL_AUDIT\Tests\Scanner;
 
-use CUTOVER_AUDIT\Includes\Scanner\Database_Audit;
-use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
-use CUTOVER_AUDIT\Tests\Support\WP;
-use CUTOVER_AUDIT\Tests\TestCase;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Database_Audit;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Taxonomy;
+use SWITCHRAIL_AUDIT\Tests\Support\WP;
+use SWITCHRAIL_AUDIT\Tests\TestCase;
 
 /**
- * @covers \CUTOVER_AUDIT\Includes\Scanner\Database_Audit
+ * @covers \SWITCHRAIL_AUDIT\Includes\Scanner\Database_Audit
  */
 class DatabaseAuditTest extends TestCase {
 

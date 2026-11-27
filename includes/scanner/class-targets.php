@@ -12,10 +12,10 @@
  * that WordPress itself reports. A key that does not resolve is simply rejected,
  * so no caller-supplied path ever reaches the filesystem layer.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Scanner;
+namespace SWITCHRAIL_AUDIT\Includes\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 

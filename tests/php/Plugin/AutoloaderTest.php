@@ -2,16 +2,16 @@
 /**
  * Tests for the class autoloader.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Plugin;
+namespace SWITCHRAIL_AUDIT\Tests\Plugin;
 
-use CUTOVER_AUDIT\Includes\Helpers\Autoloader;
-use CUTOVER_AUDIT\Tests\TestCase;
+use SWITCHRAIL_AUDIT\Includes\Helpers\Autoloader;
+use SWITCHRAIL_AUDIT\Tests\TestCase;
 
 /**
- * @covers \CUTOVER_AUDIT\Includes\Helpers\Autoloader
+ * @covers \SWITCHRAIL_AUDIT\Includes\Helpers\Autoloader
  */
 class AutoloaderTest extends TestCase {
 
@@ -31,7 +31,7 @@ class AutoloaderTest extends TestCase {
 			$short     = implode( '_', array_map( 'ucfirst', explode( '-', $short ) ) );
 
 			$cases[ $directory . '/' . basename( $file ) ] = array(
-				'CUTOVER_AUDIT\\Includes\\' . ucfirst( $directory ) . '\\' . $short,
+				'SWITCHRAIL_AUDIT\\Includes\\' . ucfirst( $directory ) . '\\' . $short,
 				$kind,
 			);
 		}
@@ -54,8 +54,8 @@ class AutoloaderTest extends TestCase {
 
 	public function test_other_namespaces_are_left_to_other_autoloaders() {
 		$this->assertFalse( class_exists( 'Some\\Other\\Thing' ) );
-		$this->assertFalse( class_exists( 'CUTOVER_AUDIT\\Elsewhere\\Thing' ) );
-		$this->assertFalse( class_exists( 'CUTOVER_AUDIT\\Includes\\Classes\\Does_Not_Exist' ) );
+		$this->assertFalse( class_exists( 'SWITCHRAIL_AUDIT\\Elsewhere\\Thing' ) );
+		$this->assertFalse( class_exists( 'SWITCHRAIL_AUDIT\\Includes\\Classes\\Does_Not_Exist' ) );
 	}
 
 	public function test_the_autoloader_is_registered() {

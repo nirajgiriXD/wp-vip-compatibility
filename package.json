@@ -1,5 +1,5 @@
 {
-  "name": "cutover-audit",
+  "name": "switchrail-audit",
   "private": true,
   "description": "Checks a WordPress site against the WordPress VIP Platform requirements before migrating.",
   "license": "GPL-3.0-or-later",

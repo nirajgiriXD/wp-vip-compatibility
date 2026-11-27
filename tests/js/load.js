@@ -70,7 +70,7 @@ function load(html) {
 	document.body.innerHTML = html;
 
 	window.jQuery = window.$ = jQuery;
-	window._CUTOVER_AUDIT_ = {
+	window._SWITCHRAIL_AUDIT_ = {
 		ajax_url: "https://example.test/wp-admin/admin-ajax.php",
 		nonce: "abc123",
 		i18n: I18N

@@ -2,10 +2,10 @@
 /**
  * In-memory state behind the fake WordPress functions.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Support;
+namespace SWITCHRAIL_AUDIT\Tests\Support;
 
 /**
  * Holds everything the fake WordPress layer reads and writes.

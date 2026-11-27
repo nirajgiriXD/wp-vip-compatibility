@@ -16,17 +16,17 @@
  * that is genuinely identical — the toolbar, the async scan hooks, the detail
  * drawer, the verdict resolution — lives here once.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Classes;
+namespace SWITCHRAIL_AUDIT\Includes\Classes;
 
-use CUTOVER_AUDIT\Includes\Scanner\Known_Plugins;
-use CUTOVER_AUDIT\Includes\Scanner\Report;
-use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
-use CUTOVER_AUDIT\Includes\Scanner\Scanner;
-use CUTOVER_AUDIT\Includes\Scanner\Targets;
-use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Known_Plugins;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Report;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Results_Store;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Scanner;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Targets;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -171,15 +171,15 @@ abstract class Inventory_Screen {
 			)
 		);
 
-		echo '<div class="cutover-audit-table-wrap" data-role="table-view">';
-		echo '<table class="cutover-audit-table cutover-audit-table--expandable" aria-label="' . esc_attr( $this->get_table_title() ) . '">';
+		echo '<div class="switchrail-audit-table-wrap" data-role="table-view">';
+		echo '<table class="switchrail-audit-table switchrail-audit-table--expandable" aria-label="' . esc_attr( $this->get_table_title() ) . '">';
 
 		UI::render_table_head(
 			array_merge(
 				array(
 					array(
 						'label' => '',
-						'class' => 'cutover-audit-col-toggle',
+						'class' => 'switchrail-audit-col-toggle',
 					),
 				),
 				$this->get_columns()
@@ -257,26 +257,26 @@ abstract class Inventory_Screen {
 	protected function get_status_filter() {
 		return array(
 			'name'    => 'status',
-			'label'   => __( 'Filter by verdict', 'cutover-audit' ),
+			'label'   => __( 'Filter by verdict', 'switchrail-audit' ),
 			'active'  => $this->read_status(),
 			'options' => array(
 				array(
 					'value' => 'all',
-					'label' => __( 'All verdicts', 'cutover-audit' ),
+					'label' => __( 'All verdicts', 'switchrail-audit' ),
 				),
 				array(
 					'value' => 'not-compatible',
-					'label' => __( 'Needs work', 'cutover-audit' ),
+					'label' => __( 'Needs work', 'switchrail-audit' ),
 					'dot'   => 'bad',
 				),
 				array(
 					'value' => 'review',
-					'label' => __( 'Review', 'cutover-audit' ),
+					'label' => __( 'Review', 'switchrail-audit' ),
 					'dot'   => 'warn',
 				),
 				array(
 					'value' => 'compatible',
-					'label' => __( 'Passing', 'cutover-audit' ),
+					'label' => __( 'Passing', 'switchrail-audit' ),
 					'dot'   => 'ok',
 				),
 			),
@@ -292,7 +292,7 @@ abstract class Inventory_Screen {
 	 */
 	protected function render_row( array $target, array $context ) {
 		$verdict = $context['verdicts'][ $target['key'] ] ?? Report::verdict( $target, $context['index'] );
-		$detail  = UI::next_id( 'cutover-audit-detail' );
+		$detail  = UI::next_id( 'switchrail-audit-detail' );
 
 		$attributes = ' data-status="' . esc_attr( $verdict['state'] ) . '"';
 
@@ -300,14 +300,14 @@ abstract class Inventory_Screen {
 			$attributes .= sprintf( ' data-%s="%s"', esc_attr( $name ), esc_attr( $value ) );
 		}
 
-		echo '<tr class="cutover-audit-row"' . $attributes . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
+		echo '<tr class="switchrail-audit-row"' . $attributes . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
 
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		echo UI::get_row_toggle(
 			$detail,
 			sprintf(
 				/* translators: %s: Item name. */
-				__( 'Show details for %s', 'cutover-audit' ),
+				__( 'Show details for %s', 'switchrail-audit' ),
 				$target['label']
 			)
 		);
@@ -335,7 +335,7 @@ abstract class Inventory_Screen {
 		$columns = count( $this->get_columns() ) + 1;
 
 		printf(
-			'<tr class="cutover-audit-row-detail" id="%1$s" hidden><td colspan="%2$d">',
+			'<tr class="switchrail-audit-row-detail" id="%1$s" hidden><td colspan="%2$d">',
 			esc_attr( $id ),
 			(int) $columns
 		);
@@ -345,19 +345,19 @@ abstract class Inventory_Screen {
 		 * row above it: the facts on the left, what the findings are about on
 		 * the right.
 		 */
-		echo '<div class="cutover-audit-detail"><div class="cutover-audit-detail__card">';
+		echo '<div class="switchrail-audit-detail"><div class="switchrail-audit-detail__card">';
 
-		echo '<section class="cutover-audit-detail__section">';
-		echo '<h3 class="cutover-audit-detail__title">' . esc_html__( 'Details', 'cutover-audit' ) . '</h3>';
-		echo UI::get_defs( $this->get_detail_rows( $target, $verdict, $context, $entry ), 'cutover-audit-defs--detail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo '<section class="switchrail-audit-detail__section">';
+		echo '<h3 class="switchrail-audit-detail__title">' . esc_html__( 'Details', 'switchrail-audit' ) . '</h3>';
+		echo UI::get_defs( $this->get_detail_rows( $target, $verdict, $context, $entry ), 'switchrail-audit-defs--detail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
 		// No findings button here: the row's own "Review N findings" link already goes there.
 		if ( is_array( $verdict['known'] ) && ! empty( $verdict['known']['doc'] ) ) {
-			echo '<div class="cutover-audit-detail__actions">';
+			echo '<div class="switchrail-audit-detail__actions">';
 			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 			echo UI::get_action_button(
 				array(
-					'label'    => __( 'WordPress VIP documentation', 'cutover-audit' ),
+					'label'    => __( 'WordPress VIP documentation', 'switchrail-audit' ),
 					'url'      => $verdict['known']['doc'],
 					'icon'     => 'external',
 					'external' => true,
@@ -369,15 +369,15 @@ abstract class Inventory_Screen {
 
 		echo '</section>';
 
-		echo '<section class="cutover-audit-detail__section">';
-		echo '<h3 class="cutover-audit-detail__title">' . esc_html__( 'What the findings are about', 'cutover-audit' ) . '</h3>';
+		echo '<section class="switchrail-audit-detail__section">';
+		echo '<h3 class="switchrail-audit-detail__title">' . esc_html__( 'What the findings are about', 'switchrail-audit' ) . '</h3>';
 
 		$this->render_detail_topics( $target, $entry, (array) ( $summary['by_category'] ?? array() ) );
 
 		if ( ! empty( $entry['truncated'] ) ) {
 			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 			echo UI::get_notice(
-				esc_html__( 'This item is large enough that the scan stopped early. Fix what is listed and rescan to see the rest.', 'cutover-audit' ),
+				esc_html__( 'This item is large enough that the scan stopped early. Fix what is listed and rescan to see the rest.', 'switchrail-audit' ),
 				'info'
 			);
 			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -403,13 +403,13 @@ abstract class Inventory_Screen {
 
 		if ( empty( $categories ) ) {
 			$message = empty( $entry )
-				? __( 'Not scanned yet.', 'cutover-audit' )
-				: __( 'No findings. Nothing to do here.', 'cutover-audit' );
+				? __( 'Not scanned yet.', 'switchrail-audit' )
+				: __( 'No findings. Nothing to do here.', 'switchrail-audit' );
 
 			printf(
-				'<p class="cutover-audit-detail__empty%1$s">%2$s%3$s</p>',
+				'<p class="switchrail-audit-detail__empty%1$s">%2$s%3$s</p>',
 				empty( $entry ) ? '' : ' is-clear',
-				empty( $entry ) ? '' : UI::get_icon( 'check', array( 'class' => 'cutover-audit-icon cutover-audit-icon--xs' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+				empty( $entry ) ? '' : UI::get_icon( 'check', array( 'class' => 'switchrail-audit-icon switchrail-audit-icon--xs' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
 				esc_html( $message )
 			);
 
@@ -421,11 +421,11 @@ abstract class Inventory_Screen {
 		$largest = max( $categories );
 		$base    = UI::get_findings_url( $target['key'] );
 
-		echo '<ul class="cutover-audit-topics">';
+		echo '<ul class="switchrail-audit-topics">';
 
 		foreach ( $categories as $category => $count ) {
 			printf(
-				'<li><a class="cutover-audit-topics__link" href="%1$s"><span class="cutover-audit-topics__name">%2$s</span><span class="cutover-audit-topics__bar" aria-hidden="true"><span style="width:%3$d%%"></span></span><span class="cutover-audit-topics__count">%4$s</span></a></li>',
+				'<li><a class="switchrail-audit-topics__link" href="%1$s"><span class="switchrail-audit-topics__name">%2$s</span><span class="switchrail-audit-topics__bar" aria-hidden="true"><span style="width:%3$d%%"></span></span><span class="switchrail-audit-topics__count">%4$s</span></a></li>',
 				esc_url( add_query_arg( 'category', $category, $base ) ),
 				esc_html( Taxonomy::get_label( 'category', $category ) ),
 				(int) max( 6, round( $count / $largest * 100 ) ),
@@ -452,28 +452,28 @@ abstract class Inventory_Screen {
 
 		if ( '' !== $target['author'] ) {
 			$rows[] = array(
-				'label' => __( 'Author', 'cutover-audit' ),
+				'label' => __( 'Author', 'switchrail-audit' ),
 				'value' => $target['author'],
 			);
 		}
 
 		// A long path may only wrap after a slash, never mid-name.
 		$rows[] = array(
-			'label' => __( 'Location', 'cutover-audit' ),
+			'label' => __( 'Location', 'switchrail-audit' ),
 			'html'  => '<code>' . implode( '/<wbr>', array_map( 'esc_html', explode( '/', $this->get_relative_path( $target ) ) ) ) . '</code>',
 		);
 
 		if ( ! empty( $entry ) ) {
 			$rows[] = array(
-				'label' => __( 'Code read', 'cutover-audit' ),
+				'label' => __( 'Code read', 'switchrail-audit' ),
 				'value' => sprintf(
 					/* translators: %s: Number of PHP files. */
-					_n( '%s PHP file', '%s PHP files', (int) ( $entry['files_scanned'] ?? 0 ), 'cutover-audit' ),
+					_n( '%s PHP file', '%s PHP files', (int) ( $entry['files_scanned'] ?? 0 ), 'switchrail-audit' ),
 					number_format_i18n( (int) ( $entry['files_scanned'] ?? 0 ) )
 				),
 				'hint'  => empty( $entry['scanned_at'] ) ? '' : sprintf(
 					/* translators: %s: Human-readable time difference. */
-					__( 'Scanned %s ago', 'cutover-audit' ),
+					__( 'Scanned %s ago', 'switchrail-audit' ),
 					human_time_diff( (int) $entry['scanned_at'] )
 				),
 			);
@@ -493,7 +493,7 @@ abstract class Inventory_Screen {
 			$label  = $known['label'] ?? '';
 
 			$rows[] = array(
-				'label' => __( 'On the WordPress VIP list', 'cutover-audit' ),
+				'label' => __( 'On the WordPress VIP list', 'switchrail-audit' ),
 				'value' => ( '' === $label ) ? $reason : $label,
 				'hint'  => ( '' === $label ) ? '' : $reason,
 				'tone'  => ( Known_Plugins::INCOMPATIBLE === ( $known['classification'] ?? '' ) ) ? 'bad' : 'warn',
@@ -529,16 +529,16 @@ abstract class Inventory_Screen {
 	 * @return void
 	 */
 	protected function render_name_cell( array $target, array $badges = array(), $path = '' ) {
-		echo '<td class="cutover-audit-col-name" data-label="' . esc_attr__( 'Item', 'cutover-audit' ) . '">';
-		echo '<span class="cutover-audit-item">';
-		echo '<span class="cutover-audit-item__name">' . esc_html( $target['label'] );
+		echo '<td class="switchrail-audit-col-name" data-label="' . esc_attr__( 'Item', 'switchrail-audit' ) . '">';
+		echo '<span class="switchrail-audit-item">';
+		echo '<span class="switchrail-audit-item__name">' . esc_html( $target['label'] );
 
 		foreach ( $badges as $badge ) {
 			echo ' ' . $badge; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the caller through UI::get_badge().
 		}
 
 		echo '</span>';
-		echo '<code class="cutover-audit-item__path">' . esc_html( '' === $path ? $target['file'] : $path ) . '</code>';
+		echo '<code class="switchrail-audit-item__path">' . esc_html( '' === $path ? $target['file'] : $path ) . '</code>';
 		echo '</span>';
 		echo '</td>';
 	}
@@ -554,27 +554,27 @@ abstract class Inventory_Screen {
 	 * @return void
 	 */
 	protected function render_version_cell( array $target, array $context ) {
-		echo '<td class="cutover-audit-col-version" data-label="' . esc_attr__( 'Version', 'cutover-audit' ) . '">';
+		echo '<td class="switchrail-audit-col-version" data-label="' . esc_attr__( 'Version', 'switchrail-audit' ) . '">';
 
 		if ( '' === $target['version'] ) {
-			echo '<span class="cutover-audit-dash" aria-hidden="true">—</span>';
+			echo '<span class="switchrail-audit-dash" aria-hidden="true">—</span>';
 			echo '</td>';
 
 			return;
 		}
 
-		echo '<span class="cutover-audit-version">' . esc_html( $target['version'] ) . '</span>';
+		echo '<span class="switchrail-audit-version">' . esc_html( $target['version'] ) . '</span>';
 
 		$available = $this->get_available_version( $target, $context );
 
 		if ( '' !== $available ) {
 			printf(
-				'<span class="cutover-audit-version__update" title="%1$s">%2$s</span>',
-				esc_attr__( 'An update is available. Update first, so the scan reads the code you will actually ship.', 'cutover-audit' ),
+				'<span class="switchrail-audit-version__update" title="%1$s">%2$s</span>',
+				esc_attr__( 'An update is available. Update first, so the scan reads the code you will actually ship.', 'switchrail-audit' ),
 				esc_html(
 					sprintf(
 						/* translators: %s: Version number. */
-						__( '→ %s', 'cutover-audit' ),
+						__( '→ %s', 'switchrail-audit' ),
 						$available
 					)
 				)
@@ -616,12 +616,12 @@ abstract class Inventory_Screen {
 		$summary = (array) ( $entry['summary']['by_severity'] ?? array() );
 		$bar     = UI::get_severity_bar( $summary, $target['key'] );
 
-		echo '<td class="cutover-audit-col-findings" data-label="' . esc_attr__( 'Findings', 'cutover-audit' ) . '">';
+		echo '<td class="switchrail-audit-col-findings" data-label="' . esc_attr__( 'Findings', 'switchrail-audit' ) . '">';
 
 		if ( '' === $bar ) {
 			echo ( 'pending' === $verdict['state'] )
-				? '<span class="cutover-audit-dash" aria-hidden="true">—</span>'
-				: '<span class="cutover-audit-clear">' . esc_html__( 'None', 'cutover-audit' ) . '</span>';
+				? '<span class="switchrail-audit-dash" aria-hidden="true">—</span>'
+				: '<span class="switchrail-audit-clear">' . esc_html__( 'None', 'switchrail-audit' ) . '</span>';
 		} else {
 			echo $bar; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		}
@@ -641,7 +641,7 @@ abstract class Inventory_Screen {
 		// helpers that build them, and kses strips the inline <svg> arrow out of
 		// the "Fix N findings" link, leaving the one call to action without its
 		// affordance on every row.
-		echo '<td class="cutover-audit-col-notes" data-label="' . esc_attr__( 'What to do', 'cutover-audit' ) . '">'
+		echo '<td class="switchrail-audit-col-notes" data-label="' . esc_attr__( 'What to do', 'switchrail-audit' ) . '">'
 			. UI::get_notes_list( $this->get_notes( $target, $verdict ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Every fragment is escaped by get_known_note(), UI::get_findings_link() or esc_html() before it reaches here.
 			. '</td>';
 	}
@@ -710,7 +710,7 @@ abstract class Inventory_Screen {
 		}
 
 		return sprintf(
-			'<a class="cutover-audit-link" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+			'<a class="switchrail-audit-link" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
 			esc_url( $doc ),
 			esc_html( $note )
 		);

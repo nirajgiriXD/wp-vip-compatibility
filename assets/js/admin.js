@@ -1,5 +1,5 @@
 /**
- * Cutover Audit — admin interactions.
+ * Switchrail Audit — admin interactions.
  *
  * Behaviour is grouped into small controllers, each owning one concern:
  *
@@ -23,7 +23,7 @@
 jQuery(document).ready(function ($) {
 	"use strict";
 
-	var settings = window._CUTOVER_AUDIT_ || {};
+	var settings = window._SWITCHRAIL_AUDIT_ || {};
 	var i18n = settings.i18n || {};
 
 	/* ---------------------------------------------------------------------
@@ -77,10 +77,10 @@ jQuery(document).ready(function ($) {
 			return "";
 		}
 
-		var classes = "cutover-audit-icon";
+		var classes = "switchrail-audit-icon";
 
 		if (size) {
-			classes += " cutover-audit-icon--" + size;
+			classes += " switchrail-audit-icon--" + size;
 		}
 
 		if (extraClass) {
@@ -110,8 +110,8 @@ jQuery(document).ready(function ($) {
 	function buildPill(state, label) {
 		var modifier = state === "compatible" ? "ok" : state === "review" ? "warn" : "bad";
 
-		return $("<span/>", { class: "cutover-audit-status cutover-audit-status--" + modifier })
-			.append($("<span/>", { class: "cutover-audit-status__glyph", "aria-hidden": "true" }))
+		return $("<span/>", { class: "switchrail-audit-status switchrail-audit-status--" + modifier })
+			.append($("<span/>", { class: "switchrail-audit-status__glyph", "aria-hidden": "true" }))
 			.append($("<span/>").text(label));
 	}
 
@@ -122,8 +122,8 @@ jQuery(document).ready(function ($) {
 	 * @returns {jQuery} The pill element.
 	 */
 	function buildPendingPill(label) {
-		return $("<span/>", { class: "cutover-audit-status cutover-audit-status--pending" })
-			.append($("<span/>", { class: "cutover-audit-spinner cutover-audit-spinner--xs", "aria-hidden": "true" }))
+		return $("<span/>", { class: "switchrail-audit-status switchrail-audit-status--pending" })
+			.append($("<span/>", { class: "switchrail-audit-spinner switchrail-audit-spinner--xs", "aria-hidden": "true" }))
 			.append($("<span/>").text(label));
 	}
 
@@ -134,7 +134,7 @@ jQuery(document).ready(function ($) {
 	 * @returns {jQuery} The row and, when present, its detail row.
 	 */
 	function pairOf($row) {
-		var $next = $row.next(".cutover-audit-row-detail");
+		var $next = $row.next(".switchrail-audit-row-detail");
 
 		return $next.length ? $row.add($next) : $row;
 	}
@@ -144,7 +144,7 @@ jQuery(document).ready(function ($) {
 	 * ------------------------------------------------------------------ */
 
 	(function menus() {
-		var $menus = $(".cutover-audit-menu");
+		var $menus = $(".switchrail-audit-menu");
 
 		if (!$menus.length) {
 			return;
@@ -209,7 +209,7 @@ jQuery(document).ready(function ($) {
 				return;
 			}
 
-			var $search = $(".cutover-audit .cutover-audit-search__input:visible").first();
+			var $search = $(".switchrail-audit .switchrail-audit-search__input:visible").first();
 
 			if ($search.length) {
 				event.preventDefault();
@@ -224,7 +224,7 @@ jQuery(document).ready(function ($) {
 
 	(function findings() {
 		var $toggle = $("[data-role='expand-all']");
-		var $entries = $(".cutover-audit-fixlist details.cutover-audit-fix");
+		var $entries = $(".switchrail-audit-fixlist details.switchrail-audit-fix");
 
 		if (!$toggle.length || !$entries.length) {
 			return;
@@ -263,13 +263,13 @@ jQuery(document).ready(function ($) {
 	 * ------------------------------------------------------------------ */
 
 	(function tiers() {
-		var $nav = $(".cutover-audit-findings__toolbar .cutover-audit-segmented");
+		var $nav = $(".switchrail-audit-findings__toolbar .switchrail-audit-segmented");
 
 		if (!$nav.length) {
 			return;
 		}
 
-		var $groups = $(".cutover-audit-fixlist > .cutover-audit-tiergroup");
+		var $groups = $(".switchrail-audit-fixlist > .switchrail-audit-tiergroup");
 		var $empty = $("[data-role='tier-empty']");
 		var $count = $("[data-role='findings-count']");
 
@@ -299,14 +299,14 @@ jQuery(document).ready(function ($) {
 		 * @param {boolean} push Whether to add a history entry.
 		 */
 		function select(tier, push) {
-			var $option = $nav.find(".cutover-audit-segmented__option[data-tier='" + tier + "']");
+			var $option = $nav.find(".switchrail-audit-segmented__option[data-tier='" + tier + "']");
 
 			if (!$option.length) {
 				tier = "";
-				$option = $nav.find(".cutover-audit-segmented__option[data-tier='']");
+				$option = $nav.find(".switchrail-audit-segmented__option[data-tier='']");
 			}
 
-			$nav.find(".cutover-audit-segmented__option").removeClass("active").removeAttr("aria-current");
+			$nav.find(".switchrail-audit-segmented__option").removeClass("active").removeAttr("aria-current");
 			$option.addClass("active").attr("aria-current", "true");
 
 			var visible = 0;
@@ -327,7 +327,7 @@ jQuery(document).ready(function ($) {
 				window.history.pushState({ tier: tier }, "", withTier(window.location.href, tier));
 			}
 
-			var $form = $(".cutover-audit-findings__toolbar form.cutover-audit-search");
+			var $form = $(".switchrail-audit-findings__toolbar form.switchrail-audit-search");
 
 			$form.find("input[name='tier']").remove();
 
@@ -335,12 +335,12 @@ jQuery(document).ready(function ($) {
 				$form.append($('<input type="hidden" name="tier">').val(tier));
 			}
 
-			$(".cutover-audit-findings__active a.cutover-audit-activefilter").each(function () {
+			$(".switchrail-audit-findings__active a.switchrail-audit-activefilter").each(function () {
 				this.href = withTier(this.href, tier);
 			});
 		}
 
-		$nav.on("click", "a.cutover-audit-segmented__option", function (event) {
+		$nav.on("click", "a.switchrail-audit-segmented__option", function (event) {
 			// A modified click still opens the link wherever the reader asked.
 			if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
 				return;
@@ -383,23 +383,23 @@ jQuery(document).ready(function ($) {
 			}
 
 			// Inside the plugin's wrapper so the screen's styles reach it.
-			$dialog = $('<dialog class="cutover-audit-dialog" aria-labelledby="cutover-audit-dialog-title"></dialog>')
-				.append($('<h2 class="cutover-audit-dialog__title" id="cutover-audit-dialog-title"></h2>').text(i18n.confirmTitle || ""))
-				.append($('<p class="cutover-audit-dialog__body"></p>').text(i18n.confirmBody || ""))
+			$dialog = $('<dialog class="switchrail-audit-dialog" aria-labelledby="switchrail-audit-dialog-title"></dialog>')
+				.append($('<h2 class="switchrail-audit-dialog__title" id="switchrail-audit-dialog-title"></h2>').text(i18n.confirmTitle || ""))
+				.append($('<p class="switchrail-audit-dialog__body"></p>').text(i18n.confirmBody || ""))
 				.append(
-					$('<div class="cutover-audit-dialog__actions"></div>')
+					$('<div class="switchrail-audit-dialog__actions"></div>')
 						.append(
-							$('<button type="button" class="cutover-audit-btn cutover-audit-btn--ghost cutover-audit-btn--sm" data-dialog="cancel"></button>').text(
+							$('<button type="button" class="switchrail-audit-btn switchrail-audit-btn--ghost switchrail-audit-btn--sm" data-dialog="cancel"></button>').text(
 								i18n.cancel || ""
 							)
 						)
 						.append(
-							$('<button type="button" class="cutover-audit-btn cutover-audit-btn--primary cutover-audit-btn--sm" data-dialog="confirm"></button>')
+							$('<button type="button" class="switchrail-audit-btn switchrail-audit-btn--primary switchrail-audit-btn--sm" data-dialog="confirm"></button>')
 								.append(icon("refresh", "sm"))
 								.append($("<span/>").text(i18n.confirmAction || ""))
 						)
 				)
-				.appendTo($(".wrap.cutover-audit").first().length ? $(".wrap.cutover-audit").first() : document.body);
+				.appendTo($(".wrap.switchrail-audit").first().length ? $(".wrap.switchrail-audit").first() : document.body);
 
 			$dialog.on("click", "[data-dialog='cancel']", function () {
 				$dialog[0].close();
@@ -493,8 +493,8 @@ jQuery(document).ready(function ($) {
 		 */
 		// Both shapes a posting form takes: one button on its own, and the menu
 		// of scoped rescans.
-		var FORMS = ".cutover-audit-inline-form, .cutover-audit-menu__form";
-		var SUBMITS = ".cutover-audit-inline-form button[type='submit'], .cutover-audit-menu__form button[type='submit']";
+		var FORMS = ".switchrail-audit-inline-form, .switchrail-audit-menu__form";
+		var SUBMITS = ".switchrail-audit-inline-form button[type='submit'], .switchrail-audit-menu__form button[type='submit']";
 		var $pressed = null;
 
 		$(document).on("click", SUBMITS, function () {
@@ -562,7 +562,7 @@ jQuery(document).ready(function ($) {
 			// button has nothing to say, so the icon itself becomes the feedback.
 			var $label = $button.children("span").not(".screen-reader-text").first();
 			var original = $label.length ? $label.text() : "";
-			var timer = $button.data("cutoverAuditResetTimer");
+			var timer = $button.data("switchrailAuditResetTimer");
 
 			window.clearTimeout(timer);
 
@@ -585,7 +585,7 @@ jQuery(document).ready(function ($) {
 				})
 				.always(function () {
 					$button.data(
-						"cutoverAuditResetTimer",
+						"switchrailAuditResetTimer",
 						window.setTimeout(function () {
 							$button.removeClass("is-copied");
 
@@ -614,7 +614,7 @@ jQuery(document).ready(function ($) {
 		 */
 		function toggle($button) {
 			var $row = $button.closest("tr");
-			var $detail = $row.next(".cutover-audit-row-detail");
+			var $detail = $row.next(".switchrail-audit-row-detail");
 			var open = $button.attr("aria-expanded") !== "true";
 
 			if (!$detail.length) {
@@ -647,7 +647,7 @@ jQuery(document).ready(function ($) {
 		 * Two things have to keep working inside a clickable row: the links in
 		 * it, and selecting text out of it.
 		 */
-		$(document).on("click", ".cutover-audit-table--expandable tbody tr.cutover-audit-row", function (event) {
+		$(document).on("click", ".switchrail-audit-table--expandable tbody tr.switchrail-audit-row", function (event) {
 			// A click that landed on its own control belongs to that control.
 			// This also covers the toggle button, whose own handler already ran.
 			if ($(event.target).closest("a, button, input, select, textarea, label, summary").length) {
@@ -688,7 +688,7 @@ jQuery(document).ready(function ($) {
 	 */
 	function createTableView(container) {
 		var $container = $(container);
-		var $table = $container.find(".cutover-audit-table").first();
+		var $table = $container.find(".switchrail-audit-table").first();
 
 		if (!$table.length) {
 			return null;
@@ -696,13 +696,13 @@ jQuery(document).ready(function ($) {
 
 		// The toolbar sits before the table wrapper, so the closest preceding one
 		// belongs to this view even when the screen renders several.
-		var $toolbar = $container.prevAll(".cutover-audit-toolbar").first();
-		var $scan = $container.prevAll(".cutover-audit-scan").first();
+		var $toolbar = $container.prevAll(".switchrail-audit-toolbar").first();
+		var $scan = $container.prevAll(".switchrail-audit-scan").first();
 		var $tbody = $table.children("tbody");
-		var $rows = $tbody.children("tr.cutover-audit-row");
+		var $rows = $tbody.children("tr.switchrail-audit-row");
 
 		if (!$rows.length) {
-			$rows = $tbody.children("tr").not(".cutover-audit-row-detail").not("[data-empty]");
+			$rows = $tbody.children("tr").not(".switchrail-audit-row-detail").not("[data-empty]");
 		}
 
 		var $groups = $toolbar.find("[data-filter-group]");
@@ -726,7 +726,7 @@ jQuery(document).ready(function ($) {
 
 		function getNoResultsRow() {
 			if (!$noResults) {
-				$noResults = $('<tr class="cutover-audit-no-results"><td></td></tr>');
+				$noResults = $('<tr class="switchrail-audit-no-results"><td></td></tr>');
 				$noResults
 					.children("td")
 					.attr("colspan", columnCount)
@@ -824,7 +824,7 @@ jQuery(document).ready(function ($) {
 					// yet, so a number would be a guess.
 					var unknown = state.countsPending && name === "status" && value !== "all";
 
-					$button.find(".cutover-audit-segmented__count").text(unknown ? "" : String(count));
+					$button.find(".switchrail-audit-segmented__count").text(unknown ? "" : String(count));
 				});
 			});
 		}
@@ -836,20 +836,20 @@ jQuery(document).ready(function ($) {
 		 */
 		function getPager() {
 			if (!$pager) {
-				$pager = $('<nav class="cutover-audit-pager" hidden></nav>').attr("aria-label", i18n.pager || "");
+				$pager = $('<nav class="switchrail-audit-pager" hidden></nav>').attr("aria-label", i18n.pager || "");
 
 				$pager
-					.append($('<p class="cutover-audit-pager__range" aria-live="polite"></p>'))
+					.append($('<p class="switchrail-audit-pager__range" aria-live="polite"></p>'))
 					.append(
-						$('<div class="cutover-audit-pager__controls"></div>')
+						$('<div class="switchrail-audit-pager__controls"></div>')
 							.append(
-								$('<button type="button" class="cutover-audit-btn cutover-audit-btn--ghost cutover-audit-btn--sm" data-page="prev"></button>')
+								$('<button type="button" class="switchrail-audit-btn switchrail-audit-btn--ghost switchrail-audit-btn--sm" data-page="prev"></button>')
 									.append(icon("chevron-left", "sm"))
 									.append($("<span/>").text(i18n.previous || ""))
 							)
-							.append($('<span class="cutover-audit-pager__page"></span>'))
+							.append($('<span class="switchrail-audit-pager__page"></span>'))
 							.append(
-								$('<button type="button" class="cutover-audit-btn cutover-audit-btn--ghost cutover-audit-btn--sm" data-page="next"></button>')
+								$('<button type="button" class="switchrail-audit-btn switchrail-audit-btn--ghost switchrail-audit-btn--sm" data-page="next"></button>')
 									.append($("<span/>").text(i18n.next || ""))
 									.append(icon("chevron-right", "sm"))
 							)
@@ -892,8 +892,8 @@ jQuery(document).ready(function ($) {
 			var last = Math.min(state.page * PAGE_SIZE, matched);
 
 			$nav.prop("hidden", false);
-			$nav.find(".cutover-audit-pager__range").text(format(i18n.pageRange, first, last, matched));
-			$nav.find(".cutover-audit-pager__page").text(format(i18n.pageOf, state.page, pages));
+			$nav.find(".switchrail-audit-pager__range").text(format(i18n.pageRange, first, last, matched));
+			$nav.find(".switchrail-audit-pager__page").text(format(i18n.pageOf, state.page, pages));
 			$nav.find("[data-page='prev']").prop("disabled", state.page <= 1);
 			$nav.find("[data-page='next']").prop("disabled", state.page >= pages);
 		}
@@ -938,7 +938,7 @@ jQuery(document).ready(function ($) {
 				// A hidden row must not leave its drawer behind. `is-open` is the
 				// reader's choice and survives filtering, so a row that comes back
 				// into view comes back expanded if that is how they left it.
-				var $detail = $row.next(".cutover-audit-row-detail");
+				var $detail = $row.next(".switchrail-audit-row-detail");
 
 				if ($detail.length) {
 					$detail.toggle(show && $row.hasClass("is-open"));
@@ -1007,7 +1007,7 @@ jQuery(document).ready(function ($) {
 		}
 
 		/* Sorting. */
-		$table.find("thead th.is-sortable .cutover-audit-th__sort").on("click", function () {
+		$table.find("thead th.is-sortable .switchrail-audit-th__sort").on("click", function () {
 			var $th = $(this).closest("th");
 			var index = $th.index();
 			var type = $th.data("sort-type") || "text";
@@ -1078,7 +1078,7 @@ jQuery(document).ready(function ($) {
 	 * ------------------------------------------------------------------ */
 
 	(function scanner() {
-		var $statusCells = $("td.cutover-audit-col-status.is-pending[data-target]");
+		var $statusCells = $("td.switchrail-audit-col-status.is-pending[data-target]");
 		var total = $statusCells.length;
 
 		// Present only when this page was reached by choosing an area from the
@@ -1106,14 +1106,14 @@ jQuery(document).ready(function ($) {
 				type: "POST",
 				data: {
 					_ajax_nonce: settings.nonce,
-					action: "cutover_audit_scan_complete",
+					action: "switchrail_audit_scan_complete",
 					scope: $report.data("scope")
 				}
 			}).always(function () {
 				// Same URL with the parameter switched from the in-progress name
 				// to the finished one, so the reload lands on the confirmation.
 				window.location.replace(
-					window.location.href.replace(/([?&])cutover-audit-scanning=/, "$1cutover-audit-scanned=")
+					window.location.href.replace(/([?&])switchrail-audit-scanning=/, "$1switchrail-audit-scanned=")
 				);
 			});
 		}
@@ -1129,7 +1129,7 @@ jQuery(document).ready(function ($) {
 		var view = null;
 
 		$.each(views, function (index, candidate) {
-			if (candidate.table.find("td.cutover-audit-col-status.is-pending[data-target]").length) {
+			if (candidate.table.find("td.switchrail-audit-col-status.is-pending[data-target]").length) {
 				view = candidate;
 				return false;
 			}
@@ -1214,7 +1214,7 @@ jQuery(document).ready(function ($) {
 				$cell.append(
 					// The server picks the plural form; a fixed "%s findings" string
 					// would read "1 findings".
-					$("<a/>", { class: "cutover-audit-status__link", href: result.url, title: result.summary }).text(
+					$("<a/>", { class: "switchrail-audit-status__link", href: result.url, title: result.summary }).text(
 						result.count || format(i18n.findingCount, result.total)
 					)
 				);
@@ -1251,7 +1251,7 @@ jQuery(document).ready(function ($) {
 				type: "POST",
 				data: {
 					_ajax_nonce: settings.nonce,
-					action: "cutover_audit_scan_target",
+					action: "switchrail_audit_scan_target",
 					target: $cell.data("target")
 				},
 				beforeSend: function () {

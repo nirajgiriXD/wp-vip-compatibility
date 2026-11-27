@@ -7,13 +7,13 @@
  * made from one row: what it is, whether the site runs it, whether WordPress VIP has
  * already ruled on it, how serious the findings are, and the one action to take.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Classes;
+namespace SWITCHRAIL_AUDIT\Includes\Classes;
 
-use CUTOVER_AUDIT\Includes\Traits\Singleton;
-use CUTOVER_AUDIT\Includes\Scanner\Targets;
+use SWITCHRAIL_AUDIT\Includes\Traits\Singleton;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Targets;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -39,7 +39,7 @@ class Plugins_Settings extends Inventory_Screen {
 	 * @return string The label.
 	 */
 	protected function get_search_label() {
-		return __( 'Search plugins by name, path or author', 'cutover-audit' );
+		return __( 'Search plugins by name, path or author', 'switchrail-audit' );
 	}
 
 	/**
@@ -48,7 +48,7 @@ class Plugins_Settings extends Inventory_Screen {
 	 * @return string The title.
 	 */
 	protected function get_table_title() {
-		return __( 'Installed plugins', 'cutover-audit' );
+		return __( 'Installed plugins', 'switchrail-audit' );
 	}
 
 	/**
@@ -58,8 +58,8 @@ class Plugins_Settings extends Inventory_Screen {
 	 */
 	protected function get_empty_state() {
 		return array(
-			__( 'No plugins are installed', 'cutover-audit' ),
-			__( 'There is nothing here to check against the WordPress VIP Platform.', 'cutover-audit' ),
+			__( 'No plugins are installed', 'switchrail-audit' ),
+			__( 'There is nothing here to check against the WordPress VIP Platform.', 'switchrail-audit' ),
 		);
 	}
 
@@ -72,11 +72,11 @@ class Plugins_Settings extends Inventory_Screen {
 		return array(
 			sprintf(
 				/* translators: %s: Link to the findings report. */
-				__( '<strong>Verdicts.</strong> "Needs work" means at least one finding is likely to cause problems on WordPress VIP. "Review" means there are findings worth a look that are unlikely to break anything. %s for the detail behind every verdict.', 'cutover-audit' ),
-				'<a href="' . esc_url( UI::get_findings_url() ) . '">' . esc_html__( 'Open the findings report', 'cutover-audit' ) . '</a>'
+				__( '<strong>Verdicts.</strong> "Needs work" means at least one finding is likely to cause problems on WordPress VIP. "Review" means there are findings worth a look that are unlikely to break anything. %s for the detail behind every verdict.', 'switchrail-audit' ),
+				'<a href="' . esc_url( UI::get_findings_url() ) . '">' . esc_html__( 'Open the findings report', 'switchrail-audit' ) . '</a>'
 			),
-			__( '<strong>Inactive plugins still count.</strong> They ship in the repository and are still read by the WordPress VIP Code Analysis Bot. Removing the ones you do not use is the quickest way to shorten this list.', 'cutover-audit' ),
-			__( '<strong>Updates.</strong> An arrow next to a version means WordPress has a newer release. Update first, so the scan reads the code you will actually ship.', 'cutover-audit' ),
+			__( '<strong>Inactive plugins still count.</strong> They ship in the repository and are still read by the WordPress VIP Code Analysis Bot. Removing the ones you do not use is the quickest way to shorten this list.', 'switchrail-audit' ),
+			__( '<strong>Updates.</strong> An arrow next to a version means WordPress has a newer release. Update first, so the scan reads the code you will actually ship.', 'switchrail-audit' ),
 		);
 	}
 
@@ -88,32 +88,32 @@ class Plugins_Settings extends Inventory_Screen {
 	protected function get_columns() {
 		return array(
 			array(
-				'label'    => __( 'Plugin', 'cutover-audit' ),
-				'class'    => 'cutover-audit-col-name',
+				'label'    => __( 'Plugin', 'switchrail-audit' ),
+				'class'    => 'switchrail-audit-col-name',
 				'sortable' => true,
 			),
 			array(
-				'label' => __( 'Version', 'cutover-audit' ),
-				'class' => 'cutover-audit-col-version',
+				'label' => __( 'Version', 'switchrail-audit' ),
+				'class' => 'switchrail-audit-col-version',
 			),
 			array(
-				'label'    => __( 'State', 'cutover-audit' ),
-				'class'    => 'cutover-audit-col-state',
+				'label'    => __( 'State', 'switchrail-audit' ),
+				'class'    => 'switchrail-audit-col-state',
 				'sortable' => true,
 			),
 			array(
-				'label'    => __( 'Verdict', 'cutover-audit' ),
-				'class'    => 'cutover-audit-col-status',
+				'label'    => __( 'Verdict', 'switchrail-audit' ),
+				'class'    => 'switchrail-audit-col-status',
 				'sortable' => true,
 			),
 			array(
-				'label' => __( 'Findings', 'cutover-audit' ),
-				'class' => 'cutover-audit-col-findings',
-				'hint'  => __( 'Findings grouped by what to do about them: must fix, should fix, worth checking, FYI.', 'cutover-audit' ),
+				'label' => __( 'Findings', 'switchrail-audit' ),
+				'class' => 'switchrail-audit-col-findings',
+				'hint'  => __( 'Findings grouped by what to do about them: must fix, should fix, worth checking, FYI.', 'switchrail-audit' ),
 			),
 			array(
-				'label' => __( 'What to do', 'cutover-audit' ),
-				'class' => 'cutover-audit-col-notes',
+				'label' => __( 'What to do', 'switchrail-audit' ),
+				'class' => 'switchrail-audit-col-notes',
 			),
 		);
 	}
@@ -133,20 +133,20 @@ class Plugins_Settings extends Inventory_Screen {
 		return array(
 			array(
 				'name'    => 'state',
-				'label'   => __( 'Filter by activation', 'cutover-audit' ),
+				'label'   => __( 'Filter by activation', 'switchrail-audit' ),
 				'active'  => in_array( $state, array( 'active', 'inactive' ), true ) ? $state : 'all',
 				'options' => array(
 					array(
 						'value' => 'all',
-						'label' => __( 'All plugins', 'cutover-audit' ),
+						'label' => __( 'All plugins', 'switchrail-audit' ),
 					),
 					array(
 						'value' => 'active',
-						'label' => __( 'Active', 'cutover-audit' ),
+						'label' => __( 'Active', 'switchrail-audit' ),
 					),
 					array(
 						'value' => 'inactive',
-						'label' => __( 'Inactive', 'cutover-audit' ),
+						'label' => __( 'Inactive', 'switchrail-audit' ),
 					),
 				),
 			),
@@ -178,14 +178,14 @@ class Plugins_Settings extends Inventory_Screen {
 
 		$active = $this->is_active( $target, $context );
 
-		echo '<td class="cutover-audit-col-state" data-label="' . esc_attr__( 'State', 'cutover-audit' ) . '">';
+		echo '<td class="switchrail-audit-col-state" data-label="' . esc_attr__( 'State', 'switchrail-audit' ) . '">';
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		echo UI::get_badge(
-			$active ? __( 'Active', 'cutover-audit' ) : __( 'Inactive', 'cutover-audit' ),
+			$active ? __( 'Active', 'switchrail-audit' ) : __( 'Inactive', 'switchrail-audit' ),
 			$active ? 'accent' : 'neutral',
 			$active
-				? __( 'WordPress loads this plugin on every request.', 'cutover-audit' )
-				: __( 'Not loaded, but still shipped in the repository and still reviewed by WordPress VIP.', 'cutover-audit' )
+				? __( 'WordPress loads this plugin on every request.', 'switchrail-audit' )
+				: __( 'Not loaded, but still shipped in the repository and still reviewed by WordPress VIP.', 'switchrail-audit' )
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</td>';

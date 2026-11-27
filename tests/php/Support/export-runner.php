@@ -8,37 +8,37 @@
  *
  * Usage: php export-runner.php <format>
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
 // phpcs:disable -- Test support script.
 
 require dirname( __DIR__ ) . '/bootstrap.php';
 
-use CUTOVER_AUDIT\Includes\Classes\Export;
-use CUTOVER_AUDIT\Includes\Scanner\Scanner;
-use CUTOVER_AUDIT\Includes\Scanner\Targets;
-use CUTOVER_AUDIT\Tests\Support\Fake_Wpdb;
-use CUTOVER_AUDIT\Tests\Support\Sandbox;
-use CUTOVER_AUDIT\Tests\Support\WP;
+use SWITCHRAIL_AUDIT\Includes\Classes\Export;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Scanner;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Targets;
+use SWITCHRAIL_AUDIT\Tests\Support\Fake_Wpdb;
+use SWITCHRAIL_AUDIT\Tests\Support\Sandbox;
+use SWITCHRAIL_AUDIT\Tests\Support\WP;
 
 Brain\Monkey\setUp();
 WP::reset();
 Sandbox::reset();
 $GLOBALS['wpdb'] = new Fake_Wpdb();
 
-$cutover_audit_headers = array();
+$switchrail_audit_headers = array();
 
 Patchwork\redefine(
 	'header',
-	static function ( $header ) use ( &$cutover_audit_headers ) {
-		$cutover_audit_headers[] = $header;
+	static function ( $header ) use ( &$switchrail_audit_headers ) {
+		$switchrail_audit_headers[] = $header;
 	}
 );
 
 register_shutdown_function(
-	static function () use ( &$cutover_audit_headers ) {
-		fwrite( STDERR, json_encode( array( 'headers' => $cutover_audit_headers, 'nocache' => WP::$nocache_calls ) ) );
+	static function () use ( &$switchrail_audit_headers ) {
+		fwrite( STDERR, json_encode( array( 'headers' => $switchrail_audit_headers, 'nocache' => WP::$nocache_calls ) ) );
 	}
 );
 

@@ -2,21 +2,21 @@
 /**
  * Tests for scan orchestration.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Scanner;
+namespace SWITCHRAIL_AUDIT\Tests\Scanner;
 
 use Brain\Monkey\Filters;
-use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
-use CUTOVER_AUDIT\Includes\Scanner\Rules;
-use CUTOVER_AUDIT\Includes\Scanner\Scanner;
-use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
-use CUTOVER_AUDIT\Tests\Support\Sandbox;
-use CUTOVER_AUDIT\Tests\TestCase;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Results_Store;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Rules;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Scanner;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Taxonomy;
+use SWITCHRAIL_AUDIT\Tests\Support\Sandbox;
+use SWITCHRAIL_AUDIT\Tests\TestCase;
 
 /**
- * @covers \CUTOVER_AUDIT\Includes\Scanner\Scanner
+ * @covers \SWITCHRAIL_AUDIT\Includes\Scanner\Scanner
  */
 class ScannerTest extends TestCase {
 
@@ -132,7 +132,7 @@ class ScannerTest extends TestCase {
 			)
 		);
 
-		Filters\expectApplied( 'cutover_audit_scanner_excluded_directories' )->andReturn( array( 'legacy' ) );
+		Filters\expectApplied( 'switchrail_audit_scanner_excluded_directories' )->andReturn( array( 'legacy' ) );
 
 		$files = array_values( ( new Scanner() )->php_files( $target['path'] ) );
 		sort( $files );

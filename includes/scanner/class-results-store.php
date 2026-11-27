@@ -11,10 +11,10 @@
  * ends up in the autoloaded set, and a lightweight index option carries the
  * summaries the overview needs without loading every finding.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Scanner;
+namespace SWITCHRAIL_AUDIT\Includes\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,17 +26,17 @@ class Results_Store {
 	/**
 	 * Option holding the per-target summaries.
 	 */
-	const INDEX_OPTION = 'cutover_audit_scan_index';
+	const INDEX_OPTION = 'switchrail_audit_scan_index';
 
 	/**
 	 * Option holding the scan history.
 	 */
-	const HISTORY_OPTION = 'cutover_audit_scan_history';
+	const HISTORY_OPTION = 'switchrail_audit_scan_history';
 
 	/**
 	 * Prefix for the per-target result options.
 	 */
-	const RESULT_PREFIX = 'cutover_audit_result_';
+	const RESULT_PREFIX = 'switchrail_audit_result_';
 
 	/**
 	 * How many historical snapshots to keep.

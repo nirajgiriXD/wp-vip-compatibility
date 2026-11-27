@@ -2,10 +2,10 @@
 /**
  * Test doubles for WordPress objects and for the calls that end a request.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Support;
+namespace SWITCHRAIL_AUDIT\Tests\Support;
 
 /**
  * Thrown by wp_send_json_success() and wp_send_json_error().

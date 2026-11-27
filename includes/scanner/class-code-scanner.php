@@ -13,10 +13,10 @@
  * instantiations, string literals, constants, hooks and a few special shapes —
  * which the rule set is then matched against.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Scanner;
+namespace SWITCHRAIL_AUDIT\Includes\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -80,8 +80,8 @@ class Code_Scanner {
 	 * up either lying or being ignored. The annotation mirrors the PHPCS one
 	 * WordPress VIP developers already use:
 	 *
-	 *     $path = '/wp-content/uploads'; // cutover-audit:ignore filesystem.hardcoded-uploads-path -- documentation string.
-	 *     // cutover-audit:ignore-next-line * -- fixture data, not executed.
+	 *     $path = '/wp-content/uploads'; // switchrail-audit:ignore filesystem.hardcoded-uploads-path -- documentation string.
+	 *     // switchrail-audit:ignore-next-line * -- fixture data, not executed.
 	 *
 	 * A reason after `--` is required, so a suppression always records why.
 	 *
@@ -94,7 +94,7 @@ class Code_Scanner {
 	 * @return array<int, array<string, mixed>> The surviving findings.
 	 */
 	private function apply_suppressions( array $findings, $source ) {
-		if ( empty( $findings ) || false === stripos( $source, 'cutover-audit:ignore' ) ) {
+		if ( empty( $findings ) || false === stripos( $source, 'switchrail-audit:ignore' ) ) {
 			return $findings;
 		}
 
@@ -104,7 +104,7 @@ class Code_Scanner {
 		foreach ( $lines as $number => $line ) {
 			// Rule ids contain hyphens, so the reason separator has to be a
 			// spaced `--` rather than any hyphen pair.
-			if ( ! preg_match( '/cutover-audit:(ignore-next-line|ignore)\s+(.+?)\s+--\s+\S/i', $line, $matches ) ) {
+			if ( ! preg_match( '/switchrail-audit:(ignore-next-line|ignore)\s+(.+?)\s+--\s+\S/i', $line, $matches ) ) {
 				continue;
 			}
 

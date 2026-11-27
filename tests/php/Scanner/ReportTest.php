@@ -2,24 +2,24 @@
 /**
  * Tests for aggregation, verdicts and exports.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Scanner;
+namespace SWITCHRAIL_AUDIT\Tests\Scanner;
 
-use CUTOVER_AUDIT\Includes\Scanner\Database_Audit;
-use CUTOVER_AUDIT\Includes\Scanner\Report;
-use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
-use CUTOVER_AUDIT\Includes\Scanner\Rules;
-use CUTOVER_AUDIT\Includes\Scanner\Scanner;
-use CUTOVER_AUDIT\Includes\Scanner\Targets;
-use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
-use CUTOVER_AUDIT\Tests\Support\Sandbox;
-use CUTOVER_AUDIT\Tests\Support\WP;
-use CUTOVER_AUDIT\Tests\TestCase;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Database_Audit;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Report;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Results_Store;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Rules;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Scanner;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Targets;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Taxonomy;
+use SWITCHRAIL_AUDIT\Tests\Support\Sandbox;
+use SWITCHRAIL_AUDIT\Tests\Support\WP;
+use SWITCHRAIL_AUDIT\Tests\TestCase;
 
 /**
- * @covers \CUTOVER_AUDIT\Includes\Scanner\Report
+ * @covers \SWITCHRAIL_AUDIT\Includes\Scanner\Report
  */
 class ReportTest extends TestCase {
 
@@ -589,8 +589,8 @@ class ReportTest extends TestCase {
 		$payload = Report::to_array();
 
 		$this->assertSame( Report::SCHEMA_VERSION, $payload['schema'] );
-		$this->assertSame( 'cutover-audit', $payload['generator'] );
-		$this->assertSame( CUTOVER_AUDIT_VERSION, $payload['plugin_version'] );
+		$this->assertSame( 'switchrail-audit', $payload['generator'] );
+		$this->assertSame( SWITCHRAIL_AUDIT_VERSION, $payload['plugin_version'] );
 		$this->assertSame( Rules::VERSION, $payload['rules_version'] );
 		$this->assertSame( 'https://example.test', $payload['site']['url'] );
 		$this->assertFalse( $payload['site']['multisite'] );

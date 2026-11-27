@@ -6,18 +6,18 @@
  * set, so these tests cover the scanner, the rule index and the guards working
  * together.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Scanner;
+namespace SWITCHRAIL_AUDIT\Tests\Scanner;
 
-use CUTOVER_AUDIT\Includes\Scanner\Code_Scanner;
-use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
-use CUTOVER_AUDIT\Tests\Support\Sandbox;
-use CUTOVER_AUDIT\Tests\TestCase;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Code_Scanner;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Taxonomy;
+use SWITCHRAIL_AUDIT\Tests\Support\Sandbox;
+use SWITCHRAIL_AUDIT\Tests\TestCase;
 
 /**
- * @covers \CUTOVER_AUDIT\Includes\Scanner\Code_Scanner
+ * @covers \SWITCHRAIL_AUDIT\Includes\Scanner\Code_Scanner
  */
 class CodeScannerTest extends TestCase {
 
@@ -276,25 +276,25 @@ class CodeScannerTest extends TestCase {
 	 */
 
 	public function test_an_annotation_on_the_line_suppresses_that_rule() {
-		$source = $this->guarded( "\$x = file_get_contents( 'https://example.com' ); // cutover-audit:ignore http.remote-file-read -- fixture URL" );
+		$source = $this->guarded( "\$x = file_get_contents( 'https://example.com' ); // switchrail-audit:ignore http.remote-file-read -- fixture URL" );
 
 		$this->assertNotContains( 'http.remote-file-read', $this->rules_in( $source ) );
 	}
 
 	public function test_an_annotation_on_the_previous_line_suppresses_the_next_line() {
-		$source = $this->guarded( "// cutover-audit:ignore-next-line http.remote-file-read -- fixture URL\n\$x = file_get_contents( 'https://example.com' );" );
+		$source = $this->guarded( "// switchrail-audit:ignore-next-line http.remote-file-read -- fixture URL\n\$x = file_get_contents( 'https://example.com' );" );
 
 		$this->assertNotContains( 'http.remote-file-read', $this->rules_in( $source ) );
 	}
 
 	public function test_a_wildcard_annotation_suppresses_every_rule() {
-		$source = $this->guarded( "\$x = curl_init( 'https://example.com' ); // cutover-audit:ignore * -- not executed" );
+		$source = $this->guarded( "\$x = curl_init( 'https://example.com' ); // switchrail-audit:ignore * -- not executed" );
 
 		$this->assertNotContains( 'http.raw-curl', $this->rules_in( $source ) );
 	}
 
 	public function test_an_annotation_can_list_several_rules() {
-		$source = $this->guarded( "update_option( 'k', \$v, true ); flush_rewrite_rules(); // cutover-audit:ignore database.autoloaded-option, standards.flush-rewrite-rules -- activation only" );
+		$source = $this->guarded( "update_option( 'k', \$v, true ); flush_rewrite_rules(); // switchrail-audit:ignore database.autoloaded-option, standards.flush-rewrite-rules -- activation only" );
 		$rules  = $this->rules_in( $source );
 
 		$this->assertNotContains( 'database.autoloaded-option', $rules );
@@ -302,31 +302,31 @@ class CodeScannerTest extends TestCase {
 	}
 
 	public function test_an_annotation_without_a_reason_is_ignored() {
-		$source = $this->guarded( "curl_init( \$url ); // cutover-audit:ignore http.raw-curl" );
+		$source = $this->guarded( "curl_init( \$url ); // switchrail-audit:ignore http.raw-curl" );
 
 		$this->assertContains( 'http.raw-curl', $this->rules_in( $source ) );
 	}
 
 	public function test_an_annotation_only_covers_the_rule_it_names() {
-		$source = $this->guarded( "curl_init( \$url ); // cutover-audit:ignore http.remote-file-read -- wrong rule" );
+		$source = $this->guarded( "curl_init( \$url ); // switchrail-audit:ignore http.remote-file-read -- wrong rule" );
 
 		$this->assertContains( 'http.raw-curl', $this->rules_in( $source ) );
 	}
 
 	public function test_an_annotation_on_another_line_does_not_apply() {
-		$source = $this->guarded( "// cutover-audit:ignore http.raw-curl -- this line only\ncurl_init( \$url );" );
+		$source = $this->guarded( "// switchrail-audit:ignore http.raw-curl -- this line only\ncurl_init( \$url );" );
 
 		$this->assertContains( 'http.raw-curl', $this->rules_in( $source ) );
 	}
 
 	public function test_security_findings_cannot_be_suppressed() {
-		$source = $this->guarded( "exec( \$cmd ); // cutover-audit:ignore * -- trust me" );
+		$source = $this->guarded( "exec( \$cmd ); // switchrail-audit:ignore * -- trust me" );
 
 		$this->assertContains( 'security.command-execution', $this->rules_in( $source ) );
 	}
 
 	public function test_the_annotation_is_case_insensitive() {
-		$source = $this->guarded( "curl_init( \$url ); // CUTOVER-AUDIT:IGNORE http.raw-curl -- upper case" );
+		$source = $this->guarded( "curl_init( \$url ); // SWITCHRAIL-AUDIT:IGNORE http.raw-curl -- upper case" );
 
 		$this->assertNotContains( 'http.raw-curl', $this->rules_in( $source ) );
 	}

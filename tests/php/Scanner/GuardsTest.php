@@ -7,17 +7,17 @@
  * array of overrides. The providers below list the shapes of real code the
  * guards were written for.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Scanner;
+namespace SWITCHRAIL_AUDIT\Tests\Scanner;
 
-use CUTOVER_AUDIT\Includes\Scanner\Guards;
-use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
-use CUTOVER_AUDIT\Tests\TestCase;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Guards;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Taxonomy;
+use SWITCHRAIL_AUDIT\Tests\TestCase;
 
 /**
- * @covers \CUTOVER_AUDIT\Includes\Scanner\Guards
+ * @covers \SWITCHRAIL_AUDIT\Includes\Scanner\Guards
  */
 class GuardsTest extends TestCase {
 

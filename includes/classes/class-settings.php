@@ -2,12 +2,12 @@
 /**
  * Class to handle plugin settings.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Classes;
+namespace SWITCHRAIL_AUDIT\Includes\Classes;
 
-use CUTOVER_AUDIT\Includes\Traits\Singleton;
+use SWITCHRAIL_AUDIT\Includes\Traits\Singleton;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -36,7 +36,7 @@ class Settings {
 	 * @return string
 	 */
 	public static function get_menu_icon_url() {
-		return CUTOVER_AUDIT_URL . self::MENU_ICON;
+		return SWITCHRAIL_AUDIT_URL . self::MENU_ICON;
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Settings {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen detection on a GET request.
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 
-		if ( ! in_array( $page, array( 'cutover-audit-inventory', 'cutover-audit-site' ), true ) ) {
+		if ( ! in_array( $page, array( 'switchrail-audit-inventory', 'switchrail-audit-site' ), true ) ) {
 			return;
 		}
 
@@ -97,7 +97,7 @@ class Settings {
 			'database'    => 'database',
 		);
 
-		if ( 'cutover-audit-inventory' === $page ) {
+		if ( 'switchrail-audit-inventory' === $page ) {
 			$key = $targets[ $kind ] ?? 'plugins';
 		} else {
 			$key = $targets[ $section ] ?? 'database';
@@ -166,8 +166,8 @@ class Settings {
 		// The overview is also the first submenu entry, so the menu never shows a
 		// duplicate of the parent under a different name.
 		add_menu_page(
-			__( 'Cutover Audit', 'cutover-audit' ),
-			__( 'Cutover Audit', 'cutover-audit' ),
+			__( 'Switchrail Audit', 'switchrail-audit' ),
+			__( 'Switchrail Audit', 'switchrail-audit' ),
 			Plugin::get_capability(),
 			$screens['overview']['slug'],
 			fn() => $this->render_settings_page( 'overview' ),
@@ -188,15 +188,15 @@ class Settings {
 			if ( ! isset( $headed[ $group ] ) && isset( $groups[ $group ] ) ) {
 				// The first heading sits directly under the menu title, where a
 				// separator above it would divide nothing.
-				$modifier         = empty( $headed ) ? ' cutover-audit-menu-group--first' : '';
+				$modifier         = empty( $headed ) ? ' switchrail-audit-menu-group--first' : '';
 				$headed[ $group ] = true;
-				$label            = '<span class="cutover-audit-menu-group' . $modifier . '" aria-hidden="true">' . esc_html( $groups[ $group ] ) . '</span>' . $label;
+				$label            = '<span class="switchrail-audit-menu-group' . $modifier . '" aria-hidden="true">' . esc_html( $groups[ $group ] ) . '</span>' . $label;
 			}
 
 			$hook = add_submenu_page(
 				$screens['overview']['slug'],
 				/* translators: %s: Submenu title */
-				sprintf( __( 'Cutover Audit — %s', 'cutover-audit' ), $screen['title'] ),
+				sprintf( __( 'Switchrail Audit — %s', 'switchrail-audit' ), $screen['title'] ),
 				$label,
 				Plugin::get_capability(),
 				$screen['slug'],
@@ -240,19 +240,19 @@ class Settings {
 
 		// The overview is a report rather than a list.
 		$title = ( 'overview' === $key )
-			? __( 'About this report', 'cutover-audit' )
-			: __( 'How to read this list', 'cutover-audit' );
+			? __( 'About this report', 'switchrail-audit' )
+			: __( 'How to read this list', 'switchrail-audit' );
 
 		$screen->add_help_tab(
 			array(
-				'id'      => 'cutover-audit-how-to-read',
+				'id'      => 'switchrail-audit-how-to-read',
 				'title'   => $title,
-				'content' => '<p class="cutover-audit-help__title">' . esc_html( $title ) . '</p>'
-					. '<div class="cutover-audit-help__notes">' . wp_kses_post( '<p>' . implode( '</p><p>', $notes ) . '</p>' ) . '</div>'
-					. '<p class="cutover-audit-help__about">' . sprintf(
+				'content' => '<p class="switchrail-audit-help__title">' . esc_html( $title ) . '</p>'
+					. '<div class="switchrail-audit-help__notes">' . wp_kses_post( '<p>' . implode( '</p><p>', $notes ) . '</p>' ) . '</div>'
+					. '<p class="switchrail-audit-help__about">' . sprintf(
 						/* translators: %s: Link to the WordPress VIP documentation. */
-						esc_html__( 'Cutover Audit is an independent tool, not affiliated with or endorsed by Automattic or WordPress VIP. Its rules are written from the public %s.', 'cutover-audit' ),
-						'<a href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'WordPress VIP documentation', 'cutover-audit' ) . '<span class="screen-reader-text"> ' . esc_html__( '(opens in a new tab)', 'cutover-audit' ) . '</span></a>'
+						esc_html__( 'Switchrail Audit is an independent tool, not affiliated with or endorsed by Automattic or WordPress VIP. Its rules are written from the public %s.', 'switchrail-audit' ),
+						'<a href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'WordPress VIP documentation', 'switchrail-audit' ) . '<span class="screen-reader-text"> ' . esc_html__( '(opens in a new tab)', 'switchrail-audit' ) . '</span></a>'
 					) . '</p>',
 			)
 		);

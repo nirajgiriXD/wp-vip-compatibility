@@ -2,25 +2,25 @@
 /**
  * Tests for the public helper functions.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Plugin;
+namespace SWITCHRAIL_AUDIT\Tests\Plugin;
 
-use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
-use CUTOVER_AUDIT\Tests\Support\Sandbox;
-use CUTOVER_AUDIT\Tests\TestCase;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Results_Store;
+use SWITCHRAIL_AUDIT\Tests\Support\Sandbox;
+use SWITCHRAIL_AUDIT\Tests\TestCase;
 
 /**
- * @covers ::cutover_audit_check_compatibility
- * @covers ::cutover_audit_resolve_target
- * @covers ::cutover_audit_get_json_data
- * @covers ::cutover_audit_get_target_chart_data
- * @covers ::cutover_audit_get_plugins_chart_data
- * @covers ::cutover_audit_get_mu_plugins_chart_data
- * @covers ::cutover_audit_get_themes_chart_data
- * @covers ::cutover_audit_get_database_chart_data
- * @covers ::cutover_audit_get_directories_chart_data
+ * @covers ::switchrail_audit_check_compatibility
+ * @covers ::switchrail_audit_resolve_target
+ * @covers ::switchrail_audit_get_json_data
+ * @covers ::switchrail_audit_get_target_chart_data
+ * @covers ::switchrail_audit_get_plugins_chart_data
+ * @covers ::switchrail_audit_get_mu_plugins_chart_data
+ * @covers ::switchrail_audit_get_themes_chart_data
+ * @covers ::switchrail_audit_get_database_chart_data
+ * @covers ::switchrail_audit_get_directories_chart_data
  */
 class FunctionsTest extends TestCase {
 
@@ -32,7 +32,7 @@ class FunctionsTest extends TestCase {
 	public function test_check_compatibility_returns_a_word_for_the_verdict( $code, $expected ) {
 		$this->add_plugin( 'p', array( 'p.php' => self::GUARD . $code ) );
 
-		$this->assertSame( $expected, cutover_audit_check_compatibility( 'plugin:p' ) );
+		$this->assertSame( $expected, switchrail_audit_check_compatibility( 'plugin:p' ) );
 	}
 
 	public function verdict_cases() {
@@ -46,32 +46,32 @@ class FunctionsTest extends TestCase {
 	public function test_check_compatibility_stores_the_result() {
 		$this->add_plugin( 'p' );
 
-		cutover_audit_check_compatibility( 'plugin:p' );
+		switchrail_audit_check_compatibility( 'plugin:p' );
 
 		$this->assertNotNull( Results_Store::get( 'plugin:p' ) );
 	}
 
 	public function test_check_compatibility_rejects_an_unknown_target() {
-		$this->assertSame( 'Error: Unknown scan target', cutover_audit_check_compatibility( 'plugin:nope' ) );
-		$this->assertSame( 'Error: Unknown scan target', cutover_audit_check_compatibility( '' ) );
+		$this->assertSame( 'Error: Unknown scan target', switchrail_audit_check_compatibility( 'plugin:nope' ) );
+		$this->assertSame( 'Error: Unknown scan target', switchrail_audit_check_compatibility( '' ) );
 	}
 
 	public function test_a_legacy_path_resolves_only_to_a_known_target() {
 		$this->add_plugin( 'p' );
 
-		$this->assertSame( 'plugin:p', cutover_audit_resolve_target( WP_PLUGIN_DIR . '/p' )['key'] );
-		$this->assertSame( 'plugin:p', cutover_audit_resolve_target( WP_PLUGIN_DIR . '/p/' )['key'] );
-		$this->assertSame( 'plugin:p', cutover_audit_resolve_target( str_replace( '/', '\\', WP_PLUGIN_DIR . '/p' ) )['key'] );
+		$this->assertSame( 'plugin:p', switchrail_audit_resolve_target( WP_PLUGIN_DIR . '/p' )['key'] );
+		$this->assertSame( 'plugin:p', switchrail_audit_resolve_target( WP_PLUGIN_DIR . '/p/' )['key'] );
+		$this->assertSame( 'plugin:p', switchrail_audit_resolve_target( str_replace( '/', '\\', WP_PLUGIN_DIR . '/p' ) )['key'] );
 
 		Sandbox::mkdir( 'secret' );
 
-		$this->assertNull( cutover_audit_resolve_target( WP_CONTENT_DIR . '/secret' ) );
-		$this->assertNull( cutover_audit_resolve_target( '/etc' ) );
-		$this->assertNull( cutover_audit_resolve_target( null ) );
+		$this->assertNull( switchrail_audit_resolve_target( WP_CONTENT_DIR . '/secret' ) );
+		$this->assertNull( switchrail_audit_resolve_target( '/etc' ) );
+		$this->assertNull( switchrail_audit_resolve_target( null ) );
 	}
 
 	public function test_get_json_data_includes_the_reference_lists_and_tables() {
-		$data = cutover_audit_get_json_data();
+		$data = switchrail_audit_get_json_data();
 
 		$this->assertArrayHasKey( 'directories', $data );
 		$this->assertArrayHasKey( 'known_plugins', $data );
@@ -89,7 +89,7 @@ class FunctionsTest extends TestCase {
 				'needs_review'   => 1,
 				'not_compatible' => 1,
 			),
-			cutover_audit_get_plugins_chart_data()
+			switchrail_audit_get_plugins_chart_data()
 		);
 	}
 
@@ -98,11 +98,11 @@ class FunctionsTest extends TestCase {
 		$this->add_mu_plugin( 'loader.php' );
 		$this->wpdb->add_table( 'wp_posts' );
 
-		$this->assertSame( 1, cutover_audit_get_themes_chart_data()['compatible'] );
-		$this->assertSame( 1, cutover_audit_get_mu_plugins_chart_data()['needs_review'] );
-		$this->assertSame( 1, cutover_audit_get_database_chart_data()['compatible'] );
+		$this->assertSame( 1, switchrail_audit_get_themes_chart_data()['compatible'] );
+		$this->assertSame( 1, switchrail_audit_get_mu_plugins_chart_data()['needs_review'] );
+		$this->assertSame( 1, switchrail_audit_get_database_chart_data()['compatible'] );
 		// plugins/ and themes/ are supported; mu-plugins/ is not.
-		$this->assertSame( 2, cutover_audit_get_directories_chart_data()['compatible'] );
-		$this->assertSame( 1, cutover_audit_get_directories_chart_data()['not_compatible'] );
+		$this->assertSame( 2, switchrail_audit_get_directories_chart_data()['compatible'] );
+		$this->assertSame( 1, switchrail_audit_get_directories_chart_data()['not_compatible'] );
 	}
 }

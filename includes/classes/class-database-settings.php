@@ -8,13 +8,13 @@
  * listing, with the tables that need a change sorted to the top and every
  * statement copyable in one go.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Classes;
+namespace SWITCHRAIL_AUDIT\Includes\Classes;
 
-use CUTOVER_AUDIT\Includes\Traits\Singleton;
-use CUTOVER_AUDIT\Includes\Scanner\Database_Audit;
+use SWITCHRAIL_AUDIT\Includes\Traits\Singleton;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Database_Audit;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,8 +35,8 @@ class Database_Settings {
 
 		if ( empty( $audit['tables'] ) ) {
 			UI::render_empty_state(
-				__( 'No tables found in the database', 'cutover-audit' ),
-				__( 'There is nothing to check here yet.', 'cutover-audit' )
+				__( 'No tables found in the database', 'switchrail-audit' ),
+				__( 'There is nothing to check here yet.', 'switchrail-audit' )
 			);
 
 			return;
@@ -52,8 +52,8 @@ class Database_Settings {
 	 */
 	public function get_page_guidance() {
 		return array(
-			__( '<strong>Run the SQL against a backup first.</strong> Convert engines and collations before the final export rather than after the import. The statements are ordered engine first, then collation, then prefix.', 'cutover-audit' ),
-			__( '<strong>Prefixes are the exception.</strong> Report a non-standard prefix to WordPress VIP and only rename tables if WordPress VIP confirms it, because the prefix is also embedded in option names and user meta keys that control roles and capabilities.', 'cutover-audit' ),
+			__( '<strong>Run the SQL against a backup first.</strong> Convert engines and collations before the final export rather than after the import. The statements are ordered engine first, then collation, then prefix.', 'switchrail-audit' ),
+			__( '<strong>Prefixes are the exception.</strong> Report a non-standard prefix to WordPress VIP and only rename tables if WordPress VIP confirms it, because the prefix is also embedded in option names and user meta keys that control roles and capabilities.', 'switchrail-audit' ),
 		);
 	}
 
@@ -112,14 +112,14 @@ class Database_Settings {
 
 		if ( ! empty( $sql ) ) {
 			$actions = sprintf(
-				'<button type="button" class="cutover-audit-btn cutover-audit-btn--ghost cutover-audit-btn--sm" data-role="copy" data-clipboard="%1$s" title="%2$s">%3$s<span>%4$s</span></button>',
+				'<button type="button" class="switchrail-audit-btn switchrail-audit-btn--ghost switchrail-audit-btn--sm" data-role="copy" data-clipboard="%1$s" title="%2$s">%3$s<span>%4$s</span></button>',
 				esc_attr( implode( "\n", $sql ) ),
-				esc_attr__( 'Engine first, then collation, then prefix. Run them against a backup, and see Help before renaming tables for a prefix.', 'cutover-audit' ),
-				UI::get_icon( 'copy', array( 'class' => 'cutover-audit-icon cutover-audit-icon--sm' ) ),
+				esc_attr__( 'Engine first, then collation, then prefix. Run them against a backup, and see Help before renaming tables for a prefix.', 'switchrail-audit' ),
+				UI::get_icon( 'copy', array( 'class' => 'switchrail-audit-icon switchrail-audit-icon--sm' ) ),
 				esc_html(
 					sprintf(
 						/* translators: %s: Number of SQL statements. */
-						_n( 'Copy %s SQL statement', 'Copy all %s SQL statements', count( $sql ), 'cutover-audit' ),
+						_n( 'Copy %s SQL statement', 'Copy all %s SQL statements', count( $sql ), 'switchrail-audit' ),
 						number_format_i18n( count( $sql ) )
 					)
 				)
@@ -131,27 +131,27 @@ class Database_Settings {
 
 		UI::render_toolbar(
 			array(
-				'search_label' => __( 'Search database tables by name or owner', 'cutover-audit' ),
-				'placeholder'  => __( 'Search tables…', 'cutover-audit' ),
+				'search_label' => __( 'Search database tables by name or owner', 'switchrail-audit' ),
+				'placeholder'  => __( 'Search tables…', 'switchrail-audit' ),
 				'actions'      => $actions,
 				'groups'       => array(
 					array(
 						'name'    => 'status',
-						'label'   => __( 'Filter by verdict', 'cutover-audit' ),
+						'label'   => __( 'Filter by verdict', 'switchrail-audit' ),
 						'active'  => $this->read_status(),
 						'options' => array(
 							array(
 								'value' => 'all',
-								'label' => __( 'All tables', 'cutover-audit' ),
+								'label' => __( 'All tables', 'switchrail-audit' ),
 							),
 							array(
 								'value' => 'not-compatible',
-								'label' => __( 'Needs changes', 'cutover-audit' ),
+								'label' => __( 'Needs changes', 'switchrail-audit' ),
 								'dot'   => 'bad',
 							),
 							array(
 								'value' => 'compatible',
-								'label' => __( 'Passing', 'cutover-audit' ),
+								'label' => __( 'Passing', 'switchrail-audit' ),
 								'dot'   => 'ok',
 							),
 						),
@@ -160,46 +160,46 @@ class Database_Settings {
 			)
 		);
 
-		echo '<div class="cutover-audit-table-wrap" data-role="table-view">';
-		echo '<table class="cutover-audit-table" aria-label="' . esc_attr__( 'Every table', 'cutover-audit' ) . '">';
+		echo '<div class="switchrail-audit-table-wrap" data-role="table-view">';
+		echo '<table class="switchrail-audit-table" aria-label="' . esc_attr__( 'Every table', 'switchrail-audit' ) . '">';
 
 		UI::render_table_head(
 			array(
 				array(
-					'label'    => __( 'Table', 'cutover-audit' ),
-					'class'    => 'cutover-audit-col-name',
+					'label'    => __( 'Table', 'switchrail-audit' ),
+					'class'    => 'switchrail-audit-col-name',
 					'sortable' => true,
 				),
 				array(
-					'label'    => __( 'Engine', 'cutover-audit' ),
+					'label'    => __( 'Engine', 'switchrail-audit' ),
 					'sortable' => true,
 				),
 				array(
-					'label'    => __( 'Collation', 'cutover-audit' ),
-					'class'    => 'cutover-audit-col-mono',
+					'label'    => __( 'Collation', 'switchrail-audit' ),
+					'class'    => 'switchrail-audit-col-mono',
 					'sortable' => true,
 				),
 				array(
-					'label'    => __( 'Rows', 'cutover-audit' ),
-					'class'    => 'cutover-audit-col-number',
-					'sortable' => true,
-					'sort'     => 'number',
-					'hint'     => __( 'An estimate reported by the storage engine, not an exact count.', 'cutover-audit' ),
-				),
-				array(
-					'label'    => __( 'Size', 'cutover-audit' ),
-					'class'    => 'cutover-audit-col-number',
+					'label'    => __( 'Rows', 'switchrail-audit' ),
+					'class'    => 'switchrail-audit-col-number',
 					'sortable' => true,
 					'sort'     => 'number',
+					'hint'     => __( 'An estimate reported by the storage engine, not an exact count.', 'switchrail-audit' ),
 				),
 				array(
-					'label'    => __( 'Verdict', 'cutover-audit' ),
-					'class'    => 'cutover-audit-col-status',
+					'label'    => __( 'Size', 'switchrail-audit' ),
+					'class'    => 'switchrail-audit-col-number',
+					'sortable' => true,
+					'sort'     => 'number',
+				),
+				array(
+					'label'    => __( 'Verdict', 'switchrail-audit' ),
+					'class'    => 'switchrail-audit-col-status',
 					'sortable' => true,
 				),
 				array(
-					'label' => __( 'What to do', 'cutover-audit' ),
-					'class' => 'cutover-audit-col-notes',
+					'label' => __( 'What to do', 'switchrail-audit' ),
+					'class' => 'switchrail-audit-col-notes',
 				),
 			)
 		);
@@ -226,39 +226,39 @@ class Database_Settings {
 		$compatible = empty( $table['findings'] );
 		$state      = $compatible ? 'compatible' : 'not-compatible';
 
-		printf( '<tr class="cutover-audit-row" data-status="%s">', esc_attr( $state ) );
+		printf( '<tr class="switchrail-audit-row" data-status="%s">', esc_attr( $state ) );
 
 		// The owner used to be a column. It only ever matters alongside a
 		// verdict, so it rides with the name instead.
-		echo '<td class="cutover-audit-col-name" data-label="' . esc_attr__( 'Table', 'cutover-audit' ) . '">';
-		echo '<span class="cutover-audit-item">';
-		echo '<code class="cutover-audit-item__name">' . esc_html( $table['name'] ) . '</code>';
-		echo '<span class="cutover-audit-item__meta">' . esc_html( $table['source'] ) . '</span>';
+		echo '<td class="switchrail-audit-col-name" data-label="' . esc_attr__( 'Table', 'switchrail-audit' ) . '">';
+		echo '<span class="switchrail-audit-item">';
+		echo '<code class="switchrail-audit-item__name">' . esc_html( $table['name'] ) . '</code>';
+		echo '<span class="switchrail-audit-item__meta">' . esc_html( $table['source'] ) . '</span>';
 		echo '</span>';
 		echo '</td>';
 
-		echo '<td data-label="' . esc_attr__( 'Engine', 'cutover-audit' ) . '">' . esc_html( $table['engine'] ) . '</td>';
-		echo '<td class="cutover-audit-col-mono" data-label="' . esc_attr__( 'Collation', 'cutover-audit' ) . '">' . esc_html( $table['collation'] ) . '</td>';
-		echo '<td class="cutover-audit-col-number" data-label="' . esc_attr__( 'Rows', 'cutover-audit' ) . '">' . esc_html( number_format_i18n( (int) $table['rows'] ) ) . '</td>';
-		echo '<td class="cutover-audit-col-number" data-label="' . esc_attr__( 'Size', 'cutover-audit' ) . '">' . esc_html( size_format( (int) $table['bytes'], 1 ) ) . '</td>';
+		echo '<td data-label="' . esc_attr__( 'Engine', 'switchrail-audit' ) . '">' . esc_html( $table['engine'] ) . '</td>';
+		echo '<td class="switchrail-audit-col-mono" data-label="' . esc_attr__( 'Collation', 'switchrail-audit' ) . '">' . esc_html( $table['collation'] ) . '</td>';
+		echo '<td class="switchrail-audit-col-number" data-label="' . esc_attr__( 'Rows', 'switchrail-audit' ) . '">' . esc_html( number_format_i18n( (int) $table['rows'] ) ) . '</td>';
+		echo '<td class="switchrail-audit-col-number" data-label="' . esc_attr__( 'Size', 'switchrail-audit' ) . '">' . esc_html( size_format( (int) $table['bytes'], 1 ) ) . '</td>';
 
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		echo UI::get_status_cell(
 			$state,
-			$compatible ? __( 'Passing', 'cutover-audit' ) : __( 'Needs changes', 'cutover-audit' )
+			$compatible ? __( 'Passing', 'switchrail-audit' ) : __( 'Needs changes', 'switchrail-audit' )
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		echo '<td class="cutover-audit-col-notes" data-label="' . esc_attr__( 'What to do', 'cutover-audit' ) . '">';
+		echo '<td class="switchrail-audit-col-notes" data-label="' . esc_attr__( 'What to do', 'switchrail-audit' ) . '">';
 
 		if ( $compatible ) {
-			echo '<span class="cutover-audit-dash" aria-hidden="true">—</span>';
+			echo '<span class="switchrail-audit-dash" aria-hidden="true">—</span>';
 		} else {
-			echo '<ul class="cutover-audit-notes">';
+			echo '<ul class="switchrail-audit-notes">';
 
 			foreach ( $table['findings'] as $finding ) {
 				echo '<li>';
-				echo '<span class="cutover-audit-note__label">' . esc_html( $finding['label'] ) . '</span> ';
+				echo '<span class="switchrail-audit-note__label">' . esc_html( $finding['label'] ) . '</span> ';
 				echo esc_html( $finding['detail'] );
 
 				if ( '' !== $finding['sql'] ) {

@@ -15,12 +15,12 @@
  * Anything genuinely unknown is now reported as "needs review" rather than
  * asserted to be incompatible.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Scanner;
+namespace SWITCHRAIL_AUDIT\Includes\Scanner;
 
-use CUTOVER_AUDIT\Includes\Classes\Plugin;
+use SWITCHRAIL_AUDIT\Includes\Classes\Plugin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -161,8 +161,8 @@ class Directory_Audit {
 				$defaults,
 				array(
 					'status'      => self::STATUS_UNSUPPORTED,
-					'description' => __( 'WordPress drop-in.', 'cutover-audit' ),
-					'guidance'    => __( 'WordPress VIP provides its own db.php, object-cache.php and sunrise.php, and no other drop-ins can be added. Put sunrise.php changes in the vip-config directory instead.', 'cutover-audit' ),
+					'description' => __( 'WordPress drop-in.', 'switchrail-audit' ),
+					'guidance'    => __( 'WordPress VIP provides its own db.php, object-cache.php and sunrise.php, and no other drop-ins can be added. Put sunrise.php changes in the vip-config directory instead.', 'switchrail-audit' ),
 					'doc'         => 'https://docs.wpvip.com/wordpress-on-vip/drop-ins/',
 				)
 			);
@@ -172,9 +172,9 @@ class Directory_Audit {
 			$defaults,
 			array(
 				'description' => $is_dir
-					? __( 'Directory that is not part of the WordPress VIP application structure.', 'cutover-audit' )
-					: __( 'File that is not part of the WordPress VIP application structure.', 'cutover-audit' ),
-				'guidance'    => __( 'Only the directories in the WordPress VIP skeleton are deployed, so this will not exist on the platform. Work out what created it. Move media into uploads/ and files that code reads but visitors must not into private/, then update the paths; if nothing uses it, leave it out of the repository.', 'cutover-audit' ),
+					? __( 'Directory that is not part of the WordPress VIP application structure.', 'switchrail-audit' )
+					: __( 'File that is not part of the WordPress VIP application structure.', 'switchrail-audit' ),
+				'guidance'    => __( 'Only the directories in the WordPress VIP skeleton are deployed, so this will not exist on the platform. Work out what created it. Move media into uploads/ and files that code reads but visitors must not into private/, then update the paths; if nothing uses it, leave it out of the repository.', 'switchrail-audit' ),
 				'doc'         => 'https://docs.wpvip.com/wordpress-skeleton/',
 			)
 		);
@@ -212,13 +212,13 @@ class Directory_Audit {
 	public static function status_label( $status ) {
 		switch ( $status ) {
 			case self::STATUS_SUPPORTED:
-				return __( 'Supported', 'cutover-audit' );
+				return __( 'Supported', 'switchrail-audit' );
 			case self::STATUS_UNSUPPORTED:
-				return __( 'Remove or relocate', 'cutover-audit' );
+				return __( 'Remove or relocate', 'switchrail-audit' );
 			case self::STATUS_INFORMATIONAL:
-				return __( 'Not deployed', 'cutover-audit' );
+				return __( 'Not deployed', 'switchrail-audit' );
 			default:
-				return __( 'Needs review', 'cutover-audit' );
+				return __( 'Needs review', 'switchrail-audit' );
 		}
 	}
 }

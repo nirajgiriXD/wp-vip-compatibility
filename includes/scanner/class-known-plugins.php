@@ -15,12 +15,12 @@
  * "works on WordPress VIP" list: that is a claim about someone else's product
  * this plugin cannot source.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Scanner;
+namespace SWITCHRAIL_AUDIT\Includes\Scanner;
 
-use CUTOVER_AUDIT\Includes\Classes\Plugin;
+use SWITCHRAIL_AUDIT\Includes\Classes\Plugin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -100,11 +100,11 @@ class Known_Plugins {
 	public static function label( $classification ) {
 		switch ( $classification ) {
 			case self::INCOMPATIBLE:
-				return __( 'Listed incompatible by WordPress VIP', 'cutover-audit' );
+				return __( 'Listed incompatible by WordPress VIP', 'switchrail-audit' );
 			case self::CAUTION:
-				return __( 'Needs testing on WordPress VIP', 'cutover-audit' );
+				return __( 'Needs testing on WordPress VIP', 'switchrail-audit' );
 			default:
-				return __( 'Provided by the WordPress VIP platform', 'cutover-audit' );
+				return __( 'Provided by the WordPress VIP platform', 'switchrail-audit' );
 		}
 	}
 

@@ -12,16 +12,16 @@
  *   plugins WordPress reports; anything else is rejected.
  * - `filename` was interpolated into a path with no traversal guard.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Classes;
+namespace SWITCHRAIL_AUDIT\Includes\Classes;
 
-use CUTOVER_AUDIT\Includes\Traits\Singleton;
-use CUTOVER_AUDIT\Includes\Scanner\Report;
-use CUTOVER_AUDIT\Includes\Scanner\Scanner;
-use CUTOVER_AUDIT\Includes\Scanner\Targets;
-use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
+use SWITCHRAIL_AUDIT\Includes\Traits\Singleton;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Report;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Scanner;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Targets;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -45,8 +45,8 @@ class Ajax {
 	 * @return void
 	 */
 	private function setup_hooks() {
-		add_action( 'wp_ajax_cutover_audit_scan_target', array( $this, 'scan_target' ) );
-		add_action( 'wp_ajax_cutover_audit_scan_complete', array( $this, 'scan_complete' ) );
+		add_action( 'wp_ajax_switchrail_audit_scan_target', array( $this, 'scan_target' ) );
+		add_action( 'wp_ajax_switchrail_audit_scan_complete', array( $this, 'scan_complete' ) );
 	}
 
 	/**
@@ -59,13 +59,13 @@ class Ajax {
 	private function authorize() {
 		if ( ! current_user_can( Plugin::get_capability() ) ) {
 			wp_send_json_error(
-				array( 'message' => __( 'You do not have permission to run compatibility scans.', 'cutover-audit' ) ),
+				array( 'message' => __( 'You do not have permission to run compatibility scans.', 'switchrail-audit' ) ),
 				403
 			);
 		}
 
 		// check_ajax_referer() handles unslashing and dies on failure.
-		check_ajax_referer( 'cutover_audit_ajax_nonce', '_ajax_nonce' );
+		check_ajax_referer( 'switchrail_audit_ajax_nonce', '_ajax_nonce' );
 	}
 
 	/**
@@ -79,13 +79,13 @@ class Ajax {
 		$key = isset( $_POST['target'] ) ? sanitize_text_field( wp_unslash( $_POST['target'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce and capability are verified by authorize() at the top of this handler.
 
 		if ( '' === $key ) {
-			wp_send_json_error( array( 'message' => __( 'No scan target was supplied.', 'cutover-audit' ) ), 400 );
+			wp_send_json_error( array( 'message' => __( 'No scan target was supplied.', 'switchrail-audit' ) ), 400 );
 		}
 
 		$target = Targets::get( $key );
 
 		if ( null === $target ) {
-			wp_send_json_error( array( 'message' => __( 'Unknown scan target.', 'cutover-audit' ) ), 404 );
+			wp_send_json_error( array( 'message' => __( 'Unknown scan target.', 'switchrail-audit' ) ), 404 );
 		}
 
 		$force = ! empty( $_POST['force'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce and capability are verified by authorize() at the top of this handler.
@@ -98,10 +98,10 @@ class Ajax {
 		$files  = (int) $result['files_scanned'];
 
 		/* translators: %s: Number of findings. */
-		$count_label = sprintf( _n( '%s finding', '%s findings', $total, 'cutover-audit' ), number_format_i18n( $total ) );
+		$count_label = sprintf( _n( '%s finding', '%s findings', $total, 'switchrail-audit' ), number_format_i18n( $total ) );
 
 		/* translators: %s: Number of PHP files scanned. */
-		$files_label = sprintf( _n( '%s PHP file', '%s PHP files', $files, 'cutover-audit' ), number_format_i18n( $files ) );
+		$files_label = sprintf( _n( '%s PHP file', '%s PHP files', $files, 'switchrail-audit' ), number_format_i18n( $files ) );
 
 		wp_send_json_success(
 			array(
@@ -118,7 +118,7 @@ class Ajax {
 				// Each count picks its own plural form; one _n() cannot do both.
 				'summary'  => sprintf(
 					/* translators: 1: Number of findings, already counted, e.g. "2 findings". 2: Number of PHP files, already counted, e.g. "1 PHP file". */
-					__( '%1$s across %2$s.', 'cutover-audit' ),
+					__( '%1$s across %2$s.', 'switchrail-audit' ),
 					$count_label,
 					$files_label
 				),

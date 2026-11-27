@@ -6,10 +6,10 @@
  * filtered list the findings screen needs, and the machine-readable exports a
  * developer or a CI job needs.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Scanner;
+namespace SWITCHRAIL_AUDIT\Includes\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -54,8 +54,8 @@ class Report {
 	public static function get_scopes() {
 		return array(
 			self::SCOPE_ALL => array(
-				'label'  => __( 'Everything', 'cutover-audit' ),
-				'hint'   => __( 'Every plugin, theme and must-use plugin, and both site audits.', 'cutover-audit' ),
+				'label'  => __( 'Everything', 'switchrail-audit' ),
+				'hint'   => __( 'Every plugin, theme and must-use plugin, and both site audits.', 'switchrail-audit' ),
 				'type'   => '',
 				// Everything spans five screens, so there is no one screen to land
 				// on: a full rescan returns you to where you started it.
@@ -63,36 +63,36 @@ class Report {
 				'async'  => false,
 			),
 			'plugin'        => array(
-				'label'  => __( 'Plugins', 'cutover-audit' ),
-				'hint'   => __( 'Re-read the code of every installed plugin.', 'cutover-audit' ),
+				'label'  => __( 'Plugins', 'switchrail-audit' ),
+				'hint'   => __( 'Re-read the code of every installed plugin.', 'switchrail-audit' ),
 				'type'   => 'plugin',
 				'screen' => 'plugins',
 				'async'  => true,
 			),
 			'theme'         => array(
-				'label'  => __( 'Themes', 'cutover-audit' ),
-				'hint'   => __( 'Re-read the code of every installed theme.', 'cutover-audit' ),
+				'label'  => __( 'Themes', 'switchrail-audit' ),
+				'hint'   => __( 'Re-read the code of every installed theme.', 'switchrail-audit' ),
 				'type'   => 'theme',
 				'screen' => 'themes',
 				'async'  => true,
 			),
 			'mu-plugin'     => array(
-				'label'  => __( 'Must-use plugins', 'cutover-audit' ),
-				'hint'   => __( 'Re-read everything in wp-content/mu-plugins.', 'cutover-audit' ),
+				'label'  => __( 'Must-use plugins', 'switchrail-audit' ),
+				'hint'   => __( 'Re-read everything in wp-content/mu-plugins.', 'switchrail-audit' ),
 				'type'   => 'mu-plugin',
 				'screen' => 'mu-plugins',
 				'async'  => true,
 			),
 			'database'      => array(
-				'label'  => __( 'Database', 'cutover-audit' ),
-				'hint'   => __( 'Recheck engine, collation and prefix.', 'cutover-audit' ),
+				'label'  => __( 'Database', 'switchrail-audit' ),
+				'hint'   => __( 'Recheck engine, collation and prefix.', 'switchrail-audit' ),
 				'type'   => '',
 				'screen' => 'database',
 				'async'  => false,
 			),
 			'directories'   => array(
-				'label'  => __( 'wp-content', 'cutover-audit' ),
-				'hint'   => __( 'Recheck what sits in wp-content today.', 'cutover-audit' ),
+				'label'  => __( 'wp-content', 'switchrail-audit' ),
+				'hint'   => __( 'Recheck what sits in wp-content today.', 'switchrail-audit' ),
 				'type'   => '',
 				'screen' => 'directories',
 				'async'  => false,
@@ -288,7 +288,7 @@ class Report {
 
 			return sprintf(
 				/* translators: %s: Number of database tables. */
-				_n( 'Measured the schema again. %s table checked.', 'Measured the schema again. %s tables checked.', $total, 'cutover-audit' ),
+				_n( 'Measured the schema again. %s table checked.', 'Measured the schema again. %s tables checked.', $total, 'switchrail-audit' ),
 				number_format_i18n( $total )
 			);
 		}
@@ -298,7 +298,7 @@ class Report {
 
 			return sprintf(
 				/* translators: %s: Number of entries in wp-content. */
-				_n( 'Looked at wp-content again. %s entry checked.', 'Looked at wp-content again. %s entries checked.', $total, 'cutover-audit' ),
+				_n( 'Looked at wp-content again. %s entry checked.', 'Looked at wp-content again. %s entries checked.', $total, 'switchrail-audit' ),
 				number_format_i18n( $total )
 			);
 		}
@@ -319,25 +319,25 @@ class Report {
 		switch ( $scope ) {
 			case 'plugin':
 				/* translators: %s: Number of plugins. */
-				$subject = sprintf( _n( '%s plugin', '%s plugins', $items, 'cutover-audit' ), number_format_i18n( $items ) );
+				$subject = sprintf( _n( '%s plugin', '%s plugins', $items, 'switchrail-audit' ), number_format_i18n( $items ) );
 				break;
 			case 'theme':
 				/* translators: %s: Number of themes. */
-				$subject = sprintf( _n( '%s theme', '%s themes', $items, 'cutover-audit' ), number_format_i18n( $items ) );
+				$subject = sprintf( _n( '%s theme', '%s themes', $items, 'switchrail-audit' ), number_format_i18n( $items ) );
 				break;
 			case 'mu-plugin':
 				/* translators: %s: Number of must-use plugins. */
-				$subject = sprintf( _n( '%s must-use plugin', '%s must-use plugins', $items, 'cutover-audit' ), number_format_i18n( $items ) );
+				$subject = sprintf( _n( '%s must-use plugin', '%s must-use plugins', $items, 'switchrail-audit' ), number_format_i18n( $items ) );
 				break;
 			default:
 				/* translators: %s: Number of scanned items. */
-				$subject = sprintf( _n( '%s item', '%s items', $items, 'cutover-audit' ), number_format_i18n( $items ) );
+				$subject = sprintf( _n( '%s item', '%s items', $items, 'switchrail-audit' ), number_format_i18n( $items ) );
 				break;
 		}
 
 		return sprintf(
 			/* translators: 1: What was scanned, already counted, e.g. "12 plugins". 2: Number of PHP files. */
-			_n( 'Scanned %1$s across %2$s PHP file.', 'Scanned %1$s across %2$s PHP files.', $files, 'cutover-audit' ),
+			_n( 'Scanned %1$s across %2$s PHP file.', 'Scanned %1$s across %2$s PHP files.', $files, 'switchrail-audit' ),
 			$subject,
 			number_format_i18n( $files )
 		);
@@ -482,7 +482,7 @@ class Report {
 				array(
 					'status' => Scanner::STATUS_BLOCKED,
 					'state'  => 'not-compatible',
-					'label'  => __( 'Incompatible', 'cutover-audit' ),
+					'label'  => __( 'Incompatible', 'switchrail-audit' ),
 				)
 			);
 		}
@@ -495,7 +495,7 @@ class Report {
 				array(
 					'status' => Scanner::STATUS_REVIEW,
 					'state'  => 'review',
-					'label'  => __( 'Do not ship', 'cutover-audit' ),
+					'label'  => __( 'Do not ship', 'switchrail-audit' ),
 				)
 			);
 		}
@@ -506,7 +506,7 @@ class Report {
 				array(
 					'status' => '',
 					'state'  => 'pending',
-					'label'  => __( 'Not scanned yet', 'cutover-audit' ),
+					'label'  => __( 'Not scanned yet', 'switchrail-audit' ),
 				)
 			);
 		}
@@ -598,11 +598,11 @@ class Report {
 	 */
 	public static function areas() {
 		$areas = array(
-			'plugin'      => array( __( 'Plugins', 'cutover-audit' ), 'plugins', 'plug' ),
-			'theme'       => array( __( 'Themes', 'cutover-audit' ), 'themes', 'brush' ),
-			'mu-plugin'   => array( __( 'Must-use plugins', 'cutover-audit' ), 'mu-plugins', 'bolt' ),
-			'database'    => array( __( 'Database tables', 'cutover-audit' ), 'database', 'database' ),
-			'directories' => array( __( 'wp-content layout', 'cutover-audit' ), 'directories', 'folder' ),
+			'plugin'      => array( __( 'Plugins', 'switchrail-audit' ), 'plugins', 'plug' ),
+			'theme'       => array( __( 'Themes', 'switchrail-audit' ), 'themes', 'brush' ),
+			'mu-plugin'   => array( __( 'Must-use plugins', 'switchrail-audit' ), 'mu-plugins', 'bolt' ),
+			'database'    => array( __( 'Database tables', 'switchrail-audit' ), 'database', 'database' ),
+			'directories' => array( __( 'wp-content layout', 'switchrail-audit' ), 'directories', 'folder' ),
 		);
 
 		$rows = array();
@@ -636,52 +636,52 @@ class Report {
 
 		return array(
 			array(
-				'label' => __( 'PHP', 'cutover-audit' ),
+				'label' => __( 'PHP', 'switchrail-audit' ),
 				'value' => PHP_VERSION,
 				'hint'  => $php_ok
-					? __( 'Within the range WordPress VIP runs.', 'cutover-audit' )
-					: __( 'WordPress VIP runs PHP 8.0 and above. Test on a supported version first.', 'cutover-audit' ),
+					? __( 'Within the range WordPress VIP runs.', 'switchrail-audit' )
+					: __( 'WordPress VIP runs PHP 8.0 and above. Test on a supported version first.', 'switchrail-audit' ),
 				'tone'  => $php_ok ? 'ok' : 'warn',
 			),
 			array(
-				'label' => __( 'WordPress', 'cutover-audit' ),
+				'label' => __( 'WordPress', 'switchrail-audit' ),
 				'value' => get_bloginfo( 'version' ),
-				'hint'  => __( 'WordPress VIP tracks the latest release closely.', 'cutover-audit' ),
+				'hint'  => __( 'WordPress VIP tracks the latest release closely.', 'switchrail-audit' ),
 			),
 			array(
-				'label' => __( 'Object cache', 'cutover-audit' ),
+				'label' => __( 'Object cache', 'switchrail-audit' ),
 				'value' => $cache_ok
-					? __( 'Persistent', 'cutover-audit' )
-					: __( 'Not persistent', 'cutover-audit' ),
+					? __( 'Persistent', 'switchrail-audit' )
+					: __( 'Not persistent', 'switchrail-audit' ),
 				'hint'  => $cache_ok
-					? __( 'Matches the WordPress VIP environment, where the object cache is always persistent.', 'cutover-audit' )
-					: __( 'WordPress VIP always has a persistent object cache. Uncached queries behave differently there.', 'cutover-audit' ),
+					? __( 'Matches the WordPress VIP environment, where the object cache is always persistent.', 'switchrail-audit' )
+					: __( 'WordPress VIP always has a persistent object cache. Uncached queries behave differently there.', 'switchrail-audit' ),
 				'tone'  => $cache_ok ? 'ok' : 'warn',
 			),
 			array(
-				'label' => __( 'Install type', 'cutover-audit' ),
+				'label' => __( 'Install type', 'switchrail-audit' ),
 				'value' => is_multisite()
-					? __( 'Multisite', 'cutover-audit' )
-					: __( 'Single site', 'cutover-audit' ),
+					? __( 'Multisite', 'switchrail-audit' )
+					: __( 'Single site', 'switchrail-audit' ),
 				'hint'  => is_multisite()
-					? __( 'On WordPress VIP, a multisite network layout is agreed with the platform team up front.', 'cutover-audit' )
+					? __( 'On WordPress VIP, a multisite network layout is agreed with the platform team up front.', 'switchrail-audit' )
 					: '',
 			),
 			array(
-				'label' => __( 'Database size', 'cutover-audit' ),
+				'label' => __( 'Database size', 'switchrail-audit' ),
 				'value' => size_format( (int) $database['bytes'], 1 ),
 				'hint'  => sprintf(
 					/* translators: %s: Number of tables. */
-					_n( '%s table', '%s tables', (int) $database['total'], 'cutover-audit' ),
+					_n( '%s table', '%s tables', (int) $database['total'], 'switchrail-audit' ),
 					number_format_i18n( (int) $database['total'] )
 				),
 			),
 			array(
-				'label' => __( 'Rule set', 'cutover-audit' ),
+				'label' => __( 'Rule set', 'switchrail-audit' ),
 				'value' => Rules::VERSION,
 				'hint'  => sprintf(
 					/* translators: %s: Number of rules. */
-					_n( '%s rule, each mapped to a WordPress VIP guideline.', '%s rules, each mapped to a WordPress VIP guideline.', count( Rules::all() ), 'cutover-audit' ),
+					_n( '%s rule, each mapped to a WordPress VIP guideline.', '%s rules, each mapped to a WordPress VIP guideline.', count( Rules::all() ), 'switchrail-audit' ),
 					number_format_i18n( count( Rules::all() ) )
 				),
 			),
@@ -788,13 +788,13 @@ class Report {
 				'tier'   => 'blocking',
 				'title'  => sprintf(
 					/* translators: %d: Number of plugins. */
-					_n( 'Replace %d plugin WordPress VIP lists as incompatible', 'Replace %d plugins WordPress VIP lists as incompatible', $listed, 'cutover-audit' ),
+					_n( 'Replace %d plugin WordPress VIP lists as incompatible', 'Replace %d plugins WordPress VIP lists as incompatible', $listed, 'switchrail-audit' ),
 					$listed
 				),
-				'detail' => __( 'WordPress VIP documents these as incompatible with the platform. No code change makes them work.', 'cutover-audit' ),
-				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=cutover-audit-plugins' ) ),
-				'action' => __( 'Open plugins', 'cutover-audit' ),
-				'source' => __( 'Plugins', 'cutover-audit' ),
+				'detail' => __( 'WordPress VIP documents these as incompatible with the platform. No code change makes them work.', 'switchrail-audit' ),
+				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=switchrail-audit-plugins' ) ),
+				'action' => __( 'Open plugins', 'switchrail-audit' ),
+				'source' => __( 'Plugins', 'switchrail-audit' ),
 			);
 		}
 
@@ -803,13 +803,13 @@ class Report {
 				'tier'   => 'important',
 				'title'  => sprintf(
 					/* translators: %d: Number of must-use plugins. */
-					_n( 'Relocate %d must-use plugin', 'Relocate %d must-use plugins', $mu_to_move, 'cutover-audit' ),
+					_n( 'Relocate %d must-use plugin', 'Relocate %d must-use plugins', $mu_to_move, 'switchrail-audit' ),
 					$mu_to_move
 				),
-				'detail' => __( 'WordPress VIP reserves wp-content/mu-plugins for platform code. Anything you ship belongs in client-mu-plugins/.', 'cutover-audit' ),
-				'url'    => admin_url( 'admin.php?page=cutover-audit-mu-plugins' ),
-				'action' => __( 'Open must-use', 'cutover-audit' ),
-				'source' => __( 'Must-use plugins', 'cutover-audit' ),
+				'detail' => __( 'WordPress VIP reserves wp-content/mu-plugins for platform code. Anything you ship belongs in client-mu-plugins/.', 'switchrail-audit' ),
+				'url'    => admin_url( 'admin.php?page=switchrail-audit-mu-plugins' ),
+				'action' => __( 'Open must-use', 'switchrail-audit' ),
+				'source' => __( 'Must-use plugins', 'switchrail-audit' ),
 			);
 		}
 
@@ -832,13 +832,13 @@ class Report {
 				'tier'   => 'blocking',
 				'title'  => sprintf(
 					/* translators: %d: Number of tables. */
-					_n( 'Convert %d table to InnoDB and utf8mb4', 'Convert %d tables to InnoDB and utf8mb4', $schema, 'cutover-audit' ),
+					_n( 'Convert %d table to InnoDB and utf8mb4', 'Convert %d tables to InnoDB and utf8mb4', $schema, 'switchrail-audit' ),
 					$schema
 				),
-				'detail' => __( 'WordPress VIP will not import a database with an unsupported storage engine or collation.', 'cutover-audit' ),
-				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=cutover-audit-database' ) ),
-				'action' => __( 'Show the SQL', 'cutover-audit' ),
-				'source' => __( 'Database', 'cutover-audit' ),
+				'detail' => __( 'WordPress VIP will not import a database with an unsupported storage engine or collation.', 'switchrail-audit' ),
+				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=switchrail-audit-database' ) ),
+				'action' => __( 'Show the SQL', 'switchrail-audit' ),
+				'source' => __( 'Database', 'switchrail-audit' ),
 			);
 		}
 
@@ -847,13 +847,13 @@ class Report {
 				'tier'   => 'warning',
 				'title'  => sprintf(
 					/* translators: %d: Number of tables. */
-					_n( 'Report %d non-standard table prefix to WordPress VIP', 'Report %d non-standard table prefixes to WordPress VIP', (int) $database['issues']['prefix'], 'cutover-audit' ),
+					_n( 'Report %d non-standard table prefix to WordPress VIP', 'Report %d non-standard table prefixes to WordPress VIP', (int) $database['issues']['prefix'], 'switchrail-audit' ),
 					(int) $database['issues']['prefix']
 				),
-				'detail' => __( 'The prefix is embedded in option names and user meta keys, so renaming tables without WordPress VIP confirming it breaks roles and capabilities.', 'cutover-audit' ),
-				'url'    => admin_url( 'admin.php?page=cutover-audit-database' ),
-				'action' => __( 'Open the audit', 'cutover-audit' ),
-				'source' => __( 'Database', 'cutover-audit' ),
+				'detail' => __( 'The prefix is embedded in option names and user meta keys, so renaming tables without WordPress VIP confirming it breaks roles and capabilities.', 'switchrail-audit' ),
+				'url'    => admin_url( 'admin.php?page=switchrail-audit-database' ),
+				'action' => __( 'Open the audit', 'switchrail-audit' ),
+				'source' => __( 'Database', 'switchrail-audit' ),
 			);
 		}
 
@@ -862,13 +862,13 @@ class Report {
 				'tier'   => 'important',
 				'title'  => sprintf(
 					/* translators: %d: Number of paths. */
-					_n( 'Remove or relocate %d path in wp-content', 'Remove or relocate %d paths in wp-content', (int) $content['unsupported'], 'cutover-audit' ),
+					_n( 'Remove or relocate %d path in wp-content', 'Remove or relocate %d paths in wp-content', (int) $content['unsupported'], 'switchrail-audit' ),
 					(int) $content['unsupported']
 				),
-				'detail' => __( 'These conflict with the WordPress VIP application structure, or with drop-ins the platform installs itself.', 'cutover-audit' ),
-				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=cutover-audit-directories' ) ),
-				'action' => __( 'Open the audit', 'cutover-audit' ),
-				'source' => __( 'wp-content', 'cutover-audit' ),
+				'detail' => __( 'These conflict with the WordPress VIP application structure, or with drop-ins the platform installs itself.', 'switchrail-audit' ),
+				'url'    => add_query_arg( 'status', 'not-compatible', admin_url( 'admin.php?page=switchrail-audit-directories' ) ),
+				'action' => __( 'Open the audit', 'switchrail-audit' ),
+				'source' => __( 'wp-content', 'switchrail-audit' ),
 			);
 		}
 
@@ -1110,8 +1110,8 @@ class Report {
 
 		return array(
 			'schema'        => self::SCHEMA_VERSION,
-			'generator'     => 'cutover-audit',
-			'plugin_version' => defined( 'CUTOVER_AUDIT_VERSION' ) ? CUTOVER_AUDIT_VERSION : '',
+			'generator'     => 'switchrail-audit',
+			'plugin_version' => defined( 'SWITCHRAIL_AUDIT_VERSION' ) ? SWITCHRAIL_AUDIT_VERSION : '',
 			'rules_version' => Rules::VERSION,
 			'generated_at'  => gmdate( 'c' ),
 			'site'          => array(

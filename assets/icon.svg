@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="cutover-audit-title">
-	<title id="cutover-audit-title">Cutover Audit</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="switchrail-audit-title">
+	<title id="switchrail-audit-title">Switchrail Audit</title>
 
 	<!-- Tile. Colours are the admin UI's ink and paper tokens. -->
 	<rect width="256" height="256" rx="56" fill="#17191e"/>
@@ -15,7 +15,7 @@
 	<!-- The old host: the path the site has been running on. -->
 	<path d="M40 112H90" fill="none" stroke="#34d399" stroke-width="7" stroke-linecap="round" stroke-dasharray="0.5 15"/>
 
-	<!-- The cutover: the site switches track onto the new host. -->
+	<!-- The switch rail: the site moves onto a new track. -->
 	<path d="M90 112C126 112 134 64 170 64H184" fill="none" stroke="#fffefb" stroke-width="12" stroke-linecap="round"/>
 	<path d="M220 64 184 40v24z" fill="#fffefb"/>
 	<path d="M220 64 184 88V64z" fill="#b9c6c9"/>

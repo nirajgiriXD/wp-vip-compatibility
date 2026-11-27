@@ -1,5 +1,5 @@
 {
-  "name": "nirajgirixd/cutover-audit",
+  "name": "nirajgirixd/switchrail-audit",
   "description": "Checks a WordPress site against the WordPress VIP Platform requirements before migrating.",
   "type": "wordpress-plugin",
   "license": "GPL-3.0-or-later",
@@ -14,7 +14,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "CUTOVER_AUDIT\\Tests\\": "tests/php/"
+      "SWITCHRAIL_AUDIT\\Tests\\": "tests/php/"
     }
   },
   "scripts": {

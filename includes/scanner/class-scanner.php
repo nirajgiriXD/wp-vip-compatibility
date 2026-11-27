@@ -9,10 +9,10 @@
  * re-scanned every plugin on every page load and on every one of the five
  * overview AJAX calls.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Scanner;
+namespace SWITCHRAIL_AUDIT\Includes\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -217,7 +217,7 @@ class Scanner {
 		 * @param string[] $excluded Lower-case directory names.
 		 */
 		return (array) apply_filters(
-			'cutover_audit_scanner_excluded_directories',
+			'switchrail_audit_scanner_excluded_directories',
 			array( 'vendor', 'vendor_prefixed', 'node_modules', 'bower_components', '.git', '.svn', 'dist', 'build' )
 		);
 	}
@@ -359,11 +359,11 @@ class Scanner {
 	public static function status_label( $status ) {
 		switch ( $status ) {
 			case self::STATUS_BLOCKED:
-				return __( 'Needs work', 'cutover-audit' );
+				return __( 'Needs work', 'switchrail-audit' );
 			case self::STATUS_REVIEW:
-				return __( 'Needs review', 'cutover-audit' );
+				return __( 'Needs review', 'switchrail-audit' );
 			default:
-				return __( 'Passing', 'cutover-audit' );
+				return __( 'Passing', 'switchrail-audit' );
 		}
 	}
 }

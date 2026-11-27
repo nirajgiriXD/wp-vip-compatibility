@@ -2,19 +2,19 @@
 /**
  * Tests for the database and wp-content screens.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Classes;
+namespace SWITCHRAIL_AUDIT\Tests\Classes;
 
-use CUTOVER_AUDIT\Includes\Classes\Database_Settings;
-use CUTOVER_AUDIT\Includes\Classes\Directories_Settings;
-use CUTOVER_AUDIT\Tests\Support\Sandbox;
-use CUTOVER_AUDIT\Tests\TestCase;
+use SWITCHRAIL_AUDIT\Includes\Classes\Database_Settings;
+use SWITCHRAIL_AUDIT\Includes\Classes\Directories_Settings;
+use SWITCHRAIL_AUDIT\Tests\Support\Sandbox;
+use SWITCHRAIL_AUDIT\Tests\TestCase;
 
 /**
- * @covers \CUTOVER_AUDIT\Includes\Classes\Database_Settings
- * @covers \CUTOVER_AUDIT\Includes\Classes\Directories_Settings
+ * @covers \SWITCHRAIL_AUDIT\Includes\Classes\Database_Settings
+ * @covers \SWITCHRAIL_AUDIT\Includes\Classes\Directories_Settings
  */
 class SiteScreensTest extends TestCase {
 

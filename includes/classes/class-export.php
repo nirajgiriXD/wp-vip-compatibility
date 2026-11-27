@@ -9,13 +9,13 @@
  * through admin-post behind a nonce and a capability check, so the report never
  * exists as a public file.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Classes;
+namespace SWITCHRAIL_AUDIT\Includes\Classes;
 
-use CUTOVER_AUDIT\Includes\Traits\Singleton;
-use CUTOVER_AUDIT\Includes\Scanner\Report;
+use SWITCHRAIL_AUDIT\Includes\Traits\Singleton;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Report;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -29,12 +29,12 @@ class Export {
 	/**
 	 * Nonce action.
 	 */
-	const NONCE_ACTION = 'cutover_audit_export_report';
+	const NONCE_ACTION = 'switchrail_audit_export_report';
 
 	/**
 	 * admin-post action name.
 	 */
-	const ACTION = 'cutover_audit_export';
+	const ACTION = 'switchrail_audit_export';
 
 	/**
 	 * Constructor.
@@ -51,20 +51,20 @@ class Export {
 	public static function get_formats() {
 		return array(
 			'json' => array(
-				'label'       => __( 'JSON', 'cutover-audit' ),
-				'description' => __( 'Every finding, for CI and tooling.', 'cutover-audit' ),
+				'label'       => __( 'JSON', 'switchrail-audit' ),
+				'description' => __( 'Every finding, for CI and tooling.', 'switchrail-audit' ),
 				'extension'   => 'json',
 				'mime'        => 'application/json',
 			),
 			'csv'  => array(
-				'label'       => __( 'CSV', 'cutover-audit' ),
-				'description' => __( 'One row per finding, for a spreadsheet.', 'cutover-audit' ),
+				'label'       => __( 'CSV', 'switchrail-audit' ),
+				'description' => __( 'One row per finding, for a spreadsheet.', 'switchrail-audit' ),
 				'extension'   => 'csv',
 				'mime'        => 'text/csv',
 			),
 			'md'   => array(
-				'label'       => __( 'Markdown', 'cutover-audit' ),
-				'description' => __( 'For pasting into a ticket or PR.', 'cutover-audit' ),
+				'label'       => __( 'Markdown', 'switchrail-audit' ),
+				'description' => __( 'For pasting into a ticket or PR.', 'switchrail-audit' ),
 				'extension'   => 'md',
 				'mime'        => 'text/markdown',
 			),
@@ -98,8 +98,8 @@ class Export {
 	public function handle() {
 		if ( ! current_user_can( Plugin::get_capability() ) ) {
 			wp_die(
-				esc_html__( 'You do not have permission to export the compatibility report.', 'cutover-audit' ),
-				esc_html__( 'Forbidden', 'cutover-audit' ),
+				esc_html__( 'You do not have permission to export the compatibility report.', 'switchrail-audit' ),
+				esc_html__( 'Forbidden', 'switchrail-audit' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -126,7 +126,7 @@ class Export {
 		}
 
 		$filename = sprintf(
-			'cutover-audit-%1$s-%2$s.%3$s',
+			'switchrail-audit-%1$s-%2$s.%3$s',
 			sanitize_title( (string) wp_parse_url( home_url(), PHP_URL_HOST ) ),
 			gmdate( 'Ymd-His' ),
 			$formats[ $format ]['extension']

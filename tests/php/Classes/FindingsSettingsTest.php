@@ -2,21 +2,21 @@
 /**
  * Tests for the findings screen and the rescan handler.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Classes;
+namespace SWITCHRAIL_AUDIT\Tests\Classes;
 
-use CUTOVER_AUDIT\Includes\Classes\Findings_Settings;
-use CUTOVER_AUDIT\Includes\Scanner\Database_Audit;
-use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
-use CUTOVER_AUDIT\Tests\Support\Redirect;
-use CUTOVER_AUDIT\Tests\Support\WP;
-use CUTOVER_AUDIT\Tests\Support\Wp_Die;
-use CUTOVER_AUDIT\Tests\TestCase;
+use SWITCHRAIL_AUDIT\Includes\Classes\Findings_Settings;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Database_Audit;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Results_Store;
+use SWITCHRAIL_AUDIT\Tests\Support\Redirect;
+use SWITCHRAIL_AUDIT\Tests\Support\WP;
+use SWITCHRAIL_AUDIT\Tests\Support\Wp_Die;
+use SWITCHRAIL_AUDIT\Tests\TestCase;
 
 /**
- * @covers \CUTOVER_AUDIT\Includes\Classes\Findings_Settings
+ * @covers \SWITCHRAIL_AUDIT\Includes\Classes\Findings_Settings
  */
 class FindingsSettingsTest extends TestCase {
 
@@ -89,7 +89,7 @@ class FindingsSettingsTest extends TestCase {
 	public function test_the_rescan_handler_is_registered() {
 		$settings = new Findings_Settings();
 
-		$this->assertSame( 10, has_action( 'admin_post_cutover_audit_rescan', array( $settings, 'handle_rescan' ) ) );
+		$this->assertSame( 10, has_action( 'admin_post_switchrail_audit_rescan', array( $settings, 'handle_rescan' ) ) );
 	}
 
 	public function test_a_user_without_the_capability_cannot_rescan() {
@@ -119,7 +119,7 @@ class FindingsSettingsTest extends TestCase {
 
 		$location = $this->rescan();
 
-		$this->assertSame( self::ADMIN . 'cutover-audit-findings&cutover-audit-scanned=all', $location );
+		$this->assertSame( self::ADMIN . 'switchrail-audit-findings&switchrail-audit-scanned=all', $location );
 		$this->assertSame( array( Findings_Settings::RESCAN_ACTION ), WP::$checked_nonces );
 		$this->assertNotNull( Results_Store::get( 'plugin:p' ) );
 		$this->assertCount( 1, Results_Store::get_history() );
@@ -128,21 +128,21 @@ class FindingsSettingsTest extends TestCase {
 	}
 
 	public function test_a_full_rescan_returns_to_the_screen_it_started_from_with_its_filters() {
-		WP::$referer = self::ADMIN . 'cutover-audit-plugins&status=review&s=foo&cutover-audit-scanned=plugin&cutover-audit-scanning=theme';
+		WP::$referer = self::ADMIN . 'switchrail-audit-plugins&status=review&s=foo&switchrail-audit-scanned=plugin&switchrail-audit-scanning=theme';
 
-		$this->assertSame( self::ADMIN . 'cutover-audit-plugins&status=review&s=foo&cutover-audit-scanned=all', $this->rescan( 'all' ) );
+		$this->assertSame( self::ADMIN . 'switchrail-audit-plugins&status=review&s=foo&switchrail-audit-scanned=all', $this->rescan( 'all' ) );
 	}
 
 	public function test_a_referrer_from_another_plugin_is_ignored() {
 		WP::$referer = self::ADMIN . 'other-plugin&x=1';
 
-		$this->assertSame( self::ADMIN . 'cutover-audit-findings&cutover-audit-scanned=all', $this->rescan() );
+		$this->assertSame( self::ADMIN . 'switchrail-audit-findings&switchrail-audit-scanned=all', $this->rescan() );
 	}
 
 	public function test_nested_referrer_parameters_are_dropped() {
-		WP::$referer = self::ADMIN . 'cutover-audit-findings&tier=blocking&evil[]=1';
+		WP::$referer = self::ADMIN . 'switchrail-audit-findings&tier=blocking&evil[]=1';
 
-		$this->assertSame( self::ADMIN . 'cutover-audit-findings&tier=blocking&cutover-audit-scanned=all', $this->rescan() );
+		$this->assertSame( self::ADMIN . 'switchrail-audit-findings&tier=blocking&switchrail-audit-scanned=all', $this->rescan() );
 	}
 
 	/**
@@ -154,15 +154,15 @@ class FindingsSettingsTest extends TestCase {
 
 		$location = $this->rescan( $scope );
 
-		$this->assertSame( self::ADMIN . $screen . '&cutover-audit-scanning=' . $scope, $location );
+		$this->assertSame( self::ADMIN . $screen . '&switchrail-audit-scanning=' . $scope, $location );
 		$this->assertSame( array(), WP::$memory_raises, 'nothing is scanned on the server' );
 	}
 
 	public function async_scopes() {
 		return array(
-			'plugins'    => array( 'plugin', 'cutover-audit-plugins' ),
-			'themes'     => array( 'theme', 'cutover-audit-themes' ),
-			'must-use'   => array( 'mu-plugin', 'cutover-audit-mu-plugins' ),
+			'plugins'    => array( 'plugin', 'switchrail-audit-plugins' ),
+			'themes'     => array( 'theme', 'switchrail-audit-themes' ),
+			'must-use'   => array( 'mu-plugin', 'switchrail-audit-mu-plugins' ),
 		);
 	}
 
@@ -177,24 +177,24 @@ class FindingsSettingsTest extends TestCase {
 	}
 
 	public function test_an_area_rescan_started_on_its_own_screen_keeps_the_view() {
-		WP::$referer = self::ADMIN . 'cutover-audit-themes&role=live';
+		WP::$referer = self::ADMIN . 'switchrail-audit-themes&role=live';
 
-		$this->assertSame( self::ADMIN . 'cutover-audit-themes&role=live&cutover-audit-scanning=theme', $this->rescan( 'theme' ) );
+		$this->assertSame( self::ADMIN . 'switchrail-audit-themes&role=live&switchrail-audit-scanning=theme', $this->rescan( 'theme' ) );
 	}
 
 	public function test_an_area_rescan_started_elsewhere_goes_to_the_area_screen() {
-		WP::$referer = self::ADMIN . 'cutover-audit-findings&tier=blocking';
+		WP::$referer = self::ADMIN . 'switchrail-audit-findings&tier=blocking';
 
-		$this->assertSame( self::ADMIN . 'cutover-audit-plugins&cutover-audit-scanning=plugin', $this->rescan( 'plugin' ) );
+		$this->assertSame( self::ADMIN . 'switchrail-audit-plugins&switchrail-audit-scanning=plugin', $this->rescan( 'plugin' ) );
 	}
 
 	public function test_an_audit_rescan_runs_on_the_server_and_goes_to_its_screen() {
-		$this->assertSame( self::ADMIN . 'cutover-audit-database&cutover-audit-scanned=database', $this->rescan( 'database' ) );
-		$this->assertSame( self::ADMIN . 'cutover-audit-directories&cutover-audit-scanned=directories', $this->rescan( 'directories' ) );
+		$this->assertSame( self::ADMIN . 'switchrail-audit-database&switchrail-audit-scanned=database', $this->rescan( 'database' ) );
+		$this->assertSame( self::ADMIN . 'switchrail-audit-directories&switchrail-audit-scanned=directories', $this->rescan( 'directories' ) );
 	}
 
 	public function test_an_unknown_scope_rescans_everything() {
-		$this->assertSame( self::ADMIN . 'cutover-audit-findings&cutover-audit-scanned=all', $this->rescan( '"><script>' ) );
+		$this->assertSame( self::ADMIN . 'switchrail-audit-findings&switchrail-audit-scanned=all', $this->rescan( '"><script>' ) );
 	}
 
 	/*
@@ -208,7 +208,7 @@ class FindingsSettingsTest extends TestCase {
 
 		$this->assertStringContainsString( 'No scan results yet', $output );
 		$this->assertStringContainsString( 'Run the first scan', $output );
-		$this->assertStringContainsString( 'value="cutover_audit_rescan"', $output );
+		$this->assertStringContainsString( 'value="switchrail_audit_rescan"', $output );
 	}
 
 	public function test_the_list_shows_every_tier_with_counts_that_include_audit_work() {
@@ -218,15 +218,15 @@ class FindingsSettingsTest extends TestCase {
 
 		// Findings: critical (must fix), high (should fix), low (FYI).
 		// Audit work: mu-plugins/ in wp-content (should fix).
-		$this->assertMatchesRegularExpression( '#<span>Everything</span><span class="cutover-audit-segmented__count">4</span>#', $output );
-		$this->assertMatchesRegularExpression( '#<span>Must fix</span><span class="cutover-audit-segmented__count">1</span>#', $output );
-		$this->assertMatchesRegularExpression( '#<span>Should fix</span><span class="cutover-audit-segmented__count">2</span>#', $output );
-		$this->assertMatchesRegularExpression( '#<span>Worth checking</span><span class="cutover-audit-segmented__count">0</span>#', $output );
-		$this->assertMatchesRegularExpression( '#<span>FYI</span><span class="cutover-audit-segmented__count">1</span>#', $output );
+		$this->assertMatchesRegularExpression( '#<span>Everything</span><span class="switchrail-audit-segmented__count">4</span>#', $output );
+		$this->assertMatchesRegularExpression( '#<span>Must fix</span><span class="switchrail-audit-segmented__count">1</span>#', $output );
+		$this->assertMatchesRegularExpression( '#<span>Should fix</span><span class="switchrail-audit-segmented__count">2</span>#', $output );
+		$this->assertMatchesRegularExpression( '#<span>Worth checking</span><span class="switchrail-audit-segmented__count">0</span>#', $output );
+		$this->assertMatchesRegularExpression( '#<span>FYI</span><span class="switchrail-audit-segmented__count">1</span>#', $output );
 
-		$this->assertStringContainsString( '<p class="cutover-audit-result-count" data-role="findings-count" aria-live="polite">4 issues</p>', $output );
-		$this->assertStringContainsString( 'cutover-audit-tiergroup--blocking', $output );
-		$this->assertStringNotContainsString( 'cutover-audit-tiergroup--warning', $output, 'an empty tier has no card' );
+		$this->assertStringContainsString( '<p class="switchrail-audit-result-count" data-role="findings-count" aria-live="polite">4 issues</p>', $output );
+		$this->assertStringContainsString( 'switchrail-audit-tiergroup--blocking', $output );
+		$this->assertStringNotContainsString( 'switchrail-audit-tiergroup--warning', $output, 'an empty tier has no card' );
 		$this->assertStringContainsString( 'Remove or relocate 1 path in wp-content', $output );
 		$this->assertStringContainsString( 'data-role="tier-empty" hidden', $output );
 		$this->assertStringContainsString( 'data-role="expand-all"', $output );
@@ -237,8 +237,8 @@ class FindingsSettingsTest extends TestCase {
 
 		$output = $this->screen();
 
-		$this->assertMatchesRegularExpression( '#<span class="cutover-audit-segmented__option is-empty"[^>]*data-tier="warning"#', $output );
-		$this->assertMatchesRegularExpression( '#<a class="cutover-audit-segmented__option" href="[^"]*tier=blocking"#', $output );
+		$this->assertMatchesRegularExpression( '#<span class="switchrail-audit-segmented__option is-empty"[^>]*data-tier="warning"#', $output );
+		$this->assertMatchesRegularExpression( '#<a class="switchrail-audit-segmented__option" href="[^"]*tier=blocking"#', $output );
 	}
 
 	public function test_a_selected_tier_shows_only_that_tier_and_links_back_out() {
@@ -247,9 +247,9 @@ class FindingsSettingsTest extends TestCase {
 
 		$output = $this->screen();
 
-		$this->assertMatchesRegularExpression( '#<section class="cutover-audit-tiergroup cutover-audit-tiergroup--blocking" data-tier="blocking">#', $output );
-		$this->assertMatchesRegularExpression( '#<section class="cutover-audit-tiergroup cutover-audit-tiergroup--important" data-tier="important" hidden>#', $output );
-		$this->assertMatchesRegularExpression( '#<a class="cutover-audit-segmented__option active" href="' . preg_quote( self::ADMIN . 'cutover-audit-findings', '#' ) . '" [^>]*aria-current="true"#', $output );
+		$this->assertMatchesRegularExpression( '#<section class="switchrail-audit-tiergroup switchrail-audit-tiergroup--blocking" data-tier="blocking">#', $output );
+		$this->assertMatchesRegularExpression( '#<section class="switchrail-audit-tiergroup switchrail-audit-tiergroup--important" data-tier="important" hidden>#', $output );
+		$this->assertMatchesRegularExpression( '#<a class="switchrail-audit-segmented__option active" href="' . preg_quote( self::ADMIN . 'switchrail-audit-findings', '#' ) . '" [^>]*aria-current="true"#', $output );
 		$this->assertStringContainsString( '1 issue</p>', $output );
 	}
 
@@ -260,7 +260,7 @@ class FindingsSettingsTest extends TestCase {
 		$output = $this->screen();
 
 		$this->assertStringContainsString( '<div data-role="tier-empty">', $output );
-		$this->assertMatchesRegularExpression( '#<a class="cutover-audit-segmented__option active"[^>]*data-tier="warning"#', $output, 'still a link, so it can be cleared' );
+		$this->assertMatchesRegularExpression( '#<a class="switchrail-audit-segmented__option active"[^>]*data-tier="warning"#', $output, 'still a link, so it can be cleared' );
 	}
 
 	public function test_a_target_filter_leaves_out_the_audit_work_and_can_be_removed() {
@@ -271,7 +271,7 @@ class FindingsSettingsTest extends TestCase {
 
 		$this->assertStringContainsString( '1 issue</p>', $output );
 		$this->assertStringNotContainsString( 'Site audit', $output );
-		$this->assertStringContainsString( '<a class="cutover-audit-activefilter" href="' . self::ADMIN . 'cutover-audit-findings">', $output );
+		$this->assertStringContainsString( '<a class="switchrail-audit-activefilter" href="' . self::ADMIN . 'switchrail-audit-findings">', $output );
 		$this->assertStringContainsString( '<span>Beta</span>', $output );
 		$this->assertStringContainsString( '<input type="hidden" name="target" value="plugin:beta" />', $output, 'search keeps the filter' );
 		$this->assertStringContainsString( '<span>Clear filters</span></a>', $output );
@@ -280,7 +280,7 @@ class FindingsSettingsTest extends TestCase {
 	public function test_no_clear_filters_link_without_filters() {
 		$this->seed();
 
-		$this->assertStringNotContainsString( 'cutover-audit-clearfilters', $this->screen() );
+		$this->assertStringNotContainsString( 'switchrail-audit-clearfilters', $this->screen() );
 	}
 
 	public function test_category_type_and_search_filters() {
@@ -308,7 +308,7 @@ class FindingsSettingsTest extends TestCase {
 		$output = $this->screen();
 
 		$this->assertStringContainsString( '4 issues</p>', $output );
-		$this->assertStringNotContainsString( 'cutover-audit-findings__active', $output );
+		$this->assertStringNotContainsString( 'switchrail-audit-findings__active', $output );
 	}
 
 	public function test_a_search_that_matches_nothing_says_so() {
@@ -353,6 +353,6 @@ class FindingsSettingsTest extends TestCase {
 
 		$this->assertCount( 4, $notes );
 		$this->assertStringContainsString( '<code>/</code>', $notes[2] );
-		$this->assertStringContainsString( 'cutover-audit:ignore', $notes[3] );
+		$this->assertStringContainsString( 'switchrail-audit:ignore', $notes[3] );
 	}
 }

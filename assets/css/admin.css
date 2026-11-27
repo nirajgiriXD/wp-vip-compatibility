@@ -1,9 +1,9 @@
 /**
- * Cutover Audit — the manifest.
+ * Switchrail Audit — the manifest.
  *
  * The screens are designed as a migration manifest: a ruled document on a warm
  * paper ground, read top to bottom, rather than a dashboard of boxes. Everything
- * is scoped to `.cutover-audit` (and the `cutover-audit-screen` body class the plugin adds to its
+ * is scoped to `.switchrail-audit` (and the `switchrail-audit-screen` body class the plugin adds to its
  * own screens), so nothing here reaches core screens or other plugins.
  *
  * Rules the stylesheet keeps:
@@ -44,140 +44,140 @@
  * 1. Tokens
  * ---------------------------------------------------------------------- */
 
-body.cutover-audit-screen,
-.cutover-audit {
-	--cutover-audit-serif: "Iowan Old Style", "Charter", "Sitka Heading", "Sitka Text", Cambria, "Book Antiqua", Georgia, serif;
-	--cutover-audit-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-	--cutover-audit-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+body.switchrail-audit-screen,
+.switchrail-audit {
+	--switchrail-audit-serif: "Iowan Old Style", "Charter", "Sitka Heading", "Sitka Text", Cambria, "Book Antiqua", Georgia, serif;
+	--switchrail-audit-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	--switchrail-audit-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
 	/* Ground. Paper is the WordPress admin background, so the screens sit on
 	 * the same ground as every other admin page. */
-	--cutover-audit-paper: #f0f0f1;
-	--cutover-audit-paper-2: #e6e6e7;
-	--cutover-audit-paper-3: #dcdcde;
-	--cutover-audit-sheet: #fffefb;
-	--cutover-audit-sheet-2: #faf8f3;
-	--cutover-audit-rule: #e2ddd2;
-	--cutover-audit-rule-2: #cbc4b5;
+	--switchrail-audit-paper: #f0f0f1;
+	--switchrail-audit-paper-2: #e6e6e7;
+	--switchrail-audit-paper-3: #dcdcde;
+	--switchrail-audit-sheet: #fffefb;
+	--switchrail-audit-sheet-2: #faf8f3;
+	--switchrail-audit-rule: #e2ddd2;
+	--switchrail-audit-rule-2: #cbc4b5;
 
 	/* Ink. Each step clears 4.5:1 on paper. */
-	--cutover-audit-ink: #17191e;
-	--cutover-audit-ink-2: #4b4f58;
-	--cutover-audit-ink-3: #62666f;
-	--cutover-audit-ink-inverse: #f7f4ed;
+	--switchrail-audit-ink: #17191e;
+	--switchrail-audit-ink-2: #4b4f58;
+	--switchrail-audit-ink-3: #62666f;
+	--switchrail-audit-ink-inverse: #f7f4ed;
 
 	/* The one accent: links, focus, selection. */
-	--cutover-audit-accent: #0c6670;
-	--cutover-audit-accent-ink: #0a5660;
-	--cutover-audit-accent-soft: #dcebea;
-	--cutover-audit-focus: 0 0 0 2px var(--cutover-audit-paper), 0 0 0 4px var(--cutover-audit-accent);
+	--switchrail-audit-accent: #0c6670;
+	--switchrail-audit-accent-ink: #0a5660;
+	--switchrail-audit-accent-soft: #dcebea;
+	--switchrail-audit-focus: 0 0 0 2px var(--switchrail-audit-paper), 0 0 0 4px var(--switchrail-audit-accent);
 
 	/* Urgency. The plain value is graphic; `-ink` is for text. */
-	--cutover-audit-block: #c2361f;
-	--cutover-audit-block-ink: #a62b17;
-	--cutover-audit-block-soft: #f6e3de;
-	--cutover-audit-imp: #c46f00;
-	--cutover-audit-imp-ink: #8e5100;
-	--cutover-audit-imp-soft: #f5e8d2;
-	--cutover-audit-warn: #4e62a6;
-	--cutover-audit-warn-ink: #3f5292;
-	--cutover-audit-warn-soft: #e3e7f3;
-	--cutover-audit-info: #8a8d94;
-	--cutover-audit-info-ink: #5e626b;
-	--cutover-audit-ok: #2e7d4f;
-	--cutover-audit-ok-ink: #23653f;
-	--cutover-audit-ok-soft: #e1ede3;
-	--cutover-audit-ok-quiet: #8db89a;
+	--switchrail-audit-block: #c2361f;
+	--switchrail-audit-block-ink: #a62b17;
+	--switchrail-audit-block-soft: #f6e3de;
+	--switchrail-audit-imp: #c46f00;
+	--switchrail-audit-imp-ink: #8e5100;
+	--switchrail-audit-imp-soft: #f5e8d2;
+	--switchrail-audit-warn: #4e62a6;
+	--switchrail-audit-warn-ink: #3f5292;
+	--switchrail-audit-warn-soft: #e3e7f3;
+	--switchrail-audit-info: #8a8d94;
+	--switchrail-audit-info-ink: #5e626b;
+	--switchrail-audit-ok: #2e7d4f;
+	--switchrail-audit-ok-ink: #23653f;
+	--switchrail-audit-ok-soft: #e1ede3;
+	--switchrail-audit-ok-quiet: #8db89a;
 
 	/* Code. */
-	--cutover-audit-code-bg: #1b1d22;
-	--cutover-audit-code-ink: #ece7dc;
-	--cutover-audit-code-dim: #8a8d95;
-	--cutover-audit-code-rule: #33363d;
+	--switchrail-audit-code-bg: #1b1d22;
+	--switchrail-audit-code-ink: #ece7dc;
+	--switchrail-audit-code-dim: #8a8d95;
+	--switchrail-audit-code-rule: #33363d;
 
 	/* Shape and depth. */
-	--cutover-audit-radius: 5px;
-	--cutover-audit-radius-lg: 8px;
-	--cutover-audit-lift: 0 1px 0 rgba(23, 25, 30, 0.04), 0 18px 40px -18px rgba(23, 25, 30, 0.38);
-	--cutover-audit-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+	--switchrail-audit-radius: 5px;
+	--switchrail-audit-radius-lg: 8px;
+	--switchrail-audit-lift: 0 1px 0 rgba(23, 25, 30, 0.04), 0 18px 40px -18px rgba(23, 25, 30, 0.38);
+	--switchrail-audit-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 /* -------------------------------------------------------------------------
  * 2. Ground and base
  * ---------------------------------------------------------------------- */
 
-.cutover-audit {
+.switchrail-audit {
 	margin-top: 14px;
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-sans);
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-sans);
 	font-size: 14px;
 	line-height: 1.55;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.cutover-audit *,
-.cutover-audit *::before,
-.cutover-audit *::after {
+.switchrail-audit *,
+.switchrail-audit *::before,
+.switchrail-audit *::after {
 	box-sizing: border-box;
 }
 
-.cutover-audit p,
-.cutover-audit ul,
-.cutover-audit ol,
-.cutover-audit dl,
-.cutover-audit dd,
-.cutover-audit h1,
-.cutover-audit h2,
-.cutover-audit h3,
-.cutover-audit h4 {
+.switchrail-audit p,
+.switchrail-audit ul,
+.switchrail-audit ol,
+.switchrail-audit dl,
+.switchrail-audit dd,
+.switchrail-audit h1,
+.switchrail-audit h2,
+.switchrail-audit h3,
+.switchrail-audit h4 {
 	margin: 0;
 	padding: 0;
 }
 
-.cutover-audit ul,
-.cutover-audit ol {
+.switchrail-audit ul,
+.switchrail-audit ol {
 	list-style: none;
 }
 
-.cutover-audit li {
+.switchrail-audit li {
 	margin: 0;
 }
 
-.cutover-audit code,
-.cutover-audit kbd,
-.cutover-audit pre {
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit code,
+.switchrail-audit kbd,
+.switchrail-audit pre {
+	font-family: var(--switchrail-audit-mono);
 }
 
-.cutover-audit code {
+.switchrail-audit code {
 	padding: 0;
 	background: none;
 	font-size: 0.92em;
 }
 
-.cutover-audit a {
-	color: var(--cutover-audit-accent-ink);
+.switchrail-audit a {
+	color: var(--switchrail-audit-accent-ink);
 }
 
-.cutover-audit a:focus {
+.switchrail-audit a:focus {
 	box-shadow: none;
 	outline: none;
 }
 
-.cutover-audit a:focus-visible,
-.cutover-audit button:focus-visible,
-.cutover-audit summary:focus-visible,
-.cutover-audit input:focus-visible {
+.switchrail-audit a:focus-visible,
+.switchrail-audit button:focus-visible,
+.switchrail-audit summary:focus-visible,
+.switchrail-audit input:focus-visible {
 	outline: none;
-	box-shadow: var(--cutover-audit-focus);
+	box-shadow: var(--switchrail-audit-focus);
 }
 
-.cutover-audit [hidden] {
+.switchrail-audit [hidden] {
 	display: none !important;
 }
 
-.cutover-audit-icon {
+.switchrail-audit-icon {
 	display: inline-block;
 	flex: none;
 	width: 20px;
@@ -185,159 +185,159 @@ body.cutover-audit-screen,
 	vertical-align: middle;
 }
 
-.cutover-audit-icon--sm {
+.switchrail-audit-icon--sm {
 	width: 16px;
 	height: 16px;
 }
 
-.cutover-audit-icon--xs {
+.switchrail-audit-icon--xs {
 	width: 13px;
 	height: 13px;
 }
 
-.cutover-audit-main > * + * {
+.switchrail-audit-main > * + * {
 	margin-top: 56px;
 }
 
-.cutover-audit-main > [data-role="scan-report"] + *,
-.cutover-audit-main > .cutover-audit-notice + * {
+.switchrail-audit-main > [data-role="scan-report"] + *,
+.switchrail-audit-main > .switchrail-audit-notice + * {
 	margin-top: 24px;
 }
 
-.cutover-audit-dash {
-	color: var(--cutover-audit-rule-2);
+.switchrail-audit-dash {
+	color: var(--switchrail-audit-rule-2);
 }
 
 /* -------------------------------------------------------------------------
  * 3. Bar, section index and page head
  * ---------------------------------------------------------------------- */
 
-.cutover-audit-bar {
+.switchrail-audit-bar {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: space-between;
 	gap: 14px 24px;
 	padding: 4px 0 14px;
-	border-bottom: 1px solid var(--cutover-audit-ink);
+	border-bottom: 1px solid var(--switchrail-audit-ink);
 }
 
-.cutover-audit-brand {
+.switchrail-audit-brand {
 	display: inline-flex;
 	align-items: center;
 	gap: 12px;
-	color: var(--cutover-audit-ink);
+	color: var(--switchrail-audit-ink);
 }
 
-.cutover-audit-brand__seal {
+.switchrail-audit-brand__seal {
 	display: grid;
 	place-items: center;
 	width: 38px;
 	height: 38px;
 	border-radius: 9px;
-	background: var(--cutover-audit-ink);
-	color: var(--cutover-audit-paper);
+	background: var(--switchrail-audit-ink);
+	color: var(--switchrail-audit-paper);
 }
 
-.cutover-audit-brand__seal .cutover-audit-logo {
+.switchrail-audit-brand__seal .switchrail-audit-logo {
 	display: block;
 	width: 100%;
 	height: 100%;
 }
 
-.cutover-audit-brand__text {
+.switchrail-audit-brand__text {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 }
 
-.cutover-audit-brand__name {
-	font-family: var(--cutover-audit-serif);
+.switchrail-audit-brand__name {
+	font-family: var(--switchrail-audit-serif);
 	font-size: 20px;
 	font-weight: 600;
 	line-height: 1.1;
 	letter-spacing: -0.005em;
 }
 
-.cutover-audit-brand__meta {
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-brand__meta {
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 11px;
 	line-height: 1.3;
 }
 
-.cutover-audit-bar__actions {
+.switchrail-audit-bar__actions {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 8px;
 }
 
-.cutover-audit-scanstate {
+.switchrail-audit-scanstate {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
 	margin-right: 8px;
-	color: var(--cutover-audit-ink-2);
-	font-family: var(--cutover-audit-mono);
+	color: var(--switchrail-audit-ink-2);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 11.5px;
 }
 
-.cutover-audit-scanstate__dot {
+.switchrail-audit-scanstate__dot {
 	position: relative;
 	width: 7px;
 	height: 7px;
 	border-radius: 50%;
-	background: var(--cutover-audit-ok);
+	background: var(--switchrail-audit-ok);
 }
 
-.cutover-audit-scanstate__dot::after {
+.switchrail-audit-scanstate__dot::after {
 	content: "";
 	position: absolute;
 	inset: -4px;
 	border-radius: 50%;
-	border: 1px solid var(--cutover-audit-ok);
+	border: 1px solid var(--switchrail-audit-ok);
 	opacity: 0;
-	animation: cutover-audit-ping 3.2s var(--cutover-audit-ease) infinite;
+	animation: switchrail-audit-ping 3.2s var(--switchrail-audit-ease) infinite;
 }
 
-.cutover-audit-scanstate.is-empty .cutover-audit-scanstate__dot {
-	background: var(--cutover-audit-info);
+.switchrail-audit-scanstate.is-empty .switchrail-audit-scanstate__dot {
+	background: var(--switchrail-audit-info);
 }
 
-.cutover-audit-scanstate.is-empty .cutover-audit-scanstate__dot::after {
+.switchrail-audit-scanstate.is-empty .switchrail-audit-scanstate__dot::after {
 	display: none;
 }
 
 /* The page head. */
-.cutover-audit-head {
+.switchrail-audit-head {
 	padding: 40px 0 0;
 }
 
-.cutover-audit .cutover-audit-head__title {
+.switchrail-audit .switchrail-audit-head__title {
 	margin: 0;
 	padding: 0;
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-serif);
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-serif);
 	font-size: 38px;
 	font-weight: 600;
 	line-height: 1.08;
 	letter-spacing: -0.015em;
 }
 
-.cutover-audit-head__lede {
+.switchrail-audit-head__lede {
 	margin-top: 10px !important;
-	color: var(--cutover-audit-ink-2);
+	color: var(--switchrail-audit-ink-2);
 	font-size: 15px;
 	line-height: 1.55;
 }
 
-.cutover-audit .wp-header-end {
+.switchrail-audit .wp-header-end {
 	margin: 0;
 }
 
 /* Matches the gap after a notice, so the page keeps one rhythm. */
-.cutover-audit-main {
+.switchrail-audit-main {
 	margin-top: 24px;
 }
 
@@ -345,7 +345,7 @@ body.cutover-audit-screen,
  * 4. Buttons, links, menus
  * ---------------------------------------------------------------------- */
 
-.cutover-audit .cutover-audit-btn {
+.switchrail-audit .switchrail-audit-btn {
 	position: relative;
 	display: inline-flex;
 	align-items: center;
@@ -355,60 +355,60 @@ body.cutover-audit-screen,
 	margin: 0;
 	padding: 0 16px;
 	border: 1px solid transparent;
-	border-radius: var(--cutover-audit-radius);
+	border-radius: var(--switchrail-audit-radius);
 	background: none;
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-sans);
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-sans);
 	font-size: 13.5px;
 	font-weight: 600;
 	line-height: 1;
 	text-decoration: none;
 	white-space: nowrap;
 	cursor: pointer;
-	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s var(--cutover-audit-ease);
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s var(--switchrail-audit-ease);
 }
 
-.cutover-audit .cutover-audit-btn:active {
+.switchrail-audit .switchrail-audit-btn:active {
 	transform: translateY(1px);
 }
 
-.cutover-audit .cutover-audit-btn--sm {
+.switchrail-audit .switchrail-audit-btn--sm {
 	height: 32px;
 	padding: 0 12px;
 	font-size: 12.5px;
 	gap: 7px;
 }
 
-.cutover-audit .cutover-audit-btn--primary {
-	background: var(--cutover-audit-ink);
-	color: var(--cutover-audit-ink-inverse);
+.switchrail-audit .switchrail-audit-btn--primary {
+	background: var(--switchrail-audit-ink);
+	color: var(--switchrail-audit-ink-inverse);
 }
 
-.cutover-audit .cutover-audit-btn--primary:hover {
+.switchrail-audit .switchrail-audit-btn--primary:hover {
 	background: #30333b;
 	color: #fff;
 }
 
-.cutover-audit .cutover-audit-btn--ghost {
-	border-color: var(--cutover-audit-rule-2);
+.switchrail-audit .switchrail-audit-btn--ghost {
+	border-color: var(--switchrail-audit-rule-2);
 	background: transparent;
-	color: var(--cutover-audit-ink);
+	color: var(--switchrail-audit-ink);
 }
 
-.cutover-audit .cutover-audit-btn--ghost:hover {
-	border-color: var(--cutover-audit-ink-3);
-	background: var(--cutover-audit-sheet);
-	color: var(--cutover-audit-ink);
+.switchrail-audit .switchrail-audit-btn--ghost:hover {
+	border-color: var(--switchrail-audit-ink-3);
+	background: var(--switchrail-audit-sheet);
+	color: var(--switchrail-audit-ink);
 }
 
-.cutover-audit .cutover-audit-btn--quiet {
+.switchrail-audit .switchrail-audit-btn--quiet {
 	background: transparent;
-	color: var(--cutover-audit-ink-2);
+	color: var(--switchrail-audit-ink-2);
 }
 
-.cutover-audit .cutover-audit-btn--quiet:hover {
-	background: var(--cutover-audit-paper-2);
-	color: var(--cutover-audit-ink);
+.switchrail-audit .switchrail-audit-btn--quiet:hover {
+	background: var(--switchrail-audit-paper-2);
+	color: var(--switchrail-audit-ink);
 }
 
 /*
@@ -416,52 +416,52 @@ body.cutover-audit-screen,
  * as further apart than bordered ones. Drop the row gap between them; their
  * hover backgrounds then meet edge to edge.
  */
-.cutover-audit-bar__actions .cutover-audit-btn--quiet + .cutover-audit-btn--quiet {
+.switchrail-audit-bar__actions .switchrail-audit-btn--quiet + .switchrail-audit-btn--quiet {
 	margin-left: -8px;
 }
 
-.cutover-audit .cutover-audit-btn.is-busy {
+.switchrail-audit .switchrail-audit-btn.is-busy {
 	pointer-events: none;
 	opacity: 0.85;
 }
 
-.cutover-audit .cutover-audit-btn.is-busy .cutover-audit-icon {
-	animation: cutover-audit-spin 0.9s linear infinite;
+.switchrail-audit .switchrail-audit-btn.is-busy .switchrail-audit-icon {
+	animation: switchrail-audit-spin 0.9s linear infinite;
 }
 
-.cutover-audit-inline-form {
+.switchrail-audit-inline-form {
 	display: inline-flex;
 	margin: 0;
 }
 
 /* The split rescan control. */
-.cutover-audit-split {
+.switchrail-audit-split {
 	display: inline-flex;
 	align-items: stretch;
 }
 
-.cutover-audit-split > .cutover-audit-inline-form .cutover-audit-btn {
+.switchrail-audit-split > .switchrail-audit-inline-form .switchrail-audit-btn {
 	border-top-right-radius: 0;
 	border-bottom-right-radius: 0;
 }
 
-.cutover-audit .cutover-audit-split__caret {
+.switchrail-audit .switchrail-audit-split__caret {
 	padding: 0 9px;
 	border-left: 1px solid rgba(255, 255, 255, 0.16);
 	border-top-left-radius: 0;
 	border-bottom-left-radius: 0;
 }
 
-.cutover-audit-split__more[open] .cutover-audit-split__caret .cutover-audit-icon {
+.switchrail-audit-split__more[open] .switchrail-audit-split__caret .switchrail-audit-icon {
 	transform: rotate(180deg);
 }
 
 /* Text links. */
-.cutover-audit .cutover-audit-link {
+.switchrail-audit .switchrail-audit-link {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	color: var(--cutover-audit-accent-ink);
+	color: var(--switchrail-audit-accent-ink);
 	font-weight: 600;
 	text-decoration: underline;
 	text-decoration-color: rgba(12, 102, 112, 0.3);
@@ -470,71 +470,71 @@ body.cutover-audit-screen,
 	transition: text-decoration-color 0.15s ease, color 0.15s ease;
 }
 
-.cutover-audit .cutover-audit-link:hover {
-	color: var(--cutover-audit-accent);
+.switchrail-audit .switchrail-audit-link:hover {
+	color: var(--switchrail-audit-accent);
 	text-decoration-color: currentColor;
 }
 
-.cutover-audit-link .cutover-audit-icon {
-	transition: transform 0.2s var(--cutover-audit-ease);
+.switchrail-audit-link .switchrail-audit-icon {
+	transition: transform 0.2s var(--switchrail-audit-ease);
 }
 
-.cutover-audit-link:hover .cutover-audit-link__arrow {
+.switchrail-audit-link:hover .switchrail-audit-link__arrow {
 	transform: translateX(3px);
 }
 
 /* Disclosure menus. */
-.cutover-audit-menu {
+.switchrail-audit-menu {
 	position: relative;
 }
 
-.cutover-audit-menu > summary {
+.switchrail-audit-menu > summary {
 	list-style: none;
 }
 
-.cutover-audit-menu > summary::-webkit-details-marker {
+.switchrail-audit-menu > summary::-webkit-details-marker {
 	display: none;
 }
 
-.cutover-audit-menu__panel {
+.switchrail-audit-menu__panel {
 	position: absolute;
 	top: calc(100% + 8px);
 	right: 0;
 	z-index: 60;
 	width: 330px;
 	padding: 6px;
-	border: 1px solid var(--cutover-audit-rule-2);
-	border-radius: var(--cutover-audit-radius-lg);
-	background: var(--cutover-audit-sheet);
-	box-shadow: var(--cutover-audit-lift);
+	border: 1px solid var(--switchrail-audit-rule-2);
+	border-radius: var(--switchrail-audit-radius-lg);
+	background: var(--switchrail-audit-sheet);
+	box-shadow: var(--switchrail-audit-lift);
 	transform-origin: top right;
-	animation: cutover-audit-pop 0.16s var(--cutover-audit-ease);
+	animation: switchrail-audit-pop 0.16s var(--switchrail-audit-ease);
 }
 
-.cutover-audit .cutover-audit-menu__title {
+.switchrail-audit .switchrail-audit-menu__title {
 	padding: 8px 10px 6px;
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 10.5px;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
 }
 
-.cutover-audit-menu__form {
+.switchrail-audit-menu__form {
 	margin: 0;
 }
 
-.cutover-audit .cutover-audit-menu__item {
+.switchrail-audit .switchrail-audit-menu__item {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 	width: 100%;
 	padding: 9px 10px;
 	border: 0;
-	border-radius: var(--cutover-audit-radius);
+	border-radius: var(--switchrail-audit-radius);
 	background: none;
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-sans);
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-sans);
 	text-align: left;
 	text-decoration: none;
 	cursor: pointer;
@@ -542,16 +542,16 @@ body.cutover-audit-screen,
 }
 
 /* A sliver between rows, so a hovered row never merges with a selected one. */
-.cutover-audit .cutover-audit-menu__item + .cutover-audit-menu__item {
+.switchrail-audit .switchrail-audit-menu__item + .switchrail-audit-menu__item {
 	margin-top: 2px;
 }
 
-.cutover-audit .cutover-audit-menu__item:hover {
-	background: var(--cutover-audit-paper-2);
-	color: var(--cutover-audit-ink);
+.switchrail-audit .switchrail-audit-menu__item:hover {
+	background: var(--switchrail-audit-paper-2);
+	color: var(--switchrail-audit-ink);
 }
 
-.cutover-audit-menu__label {
+.switchrail-audit-menu__label {
 	display: inline-flex;
 	align-items: baseline;
 	gap: 6px;
@@ -560,8 +560,8 @@ body.cutover-audit-screen,
 	line-height: 1.35;
 }
 
-.cutover-audit-menu__hint {
-	color: var(--cutover-audit-ink-3);
+.switchrail-audit-menu__hint {
+	color: var(--switchrail-audit-ink-3);
 	font-size: 12px;
 	line-height: 1.4;
 }
@@ -570,51 +570,51 @@ body.cutover-audit-screen,
  * Rich menus (rescan, export): each row leads with a tile naming what it acts
  * on, so the options can be told apart at a glance.
  */
-.cutover-audit-menu__panel--rich {
+.switchrail-audit-menu__panel--rich {
 	width: 340px;
 }
 
-.cutover-audit-rescan__group + .cutover-audit-rescan__group {
+.switchrail-audit-rescan__group + .switchrail-audit-rescan__group {
 	margin-top: 4px;
 	padding-top: 4px;
-	border-top: 1px solid var(--cutover-audit-rule);
+	border-top: 1px solid var(--switchrail-audit-rule);
 }
 
-.cutover-audit .cutover-audit-rescan__heading {
+.switchrail-audit .switchrail-audit-rescan__heading {
 	padding: 8px 10px 4px;
-	color: var(--cutover-audit-ink-3);
+	color: var(--switchrail-audit-ink-3);
 	font-size: 11px;
 	font-weight: 600;
 }
 
-.cutover-audit .cutover-audit-menu__row {
+.switchrail-audit .switchrail-audit-menu__row {
 	flex-direction: row;
 	align-items: center;
 	gap: 12px;
 	padding: 7px 10px;
 }
 
-.cutover-audit-menu__tile {
+.switchrail-audit-menu__tile {
 	display: grid;
 	flex: none;
 	place-items: center;
 	width: 30px;
 	height: 30px;
-	border: 1px solid var(--cutover-audit-rule);
-	border-radius: var(--cutover-audit-radius);
-	background: var(--cutover-audit-paper);
-	color: var(--cutover-audit-ink-2);
+	border: 1px solid var(--switchrail-audit-rule);
+	border-radius: var(--switchrail-audit-radius);
+	background: var(--switchrail-audit-paper);
+	color: var(--switchrail-audit-ink-2);
 	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.cutover-audit-menu__row:hover .cutover-audit-menu__tile,
-.cutover-audit-menu__row:focus-visible .cutover-audit-menu__tile {
-	border-color: var(--cutover-audit-ink);
-	background: var(--cutover-audit-ink);
-	color: var(--cutover-audit-ink-inverse);
+.switchrail-audit-menu__row:hover .switchrail-audit-menu__tile,
+.switchrail-audit-menu__row:focus-visible .switchrail-audit-menu__tile {
+	border-color: var(--switchrail-audit-ink);
+	background: var(--switchrail-audit-ink);
+	color: var(--switchrail-audit-ink-inverse);
 }
 
-.cutover-audit-menu__text {
+.switchrail-audit-menu__text {
 	display: flex;
 	flex: 1 1 auto;
 	flex-direction: column;
@@ -622,8 +622,8 @@ body.cutover-audit-screen,
 	min-width: 0;
 }
 
-.cutover-audit-menu__tile--ext {
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-menu__tile--ext {
+	font-family: var(--switchrail-audit-mono);
 	font-size: 10px;
 	font-weight: 600;
 	letter-spacing: 0.02em;
@@ -631,87 +631,87 @@ body.cutover-audit-screen,
 }
 
 /* Sized as a box to match the tile on the left, so the row reads balanced. */
-.cutover-audit .cutover-audit-menu__go {
+.switchrail-audit .switchrail-audit-menu__go {
 	box-sizing: border-box;
 	flex: none;
 	width: 30px;
 	height: 30px;
 	padding: 5px;
-	border: 1px solid var(--cutover-audit-rule-2);
-	border-radius: var(--cutover-audit-radius);
-	background: var(--cutover-audit-sheet);
-	color: var(--cutover-audit-ink);
+	border: 1px solid var(--switchrail-audit-rule-2);
+	border-radius: var(--switchrail-audit-radius);
+	background: var(--switchrail-audit-sheet);
+	color: var(--switchrail-audit-ink);
 	opacity: 0;
 	transform: translateY(-2px);
-	transition: opacity 0.15s ease, transform 0.2s var(--cutover-audit-ease);
+	transition: opacity 0.15s ease, transform 0.2s var(--switchrail-audit-ease);
 }
 
-.cutover-audit-menu__row:hover .cutover-audit-menu__go,
-.cutover-audit-menu__row:focus-visible .cutover-audit-menu__go {
+.switchrail-audit-menu__row:hover .switchrail-audit-menu__go,
+.switchrail-audit-menu__row:focus-visible .switchrail-audit-menu__go {
 	opacity: 1;
 	transform: none;
 }
 
-.cutover-audit-menu__tag {
+.switchrail-audit-menu__tag {
 	padding: 1px 6px;
 	border-radius: 3px;
-	background: var(--cutover-audit-accent-soft);
-	color: var(--cutover-audit-accent-ink);
+	background: var(--switchrail-audit-accent-soft);
+	color: var(--switchrail-audit-accent-ink);
 	font-size: 10.5px;
 	font-weight: 600;
 	line-height: 1.5;
 }
 
 /* Confirmation dialog, used before a full rescan. */
-.cutover-audit-dialog {
+.switchrail-audit-dialog {
 	width: min(440px, calc(100vw - 32px));
 	padding: 24px;
-	border: 1px solid var(--cutover-audit-rule-2);
-	border-radius: var(--cutover-audit-radius-lg);
-	background: var(--cutover-audit-sheet);
-	box-shadow: var(--cutover-audit-lift);
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-sans);
+	border: 1px solid var(--switchrail-audit-rule-2);
+	border-radius: var(--switchrail-audit-radius-lg);
+	background: var(--switchrail-audit-sheet);
+	box-shadow: var(--switchrail-audit-lift);
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-sans);
 }
 
-.cutover-audit-dialog[open] {
-	animation: cutover-audit-pop 0.16s var(--cutover-audit-ease);
+.switchrail-audit-dialog[open] {
+	animation: switchrail-audit-pop 0.16s var(--switchrail-audit-ease);
 }
 
-.cutover-audit-dialog::backdrop {
+.switchrail-audit-dialog::backdrop {
 	background: rgba(23, 25, 30, 0.38);
 }
 
-.cutover-audit .cutover-audit-dialog__title {
+.switchrail-audit .switchrail-audit-dialog__title {
 	margin: 0;
 	padding: 0;
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-serif);
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-serif);
 	font-size: 20px;
 	font-weight: 600;
 	line-height: 1.25;
 }
 
-.cutover-audit .cutover-audit-dialog__body {
+.switchrail-audit .switchrail-audit-dialog__body {
 	margin-top: 8px !important;
-	color: var(--cutover-audit-ink-2);
+	color: var(--switchrail-audit-ink-2);
 	font-size: 13.5px;
 	line-height: 1.55;
 }
 
-.cutover-audit-dialog__actions {
+.switchrail-audit-dialog__actions {
 	display: flex;
 	justify-content: flex-end;
 	gap: 8px;
 	margin-top: 22px;
 }
 
-.cutover-audit-menu__item.is-busy {
+.switchrail-audit-menu__item.is-busy {
 	opacity: 0.6;
 	pointer-events: none;
 }
 
-.cutover-audit-menu__form.is-submitting .cutover-audit-menu__item:not(.is-busy) {
+.switchrail-audit-menu__form.is-submitting .switchrail-audit-menu__item:not(.is-busy) {
 	opacity: 0.45;
 }
 
@@ -720,7 +720,7 @@ body.cutover-audit-screen,
  * ---------------------------------------------------------------------- */
 
 /* Tier marks: a square filled to the level of urgency. */
-.cutover-audit-mark {
+.switchrail-audit-mark {
 	display: inline-block;
 	flex: none;
 	width: 10px;
@@ -730,30 +730,30 @@ body.cutover-audit-screen,
 	forced-color-adjust: none;
 }
 
-.cutover-audit-mark--blocking {
-	background: var(--cutover-audit-block);
+.switchrail-audit-mark--blocking {
+	background: var(--switchrail-audit-block);
 }
 
-.cutover-audit-mark--important {
-	border: 1.5px solid var(--cutover-audit-imp);
-	background: linear-gradient(to top, var(--cutover-audit-imp) 50%, transparent 50%);
+.switchrail-audit-mark--important {
+	border: 1.5px solid var(--switchrail-audit-imp);
+	background: linear-gradient(to top, var(--switchrail-audit-imp) 50%, transparent 50%);
 }
 
-.cutover-audit-mark--warning {
-	border: 1.5px solid var(--cutover-audit-warn);
+.switchrail-audit-mark--warning {
+	border: 1.5px solid var(--switchrail-audit-warn);
 }
 
-.cutover-audit-mark--info {
+.switchrail-audit-mark--info {
 	width: 6px;
 	height: 6px;
 	margin: 0 2px;
 	border-radius: 50%;
-	background: var(--cutover-audit-info);
+	background: var(--switchrail-audit-info);
 	vertical-align: 1px;
 }
 
 /* Verdict glyphs: a circle filled to the level of trouble. */
-.cutover-audit-status {
+.switchrail-audit-status {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
@@ -763,7 +763,7 @@ body.cutover-audit-screen,
 	white-space: nowrap;
 }
 
-.cutover-audit-status__glyph {
+.switchrail-audit-status__glyph {
 	flex: none;
 	width: 10px;
 	height: 10px;
@@ -771,74 +771,74 @@ body.cutover-audit-screen,
 	forced-color-adjust: none;
 }
 
-.cutover-audit-status--ok {
-	color: var(--cutover-audit-ok-ink);
+.switchrail-audit-status--ok {
+	color: var(--switchrail-audit-ok-ink);
 }
 
-.cutover-audit-status--ok .cutover-audit-status__glyph {
-	border: 2px solid var(--cutover-audit-ok);
+.switchrail-audit-status--ok .switchrail-audit-status__glyph {
+	border: 2px solid var(--switchrail-audit-ok);
 }
 
-.cutover-audit-status--warn {
-	color: var(--cutover-audit-imp-ink);
+.switchrail-audit-status--warn {
+	color: var(--switchrail-audit-imp-ink);
 }
 
-.cutover-audit-status--warn .cutover-audit-status__glyph {
-	border: 1.5px solid var(--cutover-audit-imp);
-	background: linear-gradient(to right, var(--cutover-audit-imp) 50%, transparent 50%);
+.switchrail-audit-status--warn .switchrail-audit-status__glyph {
+	border: 1.5px solid var(--switchrail-audit-imp);
+	background: linear-gradient(to right, var(--switchrail-audit-imp) 50%, transparent 50%);
 }
 
-.cutover-audit-status--bad {
-	color: var(--cutover-audit-block-ink);
+.switchrail-audit-status--bad {
+	color: var(--switchrail-audit-block-ink);
 }
 
-.cutover-audit-status--bad .cutover-audit-status__glyph {
-	background: var(--cutover-audit-block);
-	box-shadow: 0 0 0 2.5px var(--cutover-audit-block-soft);
+.switchrail-audit-status--bad .switchrail-audit-status__glyph {
+	background: var(--switchrail-audit-block);
+	box-shadow: 0 0 0 2.5px var(--switchrail-audit-block-soft);
 }
 
-.cutover-audit-status--pending {
-	color: var(--cutover-audit-ink-3);
+.switchrail-audit-status--pending {
+	color: var(--switchrail-audit-ink-3);
 	font-weight: 500;
 }
 
-.cutover-audit-status__link {
+.switchrail-audit-status__link {
 	display: block;
 	margin-top: 4px;
-	font-family: var(--cutover-audit-mono);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 11.5px;
 }
 
 /* Dots: verdict buckets in legends and filters. */
-.cutover-audit-dot {
+.switchrail-audit-dot {
 	display: inline-block;
 	flex: none;
 	width: 8px;
 	height: 8px;
 	border-radius: 50%;
-	background: var(--cutover-audit-info);
+	background: var(--switchrail-audit-info);
 	forced-color-adjust: none;
 }
 
-.cutover-audit-dot--bad {
-	background: var(--cutover-audit-block);
+.switchrail-audit-dot--bad {
+	background: var(--switchrail-audit-block);
 }
 
-.cutover-audit-dot--warn {
-	background: var(--cutover-audit-imp);
+.switchrail-audit-dot--warn {
+	background: var(--switchrail-audit-imp);
 }
 
-.cutover-audit-dot--ok {
-	background: var(--cutover-audit-ok);
+.switchrail-audit-dot--ok {
+	background: var(--switchrail-audit-ok);
 }
 
-.cutover-audit-dot--pending {
-	border: 1.5px dashed var(--cutover-audit-ink-3);
+.switchrail-audit-dot--pending {
+	border: 1.5px dashed var(--switchrail-audit-ink-3);
 	background: transparent;
 }
 
 /* Tier tag: mark and name. */
-.cutover-audit-tier {
+.switchrail-audit-tier {
 	display: inline-flex;
 	align-items: center;
 	gap: 7px;
@@ -847,64 +847,64 @@ body.cutover-audit-screen,
 	white-space: nowrap;
 }
 
-.cutover-audit-tier--blocking {
-	color: var(--cutover-audit-block-ink);
+.switchrail-audit-tier--blocking {
+	color: var(--switchrail-audit-block-ink);
 }
 
-.cutover-audit-tier--important {
-	color: var(--cutover-audit-imp-ink);
+.switchrail-audit-tier--important {
+	color: var(--switchrail-audit-imp-ink);
 }
 
-.cutover-audit-tier--warning {
-	color: var(--cutover-audit-warn-ink);
+.switchrail-audit-tier--warning {
+	color: var(--switchrail-audit-warn-ink);
 }
 
-.cutover-audit-tier--info {
-	color: var(--cutover-audit-info-ink);
+.switchrail-audit-tier--info {
+	color: var(--switchrail-audit-info-ink);
 }
 
-.cutover-audit-badge {
+.switchrail-audit-badge {
 	display: inline-flex;
 	align-items: center;
 	padding: 2px 7px;
-	border: 1px solid var(--cutover-audit-rule-2);
+	border: 1px solid var(--switchrail-audit-rule-2);
 	border-radius: 3px;
-	color: var(--cutover-audit-ink-2);
+	color: var(--switchrail-audit-ink-2);
 	font-size: 11.5px;
 	font-weight: 500;
 	line-height: 1.4;
 	white-space: nowrap;
 }
 
-.cutover-audit-badge--accent {
+.switchrail-audit-badge--accent {
 	border-color: transparent;
-	background: var(--cutover-audit-accent-soft);
-	color: var(--cutover-audit-accent-ink);
+	background: var(--switchrail-audit-accent-soft);
+	color: var(--switchrail-audit-accent-ink);
 }
 
-.cutover-audit-badge--ok {
+.switchrail-audit-badge--ok {
 	border-color: transparent;
-	background: var(--cutover-audit-ok-soft);
-	color: var(--cutover-audit-ok-ink);
+	background: var(--switchrail-audit-ok-soft);
+	color: var(--switchrail-audit-ok-ink);
 }
 
-.cutover-audit-badge--warn {
+.switchrail-audit-badge--warn {
 	border-color: transparent;
-	background: var(--cutover-audit-imp-soft);
-	color: var(--cutover-audit-imp-ink);
+	background: var(--switchrail-audit-imp-soft);
+	color: var(--switchrail-audit-imp-ink);
 }
 
-.cutover-audit-badge--bad {
+.switchrail-audit-badge--bad {
 	border-color: transparent;
-	background: var(--cutover-audit-block-soft);
-	color: var(--cutover-audit-block-ink);
+	background: var(--switchrail-audit-block-soft);
+	color: var(--switchrail-audit-block-ink);
 }
 
 /* -------------------------------------------------------------------------
  * 6. Sections and tallies
  * ---------------------------------------------------------------------- */
 
-.cutover-audit-section__head {
+.switchrail-audit-section__head {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: flex-end;
@@ -912,79 +912,79 @@ body.cutover-audit-screen,
 	gap: 12px 24px;
 	margin-bottom: 20px;
 	padding-bottom: 12px;
-	border-bottom: 1px solid var(--cutover-audit-ink);
+	border-bottom: 1px solid var(--switchrail-audit-ink);
 }
 
-.cutover-audit-section__heading {
+.switchrail-audit-section__heading {
 	flex: 1 1 360px;
 	min-width: 0;
 }
 
-.cutover-audit .cutover-audit-section__title {
+.switchrail-audit .switchrail-audit-section__title {
 	display: flex;
 	align-items: baseline;
 	gap: 10px;
 	margin: 0;
 	padding: 0;
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-serif);
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-serif);
 	font-size: 23px;
 	font-weight: 600;
 	line-height: 1.2;
 	letter-spacing: -0.01em;
 }
 
-.cutover-audit-section__count {
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-section__count {
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 13px;
 	font-weight: 500;
 	letter-spacing: 0;
 }
 
-.cutover-audit-section__summary {
+.switchrail-audit-section__summary {
 	max-width: 80ch;
 	margin-top: 5px !important;
-	color: var(--cutover-audit-ink-2);
+	color: var(--switchrail-audit-ink-2);
 	font-size: 13.5px;
 }
 
-.cutover-audit-section__actions {
+.switchrail-audit-section__actions {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
 }
 
-.cutover-audit-section--sheet .cutover-audit-section__head {
+.switchrail-audit-section--sheet .switchrail-audit-section__head {
 	margin-bottom: 14px;
 }
 
-.cutover-audit-section--sheet > .cutover-audit-section__body,
-.cutover-audit-sheet {
-	border: 1px solid var(--cutover-audit-rule-2);
-	border-radius: var(--cutover-audit-radius-lg);
-	background: var(--cutover-audit-sheet);
+.switchrail-audit-section--sheet > .switchrail-audit-section__body,
+.switchrail-audit-sheet {
+	border: 1px solid var(--switchrail-audit-rule-2);
+	border-radius: var(--switchrail-audit-radius-lg);
+	background: var(--switchrail-audit-sheet);
 	box-shadow: 0 1px 0 rgba(23, 25, 30, 0.03);
 }
 
-.cutover-audit-section--sheet > .cutover-audit-section__body {
+.switchrail-audit-section--sheet > .switchrail-audit-section__body {
 	overflow: hidden;
 }
 
-.cutover-audit-section--quiet .cutover-audit-section__head {
-	border-bottom-color: var(--cutover-audit-rule-2);
+.switchrail-audit-section--quiet .switchrail-audit-section__head {
+	border-bottom-color: var(--switchrail-audit-rule-2);
 }
 
 /* -------------------------------------------------------------------------
  * 7. Overview
  * ---------------------------------------------------------------------- */
 
-.cutover-audit-overview > * + * {
+.switchrail-audit-overview > * + * {
 	margin-top: 24px;
 }
 
 /* Environment and recent scans: reference, side by side under the work. */
-.cutover-audit-overview__pair {
+.switchrail-audit-overview__pair {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
 	gap: 24px;
@@ -992,64 +992,64 @@ body.cutover-audit-screen,
 }
 
 /* Cards: a framed block with a heading band, as the findings tiers use. */
-.cutover-audit-card {
+.switchrail-audit-card {
 	overflow: hidden;
-	border: 1px solid var(--cutover-audit-rule-2);
-	border-radius: var(--cutover-audit-radius-lg);
-	background: var(--cutover-audit-sheet);
+	border: 1px solid var(--switchrail-audit-rule-2);
+	border-radius: var(--switchrail-audit-radius-lg);
+	background: var(--switchrail-audit-sheet);
 	box-shadow: 0 1px 0 rgba(23, 25, 30, 0.03);
 }
 
-.cutover-audit-card__head {
+.switchrail-audit-card__head {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: space-between;
 	gap: 6px 16px;
 	padding: 12px 20px;
-	border-bottom: 1px solid var(--cutover-audit-rule);
-	background: var(--cutover-audit-sheet-2);
+	border-bottom: 1px solid var(--switchrail-audit-rule);
+	background: var(--switchrail-audit-sheet-2);
 }
 
-.cutover-audit .cutover-audit-card__title {
+.switchrail-audit .switchrail-audit-card__title {
 	margin: 0;
 	padding: 0;
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-sans);
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-sans);
 	font-size: 14px;
 	font-weight: 700;
 	line-height: 1.3;
 }
 
-.cutover-audit-card__aside {
-	color: var(--cutover-audit-ink-3);
+.switchrail-audit-card__aside {
+	color: var(--switchrail-audit-ink-3);
 	font-size: 12.5px;
 }
 
-.cutover-audit-card__aside .cutover-audit-link {
+.switchrail-audit-card__aside .switchrail-audit-link {
 	font-size: 12.5px;
 }
 
-.cutover-audit-card__body {
+.switchrail-audit-card__body {
 	padding: 20px;
 }
 
-.cutover-audit-card__body--flush {
+.switchrail-audit-card__body--flush {
 	padding: 0;
 }
 
 /* The verdict. */
-.cutover-audit-verdict {
-	--cutover-audit-tone: var(--cutover-audit-ok);
-	--cutover-audit-tone-ink: var(--cutover-audit-ok-ink);
+.switchrail-audit-verdict {
+	--switchrail-audit-tone: var(--switchrail-audit-ok);
+	--switchrail-audit-tone-ink: var(--switchrail-audit-ok-ink);
 	overflow: hidden;
-	border: 1px solid var(--cutover-audit-rule-2);
-	border-radius: var(--cutover-audit-radius-lg);
-	background: var(--cutover-audit-sheet);
+	border: 1px solid var(--switchrail-audit-rule-2);
+	border-radius: var(--switchrail-audit-radius-lg);
+	background: var(--switchrail-audit-sheet);
 	box-shadow: 0 1px 0 rgba(23, 25, 30, 0.03);
 }
 
-.cutover-audit-verdict__main {
+.switchrail-audit-verdict__main {
 	display: grid;
 	grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
 	gap: 28px 56px;
@@ -1057,153 +1057,153 @@ body.cutover-audit-screen,
 	padding: 32px 36px;
 }
 
-.cutover-audit-verdict--blocking {
-	--cutover-audit-tone: var(--cutover-audit-block);
-	--cutover-audit-tone-ink: var(--cutover-audit-block-ink);
+.switchrail-audit-verdict--blocking {
+	--switchrail-audit-tone: var(--switchrail-audit-block);
+	--switchrail-audit-tone-ink: var(--switchrail-audit-block-ink);
 }
 
-.cutover-audit-verdict--important,
-.cutover-audit-verdict--warning {
-	--cutover-audit-tone: var(--cutover-audit-imp);
-	--cutover-audit-tone-ink: var(--cutover-audit-imp-ink);
+.switchrail-audit-verdict--important,
+.switchrail-audit-verdict--warning {
+	--switchrail-audit-tone: var(--switchrail-audit-imp);
+	--switchrail-audit-tone-ink: var(--switchrail-audit-imp-ink);
 }
 
-.cutover-audit-verdict__figure {
+.switchrail-audit-verdict__figure {
 	display: flex;
 	align-items: flex-start;
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-serif);
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-serif);
 	font-variant-numeric: lining-nums tabular-nums;
 }
 
-.cutover-audit-verdict__number {
+.switchrail-audit-verdict__number {
 	font-size: 112px;
 	font-weight: 600;
 	line-height: 0.84;
 	letter-spacing: -0.045em;
 }
 
-.cutover-audit-verdict__number--empty {
-	color: var(--cutover-audit-rule-2);
+.switchrail-audit-verdict__number--empty {
+	color: var(--switchrail-audit-rule-2);
 }
 
-.cutover-audit-verdict__unit {
+.switchrail-audit-verdict__unit {
 	margin: 6px 0 0 6px;
-	color: var(--cutover-audit-tone-ink);
+	color: var(--switchrail-audit-tone-ink);
 	font-size: 40px;
 	font-weight: 600;
 	line-height: 1;
 }
 
-.cutover-audit-verdict__caption {
+.switchrail-audit-verdict__caption {
 	margin-top: 12px !important;
-	color: var(--cutover-audit-ink-2);
-	font-family: var(--cutover-audit-mono);
+	color: var(--switchrail-audit-ink-2);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 11px;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
 }
 
-.cutover-audit-ruler {
+.switchrail-audit-ruler {
 	display: flex;
 	gap: 3px;
 	height: 12px;
 	margin-top: 16px;
 }
 
-.cutover-audit-ruler__seg {
+.switchrail-audit-ruler__seg {
 	flex: 1;
 	border-radius: 1px;
-	background: var(--cutover-audit-paper-3);
+	background: var(--switchrail-audit-paper-3);
 }
 
-.cutover-audit-ruler__seg.is-on {
-	background: var(--cutover-audit-tone);
-	animation: cutover-audit-fill 0.45s var(--cutover-audit-ease) both;
+.switchrail-audit-ruler__seg.is-on {
+	background: var(--switchrail-audit-tone);
+	animation: switchrail-audit-fill 0.45s var(--switchrail-audit-ease) both;
 	animation-delay: calc(var(--i) * 24ms);
 }
 
-.cutover-audit-ruler__scale {
+.switchrail-audit-ruler__scale {
 	display: flex;
 	justify-content: space-between;
 	margin-top: 6px !important;
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 10px;
 }
 
-.cutover-audit-verdict__body {
+.switchrail-audit-verdict__body {
 	padding-bottom: 4px;
 }
 
-.cutover-audit .cutover-audit-verdict__headline {
+.switchrail-audit .switchrail-audit-verdict__headline {
 	position: relative;
 	margin: 0;
 	padding: 0;
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-serif);
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-serif);
 	font-size: 34px;
 	font-weight: 600;
 	line-height: 1.12;
 	letter-spacing: -0.015em;
 }
 
-.cutover-audit-verdict__summary {
+.switchrail-audit-verdict__summary {
 	margin-top: 12px !important;
-	color: var(--cutover-audit-ink-2);
+	color: var(--switchrail-audit-ink-2);
 	font-size: 15.5px;
 	line-height: 1.55;
 }
 
-.cutover-audit-verdict__actions {
+.switchrail-audit-verdict__actions {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 10px;
 	margin-top: 22px;
 }
 
-.cutover-audit-verdict__meta {
+.switchrail-audit-verdict__meta {
 	margin-top: 16px !important;
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 11.5px;
 }
 
 /* The outstanding work, one link per tier, along the foot of the card. */
-.cutover-audit-verdict__tiers {
+.switchrail-audit-verdict__tiers {
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
-	border-top: 1px solid var(--cutover-audit-rule);
-	background: var(--cutover-audit-sheet-2);
+	border-top: 1px solid var(--switchrail-audit-rule);
+	background: var(--switchrail-audit-sheet-2);
 }
 
-.cutover-audit-verdict__tier + .cutover-audit-verdict__tier {
-	border-left: 1px solid var(--cutover-audit-rule);
+.switchrail-audit-verdict__tier + .switchrail-audit-verdict__tier {
+	border-left: 1px solid var(--switchrail-audit-rule);
 }
 
-.cutover-audit .cutover-audit-verdict__tierlink {
+.switchrail-audit .switchrail-audit-verdict__tierlink {
 	display: flex;
 	align-items: center;
 	gap: 10px;
 	height: 100%;
 	padding: 14px 20px;
-	color: var(--cutover-audit-ink);
+	color: var(--switchrail-audit-ink);
 	font-size: 13px;
 	font-weight: 600;
 	text-decoration: none;
 	transition: background-color 0.15s ease;
 }
 
-.cutover-audit a.cutover-audit-verdict__tierlink:hover {
-	background: var(--cutover-audit-paper-2);
+.switchrail-audit a.switchrail-audit-verdict__tierlink:hover {
+	background: var(--switchrail-audit-paper-2);
 }
 
-.cutover-audit a.cutover-audit-verdict__tierlink:focus-visible {
+.switchrail-audit a.switchrail-audit-verdict__tierlink:focus-visible {
 	outline: none;
-	box-shadow: inset 0 0 0 2px var(--cutover-audit-accent);
+	box-shadow: inset 0 0 0 2px var(--switchrail-audit-accent);
 }
 
-.cutover-audit-verdict__tiercount {
+.switchrail-audit-verdict__tiercount {
 	margin-left: auto;
 	font-size: 18px;
 	font-weight: 700;
@@ -1211,388 +1211,388 @@ body.cutover-audit-screen,
 	font-variant-numeric: tabular-nums;
 }
 
-.cutover-audit-verdict__tier--blocking:not(.is-empty) .cutover-audit-verdict__tiercount {
-	color: var(--cutover-audit-block-ink);
+.switchrail-audit-verdict__tier--blocking:not(.is-empty) .switchrail-audit-verdict__tiercount {
+	color: var(--switchrail-audit-block-ink);
 }
 
-.cutover-audit-verdict__tier.is-empty .cutover-audit-verdict__tierlink {
-	color: var(--cutover-audit-ink-3);
+.switchrail-audit-verdict__tier.is-empty .switchrail-audit-verdict__tierlink {
+	color: var(--switchrail-audit-ink-3);
 	font-weight: 500;
 }
 
-.cutover-audit-verdict__tier.is-empty .cutover-audit-verdict__tiercount {
+.switchrail-audit-verdict__tier.is-empty .switchrail-audit-verdict__tiercount {
 	opacity: 0.6;
 }
 
-.cutover-audit-verdict__tierarrow {
-	color: var(--cutover-audit-ink-3);
+.switchrail-audit-verdict__tierarrow {
+	color: var(--switchrail-audit-ink-3);
 	opacity: 0;
 	transform: translateX(-4px);
-	transition: opacity 0.15s ease, transform 0.2s var(--cutover-audit-ease);
+	transition: opacity 0.15s ease, transform 0.2s var(--switchrail-audit-ease);
 }
 
-.cutover-audit-verdict__tierlink:hover .cutover-audit-verdict__tierarrow,
-.cutover-audit-verdict__tierlink:focus-visible .cutover-audit-verdict__tierarrow {
+.switchrail-audit-verdict__tierlink:hover .switchrail-audit-verdict__tierarrow,
+.switchrail-audit-verdict__tierlink:focus-visible .switchrail-audit-verdict__tierarrow {
 	opacity: 1;
 	transform: none;
 }
 
 /* Start here. */
 
-.cutover-audit .cutover-audit-next__link {
+.switchrail-audit .switchrail-audit-next__link {
 	display: grid;
 	grid-template-columns: 34px 120px minmax(0, 1fr) 20px;
 	gap: 16px;
 	align-items: center;
 	padding: 15px 20px;
-	border-bottom: 1px solid var(--cutover-audit-rule);
-	color: var(--cutover-audit-ink);
+	border-bottom: 1px solid var(--switchrail-audit-rule);
+	color: var(--switchrail-audit-ink);
 	text-decoration: none;
-	transition: background-color 0.15s ease, padding 0.2s var(--cutover-audit-ease);
+	transition: background-color 0.15s ease, padding 0.2s var(--switchrail-audit-ease);
 }
 
-.cutover-audit-next__item:last-child .cutover-audit-next__link {
+.switchrail-audit-next__item:last-child .switchrail-audit-next__link {
 	border-bottom: 0;
 }
 
-.cutover-audit .cutover-audit-next__link:hover {
-	background: var(--cutover-audit-paper-2);
+.switchrail-audit .switchrail-audit-next__link:hover {
+	background: var(--switchrail-audit-paper-2);
 	padding-left: 26px;
 }
 
-.cutover-audit-next__rank {
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-next__rank {
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 12px;
 }
 
-.cutover-audit-next__text {
+.switchrail-audit-next__text {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 	min-width: 0;
 }
 
-.cutover-audit-next__title {
+.switchrail-audit-next__title {
 	font-size: 15px;
 	font-weight: 600;
 	line-height: 1.35;
 }
 
-.cutover-audit-next__where {
+.switchrail-audit-next__where {
 	overflow: hidden;
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 12px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.cutover-audit-next__arrow {
-	color: var(--cutover-audit-ink-3);
-	transition: transform 0.2s var(--cutover-audit-ease), color 0.15s ease;
+.switchrail-audit-next__arrow {
+	color: var(--switchrail-audit-ink-3);
+	transition: transform 0.2s var(--switchrail-audit-ease), color 0.15s ease;
 }
 
-.cutover-audit-next__link:hover .cutover-audit-next__arrow {
-	color: var(--cutover-audit-ink);
+.switchrail-audit-next__link:hover .switchrail-audit-next__arrow {
+	color: var(--switchrail-audit-ink);
 	transform: translateX(3px);
 }
 
 /* The manifest. */
 
-.cutover-audit-manifest__row {
+.switchrail-audit-manifest__row {
 	display: grid;
 	grid-template-columns: 210px minmax(0, 1fr) minmax(150px, 220px) 150px;
 	gap: 12px 24px;
 	align-items: center;
 	padding: 16px 20px;
-	border-bottom: 1px solid var(--cutover-audit-rule);
+	border-bottom: 1px solid var(--switchrail-audit-rule);
 }
 
-.cutover-audit-manifest__row:last-child {
+.switchrail-audit-manifest__row:last-child {
 	border-bottom: 0;
 }
 
-.cutover-audit-manifest__name {
+.switchrail-audit-manifest__name {
 	display: flex;
 	align-items: center;
 	gap: 10px;
 	min-width: 0;
-	color: var(--cutover-audit-ink-3);
+	color: var(--switchrail-audit-ink-3);
 }
 
-.cutover-audit .cutover-audit-manifest__name a {
-	color: var(--cutover-audit-ink);
+.switchrail-audit .switchrail-audit-manifest__name a {
+	color: var(--switchrail-audit-ink);
 	font-size: 14.5px;
 	font-weight: 600;
 	text-decoration: none;
 }
 
-.cutover-audit .cutover-audit-manifest__name a:hover {
+.switchrail-audit .switchrail-audit-manifest__name a:hover {
 	text-decoration: underline;
 	text-underline-offset: 3px;
 }
 
-.cutover-audit-manifest__total {
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-manifest__total {
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 12px;
 }
 
-.cutover-audit-cells {
+.switchrail-audit-cells {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 3px;
 }
 
-.cutover-audit-cell {
+.switchrail-audit-cell {
 	display: inline-block;
 	flex: none;
 	width: 13px;
 	height: 13px;
 	border-radius: 2px;
-	background: var(--cutover-audit-paper-3);
+	background: var(--switchrail-audit-paper-3);
 	forced-color-adjust: none;
 }
 
-.cutover-audit-cells .cutover-audit-cell {
-	animation: cutover-audit-cell 0.35s var(--cutover-audit-ease) both;
+.switchrail-audit-cells .switchrail-audit-cell {
+	animation: switchrail-audit-cell 0.35s var(--switchrail-audit-ease) both;
 	animation-delay: calc(var(--i) * 12ms);
-	transition: transform 0.15s var(--cutover-audit-ease);
+	transition: transform 0.15s var(--switchrail-audit-ease);
 }
 
-.cutover-audit-cells .cutover-audit-cell:hover {
+.switchrail-audit-cells .switchrail-audit-cell:hover {
 	transform: scale(1.35);
 }
 
-.cutover-audit-cell--bad {
-	background: var(--cutover-audit-block);
+.switchrail-audit-cell--bad {
+	background: var(--switchrail-audit-block);
 }
 
-.cutover-audit-cell--warn {
-	background: var(--cutover-audit-imp);
+.switchrail-audit-cell--warn {
+	background: var(--switchrail-audit-imp);
 }
 
-.cutover-audit-cell--ok {
-	background: var(--cutover-audit-ok-quiet);
+.switchrail-audit-cell--ok {
+	background: var(--switchrail-audit-ok-quiet);
 }
 
-.cutover-audit-cell--pending {
-	border: 1.5px dashed var(--cutover-audit-rule-2);
+.switchrail-audit-cell--pending {
+	border: 1.5px dashed var(--switchrail-audit-rule-2);
 	background: transparent;
 }
 
-.cutover-audit-manifest__none {
-	color: var(--cutover-audit-ink-3);
+.switchrail-audit-manifest__none {
+	color: var(--switchrail-audit-ink-3);
 	font-size: 12.5px;
 }
 
-.cutover-audit-manifest__counts {
+.switchrail-audit-manifest__counts {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 4px 16px;
 }
 
-.cutover-audit .cutover-audit-manifest__counts a {
+.switchrail-audit .switchrail-audit-manifest__counts a {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	color: var(--cutover-audit-ink-2);
+	color: var(--switchrail-audit-ink-2);
 	font-size: 12.5px;
 	text-decoration: none;
 }
 
-.cutover-audit .cutover-audit-manifest__counts a:hover {
-	color: var(--cutover-audit-ink);
+.switchrail-audit .switchrail-audit-manifest__counts a:hover {
+	color: var(--switchrail-audit-ink);
 	text-decoration: underline;
 	text-underline-offset: 3px;
 }
 
-.cutover-audit-manifest__num {
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-manifest__num {
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-mono);
 	font-weight: 600;
 }
 
-.cutover-audit-manifest__action {
+.switchrail-audit-manifest__action {
 	text-align: right;
 }
 
-.cutover-audit-manifest__clear {
+.switchrail-audit-manifest__clear {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	color: var(--cutover-audit-ok-ink);
+	color: var(--switchrail-audit-ok-ink);
 	font-size: 12.5px;
 	font-weight: 600;
 }
 
-.cutover-audit-manifest__clear.is-pending {
-	color: var(--cutover-audit-ink-3);
+.switchrail-audit-manifest__clear.is-pending {
+	color: var(--switchrail-audit-ink-3);
 	font-weight: 500;
 }
 
-.cutover-audit-legend {
+.switchrail-audit-legend {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 6px 16px;
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 11px;
 }
 
-.cutover-audit-legend li {
+.switchrail-audit-legend li {
 	display: inline-flex;
 	align-items: center;
 	gap: 7px;
 }
 
-.cutover-audit-legend .cutover-audit-cell {
+.switchrail-audit-legend .switchrail-audit-cell {
 	width: 10px;
 	height: 10px;
 }
 
 /* The trend. */
-.cutover-audit-trend {
+.switchrail-audit-trend {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: space-between;
 	gap: 16px 32px;
 	padding: 16px 20px;
-	border-bottom: 1px solid var(--cutover-audit-rule);
+	border-bottom: 1px solid var(--switchrail-audit-rule);
 }
 
-.cutover-audit-spark {
+.switchrail-audit-spark {
 	display: block;
 	width: 220px;
 	height: 56px;
 	overflow: visible;
 }
 
-.cutover-audit-spark__base {
-	stroke: var(--cutover-audit-rule-2);
+.switchrail-audit-spark__base {
+	stroke: var(--switchrail-audit-rule-2);
 	stroke-width: 1;
 	stroke-dasharray: 2 3;
 }
 
-.cutover-audit-spark__line {
+.switchrail-audit-spark__line {
 	fill: none;
-	stroke: var(--cutover-audit-ink);
+	stroke: var(--switchrail-audit-ink);
 	stroke-width: 1.75;
 	stroke-linejoin: round;
 	stroke-linecap: round;
 	vector-effect: non-scaling-stroke;
 	stroke-dasharray: 600;
-	animation: cutover-audit-draw 1.1s var(--cutover-audit-ease) both;
+	animation: switchrail-audit-draw 1.1s var(--switchrail-audit-ease) both;
 }
 
-.cutover-audit-spark__dot {
-	fill: var(--cutover-audit-accent);
-	stroke: var(--cutover-audit-paper);
+.switchrail-audit-spark__dot {
+	fill: var(--switchrail-audit-accent);
+	stroke: var(--switchrail-audit-paper);
 	stroke-width: 2;
 }
 
-.cutover-audit-trend__text {
+.switchrail-audit-trend__text {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 }
 
-.cutover-audit-trend__value {
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-trend__value {
+	font-family: var(--switchrail-audit-mono);
 	font-size: 28px;
 	font-weight: 600;
 	line-height: 1;
 	letter-spacing: -0.03em;
 }
 
-.cutover-audit-trend__delta {
-	color: var(--cutover-audit-ink-3);
+.switchrail-audit-trend__delta {
+	color: var(--switchrail-audit-ink-3);
 	font-size: 12.5px;
 }
 
-.cutover-audit-trend__delta--up {
-	color: var(--cutover-audit-ok-ink);
+.switchrail-audit-trend__delta--up {
+	color: var(--switchrail-audit-ok-ink);
 }
 
-.cutover-audit-trend__delta--down {
-	color: var(--cutover-audit-block-ink);
+.switchrail-audit-trend__delta--down {
+	color: var(--switchrail-audit-block-ink);
 }
 
-.cutover-audit-delta {
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-delta {
+	font-family: var(--switchrail-audit-mono);
 	font-weight: 600;
 }
 
-.cutover-audit-delta--down {
-	color: var(--cutover-audit-ok-ink);
+.switchrail-audit-delta--down {
+	color: var(--switchrail-audit-ok-ink);
 }
 
-.cutover-audit-delta--up {
-	color: var(--cutover-audit-block-ink);
+.switchrail-audit-delta--up {
+	color: var(--switchrail-audit-block-ink);
 }
 
 /* -------------------------------------------------------------------------
  * 8. Definition lists and bars
  * ---------------------------------------------------------------------- */
 
-.cutover-audit-def__label {
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-def__label {
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 10.5px;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
 }
 
-.cutover-audit-def__value {
+.switchrail-audit-def__value {
 	display: flex;
 	flex-direction: column;
 	gap: 3px;
 	min-width: 0;
 }
 
-.cutover-audit-def__main {
-	color: var(--cutover-audit-ink);
+.switchrail-audit-def__main {
+	color: var(--switchrail-audit-ink);
 	font-size: 13.5px;
 	font-weight: 500;
 	overflow-wrap: anywhere;
 }
 
-.cutover-audit-def__hint {
-	color: var(--cutover-audit-ink-3);
+.switchrail-audit-def__hint {
+	color: var(--switchrail-audit-ink-3);
 	font-size: 12.5px;
 	line-height: 1.45;
 }
 
 /* Spec sheet: label, value, note — like a data plate. */
-.cutover-audit-defs--spec {
+.switchrail-audit-defs--spec {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	column-gap: 48px;
 	margin-top: -20px !important;
 }
 
-.cutover-audit-defs--spec .cutover-audit-def {
+.switchrail-audit-defs--spec .switchrail-audit-def {
 	display: grid;
 	grid-template-columns: 150px minmax(0, 1fr);
 	gap: 4px 16px;
 	align-items: baseline;
 	padding: 14px 0;
-	border-bottom: 1px solid var(--cutover-audit-rule);
+	border-bottom: 1px solid var(--switchrail-audit-rule);
 }
 
-.cutover-audit-defs--spec .cutover-audit-def__main {
+.switchrail-audit-defs--spec .switchrail-audit-def__main {
 	display: inline-flex;
 	align-items: center;
 	gap: 9px;
-	font-family: var(--cutover-audit-mono);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 15px;
 	font-weight: 600;
 }
 
-.cutover-audit-defs--spec .cutover-audit-def--ok .cutover-audit-def__main::after,
-.cutover-audit-defs--spec .cutover-audit-def--warn .cutover-audit-def__main::after {
+.switchrail-audit-defs--spec .switchrail-audit-def--ok .switchrail-audit-def__main::after,
+.switchrail-audit-defs--spec .switchrail-audit-def--warn .switchrail-audit-def__main::after {
 	content: "";
 	width: 9px;
 	height: 9px;
@@ -1600,79 +1600,79 @@ body.cutover-audit-screen,
 	forced-color-adjust: none;
 }
 
-.cutover-audit-defs--spec .cutover-audit-def--ok .cutover-audit-def__main::after {
-	border: 2px solid var(--cutover-audit-ok);
+.switchrail-audit-defs--spec .switchrail-audit-def--ok .switchrail-audit-def__main::after {
+	border: 2px solid var(--switchrail-audit-ok);
 }
 
-.cutover-audit-defs--spec .cutover-audit-def--warn .cutover-audit-def__main::after {
-	border: 1.5px solid var(--cutover-audit-imp);
-	background: linear-gradient(to right, var(--cutover-audit-imp) 50%, transparent 50%);
+.switchrail-audit-defs--spec .switchrail-audit-def--warn .switchrail-audit-def__main::after {
+	border: 1.5px solid var(--switchrail-audit-imp);
+	background: linear-gradient(to right, var(--switchrail-audit-imp) 50%, transparent 50%);
 }
 
-.cutover-audit-defs--spec .cutover-audit-def--warn .cutover-audit-def__hint {
-	color: var(--cutover-audit-imp-ink);
+.switchrail-audit-defs--spec .switchrail-audit-def--warn .switchrail-audit-def__hint {
+	color: var(--switchrail-audit-imp-ink);
 }
 
-.cutover-audit-card .cutover-audit-defs--spec {
+.switchrail-audit-card .switchrail-audit-defs--spec {
 	grid-template-columns: minmax(0, 1fr);
 	margin-top: 0 !important;
 }
 
-.cutover-audit-card .cutover-audit-defs--spec .cutover-audit-def {
+.switchrail-audit-card .switchrail-audit-defs--spec .switchrail-audit-def {
 	grid-template-columns: 130px minmax(0, 1fr);
 	padding: 13px 20px;
 }
 
-.cutover-audit-card .cutover-audit-defs--spec .cutover-audit-def:last-child {
+.switchrail-audit-card .switchrail-audit-defs--spec .switchrail-audit-def:last-child {
 	border-bottom: 0;
 }
 
 /* Detail card: one fact per line, label beside value, ruled between. */
-.cutover-audit-defs--detail .cutover-audit-def {
+.switchrail-audit-defs--detail .switchrail-audit-def {
 	display: grid;
 	grid-template-columns: 110px minmax(0, 1fr);
 	gap: 2px 16px;
 	align-items: baseline;
 	padding: 9px 0;
-	border-top: 1px solid var(--cutover-audit-rule);
+	border-top: 1px solid var(--switchrail-audit-rule);
 }
 
-.cutover-audit-defs--detail .cutover-audit-def:first-child {
+.switchrail-audit-defs--detail .switchrail-audit-def:first-child {
 	padding-top: 0;
 	border-top: 0;
 }
 
-.cutover-audit-defs--detail .cutover-audit-def__main {
+.switchrail-audit-defs--detail .switchrail-audit-def__main {
 	font-size: 13px;
 	overflow-wrap: normal;
 }
 
-.cutover-audit-defs--detail code {
+.switchrail-audit-defs--detail code {
 	padding: 0;
 	background: none;
-	color: var(--cutover-audit-ink);
+	color: var(--switchrail-audit-ink);
 	font-size: 12.5px;
 	font-weight: 400;
 }
 
-.cutover-audit-defs--detail .cutover-audit-def--bad .cutover-audit-def__main {
-	color: var(--cutover-audit-block-ink);
+.switchrail-audit-defs--detail .switchrail-audit-def--bad .switchrail-audit-def__main {
+	color: var(--switchrail-audit-block-ink);
 }
 
-.cutover-audit-defs--detail .cutover-audit-def--warn .cutover-audit-def__main {
-	color: var(--cutover-audit-imp-ink);
+.switchrail-audit-defs--detail .switchrail-audit-def--warn .switchrail-audit-def__main {
+	color: var(--switchrail-audit-imp-ink);
 }
 
 /* Tight: label beside value. */
-.cutover-audit-defs--tight .cutover-audit-def {
+.switchrail-audit-defs--tight .switchrail-audit-def {
 	display: grid;
 	grid-template-columns: 130px minmax(0, 1fr);
 	gap: 2px 16px;
 	padding: 8px 0;
-	border-top: 1px solid var(--cutover-audit-rule);
+	border-top: 1px solid var(--switchrail-audit-rule);
 }
 
-.cutover-audit-defs--tight .cutover-audit-def__label {
+.switchrail-audit-defs--tight .switchrail-audit-def__label {
 	padding-top: 2px;
 }
 
@@ -1680,35 +1680,35 @@ body.cutover-audit-screen,
  * 9. Toolbar, segmented filters, search, scan progress
  * ---------------------------------------------------------------------- */
 
-.cutover-audit-toolbar {
+.switchrail-audit-toolbar {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: space-between;
 	gap: 10px 16px;
 	padding: 12px 14px;
-	border-bottom: 1px solid var(--cutover-audit-rule);
-	background: var(--cutover-audit-sheet-2);
+	border-bottom: 1px solid var(--switchrail-audit-rule);
+	background: var(--switchrail-audit-sheet-2);
 }
 
-.cutover-audit-toolbar__filters,
-.cutover-audit-toolbar__tools {
+.switchrail-audit-toolbar__filters,
+.switchrail-audit-toolbar__tools {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 10px;
 }
 
-.cutover-audit-segmented {
+.switchrail-audit-segmented {
 	display: inline-flex;
 	flex-wrap: wrap;
 	gap: 2px;
 	padding: 3px;
 	border-radius: 7px;
-	background: var(--cutover-audit-paper-2);
+	background: var(--switchrail-audit-paper-2);
 }
 
-.cutover-audit .cutover-audit-segmented button {
+.switchrail-audit .switchrail-audit-segmented button {
 	display: inline-flex;
 	align-items: center;
 	gap: 7px;
@@ -1718,26 +1718,26 @@ body.cutover-audit-screen,
 	border: 0;
 	border-radius: 5px;
 	background: transparent;
-	color: var(--cutover-audit-ink-2);
-	font-family: var(--cutover-audit-sans);
+	color: var(--switchrail-audit-ink-2);
+	font-family: var(--switchrail-audit-sans);
 	font-size: 12.5px;
 	font-weight: 500;
 	cursor: pointer;
 	transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.cutover-audit .cutover-audit-segmented button:hover {
-	color: var(--cutover-audit-ink);
+.switchrail-audit .switchrail-audit-segmented button:hover {
+	color: var(--switchrail-audit-ink);
 }
 
-.cutover-audit .cutover-audit-segmented button.active {
-	background: var(--cutover-audit-sheet);
-	color: var(--cutover-audit-ink);
+.switchrail-audit .switchrail-audit-segmented button.active {
+	background: var(--switchrail-audit-sheet);
+	color: var(--switchrail-audit-ink);
 	font-weight: 600;
-	box-shadow: 0 0 0 1px var(--cutover-audit-rule-2), 0 1px 2px rgba(23, 25, 30, 0.08);
+	box-shadow: 0 0 0 1px var(--switchrail-audit-rule-2), 0 1px 2px rgba(23, 25, 30, 0.08);
 }
 
-.cutover-audit .cutover-audit-segmented button:disabled {
+.switchrail-audit .switchrail-audit-segmented button:disabled {
 	cursor: progress;
 	opacity: 0.55;
 }
@@ -1746,134 +1746,134 @@ body.cutover-audit-screen,
  * The label's own face, with even-width digits: a monospace count sits on
  * different font metrics and reads as raised beside the label.
  */
-.cutover-audit-segmented__count {
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-sans);
+.switchrail-audit-segmented__count {
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-sans);
 	font-size: 11.5px;
 	font-weight: 600;
 	font-variant-numeric: tabular-nums;
 }
 
-.cutover-audit-segmented__count:empty {
+.switchrail-audit-segmented__count:empty {
 	display: none;
 }
 
-.cutover-audit-result-count {
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-result-count {
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 11.5px;
 }
 
-.cutover-audit-search {
+.switchrail-audit-search {
 	position: relative;
 	display: flex;
 	align-items: center;
 	margin: 0;
 }
 
-.cutover-audit-search__icon {
+.switchrail-audit-search__icon {
 	position: absolute;
 	left: 11px;
-	color: var(--cutover-audit-ink-3);
+	color: var(--switchrail-audit-ink-3);
 	pointer-events: none;
 }
 
-.cutover-audit .cutover-audit-search__input {
+.switchrail-audit .switchrail-audit-search__input {
 	width: 260px;
 	min-height: 34px;
 	height: 34px;
 	margin: 0;
 	padding: 0 34px 0 34px;
-	border: 1px solid var(--cutover-audit-rule-2);
-	border-radius: var(--cutover-audit-radius);
-	background: var(--cutover-audit-sheet);
+	border: 1px solid var(--switchrail-audit-rule-2);
+	border-radius: var(--switchrail-audit-radius);
+	background: var(--switchrail-audit-sheet);
 	box-shadow: none;
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-sans);
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-sans);
 	font-size: 13px;
 	transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.cutover-audit .cutover-audit-search__input::placeholder {
-	color: var(--cutover-audit-ink-3);
+.switchrail-audit .switchrail-audit-search__input::placeholder {
+	color: var(--switchrail-audit-ink-3);
 }
 
-.cutover-audit .cutover-audit-search__input:focus {
-	border-color: var(--cutover-audit-accent);
+.switchrail-audit .switchrail-audit-search__input:focus {
+	border-color: var(--switchrail-audit-accent);
 	outline: none;
 	box-shadow: 0 0 0 3px rgba(12, 102, 112, 0.16);
 }
 
-.cutover-audit-search__key {
+.switchrail-audit-search__key {
 	position: absolute;
 	right: 9px;
 	padding: 0 6px;
-	border: 1px solid var(--cutover-audit-rule-2);
+	border: 1px solid var(--switchrail-audit-rule-2);
 	border-radius: 3px;
-	background: var(--cutover-audit-sheet-2);
-	color: var(--cutover-audit-ink-3);
+	background: var(--switchrail-audit-sheet-2);
+	color: var(--switchrail-audit-ink-3);
 	font-size: 11px;
 	line-height: 17px;
 	pointer-events: none;
 	transition: opacity 0.15s ease;
 }
 
-.cutover-audit-search__input:focus ~ .cutover-audit-search__key,
-.cutover-audit-search__input:not(:placeholder-shown) ~ .cutover-audit-search__key {
+.switchrail-audit-search__input:focus ~ .switchrail-audit-search__key,
+.switchrail-audit-search__input:not(:placeholder-shown) ~ .switchrail-audit-search__key {
 	opacity: 0;
 }
 
-.cutover-audit-scan {
+.switchrail-audit-scan {
 	padding: 12px 14px 14px;
-	border-bottom: 1px solid var(--cutover-audit-rule);
-	background: var(--cutover-audit-sheet-2);
+	border-bottom: 1px solid var(--switchrail-audit-rule);
+	background: var(--switchrail-audit-sheet-2);
 }
 
-.cutover-audit-scan__head {
+.switchrail-audit-scan__head {
 	display: flex;
 	align-items: center;
 	gap: 10px;
 	margin-bottom: 9px;
-	color: var(--cutover-audit-ink-2);
-	font-family: var(--cutover-audit-mono);
+	color: var(--switchrail-audit-ink-2);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 12px;
 }
 
-.cutover-audit-scan__track {
+.switchrail-audit-scan__track {
 	overflow: hidden;
 	height: 4px;
 	border-radius: 2px;
-	background: var(--cutover-audit-paper-2);
+	background: var(--switchrail-audit-paper-2);
 }
 
-.cutover-audit-scan__bar {
+.switchrail-audit-scan__bar {
 	position: relative;
 	height: 100%;
 	overflow: hidden;
-	background: var(--cutover-audit-ink);
-	transition: width 0.4s var(--cutover-audit-ease);
+	background: var(--switchrail-audit-ink);
+	transition: width 0.4s var(--switchrail-audit-ease);
 }
 
-.cutover-audit-scan__bar::after {
+.switchrail-audit-scan__bar::after {
 	content: "";
 	position: absolute;
 	inset: 0;
 	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
-	animation: cutover-audit-sheen 1.4s linear infinite;
+	animation: switchrail-audit-sheen 1.4s linear infinite;
 }
 
-.cutover-audit-spinner {
+.switchrail-audit-spinner {
 	display: inline-block;
 	flex: none;
 	width: 14px;
 	height: 14px;
-	border: 2px solid var(--cutover-audit-rule-2);
-	border-top-color: var(--cutover-audit-ink);
+	border: 2px solid var(--switchrail-audit-rule-2);
+	border-top-color: var(--switchrail-audit-ink);
 	border-radius: 50%;
-	animation: cutover-audit-spin 0.8s linear infinite;
+	animation: switchrail-audit-spin 0.8s linear infinite;
 }
 
-.cutover-audit-spinner--xs {
+.switchrail-audit-spinner--xs {
 	width: 11px;
 	height: 11px;
 	border-width: 1.5px;
@@ -1883,62 +1883,62 @@ body.cutover-audit-screen,
  * 10. Tables and row drawers
  * ---------------------------------------------------------------------- */
 
-.cutover-audit-table-wrap {
+.switchrail-audit-table-wrap {
 	overflow-x: auto;
 }
 
 /* Pager: closes the table's card once there is more than one page. */
-.cutover-audit-pager {
+.switchrail-audit-pager {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: space-between;
 	gap: 10px 16px;
 	padding: 12px 16px;
-	border-top: 1px solid var(--cutover-audit-rule);
+	border-top: 1px solid var(--switchrail-audit-rule);
 }
 
-.cutover-audit-pager[hidden] {
+.switchrail-audit-pager[hidden] {
 	display: none;
 }
 
-.cutover-audit-pager__range {
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-pager__range {
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 11.5px;
 }
 
-.cutover-audit-pager__controls {
+.switchrail-audit-pager__controls {
 	display: flex;
 	align-items: center;
 	gap: 12px;
 }
 
-.cutover-audit-pager__page {
-	color: var(--cutover-audit-ink-2);
+.switchrail-audit-pager__page {
+	color: var(--switchrail-audit-ink-2);
 	font-size: 12.5px;
 	white-space: nowrap;
 }
 
-.cutover-audit .cutover-audit-pager .cutover-audit-btn:disabled {
+.switchrail-audit .switchrail-audit-pager .switchrail-audit-btn:disabled {
 	opacity: 0.45;
 	cursor: default;
 	pointer-events: none;
 }
 
-.cutover-audit-table {
+.switchrail-audit-table {
 	width: 100%;
 	border-collapse: collapse;
 	border-spacing: 0;
 	font-size: 13px;
 }
 
-.cutover-audit-table th {
+.switchrail-audit-table th {
 	padding: 10px 14px;
-	border-bottom: 1px solid var(--cutover-audit-rule-2);
-	background: var(--cutover-audit-sheet);
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+	border-bottom: 1px solid var(--switchrail-audit-rule-2);
+	background: var(--switchrail-audit-sheet);
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 10.5px;
 	font-weight: 500;
 	letter-spacing: 0.08em;
@@ -1947,7 +1947,7 @@ body.cutover-audit-screen,
 	white-space: nowrap;
 }
 
-.cutover-audit .cutover-audit-th__sort {
+.switchrail-audit .switchrail-audit-th__sort {
 	display: inline-flex;
 	align-items: center;
 	gap: 5px;
@@ -1963,246 +1963,246 @@ body.cutover-audit-screen,
 	cursor: pointer;
 }
 
-.cutover-audit .cutover-audit-th__sort:hover {
-	background: var(--cutover-audit-paper-2);
-	color: var(--cutover-audit-ink);
+.switchrail-audit .switchrail-audit-th__sort:hover {
+	background: var(--switchrail-audit-paper-2);
+	color: var(--switchrail-audit-ink);
 }
 
-.cutover-audit-th__icon {
+.switchrail-audit-th__icon {
 	opacity: 0.5;
 }
 
-.cutover-audit-table th[aria-sort="ascending"],
-.cutover-audit-table th[aria-sort="descending"] {
-	color: var(--cutover-audit-ink);
+.switchrail-audit-table th[aria-sort="ascending"],
+.switchrail-audit-table th[aria-sort="descending"] {
+	color: var(--switchrail-audit-ink);
 }
 
-.cutover-audit-table th[aria-sort="ascending"] .cutover-audit-th__icon,
-.cutover-audit-table th[aria-sort="descending"] .cutover-audit-th__icon {
+.switchrail-audit-table th[aria-sort="ascending"] .switchrail-audit-th__icon,
+.switchrail-audit-table th[aria-sort="descending"] .switchrail-audit-th__icon {
 	opacity: 1;
 }
 
-.cutover-audit-table td {
+.switchrail-audit-table td {
 	padding: 13px 14px;
-	border-bottom: 1px solid var(--cutover-audit-rule);
-	color: var(--cutover-audit-ink-2);
+	border-bottom: 1px solid var(--switchrail-audit-rule);
+	color: var(--switchrail-audit-ink-2);
 	vertical-align: middle;
 }
 
-.cutover-audit-table tbody tr:last-child td {
+.switchrail-audit-table tbody tr:last-child td {
 	border-bottom: 0;
 }
 
-.cutover-audit-table tbody tr.cutover-audit-row {
+.switchrail-audit-table tbody tr.switchrail-audit-row {
 	transition: background-color 0.12s ease;
 }
 
-.cutover-audit-table tbody tr.cutover-audit-row:hover {
-	background: var(--cutover-audit-sheet-2);
+.switchrail-audit-table tbody tr.switchrail-audit-row:hover {
+	background: var(--switchrail-audit-sheet-2);
 }
 
-.cutover-audit-table--expandable tbody tr.cutover-audit-row {
+.switchrail-audit-table--expandable tbody tr.switchrail-audit-row {
 	cursor: pointer;
 }
 
-.cutover-audit-table--expandable tbody tr.cutover-audit-row.is-open {
-	background: var(--cutover-audit-sheet-2);
+.switchrail-audit-table--expandable tbody tr.switchrail-audit-row.is-open {
+	background: var(--switchrail-audit-sheet-2);
 }
 
-.cutover-audit-table--expandable tbody tr.cutover-audit-row.is-open td {
+.switchrail-audit-table--expandable tbody tr.switchrail-audit-row.is-open td {
 	border-bottom-color: transparent;
 }
 
-.cutover-audit-table--compact td {
+.switchrail-audit-table--compact td {
 	padding: 9px 14px;
 }
 
-.cutover-audit-col-number {
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-col-number {
+	font-family: var(--switchrail-audit-mono);
 	font-size: 12.5px;
 	text-align: right !important;
 	white-space: nowrap;
 	font-variant-numeric: tabular-nums;
 }
 
-.cutover-audit-col-mono {
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-col-mono {
+	font-family: var(--switchrail-audit-mono);
 	font-size: 12px;
 }
 
-.cutover-audit-col-toggle {
+.switchrail-audit-col-toggle {
 	width: 36px;
 	padding-right: 0 !important;
 }
 
-.cutover-audit-col-status {
+.switchrail-audit-col-status {
 	white-space: nowrap;
 }
 
-.cutover-audit-col-version {
+.switchrail-audit-col-version {
 	white-space: nowrap;
 }
 
-.cutover-audit-col-notes {
+.switchrail-audit-col-notes {
 	width: 34%;
 	min-width: 220px;
 	max-width: 380px;
 }
 
 /* Lets a long snippet shrink to the cell instead of widening the table. */
-.cutover-audit-table td.cutover-audit-col-notes {
+.switchrail-audit-table td.switchrail-audit-col-notes {
 	overflow-wrap: anywhere;
 }
 
-.cutover-audit .cutover-audit-rowtoggle {
+.switchrail-audit .switchrail-audit-rowtoggle {
 	display: grid;
 	place-items: center;
 	width: 26px;
 	height: 26px;
 	margin: 0;
 	padding: 0;
-	border: 1px solid var(--cutover-audit-rule-2);
+	border: 1px solid var(--switchrail-audit-rule-2);
 	border-radius: 5px;
-	background: var(--cutover-audit-sheet);
-	color: var(--cutover-audit-ink-2);
+	background: var(--switchrail-audit-sheet);
+	color: var(--switchrail-audit-ink-2);
 	cursor: pointer;
 	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.cutover-audit .cutover-audit-rowtoggle:hover {
-	border-color: var(--cutover-audit-ink-3);
-	color: var(--cutover-audit-ink);
+.switchrail-audit .switchrail-audit-rowtoggle:hover {
+	border-color: var(--switchrail-audit-ink-3);
+	color: var(--switchrail-audit-ink);
 }
 
-.cutover-audit-rowtoggle .cutover-audit-icon {
-	transition: transform 0.2s var(--cutover-audit-ease);
+.switchrail-audit-rowtoggle .switchrail-audit-icon {
+	transition: transform 0.2s var(--switchrail-audit-ease);
 }
 
-.cutover-audit-rowtoggle[aria-expanded="true"] {
-	border-color: var(--cutover-audit-ink);
-	background: var(--cutover-audit-ink);
+.switchrail-audit-rowtoggle[aria-expanded="true"] {
+	border-color: var(--switchrail-audit-ink);
+	background: var(--switchrail-audit-ink);
 }
 
-.cutover-audit .cutover-audit-rowtoggle[aria-expanded="true"] {
-	color: var(--cutover-audit-ink-inverse);
+.switchrail-audit .switchrail-audit-rowtoggle[aria-expanded="true"] {
+	color: var(--switchrail-audit-ink-inverse);
 }
 
-.cutover-audit-rowtoggle[aria-expanded="true"] .cutover-audit-icon {
+.switchrail-audit-rowtoggle[aria-expanded="true"] .switchrail-audit-icon {
 	transform: rotate(90deg);
 }
 
-.cutover-audit-item {
+.switchrail-audit-item {
 	display: flex;
 	flex-direction: column;
 	gap: 3px;
 	min-width: 0;
 }
 
-.cutover-audit-item__name {
+.switchrail-audit-item__name {
 	display: inline-flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 6px;
-	color: var(--cutover-audit-ink);
+	color: var(--switchrail-audit-ink);
 	font-size: 13.5px;
 	font-weight: 600;
 }
 
-code.cutover-audit-item__name {
+code.switchrail-audit-item__name {
 	font-size: 12.5px;
 	font-weight: 600;
 }
 
-.cutover-audit-item__path {
-	color: var(--cutover-audit-ink-3);
+.switchrail-audit-item__path {
+	color: var(--switchrail-audit-ink-3);
 	font-size: 11.5px;
 	overflow-wrap: anywhere;
 }
 
-.cutover-audit-item__meta {
-	color: var(--cutover-audit-ink-3);
+.switchrail-audit-item__meta {
+	color: var(--switchrail-audit-ink-3);
 	font-size: 12px;
 }
 
-.cutover-audit-version {
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-version {
+	font-family: var(--switchrail-audit-mono);
 	font-size: 12px;
-	color: var(--cutover-audit-ink-2);
+	color: var(--switchrail-audit-ink-2);
 }
 
-.cutover-audit-version__update {
+.switchrail-audit-version__update {
 	display: inline-block;
 	margin-left: 6px;
 	padding: 1px 6px;
 	border-radius: 3px;
-	background: var(--cutover-audit-accent-soft);
-	color: var(--cutover-audit-accent-ink);
-	font-family: var(--cutover-audit-mono);
+	background: var(--switchrail-audit-accent-soft);
+	color: var(--switchrail-audit-accent-ink);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 11px;
 	font-weight: 600;
 	cursor: help;
 }
 
-.cutover-audit-clear {
-	color: var(--cutover-audit-ok-ink);
+.switchrail-audit-clear {
+	color: var(--switchrail-audit-ok-ink);
 	font-size: 12.5px;
 	font-weight: 500;
 }
 
-.cutover-audit-sevbar {
+.switchrail-audit-sevbar {
 	display: inline-flex;
 	flex-wrap: wrap;
 	gap: 4px 12px;
 }
 
-.cutover-audit .cutover-audit-sev {
+.switchrail-audit .switchrail-audit-sev {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	color: var(--cutover-audit-ink-2);
-	font-family: var(--cutover-audit-mono);
+	color: var(--switchrail-audit-ink-2);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 12.5px;
 	font-weight: 600;
 	text-decoration: none;
 }
 
-.cutover-audit a.cutover-audit-sev:hover {
-	color: var(--cutover-audit-ink);
+.switchrail-audit a.switchrail-audit-sev:hover {
+	color: var(--switchrail-audit-ink);
 	text-decoration: underline;
 	text-underline-offset: 3px;
 }
 
-.cutover-audit-row-detail > td {
+.switchrail-audit-row-detail > td {
 	padding: 0 !important;
-	background: var(--cutover-audit-sheet-2);
-	border-bottom: 1px solid var(--cutover-audit-rule) !important;
+	background: var(--switchrail-audit-sheet-2);
+	border-bottom: 1px solid var(--switchrail-audit-rule) !important;
 }
 
 /*
  * 50px = the 36px toggle column + the 14px cell padding, so the card
  * lines up with the item name above it.
  */
-.cutover-audit-detail {
+.switchrail-audit-detail {
 	padding: 2px 14px 18px 50px;
 
 	/*
 	 * Fade only. A transform here made the text settle half a pixel when the
 	 * animation ended, which read as the content jumping sideways.
 	 */
-	animation: cutover-audit-fade 0.18s ease-out;
+	animation: switchrail-audit-fade 0.18s ease-out;
 }
 
 /* A card of its own, so it reads apart from the row: facts | topics. */
-.cutover-audit-detail__card {
+.switchrail-audit-detail__card {
 	display: grid;
 	grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-	border: 1px solid var(--cutover-audit-rule-2);
-	border-radius: var(--cutover-audit-radius-lg);
-	background: var(--cutover-audit-sheet);
+	border: 1px solid var(--switchrail-audit-rule-2);
+	border-radius: var(--switchrail-audit-radius-lg);
+	background: var(--switchrail-audit-sheet);
 	box-shadow: 0 1px 2px rgba(23, 25, 30, 0.04);
 }
 
-.cutover-audit-detail__section {
+.switchrail-audit-detail__section {
 	display: flex;
 	flex-direction: column;
 	gap: 14px;
@@ -2210,42 +2210,42 @@ code.cutover-audit-item__name {
 	padding: 16px 20px 18px;
 }
 
-.cutover-audit-detail__section + .cutover-audit-detail__section {
-	border-left: 1px solid var(--cutover-audit-rule);
+.switchrail-audit-detail__section + .switchrail-audit-detail__section {
+	border-left: 1px solid var(--switchrail-audit-rule);
 }
 
-.cutover-audit .cutover-audit-detail__title {
+.switchrail-audit .switchrail-audit-detail__title {
 	margin: 0;
 	padding: 0;
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 10.5px;
 	font-weight: 500;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
 }
 
-.cutover-audit-detail__actions {
+.switchrail-audit-detail__actions {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
 }
 
-.cutover-audit .cutover-audit-detail__empty {
+.switchrail-audit .switchrail-audit-detail__empty {
 	display: flex;
 	align-items: center;
 	gap: 6px;
 	margin: 0;
-	color: var(--cutover-audit-ink-3);
+	color: var(--switchrail-audit-ink-3);
 	font-size: 13px;
 }
 
-.cutover-audit .cutover-audit-detail__empty.is-clear {
-	color: var(--cutover-audit-ok-ink);
+.switchrail-audit .switchrail-audit-detail__empty.is-clear {
+	color: var(--switchrail-audit-ok-ink);
 }
 
 /* Findings by topic: name, a bar scaled to the largest, the count. */
-.cutover-audit .cutover-audit-topics {
+.switchrail-audit .switchrail-audit-topics {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
@@ -2254,70 +2254,70 @@ code.cutover-audit-item__name {
 	list-style: none;
 }
 
-.cutover-audit .cutover-audit-topics li {
+.switchrail-audit .switchrail-audit-topics li {
 	margin: 0;
 }
 
-.cutover-audit .cutover-audit-topics__link {
+.switchrail-audit .switchrail-audit-topics__link {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) minmax(60px, 34%) 28px;
 	align-items: center;
 	gap: 12px;
 	margin: 0 -8px;
 	padding: 6px 8px;
-	border-radius: var(--cutover-audit-radius);
-	color: var(--cutover-audit-ink);
+	border-radius: var(--switchrail-audit-radius);
+	color: var(--switchrail-audit-ink);
 	text-decoration: none;
 }
 
-.cutover-audit .cutover-audit-topics__link:hover {
-	background: var(--cutover-audit-sheet-2);
+.switchrail-audit .switchrail-audit-topics__link:hover {
+	background: var(--switchrail-audit-sheet-2);
 }
 
-.cutover-audit .cutover-audit-topics__link:focus-visible {
-	box-shadow: var(--cutover-audit-focus);
+.switchrail-audit .switchrail-audit-topics__link:focus-visible {
+	box-shadow: var(--switchrail-audit-focus);
 	outline: 0;
 }
 
-.cutover-audit-topics__name {
+.switchrail-audit-topics__name {
 	overflow: hidden;
 	font-size: 13px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.cutover-audit-topics__bar {
+.switchrail-audit-topics__bar {
 	height: 6px;
 	border-radius: 3px;
-	background: var(--cutover-audit-paper-2);
+	background: var(--switchrail-audit-paper-2);
 	overflow: hidden;
 }
 
-.cutover-audit-topics__bar > span {
+.switchrail-audit-topics__bar > span {
 	display: block;
 	height: 100%;
 	border-radius: inherit;
-	background: var(--cutover-audit-accent);
+	background: var(--switchrail-audit-accent);
 }
 
-.cutover-audit-topics__count {
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-topics__count {
+	font-family: var(--switchrail-audit-mono);
 	font-size: 12.5px;
 	font-weight: 600;
 	text-align: right;
 }
 
-.cutover-audit-no-results td {
+.switchrail-audit-no-results td {
 	padding: 40px 16px !important;
-	color: var(--cutover-audit-ink-3);
+	color: var(--switchrail-audit-ink-3);
 	text-align: center;
 }
 
-.cutover-audit-no-results strong {
+.switchrail-audit-no-results strong {
 	display: block;
 	margin-bottom: 4px;
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-serif);
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-serif);
 	font-size: 18px;
 	font-weight: 600;
 }
@@ -2327,82 +2327,82 @@ code.cutover-audit-item__name {
  * ---------------------------------------------------------------------- */
 
 /* The filters are one card; each tier below is a card of its own. */
-.cutover-audit-findings__toolbar {
-	border-radius: var(--cutover-audit-radius-lg) var(--cutover-audit-radius-lg) 0 0;
+.switchrail-audit-findings__toolbar {
+	border-radius: var(--switchrail-audit-radius-lg) var(--switchrail-audit-radius-lg) 0 0;
 }
 
 /* Alone in the card, the toolbar takes all four corners and drops its rule. */
-.cutover-audit-findings__toolbar:last-child {
+.switchrail-audit-findings__toolbar:last-child {
 	border-bottom: 0;
-	border-radius: var(--cutover-audit-radius-lg);
+	border-radius: var(--switchrail-audit-radius-lg);
 }
 
-.cutover-audit-findings__main {
+.switchrail-audit-findings__main {
 	margin-top: 20px;
 }
 
-.cutover-audit-fixlist {
+.switchrail-audit-fixlist {
 	display: flex;
 	flex-direction: column;
 	gap: 20px;
 }
 
 /* A tier: a card of its own, so each one is found at a glance. */
-.cutover-audit-tiergroup {
+.switchrail-audit-tiergroup {
 	overflow: hidden;
-	border: 1px solid var(--cutover-audit-rule-2);
-	border-radius: var(--cutover-audit-radius-lg);
-	background: var(--cutover-audit-sheet);
+	border: 1px solid var(--switchrail-audit-rule-2);
+	border-radius: var(--switchrail-audit-radius-lg);
+	background: var(--switchrail-audit-sheet);
 	box-shadow: 0 1px 0 rgba(23, 25, 30, 0.03);
 }
 
 /* Tier options are links here, styled as the segmented buttons elsewhere. */
-.cutover-audit .cutover-audit-segmented__option {
+.switchrail-audit .switchrail-audit-segmented__option {
 	display: inline-flex;
 	align-items: center;
 	gap: 7px;
 	height: 28px;
 	padding: 0 10px;
 	border-radius: 5px;
-	color: var(--cutover-audit-ink-2);
+	color: var(--switchrail-audit-ink-2);
 	font-size: 12.5px;
 	font-weight: 500;
 	text-decoration: none;
 	transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.cutover-audit a.cutover-audit-segmented__option:hover {
-	color: var(--cutover-audit-ink);
+.switchrail-audit a.switchrail-audit-segmented__option:hover {
+	color: var(--switchrail-audit-ink);
 }
 
-.cutover-audit .cutover-audit-segmented__option.active {
-	background: var(--cutover-audit-sheet);
-	color: var(--cutover-audit-ink);
+.switchrail-audit .switchrail-audit-segmented__option.active {
+	background: var(--switchrail-audit-sheet);
+	color: var(--switchrail-audit-ink);
 	font-weight: 600;
-	box-shadow: 0 0 0 1px var(--cutover-audit-rule-2), 0 1px 2px rgba(23, 25, 30, 0.08);
+	box-shadow: 0 0 0 1px var(--switchrail-audit-rule-2), 0 1px 2px rgba(23, 25, 30, 0.08);
 }
 
-.cutover-audit .cutover-audit-segmented__option:focus-visible {
+.switchrail-audit .switchrail-audit-segmented__option:focus-visible {
 	outline: none;
-	box-shadow: var(--cutover-audit-focus);
+	box-shadow: var(--switchrail-audit-focus);
 }
 
-.cutover-audit-segmented__option.is-empty {
+.switchrail-audit-segmented__option.is-empty {
 	opacity: 0.5;
 	cursor: default;
 }
 
 /* Filters that arrived with the link, each removable on its own. */
-.cutover-audit-findings__active {
+.switchrail-audit-findings__active {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 8px 14px;
 	padding: 10px 14px;
-	border-bottom: 1px solid var(--cutover-audit-rule);
+	border-bottom: 1px solid var(--switchrail-audit-rule);
 }
 
-.cutover-audit-activefilters {
+.switchrail-audit-activefilters {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -2410,127 +2410,127 @@ code.cutover-audit-item__name {
 }
 
 /* A plain text link after the tags, so it reads as "all of the above". */
-.cutover-audit .cutover-audit-clearfilters {
+.switchrail-audit .switchrail-audit-clearfilters {
 	display: inline-flex;
 	align-items: center;
 	gap: 5px;
 	margin-left: 6px;
-	color: var(--cutover-audit-ink-2);
+	color: var(--switchrail-audit-ink-2);
 	font-size: 12.5px;
 	font-weight: 500;
 	text-decoration: none;
 }
 
 /* Underline the words only, not the gap before them. */
-.cutover-audit .cutover-audit-clearfilters span {
+.switchrail-audit .switchrail-audit-clearfilters span {
 	text-decoration: underline;
 	text-underline-offset: 3px;
 }
 
 /* A funnel with an X: "remove every filter", unlike the X on each tag. */
-.cutover-audit-clearfilters .cutover-audit-icon {
+.switchrail-audit-clearfilters .switchrail-audit-icon {
 	stroke-width: 1.8;
 }
 
-.cutover-audit .cutover-audit-clearfilters:hover {
-	color: var(--cutover-audit-ink);
+.switchrail-audit .switchrail-audit-clearfilters:hover {
+	color: var(--switchrail-audit-ink);
 }
 
-.cutover-audit .cutover-audit-activefilter {
+.switchrail-audit .switchrail-audit-activefilter {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
 	padding: 3px 5px 3px 10px;
-	border: 1px solid var(--cutover-audit-rule-2);
+	border: 1px solid var(--switchrail-audit-rule-2);
 	border-radius: 4px;
-	background: var(--cutover-audit-sheet);
-	color: var(--cutover-audit-ink);
+	background: var(--switchrail-audit-sheet);
+	color: var(--switchrail-audit-ink);
 	font-size: 12.5px;
 	font-weight: 500;
 	text-decoration: none;
 }
 
-.cutover-audit .cutover-audit-activefilter:hover {
-	border-color: var(--cutover-audit-ink);
-	color: var(--cutover-audit-ink);
+.switchrail-audit .switchrail-audit-activefilter:hover {
+	border-color: var(--switchrail-audit-ink);
+	color: var(--switchrail-audit-ink);
 }
 
-.cutover-audit-activefilter__remove {
+.switchrail-audit-activefilter__remove {
 	display: grid;
 	place-items: center;
 	width: 16px;
 	height: 16px;
 	border-radius: 3px;
-	background: var(--cutover-audit-paper-2);
-	color: var(--cutover-audit-ink-2);
+	background: var(--switchrail-audit-paper-2);
+	color: var(--switchrail-audit-ink-2);
 }
 
 /* A drawn X rather than the × character, which sits off-centre in most fonts. */
-.cutover-audit-activefilter__remove .cutover-audit-icon {
+.switchrail-audit-activefilter__remove .switchrail-audit-icon {
 	width: 10px;
 	height: 10px;
 	stroke-width: 2.2;
 }
 
 /* Tier headings. */
-.cutover-audit .cutover-audit-tierhead {
+.switchrail-audit .switchrail-audit-tierhead {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 4px 10px;
 	margin: 0;
 	padding: 12px 16px;
-	border-bottom: 1px solid var(--cutover-audit-rule);
-	background: var(--cutover-audit-sheet-2);
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-sans);
+	border-bottom: 1px solid var(--switchrail-audit-rule);
+	background: var(--switchrail-audit-sheet-2);
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-sans);
 	font-size: 14px;
 	font-weight: 700;
 	line-height: 1.3;
 }
 
 
-.cutover-audit-tierhead .cutover-audit-mark {
+.switchrail-audit-tierhead .switchrail-audit-mark {
 	width: 12px;
 	height: 12px;
 }
 
-.cutover-audit-tierhead .cutover-audit-mark--info {
+.switchrail-audit-tierhead .switchrail-audit-mark--info {
 	width: 8px;
 	height: 8px;
 }
 
-.cutover-audit-tierhead--blocking {
-	color: var(--cutover-audit-block-ink) !important;
+.switchrail-audit-tierhead--blocking {
+	color: var(--switchrail-audit-block-ink) !important;
 }
 
-.cutover-audit-tierhead__count {
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-tierhead__count {
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 13px;
 	font-weight: 500;
 }
 
-.cutover-audit-tierhead__summary {
+.switchrail-audit-tierhead__summary {
 	margin-left: auto;
-	color: var(--cutover-audit-ink-3);
+	color: var(--switchrail-audit-ink-3);
 	font-size: 12px;
 	font-weight: 400;
 }
 
 /* Entries. */
-.cutover-audit-fix {
+.switchrail-audit-fix {
 	position: relative;
-	border-bottom: 1px solid var(--cutover-audit-rule);
+	border-bottom: 1px solid var(--switchrail-audit-rule);
 	transition: background-color 0.2s ease;
 }
 
 /* The card's own border closes the tier. */
-.cutover-audit-tiergroup > .cutover-audit-fix:last-child {
+.switchrail-audit-tiergroup > .switchrail-audit-fix:last-child {
 	border-bottom: 0;
 }
 
-.cutover-audit-fix__summary {
+.switchrail-audit-fix__summary {
 	display: grid;
 	grid-template-columns: 22px minmax(0, 1fr) auto;
 	gap: 4px 14px;
@@ -2540,117 +2540,117 @@ code.cutover-audit-item__name {
 	transition: background-color 0.15s ease;
 }
 
-.cutover-audit-fix__summary::-webkit-details-marker {
+.switchrail-audit-fix__summary::-webkit-details-marker {
 	display: none;
 }
 
-.cutover-audit-fix__summary:hover {
-	background: var(--cutover-audit-paper-2);
+.switchrail-audit-fix__summary:hover {
+	background: var(--switchrail-audit-paper-2);
 }
 
-.cutover-audit-fix--task .cutover-audit-fix__summary {
+.switchrail-audit-fix--task .switchrail-audit-fix__summary {
 	cursor: default;
 }
 
-.cutover-audit-fix--task .cutover-audit-fix__summary:hover {
+.switchrail-audit-fix--task .switchrail-audit-fix__summary:hover {
 	background: transparent;
 }
 
-.cutover-audit-fix__mark {
+.switchrail-audit-fix__mark {
 	padding-top: 5px;
 	text-align: center;
 }
 
-.cutover-audit-fix__main {
+.switchrail-audit-fix__main {
 	display: flex;
 	flex-direction: column;
 	gap: 5px;
 	min-width: 0;
 }
 
-.cutover-audit-fix__title {
-	color: var(--cutover-audit-ink);
+.switchrail-audit-fix__title {
+	color: var(--switchrail-audit-ink);
 	font-size: 15px;
 	font-weight: 600;
 	line-height: 1.4;
 }
 
-.cutover-audit-fix__where {
+.switchrail-audit-fix__where {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 4px 12px;
-	color: var(--cutover-audit-ink-3);
+	color: var(--switchrail-audit-ink-3);
 	font-size: 12.5px;
 }
 
-.cutover-audit-fix__target {
-	color: var(--cutover-audit-ink-2);
+.switchrail-audit-fix__target {
+	color: var(--switchrail-audit-ink-2);
 	font-weight: 600;
 }
 
-.cutover-audit-fix__places {
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-fix__places {
+	font-family: var(--switchrail-audit-mono);
 	font-size: 12px;
 }
 
-.cutover-audit-fix__places code {
+.switchrail-audit-fix__places code {
 	font-size: 12px;
 	overflow-wrap: anywhere;
 }
 
-.cutover-audit-fix__lead {
+.switchrail-audit-fix__lead {
 	display: flex;
 	gap: 8px;
 	align-items: flex-start;
 	margin-top: 2px;
 }
 
-.cutover-audit-fix__lead-icon {
+.switchrail-audit-fix__lead-icon {
 	margin-top: 4px;
-	color: var(--cutover-audit-accent-ink);
+	color: var(--switchrail-audit-accent-ink);
 }
 
-.cutover-audit-fix__lead-text {
-	color: var(--cutover-audit-ink-2);
+.switchrail-audit-fix__lead-text {
+	color: var(--switchrail-audit-ink-2);
 	font-size: 13.5px;
 	line-height: 1.55;
 }
 
-.cutover-audit-fix__aside {
+.switchrail-audit-fix__aside {
 	display: flex;
 	align-items: flex-start;
 	gap: 12px;
 	padding-top: 2px;
 }
 
-.cutover-audit-fix__effort {
+.switchrail-audit-fix__effort {
 	padding: 2px 7px;
-	border: 1px solid var(--cutover-audit-rule-2);
+	border: 1px solid var(--switchrail-audit-rule-2);
 	border-radius: 3px;
-	color: var(--cutover-audit-ink-2);
-	font-family: var(--cutover-audit-mono);
+	color: var(--switchrail-audit-ink-2);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 11px;
 	white-space: nowrap;
 	cursor: help;
 }
 
-.cutover-audit-fix__caret {
+.switchrail-audit-fix__caret {
 	margin-top: 3px;
-	color: var(--cutover-audit-ink-3);
-	transition: transform 0.25s var(--cutover-audit-ease);
+	color: var(--switchrail-audit-ink-3);
+	transition: transform 0.25s var(--switchrail-audit-ease);
 }
 
-.cutover-audit-fix[open] {
-	border-color: var(--cutover-audit-rule-2);
-	background: var(--cutover-audit-sheet);
+.switchrail-audit-fix[open] {
+	border-color: var(--switchrail-audit-rule-2);
+	background: var(--switchrail-audit-sheet);
 }
 
-.cutover-audit-fix[open] > .cutover-audit-fix__summary:hover {
+.switchrail-audit-fix[open] > .switchrail-audit-fix__summary:hover {
 	background: transparent;
 }
 
-.cutover-audit-fix[open] .cutover-audit-fix__caret {
+.switchrail-audit-fix[open] .switchrail-audit-fix__caret {
 	transform: rotate(180deg);
 }
 
@@ -2659,57 +2659,57 @@ code.cutover-audit-item__name {
  * 48px = the 12px summary padding + the 22px mark column + the 14px gap, so
  * the panel lines up with the title above it.
  */
-.cutover-audit-fix__body {
+.switchrail-audit-fix__body {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
 	margin: 0 16px 18px 48px;
 	padding: 16px 20px;
-	border: 1px solid var(--cutover-audit-rule);
-	border-radius: var(--cutover-audit-radius-lg);
-	background: var(--cutover-audit-sheet-2);
+	border: 1px solid var(--switchrail-audit-rule);
+	border-radius: var(--switchrail-audit-radius-lg);
+	background: var(--switchrail-audit-sheet-2);
 
 	/* Fade only: a transform made the text settle half a pixel at the end. */
-	animation: cutover-audit-fade 0.18s ease-out;
+	animation: switchrail-audit-fade 0.18s ease-out;
 }
 
 /* Why / locations / rule, each separated by a thin rule. */
-.cutover-audit-fix__body > * + * {
+.switchrail-audit-fix__body > * + * {
 	padding-top: 16px;
-	border-top: 1px solid var(--cutover-audit-rule);
+	border-top: 1px solid var(--switchrail-audit-rule);
 }
 
-.cutover-audit-fix__answer {
+.switchrail-audit-fix__answer {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 	gap: 16px 36px;
 }
 
-.cutover-audit-fix__answer dt,
-.cutover-audit .cutover-audit-occurrences__title {
+.switchrail-audit-fix__answer dt,
+.switchrail-audit .switchrail-audit-occurrences__title {
 	margin: 0 0 6px;
 	padding: 0;
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 10.5px;
 	font-weight: 500;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
 }
 
-.cutover-audit-fix__answer dd {
-	color: var(--cutover-audit-ink-2);
+.switchrail-audit-fix__answer dd {
+	color: var(--switchrail-audit-ink-2);
 	font-size: 13.5px;
 	line-height: 1.6;
 }
 
-.cutover-audit-occurrences__list {
+.switchrail-audit-occurrences__list {
 	display: flex;
 	flex-direction: column;
 	gap: 14px;
 }
 
-.cutover-audit-occurrence__where {
+.switchrail-audit-occurrence__where {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: baseline;
@@ -2717,28 +2717,28 @@ code.cutover-audit-item__name {
 	margin-bottom: 6px !important;
 }
 
-.cutover-audit-occurrence__file {
-	color: var(--cutover-audit-ink);
+.switchrail-audit-occurrence__file {
+	color: var(--switchrail-audit-ink);
 	font-size: 12.5px;
 	font-weight: 600;
 	overflow-wrap: anywhere;
 }
 
-.cutover-audit-occurrence__line,
-.cutover-audit-occurrence__scope {
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-occurrence__line,
+.switchrail-audit-occurrence__scope {
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 11.5px;
 }
 
-.cutover-audit-occurrence__note {
+.switchrail-audit-occurrence__note {
 	margin-top: 6px !important;
-	color: var(--cutover-audit-ink-3);
+	color: var(--switchrail-audit-ink-3);
 	font-size: 12.5px;
 	font-style: italic;
 }
 
-.cutover-audit-fix__foot {
+.switchrail-audit-fix__foot {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -2746,12 +2746,12 @@ code.cutover-audit-item__name {
 	gap: 12px 24px;
 }
 
-.cutover-audit-fix__doc {
+.switchrail-audit-fix__doc {
 	font-size: 12.5px;
 }
 
-/* The rule id, copyable, for a `cutover-audit:ignore` annotation. */
-.cutover-audit .cutover-audit-fix__rule {
+/* The rule id, copyable, for a `switchrail-audit:ignore` annotation. */
+.switchrail-audit .switchrail-audit-fix__rule {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -2759,21 +2759,21 @@ code.cutover-audit-item__name {
 	margin: 0;
 }
 
-.cutover-audit-fix__rule-label {
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-fix__rule-label {
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 10.5px;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
 }
 
-.cutover-audit-fix__rule .cutover-audit-snippet {
+.switchrail-audit-fix__rule .switchrail-audit-snippet {
 	margin-top: 0;
 }
 
-.cutover-audit-fix__also {
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-fix__also {
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 11.5px;
 }
 
@@ -2781,34 +2781,34 @@ code.cutover-audit-item__name {
  * 12. Code, snippets, notes
  * ---------------------------------------------------------------------- */
 
-.cutover-audit .cutover-audit-code {
+.switchrail-audit .switchrail-audit-code {
 	display: flex;
 	overflow-x: auto;
 	margin: 0;
 	padding: 11px 14px;
-	border-radius: var(--cutover-audit-radius);
-	background: var(--cutover-audit-code-bg);
-	color: var(--cutover-audit-code-ink);
+	border-radius: var(--switchrail-audit-radius);
+	background: var(--switchrail-audit-code-bg);
+	color: var(--switchrail-audit-code-ink);
 	font-size: 12.5px;
 	line-height: 1.6;
 	white-space: pre;
 }
 
-.cutover-audit .cutover-audit-code code {
+.switchrail-audit .switchrail-audit-code code {
 	color: inherit;
 	font-size: inherit;
 }
 
 /* A copy button in the code block's top-right corner, light on dark. */
-.cutover-audit-codewrap {
+.switchrail-audit-codewrap {
 	position: relative;
 }
 
-.cutover-audit-codewrap .cutover-audit-code {
+.switchrail-audit-codewrap .switchrail-audit-code {
 	padding-right: 48px;
 }
 
-.cutover-audit .cutover-audit-code__copy {
+.switchrail-audit .switchrail-audit-code__copy {
 	position: absolute;
 	top: 50%;
 	right: 8px;
@@ -2818,72 +2818,72 @@ code.cutover-audit-item__name {
 	height: 28px;
 	margin: 0;
 	padding: 0;
-	border: 1px solid var(--cutover-audit-code-rule);
-	border-radius: var(--cutover-audit-radius);
-	background: var(--cutover-audit-code-bg);
-	color: var(--cutover-audit-code-dim);
+	border: 1px solid var(--switchrail-audit-code-rule);
+	border-radius: var(--switchrail-audit-radius);
+	background: var(--switchrail-audit-code-bg);
+	color: var(--switchrail-audit-code-dim);
 	cursor: pointer;
 	transform: translateY(-50%);
 }
 
-.cutover-audit .cutover-audit-code__copy:hover {
-	border-color: var(--cutover-audit-code-dim);
-	color: var(--cutover-audit-code-ink);
+.switchrail-audit .switchrail-audit-code__copy:hover {
+	border-color: var(--switchrail-audit-code-dim);
+	color: var(--switchrail-audit-code-ink);
 }
 
-.cutover-audit .cutover-audit-code__copy:focus-visible {
-	box-shadow: var(--cutover-audit-focus);
+.switchrail-audit .switchrail-audit-code__copy:focus-visible {
+	box-shadow: var(--switchrail-audit-focus);
 	outline: 0;
 }
 
-.cutover-audit .cutover-audit-code__copy.is-copied {
-	color: var(--cutover-audit-ok-quiet) !important;
+.switchrail-audit .switchrail-audit-code__copy.is-copied {
+	color: var(--switchrail-audit-ok-quiet) !important;
 }
 
-.cutover-audit-code__gutter {
+.switchrail-audit-code__gutter {
 	flex: none;
 	margin-right: 14px;
 	padding-right: 12px;
-	border-right: 1px solid var(--cutover-audit-code-rule);
-	color: var(--cutover-audit-code-dim);
+	border-right: 1px solid var(--switchrail-audit-code-rule);
+	color: var(--switchrail-audit-code-dim);
 	text-align: right;
 	user-select: none;
 }
 
-.cutover-audit .cutover-audit-code--block {
+.switchrail-audit .switchrail-audit-code--block {
 	display: block;
 	max-height: 360px;
 	overflow: auto;
 }
 
-.cutover-audit-snippet {
+.switchrail-audit-snippet {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
 	max-width: 100%;
 	margin-top: 6px;
 	padding: 3px 3px 3px 9px;
-	border: 1px solid var(--cutover-audit-rule);
+	border: 1px solid var(--switchrail-audit-rule);
 	border-radius: 4px;
-	background: var(--cutover-audit-sheet-2);
+	background: var(--switchrail-audit-sheet-2);
 	vertical-align: middle;
 }
 
-.cutover-audit-notes .cutover-audit-snippet {
+.switchrail-audit-notes .switchrail-audit-snippet {
 	display: flex;
 	width: fit-content;
 }
 
-.cutover-audit-snippet code {
+.switchrail-audit-snippet code {
 	min-width: 0;
 	overflow: hidden;
-	color: var(--cutover-audit-ink);
+	color: var(--switchrail-audit-ink);
 	font-size: 11.5px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.cutover-audit .cutover-audit-snippet__copy {
+.switchrail-audit .switchrail-audit-snippet__copy {
 	display: grid;
 	place-items: center;
 	flex: none;
@@ -2894,30 +2894,30 @@ code.cutover-audit-item__name {
 	border: 0;
 	border-radius: 3px;
 	background: transparent;
-	color: var(--cutover-audit-ink-3);
+	color: var(--switchrail-audit-ink-3);
 	cursor: pointer;
 }
 
-.cutover-audit .cutover-audit-snippet__copy:hover {
-	background: var(--cutover-audit-paper-2);
-	color: var(--cutover-audit-ink);
+.switchrail-audit .switchrail-audit-snippet__copy:hover {
+	background: var(--switchrail-audit-paper-2);
+	color: var(--switchrail-audit-ink);
 }
 
-.cutover-audit .is-copied {
-	color: var(--cutover-audit-ok-ink) !important;
+.switchrail-audit .is-copied {
+	color: var(--switchrail-audit-ok-ink) !important;
 }
 
-.cutover-audit-notes {
+.switchrail-audit-notes {
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
-	color: var(--cutover-audit-ink-2);
+	color: var(--switchrail-audit-ink-2);
 	font-size: 13px;
 	line-height: 1.5;
 }
 
-.cutover-audit-note__label {
-	color: var(--cutover-audit-ink);
+.switchrail-audit-note__label {
+	color: var(--switchrail-audit-ink);
 	font-weight: 600;
 }
 
@@ -2929,76 +2929,76 @@ code.cutover-audit-item__name {
  * 14. Notices, guidance, empty states, steps
  * ---------------------------------------------------------------------- */
 
-.cutover-audit-notice {
+.switchrail-audit-notice {
 	display: grid;
 	grid-template-columns: 16px minmax(0, 1fr);
 	gap: 12px;
 	align-items: start;
 	padding: 13px 16px;
-	border-left: 3px solid var(--cutover-audit-accent);
-	border-radius: 0 var(--cutover-audit-radius) var(--cutover-audit-radius) 0;
-	background: var(--cutover-audit-accent-soft);
-	color: var(--cutover-audit-ink);
+	border-left: 3px solid var(--switchrail-audit-accent);
+	border-radius: 0 var(--switchrail-audit-radius) var(--switchrail-audit-radius) 0;
+	background: var(--switchrail-audit-accent-soft);
+	color: var(--switchrail-audit-ink);
 	font-size: 13.5px;
 	line-height: 1.55;
-	animation: cutover-audit-rise 0.3s var(--cutover-audit-ease);
+	animation: switchrail-audit-rise 0.3s var(--switchrail-audit-ease);
 }
 
-.cutover-audit-notice + .cutover-audit-notice,
-.cutover-audit-section__body > .cutover-audit-notice + * {
+.switchrail-audit-notice + .switchrail-audit-notice,
+.switchrail-audit-section__body > .switchrail-audit-notice + * {
 	margin-top: 16px;
 }
 
-.cutover-audit-notice__icon {
+.switchrail-audit-notice__icon {
 	margin-top: 2px;
-	color: var(--cutover-audit-accent-ink);
+	color: var(--switchrail-audit-accent-ink);
 }
 
-.cutover-audit-notice__title {
-	color: var(--cutover-audit-ink);
+.switchrail-audit-notice__title {
+	color: var(--switchrail-audit-ink);
 	font-weight: 700;
 }
 
-.cutover-audit-notice__body code {
+.switchrail-audit-notice__body code {
 	padding: 1px 5px;
 	border-radius: 3px;
 	background: rgba(255, 255, 255, 0.6);
 	font-size: 12px;
 }
 
-.cutover-audit-notice--success {
-	border-left-color: var(--cutover-audit-ok);
-	background: var(--cutover-audit-ok-soft);
+.switchrail-audit-notice--success {
+	border-left-color: var(--switchrail-audit-ok);
+	background: var(--switchrail-audit-ok-soft);
 }
 
-.cutover-audit-notice--success .cutover-audit-notice__icon {
-	color: var(--cutover-audit-ok-ink);
+.switchrail-audit-notice--success .switchrail-audit-notice__icon {
+	color: var(--switchrail-audit-ok-ink);
 }
 
-.cutover-audit-notice--warning {
-	border-left-color: var(--cutover-audit-imp);
-	background: var(--cutover-audit-imp-soft);
+.switchrail-audit-notice--warning {
+	border-left-color: var(--switchrail-audit-imp);
+	background: var(--switchrail-audit-imp-soft);
 }
 
-.cutover-audit-notice--warning .cutover-audit-notice__icon {
-	color: var(--cutover-audit-imp-ink);
+.switchrail-audit-notice--warning .switchrail-audit-notice__icon {
+	color: var(--switchrail-audit-imp-ink);
 }
 
-.cutover-audit-notice--error {
-	border-left-color: var(--cutover-audit-block);
-	background: var(--cutover-audit-block-soft);
+.switchrail-audit-notice--error {
+	border-left-color: var(--switchrail-audit-block);
+	background: var(--switchrail-audit-block-soft);
 }
 
-.cutover-audit-notice--error .cutover-audit-notice__icon {
-	color: var(--cutover-audit-block-ink);
+.switchrail-audit-notice--error .switchrail-audit-notice__icon {
+	color: var(--switchrail-audit-block-ink);
 }
 
-.cutover-audit-main > .cutover-audit-notice,
-.cutover-audit-main > [data-role="scan-report"] {
+.switchrail-audit-main > .switchrail-audit-notice,
+.switchrail-audit-main > [data-role="scan-report"] {
 	margin-bottom: 0;
 }
 
-.cutover-audit-findings__main > .cutover-audit-notice {
+.switchrail-audit-findings__main > .switchrail-audit-notice {
 	margin-bottom: 20px;
 }
 
@@ -3007,7 +3007,7 @@ code.cutover-audit-item__name {
  * the bar, and with a single tab the tab list and its tinted backdrop only add
  * chrome, so the panel is reduced to a card that matches the screens.
  */
-body.cutover-audit-screen #screen-meta-links {
+body.switchrail-audit-screen #screen-meta-links {
 	display: none;
 }
 
@@ -3016,145 +3016,145 @@ body.cutover-audit-screen #screen-meta-links {
  * the inner panel (height, margin and padding together), so the gap and the
  * frame shrink with it instead of vanishing in one step when it finishes.
  */
-body.cutover-audit-screen #screen-meta {
+body.switchrail-audit-screen #screen-meta {
 	margin: 0 20px 0 2px;
 	border: 0;
 	background: transparent;
 	box-shadow: none;
 }
 
-body.cutover-audit-screen #screen-meta #contextual-help-wrap {
+body.switchrail-audit-screen #screen-meta #contextual-help-wrap {
 	margin-top: 14px;
-	border: 1px solid var(--cutover-audit-rule-2);
-	border-radius: var(--cutover-audit-radius-lg);
-	background: var(--cutover-audit-sheet);
+	border: 1px solid var(--switchrail-audit-rule-2);
+	border-radius: var(--switchrail-audit-radius-lg);
+	background: var(--switchrail-audit-sheet);
 	box-shadow: 0 1px 0 rgba(23, 25, 30, 0.03);
 }
 
-body.cutover-audit-screen #screen-meta #contextual-help-back,
-body.cutover-audit-screen #screen-meta .contextual-help-tabs,
-body.cutover-audit-screen #screen-meta .contextual-help-sidebar {
+body.switchrail-audit-screen #screen-meta #contextual-help-back,
+body.switchrail-audit-screen #screen-meta .contextual-help-tabs,
+body.switchrail-audit-screen #screen-meta .contextual-help-sidebar {
 	display: none;
 }
 
-body.cutover-audit-screen #screen-meta .contextual-help-tabs-wrap {
+body.switchrail-audit-screen #screen-meta .contextual-help-tabs-wrap {
 	padding: 20px 24px 22px;
 }
 
-body.cutover-audit-screen #screen-meta .help-tab-content {
+body.switchrail-audit-screen #screen-meta .help-tab-content {
 	margin: 0;
 }
 
-.cutover-audit-help__title {
+.switchrail-audit-help__title {
 	margin: 0 0 12px !important;
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 11px;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
 }
 
-.cutover-audit-help__notes {
+.switchrail-audit-help__notes {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 	gap: 14px 32px;
 }
 
-.cutover-audit-help__notes p {
+.switchrail-audit-help__notes p {
 	margin: 0 !important;
-	color: var(--cutover-audit-ink-2);
+	color: var(--switchrail-audit-ink-2);
 	font-size: 13px;
 	line-height: 1.6;
 }
 
-.cutover-audit-help__notes strong {
+.switchrail-audit-help__notes strong {
 	display: block;
 	margin-bottom: 2px;
-	color: var(--cutover-audit-ink);
+	color: var(--switchrail-audit-ink);
 }
 
-.cutover-audit-help__notes code {
+.switchrail-audit-help__notes code {
 	font-size: 12px;
 }
 
 /* The independence note: on every Help panel, after the notes, kept quiet. */
-.cutover-audit-help__about {
+.switchrail-audit-help__about {
 	margin: 18px 0 0 !important;
 	padding-top: 12px;
-	border-top: 1px solid var(--cutover-audit-rule);
-	color: var(--cutover-audit-ink-3);
+	border-top: 1px solid var(--switchrail-audit-rule);
+	color: var(--switchrail-audit-ink-3);
 	font-size: 12px;
 	line-height: 1.5;
 }
 
-.cutover-audit-empty {
+.switchrail-audit-empty {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	padding: 64px 24px;
-	border: 1px dashed var(--cutover-audit-rule-2);
-	border-radius: var(--cutover-audit-radius-lg);
+	border: 1px dashed var(--switchrail-audit-rule-2);
+	border-radius: var(--switchrail-audit-radius-lg);
 	text-align: center;
 }
 
 
-.cutover-audit-empty__icon {
+.switchrail-audit-empty__icon {
 	display: grid;
 	place-items: center;
 	width: 52px;
 	height: 52px;
 	margin-bottom: 16px;
-	border: 1px solid var(--cutover-audit-rule-2);
+	border: 1px solid var(--switchrail-audit-rule-2);
 	border-radius: 50%;
-	color: var(--cutover-audit-ink-3);
+	color: var(--switchrail-audit-ink-3);
 }
 
-.cutover-audit-empty__title {
-	color: var(--cutover-audit-ink);
-	font-family: var(--cutover-audit-serif);
+.switchrail-audit-empty__title {
+	color: var(--switchrail-audit-ink);
+	font-family: var(--switchrail-audit-serif);
 	font-size: 22px;
 	font-weight: 600;
 }
 
-.cutover-audit-empty__message {
+.switchrail-audit-empty__message {
 	max-width: 52ch;
 	margin-top: 6px !important;
-	color: var(--cutover-audit-ink-2);
+	color: var(--switchrail-audit-ink-2);
 }
 
-.cutover-audit-empty__action {
+.switchrail-audit-empty__action {
 	margin-top: 20px !important;
 }
 
-.cutover-audit-steps {
+.switchrail-audit-steps {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 24px 40px;
 }
 
-.cutover-audit-step {
+.switchrail-audit-step {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
 	padding-top: 14px;
-	border-top: 2px solid var(--cutover-audit-ink);
+	border-top: 2px solid var(--switchrail-audit-ink);
 }
 
-.cutover-audit-step__rank {
-	color: var(--cutover-audit-ink-3);
-	font-family: var(--cutover-audit-mono);
+.switchrail-audit-step__rank {
+	color: var(--switchrail-audit-ink-3);
+	font-family: var(--switchrail-audit-mono);
 	font-size: 12px;
 }
 
-.cutover-audit-step__title {
-	font-family: var(--cutover-audit-serif);
+.switchrail-audit-step__title {
+	font-family: var(--switchrail-audit-serif);
 	font-size: 20px;
 	font-weight: 600;
 	line-height: 1.2;
 }
 
-.cutover-audit-step__body {
-	color: var(--cutover-audit-ink-2);
+.switchrail-audit-step__body {
+	color: var(--switchrail-audit-ink-2);
 	font-size: 13.5px;
 	line-height: 1.6;
 }
@@ -3163,28 +3163,28 @@ body.cutover-audit-screen #screen-meta .help-tab-content {
  * 15. Motion
  * ---------------------------------------------------------------------- */
 
-.cutover-audit-main > *,
-.cutover-audit-overview > * {
-	animation: cutover-audit-rise 0.45s var(--cutover-audit-ease) both;
+.switchrail-audit-main > *,
+.switchrail-audit-overview > * {
+	animation: switchrail-audit-rise 0.45s var(--switchrail-audit-ease) both;
 }
 
-.cutover-audit-overview > :nth-child(2) {
+.switchrail-audit-overview > :nth-child(2) {
 	animation-delay: 60ms;
 }
 
-.cutover-audit-overview > :nth-child(3) {
+.switchrail-audit-overview > :nth-child(3) {
 	animation-delay: 120ms;
 }
 
-.cutover-audit-overview > :nth-child(4) {
+.switchrail-audit-overview > :nth-child(4) {
 	animation-delay: 180ms;
 }
 
-.cutover-audit-overview > :nth-child(n + 5) {
+.switchrail-audit-overview > :nth-child(n + 5) {
 	animation-delay: 220ms;
 }
 
-@keyframes cutover-audit-rise {
+@keyframes switchrail-audit-rise {
 	from {
 		opacity: 0;
 		transform: translateY(6px);
@@ -3196,7 +3196,7 @@ body.cutover-audit-screen #screen-meta .help-tab-content {
 	}
 }
 
-@keyframes cutover-audit-fade {
+@keyframes switchrail-audit-fade {
 	from {
 		opacity: 0;
 	}
@@ -3206,7 +3206,7 @@ body.cutover-audit-screen #screen-meta .help-tab-content {
 	}
 }
 
-@keyframes cutover-audit-pop {
+@keyframes switchrail-audit-pop {
 	from {
 		opacity: 0;
 		transform: translateY(-4px) scale(0.98);
@@ -3218,7 +3218,7 @@ body.cutover-audit-screen #screen-meta .help-tab-content {
 	}
 }
 
-@keyframes cutover-audit-fill {
+@keyframes switchrail-audit-fill {
 	from {
 		opacity: 0;
 		transform: scaleY(0.2);
@@ -3230,7 +3230,7 @@ body.cutover-audit-screen #screen-meta .help-tab-content {
 	}
 }
 
-@keyframes cutover-audit-cell {
+@keyframes switchrail-audit-cell {
 	from {
 		opacity: 0;
 		transform: scale(0.4);
@@ -3242,7 +3242,7 @@ body.cutover-audit-screen #screen-meta .help-tab-content {
 	}
 }
 
-@keyframes cutover-audit-draw {
+@keyframes switchrail-audit-draw {
 	from {
 		stroke-dashoffset: 600;
 	}
@@ -3252,13 +3252,13 @@ body.cutover-audit-screen #screen-meta .help-tab-content {
 	}
 }
 
-@keyframes cutover-audit-spin {
+@keyframes switchrail-audit-spin {
 	to {
 		transform: rotate(360deg);
 	}
 }
 
-@keyframes cutover-audit-sheen {
+@keyframes switchrail-audit-sheen {
 	from {
 		transform: translateX(-100%);
 	}
@@ -3268,7 +3268,7 @@ body.cutover-audit-screen #screen-meta .help-tab-content {
 	}
 }
 
-@keyframes cutover-audit-ping {
+@keyframes switchrail-audit-ping {
 	0% {
 		opacity: 0.6;
 		transform: scale(0.6);
@@ -3286,15 +3286,15 @@ body.cutover-audit-screen #screen-meta .help-tab-content {
  * ---------------------------------------------------------------------- */
 
 @media screen and (max-width: 1180px) {
-	.cutover-audit-manifest__row {
+	.switchrail-audit-manifest__row {
 		grid-template-columns: 190px minmax(0, 1fr);
 	}
 
-	.cutover-audit-manifest__counts {
+	.switchrail-audit-manifest__counts {
 		grid-column: 2;
 	}
 
-	.cutover-audit-manifest__action {
+	.switchrail-audit-manifest__action {
 		grid-column: 2;
 		margin-top: -6px;
 		text-align: left;
@@ -3302,140 +3302,140 @@ body.cutover-audit-screen #screen-meta .help-tab-content {
 }
 
 @media screen and (max-width: 960px) {
-	.cutover-audit-verdict__main {
+	.switchrail-audit-verdict__main {
 		grid-template-columns: minmax(0, 1fr);
 		gap: 24px;
 		padding: 24px;
 	}
 
-	.cutover-audit-verdict__score {
+	.switchrail-audit-verdict__score {
 		max-width: 420px;
 	}
 
-	.cutover-audit-verdict__tiers {
+	.switchrail-audit-verdict__tiers {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
-	.cutover-audit-verdict__tier:nth-child(3) {
+	.switchrail-audit-verdict__tier:nth-child(3) {
 		border-left: 0;
 	}
 
-	.cutover-audit-verdict__tier:nth-child(n + 3) {
-		border-top: 1px solid var(--cutover-audit-rule);
+	.switchrail-audit-verdict__tier:nth-child(n + 3) {
+		border-top: 1px solid var(--switchrail-audit-rule);
 	}
 
-	.cutover-audit-defs--spec {
+	.switchrail-audit-defs--spec {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.cutover-audit-steps {
+	.switchrail-audit-steps {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.cutover-audit-tierhead__summary {
+	.switchrail-audit-tierhead__summary {
 		flex-basis: 100%;
 		margin-left: 22px;
 	}
 }
 
 @media screen and (max-width: 782px) {
-	.cutover-audit {
+	.switchrail-audit {
 		margin-right: 12px;
 	}
 
-	.cutover-audit-bar__actions {
+	.switchrail-audit-bar__actions {
 		width: 100%;
 	}
 
-	.cutover-audit-scanstate {
+	.switchrail-audit-scanstate {
 		flex-basis: 100%;
 	}
 
-	.cutover-audit-head {
+	.switchrail-audit-head {
 		padding-top: 28px;
 	}
 
-	.cutover-audit .cutover-audit-head__title {
+	.switchrail-audit .switchrail-audit-head__title {
 		font-size: 30px;
 	}
 
-	.cutover-audit-verdict__number {
+	.switchrail-audit-verdict__number {
 		font-size: 104px;
 	}
 
-	.cutover-audit .cutover-audit-verdict__headline {
+	.switchrail-audit .switchrail-audit-verdict__headline {
 		font-size: 27px;
 	}
 
-	.cutover-audit-main > * + * {
+	.switchrail-audit-main > * + * {
 		margin-top: 44px;
 	}
 
-	.cutover-audit-overview__pair {
+	.switchrail-audit-overview__pair {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.cutover-audit-manifest__row {
+	.switchrail-audit-manifest__row {
 		grid-template-columns: minmax(0, 1fr);
 		gap: 10px;
 	}
 
-	.cutover-audit-manifest__counts,
-	.cutover-audit-manifest__action {
+	.switchrail-audit-manifest__counts,
+	.switchrail-audit-manifest__action {
 		grid-column: auto;
 		margin-top: 0;
 	}
 
-	.cutover-audit .cutover-audit-next__link {
+	.switchrail-audit .switchrail-audit-next__link {
 		grid-template-columns: 26px minmax(0, 1fr) 16px;
 		gap: 4px 12px;
 	}
 
-	.cutover-audit-next__tier {
+	.switchrail-audit-next__tier {
 		grid-column: 2;
 		grid-row: 1;
 	}
 
-	.cutover-audit-next__text {
+	.switchrail-audit-next__text {
 		grid-column: 2;
 	}
 
-	.cutover-audit-next__rank {
+	.switchrail-audit-next__rank {
 		grid-row: 1 / span 2;
 	}
 
-	.cutover-audit-next__arrow {
+	.switchrail-audit-next__arrow {
 		grid-column: 3;
 		grid-row: 1 / span 2;
 	}
 
-	.cutover-audit-defs--spec .cutover-audit-def {
+	.switchrail-audit-defs--spec .switchrail-audit-def {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.cutover-audit-toolbar__tools,
-	.cutover-audit-search,
-	.cutover-audit .cutover-audit-search__input {
+	.switchrail-audit-toolbar__tools,
+	.switchrail-audit-search,
+	.switchrail-audit .switchrail-audit-search__input {
 		width: 100%;
 	}
 
-	.cutover-audit-fix__summary {
+	.switchrail-audit-fix__summary {
 		grid-template-columns: 18px minmax(0, 1fr);
 	}
 
-	.cutover-audit-fix__aside {
+	.switchrail-audit-fix__aside {
 		grid-column: 2;
 		justify-content: space-between;
 	}
 
 	/* Full width on a phone: the title indent costs too much room there. */
-	.cutover-audit-fix__body {
+	.switchrail-audit-fix__body {
 		margin: 0 12px 14px;
 		padding: 14px;
 	}
 
 	/* Tables become stacked records. */
-	.cutover-audit-table thead {
+	.switchrail-audit-table thead {
 		position: absolute;
 		width: 1px;
 		height: 1px;
@@ -3443,21 +3443,21 @@ body.cutover-audit-screen #screen-meta .help-tab-content {
 		clip: rect(0 0 0 0);
 	}
 
-	.cutover-audit-table,
-	.cutover-audit-table tbody,
-	.cutover-audit-table tr,
-	.cutover-audit-table td {
+	.switchrail-audit-table,
+	.switchrail-audit-table tbody,
+	.switchrail-audit-table tr,
+	.switchrail-audit-table td {
 		display: block;
 		width: 100%;
 	}
 
-	.cutover-audit-table tr.cutover-audit-row {
+	.switchrail-audit-table tr.switchrail-audit-row {
 		position: relative;
 		padding: 12px 14px;
-		border-bottom: 1px solid var(--cutover-audit-rule);
+		border-bottom: 1px solid var(--switchrail-audit-rule);
 	}
 
-	.cutover-audit-table td {
+	.switchrail-audit-table td {
 		display: grid;
 		grid-template-columns: 110px minmax(0, 1fr);
 		gap: 10px;
@@ -3467,75 +3467,75 @@ body.cutover-audit-screen #screen-meta .help-tab-content {
 		text-align: left !important;
 	}
 
-	.cutover-audit-table td[data-label]::before {
+	.switchrail-audit-table td[data-label]::before {
 		content: attr(data-label);
-		color: var(--cutover-audit-ink-3);
-		font-family: var(--cutover-audit-mono);
+		color: var(--switchrail-audit-ink-3);
+		font-family: var(--switchrail-audit-mono);
 		font-size: 10px;
 		letter-spacing: 0.06em;
 		line-height: 1.9;
 		text-transform: uppercase;
 	}
 
-	.cutover-audit-table td.cutover-audit-col-name {
+	.switchrail-audit-table td.switchrail-audit-col-name {
 		display: block;
 		padding-right: 40px !important;
 	}
 
-	.cutover-audit-table td.cutover-audit-col-name::before {
+	.switchrail-audit-table td.switchrail-audit-col-name::before {
 		display: none;
 	}
 
-	.cutover-audit-table td.cutover-audit-col-toggle {
+	.switchrail-audit-table td.switchrail-audit-col-toggle {
 		position: absolute;
 		top: 12px;
 		right: 14px;
 		width: auto;
 	}
 
-	.cutover-audit-table tr.cutover-audit-row-detail {
-		border-bottom: 1px solid var(--cutover-audit-rule);
+	.switchrail-audit-table tr.switchrail-audit-row-detail {
+		border-bottom: 1px solid var(--switchrail-audit-rule);
 	}
 
-	.cutover-audit-table tr.cutover-audit-row-detail > td {
+	.switchrail-audit-table tr.switchrail-audit-row-detail > td {
 		display: block;
 	}
 
-	.cutover-audit-detail {
+	.switchrail-audit-detail {
 		padding: 14px;
 	}
 
 	/* Stack the two halves of the detail card. */
-	.cutover-audit-detail__card {
+	.switchrail-audit-detail__card {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.cutover-audit-detail__section + .cutover-audit-detail__section {
-		border-top: 1px solid var(--cutover-audit-rule);
+	.switchrail-audit-detail__section + .switchrail-audit-detail__section {
+		border-top: 1px solid var(--switchrail-audit-rule);
 		border-left: 0;
 	}
 
-	.cutover-audit-defs--detail .cutover-audit-def {
+	.switchrail-audit-defs--detail .switchrail-audit-def {
 		grid-template-columns: 90px minmax(0, 1fr);
 	}
 }
 
 @media screen and (max-width: 560px) {
-	.cutover-audit-verdict__tiers {
+	.switchrail-audit-verdict__tiers {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.cutover-audit-verdict__tier + .cutover-audit-verdict__tier {
-		border-top: 1px solid var(--cutover-audit-rule);
+	.switchrail-audit-verdict__tier + .switchrail-audit-verdict__tier {
+		border-top: 1px solid var(--switchrail-audit-rule);
 		border-left: 0;
 	}
 
-	.cutover-audit-verdict__number {
+	.switchrail-audit-verdict__number {
 		font-size: 88px;
 	}
 
-	.cutover-audit-split__more .cutover-audit-menu__panel,
-	.cutover-audit-menu__panel {
+	.switchrail-audit-split__more .switchrail-audit-menu__panel,
+	.switchrail-audit-menu__panel {
 		position: fixed;
 		top: auto;
 		right: 12px;
@@ -3550,9 +3550,9 @@ body.cutover-audit-screen #screen-meta .help-tab-content {
  * ---------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-	.cutover-audit *,
-	.cutover-audit *::before,
-	.cutover-audit *::after {
+	.switchrail-audit *,
+	.switchrail-audit *::before,
+	.switchrail-audit *::after {
 		animation-duration: 0.01ms !important;
 		animation-iteration-count: 1 !important;
 		animation-delay: 0ms !important;
@@ -3561,37 +3561,37 @@ body.cutover-audit-screen #screen-meta .help-tab-content {
 }
 
 @media (forced-colors: active) {
-	.cutover-audit-segmented__option.active {
+	.switchrail-audit-segmented__option.active {
 		outline: 2px solid Highlight;
 	}
 }
 
 @media print {
-	body.cutover-audit-screen #adminmenumain,
-	body.cutover-audit-screen #wpadminbar,
-	body.cutover-audit-screen #wpfooter,
-	.cutover-audit-bar__actions,
-	.cutover-audit-toolbar,
-	.cutover-audit-findings__active,
-	.cutover-audit-pager,
-	.cutover-audit-rowtoggle,
-	.cutover-audit-verdict__actions,
-	.cutover-audit-snippet__copy,
-	.cutover-audit-code__copy {
+	body.switchrail-audit-screen #adminmenumain,
+	body.switchrail-audit-screen #wpadminbar,
+	body.switchrail-audit-screen #wpfooter,
+	.switchrail-audit-bar__actions,
+	.switchrail-audit-toolbar,
+	.switchrail-audit-findings__active,
+	.switchrail-audit-pager,
+	.switchrail-audit-rowtoggle,
+	.switchrail-audit-verdict__actions,
+	.switchrail-audit-snippet__copy,
+	.switchrail-audit-code__copy {
 		display: none !important;
 	}
 
-	body.cutover-audit-screen #wpcontent {
+	body.switchrail-audit-screen #wpcontent {
 		margin-left: 0;
 	}
 
-	.cutover-audit-fix__body {
+	.switchrail-audit-fix__body {
 		display: flex !important;
 	}
 
-	.cutover-audit *,
-	.cutover-audit *::before,
-	.cutover-audit *::after {
+	.switchrail-audit *,
+	.switchrail-audit *::before,
+	.switchrail-audit *::after {
 		animation: none !important;
 	}
 }

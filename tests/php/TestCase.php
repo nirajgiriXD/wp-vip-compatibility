@@ -2,23 +2,23 @@
 /**
  * Base test case.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests;
+namespace SWITCHRAIL_AUDIT\Tests;
 
 use Brain\Monkey;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use CUTOVER_AUDIT\Includes\Scanner\Code_Scanner;
-use CUTOVER_AUDIT\Includes\Scanner\Directory_Audit;
-use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
-use CUTOVER_AUDIT\Includes\Scanner\Rules;
-use CUTOVER_AUDIT\Includes\Scanner\Scanner;
-use CUTOVER_AUDIT\Includes\Scanner\Targets;
-use CUTOVER_AUDIT\Tests\Support\Fake_Theme;
-use CUTOVER_AUDIT\Tests\Support\Fake_Wpdb;
-use CUTOVER_AUDIT\Tests\Support\Sandbox;
-use CUTOVER_AUDIT\Tests\Support\WP;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Code_Scanner;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Directory_Audit;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Results_Store;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Rules;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Scanner;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Targets;
+use SWITCHRAIL_AUDIT\Tests\Support\Fake_Theme;
+use SWITCHRAIL_AUDIT\Tests\Support\Fake_Wpdb;
+use SWITCHRAIL_AUDIT\Tests\Support\Sandbox;
+use SWITCHRAIL_AUDIT\Tests\Support\WP;
 
 /**
  * Resets WordPress, the sandbox and the plugin's memoised state around each test.

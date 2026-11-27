@@ -2,12 +2,12 @@
 /**
  * This file contains the class and methods to register and enqueue the required scripts and styles.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Includes\Classes;
+namespace SWITCHRAIL_AUDIT\Includes\Classes;
 
-use CUTOVER_AUDIT\Includes\Traits\Singleton;
+use SWITCHRAIL_AUDIT\Includes\Traits\Singleton;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -53,7 +53,7 @@ class Assets {
 			return $classes;
 		}
 
-		return $classes . ' cutover-audit-screen';
+		return $classes . ' switchrail-audit-screen';
 	}
 
 	/**
@@ -68,9 +68,9 @@ class Assets {
 	 * @return void
 	 */
 	public function enqueue_menu_styles() {
-		wp_register_style( 'cutover-audit-menu', false, array(), CUTOVER_AUDIT_VERSION );
-		wp_enqueue_style( 'cutover-audit-menu' );
-		wp_add_inline_style( 'cutover-audit-menu', $this->get_menu_styles() );
+		wp_register_style( 'switchrail-audit-menu', false, array(), SWITCHRAIL_AUDIT_VERSION );
+		wp_enqueue_style( 'switchrail-audit-menu' );
+		wp_add_inline_style( 'switchrail-audit-menu', $this->get_menu_styles() );
 	}
 
 	/**
@@ -91,10 +91,10 @@ class Assets {
 		$color = ( '' === $color ) ? '' : 'color:' . $color . ';';
 
 		return $menu . ' .wp-menu-image img{opacity:1;width:20px;height:20px;padding-top:8px}'
-			. $menu . ' .cutover-audit-menu-group{display:block;margin:10px -13px 3px;padding:8px 13px 0;border-top:1px solid rgba(240,246,252,0.14);' . $color . 'font-size:10px;font-weight:600;line-height:1.4;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55}'
-			. $menu . ' .cutover-audit-menu-group--first{margin-top:2px;padding-top:0;border-top:0}'
-			. $menu . ' .wp-submenu a:has(.cutover-audit-menu-group):hover,'
-			. $menu . ' .wp-submenu a:has(.cutover-audit-menu-group):focus{box-shadow:none;background:linear-gradient(currentColor,currentColor) left bottom / 4px calc(1.4em + 5px) no-repeat}';
+			. $menu . ' .switchrail-audit-menu-group{display:block;margin:10px -13px 3px;padding:8px 13px 0;border-top:1px solid rgba(240,246,252,0.14);' . $color . 'font-size:10px;font-weight:600;line-height:1.4;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55}'
+			. $menu . ' .switchrail-audit-menu-group--first{margin-top:2px;padding-top:0;border-top:0}'
+			. $menu . ' .wp-submenu a:has(.switchrail-audit-menu-group):hover,'
+			. $menu . ' .wp-submenu a:has(.switchrail-audit-menu-group):focus{box-shadow:none;background:linear-gradient(currentColor,currentColor) left bottom / 4px calc(1.4em + 5px) no-repeat}';
 	}
 
 	/**
@@ -160,70 +160,70 @@ class Assets {
 		}
 
 		// Enqueue custom style.
-		if ( file_exists( CUTOVER_AUDIT_DIR . '/assets/css/admin.css' ) ) {
+		if ( file_exists( SWITCHRAIL_AUDIT_DIR . '/assets/css/admin.css' ) ) {
 			wp_register_style(
-				'cutover-audit-admin-styles',
-				CUTOVER_AUDIT_URL . 'assets/css/admin.css',
+				'switchrail-audit-admin-styles',
+				SWITCHRAIL_AUDIT_URL . 'assets/css/admin.css',
 				array(),
-				filemtime( CUTOVER_AUDIT_DIR . '/assets/css/admin.css' )
+				filemtime( SWITCHRAIL_AUDIT_DIR . '/assets/css/admin.css' )
 			);
-			wp_enqueue_style( 'cutover-audit-admin-styles' );
+			wp_enqueue_style( 'switchrail-audit-admin-styles' );
 		}
 
 		// Enqueue custom script. The overview used to also load a 200 KB charting
 		// library to draw five doughnuts of three numbers each; those numbers are
 		// rendered server-side now, as proportion bars, so nothing is fetched.
-		if ( file_exists( CUTOVER_AUDIT_DIR . '/assets/js/admin.js' ) ) {
+		if ( file_exists( SWITCHRAIL_AUDIT_DIR . '/assets/js/admin.js' ) ) {
 			wp_register_script(
-				'cutover-audit-admin-script',
-				CUTOVER_AUDIT_URL . 'assets/js/admin.js',
+				'switchrail-audit-admin-script',
+				SWITCHRAIL_AUDIT_URL . 'assets/js/admin.js',
 				array( 'jquery' ),
-				filemtime( CUTOVER_AUDIT_DIR . '/assets/js/admin.js' ),
+				filemtime( SWITCHRAIL_AUDIT_DIR . '/assets/js/admin.js' ),
 				true
 			);
-			wp_enqueue_script( 'cutover-audit-admin-script' );
+			wp_enqueue_script( 'switchrail-audit-admin-script' );
 
 			wp_localize_script(
-				'cutover-audit-admin-script',
-				'_CUTOVER_AUDIT_',
+				'switchrail-audit-admin-script',
+				'_SWITCHRAIL_AUDIT_',
 				array(
 					'ajax_url' => admin_url( 'admin-ajax.php' ),
-					'nonce'    => wp_create_nonce( 'cutover_audit_ajax_nonce' ),
+					'nonce'    => wp_create_nonce( 'switchrail_audit_ajax_nonce' ),
 					'i18n'     => array(
-						'checking'        => esc_html__( 'Scanning…', 'cutover-audit' ),
-						'error'           => esc_html__( 'Scan failed', 'cutover-audit' ),
+						'checking'        => esc_html__( 'Scanning…', 'switchrail-audit' ),
+						'error'           => esc_html__( 'Scan failed', 'switchrail-audit' ),
 
 						/* translators: 1: Number of completed checks. 2: Total number of checks. */
-						'scanning'        => esc_html__( 'Scanning %1$s of %2$s…', 'cutover-audit' ),
+						'scanning'        => esc_html__( 'Scanning %1$s of %2$s…', 'switchrail-audit' ),
 						/* translators: %s: Number of findings. */
-						'findingCount'    => esc_html__( '%s findings', 'cutover-audit' ),
+						'findingCount'    => esc_html__( '%s findings', 'switchrail-audit' ),
 
 						/* translators: 1: Number of visible rows. 2: Total number of rows. */
-						'showingFiltered' => esc_html__( 'Showing %1$s of %2$s', 'cutover-audit' ),
+						'showingFiltered' => esc_html__( 'Showing %1$s of %2$s', 'switchrail-audit' ),
 						/* translators: %s: Total number of rows. */
-						'showingAll'      => esc_html__( 'Showing all %s', 'cutover-audit' ),
-						'noResults'       => esc_html__( 'No matching results', 'cutover-audit' ),
-						'noResultsHint'   => esc_html__( 'Try a different search term, or widen the filters above.', 'cutover-audit' ),
+						'showingAll'      => esc_html__( 'Showing all %s', 'switchrail-audit' ),
+						'noResults'       => esc_html__( 'No matching results', 'switchrail-audit' ),
+						'noResultsHint'   => esc_html__( 'Try a different search term, or widen the filters above.', 'switchrail-audit' ),
 
-						'confirmTitle'    => esc_html__( 'Rescan everything?', 'cutover-audit' ),
-						'confirmBody'     => esc_html__( 'This re-reads every plugin, theme and must-use plugin, and rechecks the database and wp-content. It can take a while on a large site, and the current results are replaced when it finishes.', 'cutover-audit' ),
-						'confirmAction'   => esc_html__( 'Rescan everything', 'cutover-audit' ),
-						'cancel'          => esc_html__( 'Cancel', 'cutover-audit' ),
+						'confirmTitle'    => esc_html__( 'Rescan everything?', 'switchrail-audit' ),
+						'confirmBody'     => esc_html__( 'This re-reads every plugin, theme and must-use plugin, and rechecks the database and wp-content. It can take a while on a large site, and the current results are replaced when it finishes.', 'switchrail-audit' ),
+						'confirmAction'   => esc_html__( 'Rescan everything', 'switchrail-audit' ),
+						'cancel'          => esc_html__( 'Cancel', 'switchrail-audit' ),
 
-						'pager'           => esc_html__( 'Table pages', 'cutover-audit' ),
-						'previous'        => esc_html__( 'Previous', 'cutover-audit' ),
-						'next'            => esc_html__( 'Next', 'cutover-audit' ),
+						'pager'           => esc_html__( 'Table pages', 'switchrail-audit' ),
+						'previous'        => esc_html__( 'Previous', 'switchrail-audit' ),
+						'next'            => esc_html__( 'Next', 'switchrail-audit' ),
 						/* translators: 1: First row shown. 2: Last row shown. 3: Number of matching rows. */
-						'pageRange'       => esc_html__( '%1$s–%2$s of %3$s', 'cutover-audit' ),
+						'pageRange'       => esc_html__( '%1$s–%2$s of %3$s', 'switchrail-audit' ),
 						/* translators: 1: Current page. 2: Number of pages. */
-						'pageOf'          => esc_html__( 'Page %1$s of %2$s', 'cutover-audit' ),
+						'pageOf'          => esc_html__( 'Page %1$s of %2$s', 'switchrail-audit' ),
 
-						'copy'            => esc_html__( 'Copy to clipboard', 'cutover-audit' ),
-						'copied'          => esc_html__( 'Copied', 'cutover-audit' ),
-						'copyFailed'      => esc_html__( 'Press Ctrl+C to copy', 'cutover-audit' ),
+						'copy'            => esc_html__( 'Copy to clipboard', 'switchrail-audit' ),
+						'copied'          => esc_html__( 'Copied', 'switchrail-audit' ),
+						'copyFailed'      => esc_html__( 'Press Ctrl+C to copy', 'switchrail-audit' ),
 
-						'expandAll'       => esc_html__( 'Expand all', 'cutover-audit' ),
-						'collapseAll'     => esc_html__( 'Collapse all', 'cutover-audit' ),
+						'expandAll'       => esc_html__( 'Expand all', 'switchrail-audit' ),
+						'collapseAll'     => esc_html__( 'Collapse all', 'switchrail-audit' ),
 					),
 				)
 			);

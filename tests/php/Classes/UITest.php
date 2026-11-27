@@ -2,20 +2,20 @@
 /**
  * Tests for the shared admin UI building blocks.
  *
- * @package cutover-audit
+ * @package switchrail-audit
  */
 
-namespace CUTOVER_AUDIT\Tests\Classes;
+namespace SWITCHRAIL_AUDIT\Tests\Classes;
 
-use CUTOVER_AUDIT\Includes\Classes\UI;
-use CUTOVER_AUDIT\Includes\Scanner\Report;
-use CUTOVER_AUDIT\Includes\Scanner\Rules;
-use CUTOVER_AUDIT\Tests\Support\Fake_Screen;
-use CUTOVER_AUDIT\Tests\Support\WP;
-use CUTOVER_AUDIT\Tests\TestCase;
+use SWITCHRAIL_AUDIT\Includes\Classes\UI;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Report;
+use SWITCHRAIL_AUDIT\Includes\Scanner\Rules;
+use SWITCHRAIL_AUDIT\Tests\Support\Fake_Screen;
+use SWITCHRAIL_AUDIT\Tests\Support\WP;
+use SWITCHRAIL_AUDIT\Tests\TestCase;
 
 /**
- * @covers \CUTOVER_AUDIT\Includes\Classes\UI
+ * @covers \SWITCHRAIL_AUDIT\Includes\Classes\UI
  */
 class UITest extends TestCase {
 
@@ -40,9 +40,9 @@ class UITest extends TestCase {
 	}
 
 	public function test_screen_urls() {
-		$this->assertSame( 'https://example.test/wp-admin/admin.php?page=cutover-audit-database', UI::get_screen_url( 'database' ) );
-		$this->assertSame( 'https://example.test/wp-admin/admin.php?page=cutover-audit-plugins&status=review', UI::get_screen_url( 'plugins', array( 'status' => 'review' ) ) );
-		$this->assertSame( 'https://example.test/wp-admin/admin.php?page=cutover-audit', UI::get_screen_url( 'unknown' ) );
+		$this->assertSame( 'https://example.test/wp-admin/admin.php?page=switchrail-audit-database', UI::get_screen_url( 'database' ) );
+		$this->assertSame( 'https://example.test/wp-admin/admin.php?page=switchrail-audit-plugins&status=review', UI::get_screen_url( 'plugins', array( 'status' => 'review' ) ) );
+		$this->assertSame( 'https://example.test/wp-admin/admin.php?page=switchrail-audit', UI::get_screen_url( 'unknown' ) );
 	}
 
 	public function test_screen_for_type() {
@@ -52,7 +52,7 @@ class UITest extends TestCase {
 	}
 
 	public function test_findings_urls() {
-		$base = 'https://example.test/wp-admin/admin.php?page=cutover-audit-findings';
+		$base = 'https://example.test/wp-admin/admin.php?page=switchrail-audit-findings';
 
 		$this->assertSame( $base, UI::get_findings_url() );
 		$this->assertSame( $base . '&target=plugin:a', UI::get_findings_url( 'plugin:a' ) );
@@ -83,7 +83,7 @@ class UITest extends TestCase {
 	}
 
 	public function test_marks() {
-		$this->assertSame( '<span class="cutover-audit-mark cutover-audit-mark--warning" aria-hidden="true"></span>', UI::get_mark( 'warning' ) );
+		$this->assertSame( '<span class="switchrail-audit-mark switchrail-audit-mark--warning" aria-hidden="true"></span>', UI::get_mark( 'warning' ) );
 
 		$labelled = UI::get_mark( 'blocking', true );
 
@@ -92,7 +92,7 @@ class UITest extends TestCase {
 	}
 
 	public function test_tier_pill() {
-		$this->assertStringContainsString( 'cutover-audit-tier--important', UI::get_tier_pill( 'important' ) );
+		$this->assertStringContainsString( 'switchrail-audit-tier--important', UI::get_tier_pill( 'important' ) );
 		$this->assertStringContainsString( 'Should fix', UI::get_tier_pill( 'important' ) );
 	}
 
@@ -105,7 +105,7 @@ class UITest extends TestCase {
 	public function test_icons_are_inline_svg_that_inherit_the_text_colour() {
 		$icon = UI::get_icon( 'check' );
 
-		$this->assertStringStartsWith( '<svg class="cutover-audit-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"', $icon );
+		$this->assertStringStartsWith( '<svg class="switchrail-audit-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"', $icon );
 		$this->assertStringContainsString( 'stroke="currentColor"', $icon );
 		$this->assertNotFalse( simplexml_load_string( $icon ) );
 	}
@@ -124,7 +124,7 @@ class UITest extends TestCase {
 		$this->assertStringNotContainsString( 'currentColor', $logo );
 
 		// The same switch of track and checklist as assets/icon.svg, minus its tile.
-		$source = file_get_contents( CUTOVER_AUDIT_DIR . '/assets/icon.svg' );
+		$source = file_get_contents( SWITCHRAIL_AUDIT_DIR . '/assets/icon.svg' );
 
 		foreach ( array( 'M90 112C126 112 134 64 170 64H184', 'M220 64 184 40v24z', 'M46 160l12 12 24-26', 'M40 112H90' ) as $path ) {
 			$this->assertStringContainsString( $path, $source );
@@ -147,7 +147,7 @@ class UITest extends TestCase {
 			)
 		);
 
-		$this->assertStringStartsWith( '<a class="cutover-audit-btn cutover-audit-btn--ghost cutover-audit-btn--sm" href="https://example.test/x">', $button );
+		$this->assertStringStartsWith( '<a class="switchrail-audit-btn switchrail-audit-btn--ghost switchrail-audit-btn--sm" href="https://example.test/x">', $button );
 		$this->assertStringContainsString( '<span>Open</span>', $button );
 		$this->assertStringContainsString( '<svg', $button );
 	}
@@ -163,7 +163,7 @@ class UITest extends TestCase {
 			)
 		);
 
-		$this->assertStringContainsString( 'class="cutover-audit-btn cutover-audit-btn--primary"', $button );
+		$this->assertStringContainsString( 'class="switchrail-audit-btn switchrail-audit-btn--primary"', $button );
 		$this->assertStringContainsString( 'target="_blank" rel="noopener noreferrer"', $button );
 		$this->assertStringContainsString( '(opens in a new tab)', $button );
 	}
@@ -172,16 +172,16 @@ class UITest extends TestCase {
 		$button = UI::get_action_button(
 			array(
 				'label'   => 'Rescan',
-				'submit'  => 'cutover_audit_rescan',
-				'nonce'   => 'cutover_audit_rescan_all',
+				'submit'  => 'switchrail_audit_rescan',
+				'nonce'   => 'switchrail_audit_rescan_all',
 				'fields'  => array( 'scope' => '"><x>' ),
 				'confirm' => true,
 			)
 		);
 
-		$this->assertStringStartsWith( '<form method="post" action="https://example.test/wp-admin/admin-post.php" class="cutover-audit-inline-form" data-confirm="rescan-all">', $button );
-		$this->assertStringContainsString( '<input type="hidden" name="action" value="cutover_audit_rescan" />', $button );
-		$this->assertStringContainsString( 'value="' . wp_create_nonce( 'cutover_audit_rescan_all' ) . '"', $button );
+		$this->assertStringStartsWith( '<form method="post" action="https://example.test/wp-admin/admin-post.php" class="switchrail-audit-inline-form" data-confirm="rescan-all">', $button );
+		$this->assertStringContainsString( '<input type="hidden" name="action" value="switchrail_audit_rescan" />', $button );
+		$this->assertStringContainsString( 'value="' . wp_create_nonce( 'switchrail_audit_rescan_all' ) . '"', $button );
 		$this->assertStringContainsString( 'name="scope" value="&quot;&gt;&lt;x&gt;"', $button );
 		$this->assertStringContainsString( '<button type="submit"', $button );
 	}
@@ -213,14 +213,14 @@ class UITest extends TestCase {
 	public function test_arrow_link() {
 		$link = UI::get_arrow_link( 'https://example.test/', self::XSS );
 
-		$this->assertStringStartsWith( '<a class="cutover-audit-link" href="https://example.test/">', $link );
+		$this->assertStringStartsWith( '<a class="switchrail-audit-link" href="https://example.test/">', $link );
 		$this->assertStringContainsString( '&lt;script&gt;', $link );
 	}
 
 	public function test_badges_escape_their_text() {
 		$badge = UI::get_badge( self::XSS, 'bad', '"title"' );
 
-		$this->assertStringContainsString( 'cutover-audit-badge--bad', $badge );
+		$this->assertStringContainsString( 'switchrail-audit-badge--bad', $badge );
 		$this->assertStringContainsString( 'title="&quot;title&quot;"', $badge );
 		$this->assertStringNotContainsString( '<script>', $badge );
 		$this->assertStringNotContainsString( 'title=', UI::get_badge( 'x' ) );
@@ -229,37 +229,37 @@ class UITest extends TestCase {
 	public function test_code_snippet() {
 		$snippet = UI::get_code_snippet( 'ALTER TABLE `a` ENGINE = InnoDB;', true );
 
-		$this->assertStringContainsString( 'cutover-audit-snippet--block', $snippet );
+		$this->assertStringContainsString( 'switchrail-audit-snippet--block', $snippet );
 		$this->assertStringContainsString( 'data-clipboard="ALTER TABLE `a` ENGINE = InnoDB;"', $snippet );
-		$this->assertStringNotContainsString( 'cutover-audit-snippet--block', UI::get_code_snippet( 'x' ) );
+		$this->assertStringNotContainsString( 'switchrail-audit-snippet--block', UI::get_code_snippet( 'x' ) );
 	}
 
 	public function test_notices_allow_limited_html_but_not_scripts() {
 		$notice = UI::get_notice( 'Use <code>x</code>' . self::XSS, 'success', 'Done' );
 
-		$this->assertStringContainsString( 'cutover-audit-notice--success', $notice );
+		$this->assertStringContainsString( 'switchrail-audit-notice--success', $notice );
 		$this->assertStringContainsString( 'role="status"', $notice );
-		$this->assertStringContainsString( '<strong class="cutover-audit-notice__title">Done</strong>', $notice );
+		$this->assertStringContainsString( '<strong class="switchrail-audit-notice__title">Done</strong>', $notice );
 		$this->assertStringContainsString( '<code>x</code>', $notice );
 		$this->assertStringNotContainsString( '<script>', $notice );
 		$this->assertStringNotContainsString( 'role="status"', UI::get_notice( 'x' ) );
-		$this->assertStringContainsString( 'cutover-audit-notice--odd', UI::get_notice( 'x', 'odd' ) );
+		$this->assertStringContainsString( 'switchrail-audit-notice--odd', UI::get_notice( 'x', 'odd' ) );
 	}
 
 	public function test_notes_list() {
-		$this->assertStringContainsString( 'cutover-audit-dash', UI::get_notes_list( array( '', '' ) ) );
-		$this->assertSame( '<ul class="cutover-audit-notes"><li>a</li><li>b</li></ul>', UI::get_notes_list( array( 'a', '', 'b' ) ) );
+		$this->assertStringContainsString( 'switchrail-audit-dash', UI::get_notes_list( array( '', '' ) ) );
+		$this->assertSame( '<ul class="switchrail-audit-notes"><li>a</li><li>b</li></ul>', UI::get_notes_list( array( 'a', '', 'b' ) ) );
 	}
 
 	public function test_ids_are_unique() {
 		$this->assertNotSame( UI::next_id(), UI::next_id() );
-		$this->assertStringStartsWith( 'cutover-audit-detail-', UI::next_id( 'cutover-audit-detail' ) );
+		$this->assertStringStartsWith( 'switchrail-audit-detail-', UI::next_id( 'switchrail-audit-detail' ) );
 	}
 
 	public function test_row_toggle() {
-		$toggle = UI::get_row_toggle( 'cutover-audit-detail-9', 'Show details for ' . self::XSS );
+		$toggle = UI::get_row_toggle( 'switchrail-audit-detail-9', 'Show details for ' . self::XSS );
 
-		$this->assertStringContainsString( 'aria-controls="cutover-audit-detail-9"', $toggle );
+		$this->assertStringContainsString( 'aria-controls="switchrail-audit-detail-9"', $toggle );
 		$this->assertStringContainsString( 'aria-expanded="false"', $toggle );
 		$this->assertStringNotContainsString( '<script>', $toggle );
 	}
@@ -279,11 +279,11 @@ class UITest extends TestCase {
 
 	public function pill_cases() {
 		return array(
-			array( 'compatible', 'cutover-audit-status--ok' ),
-			array( 'review', 'cutover-audit-status--warn' ),
-			array( 'not-compatible', 'cutover-audit-status--bad' ),
-			array( 'pending', 'cutover-audit-spinner' ),
-			array( 'unknown', 'cutover-audit-status--warn' ),
+			array( 'compatible', 'switchrail-audit-status--ok' ),
+			array( 'review', 'switchrail-audit-status--warn' ),
+			array( 'not-compatible', 'switchrail-audit-status--bad' ),
+			array( 'pending', 'switchrail-audit-spinner' ),
+			array( 'unknown', 'switchrail-audit-status--warn' ),
 		);
 	}
 
@@ -296,7 +296,7 @@ class UITest extends TestCase {
 			'plugin:a"b'
 		);
 
-		$this->assertStringStartsWith( '<td class="cutover-audit-col-status is-pending" data-target="plugin:a&quot;b"', $cell );
+		$this->assertStringStartsWith( '<td class="switchrail-audit-col-status is-pending" data-target="plugin:a&quot;b"', $cell );
 	}
 
 	public function test_severity_bar_groups_counts_by_tier() {
@@ -312,11 +312,11 @@ class UITest extends TestCase {
 		$this->assertStringContainsString( '2 findings: must fix', $bar );
 		$this->assertStringContainsString( '4 findings: fyi', $bar );
 		$this->assertStringNotContainsString( 'should fix', $bar );
-		$this->assertStringContainsString( 'href="https://example.test/wp-admin/admin.php?page=cutover-audit-findings&amp;target=plugin:a&amp;tier=blocking"', $bar );
+		$this->assertStringContainsString( 'href="https://example.test/wp-admin/admin.php?page=switchrail-audit-findings&amp;target=plugin:a&amp;tier=blocking"', $bar );
 
 		$unlinked = UI::get_severity_bar( array( 'high' => 1 ) );
 
-		$this->assertStringContainsString( '<span class="cutover-audit-sev"', $unlinked );
+		$this->assertStringContainsString( '<span class="switchrail-audit-sev"', $unlinked );
 		$this->assertStringContainsString( '1 finding: should fix', $unlinked );
 		$this->assertSame( '', UI::get_severity_bar( array() ) );
 	}
@@ -347,12 +347,12 @@ class UITest extends TestCase {
 					'html'  => '<code>raw</code>',
 				),
 			),
-			'cutover-audit-defs--env'
+			'switchrail-audit-defs--env'
 		);
 
-		$this->assertStringStartsWith( '<dl class="cutover-audit-defs cutover-audit-defs--env">', $defs );
-		$this->assertStringContainsString( 'cutover-audit-def--ok', $defs );
-		$this->assertStringContainsString( '<span class="cutover-audit-def__hint">hint</span>', $defs );
+		$this->assertStringStartsWith( '<dl class="switchrail-audit-defs switchrail-audit-defs--env">', $defs );
+		$this->assertStringContainsString( 'switchrail-audit-def--ok', $defs );
+		$this->assertStringContainsString( '<span class="switchrail-audit-def__hint">hint</span>', $defs );
 		$this->assertStringContainsString( '<code>raw</code>', $defs );
 		$this->assertStringNotContainsString( '<script>', $defs );
 		$this->assertSame( '', UI::get_defs( array() ) );
@@ -379,10 +379,10 @@ class UITest extends TestCase {
 			}
 		);
 
-		$this->assertStringContainsString( 'class="cutover-audit-section cutover-audit-section--sheet"', $output );
-		$this->assertStringContainsString( '<span class="cutover-audit-section__count">12</span>', $output );
+		$this->assertStringContainsString( 'class="switchrail-audit-section switchrail-audit-section--sheet"', $output );
+		$this->assertStringContainsString( '<span class="switchrail-audit-section__count">12</span>', $output );
 		$this->assertStringContainsString( 'All of them', $output );
-		$this->assertStringContainsString( 'cutover-audit-section__actions', $output );
+		$this->assertStringContainsString( 'switchrail-audit-section__actions', $output );
 		$this->assertStringEndsWith( '</div></section>', trim( $output ) );
 
 		$bare = $this->render(
@@ -392,7 +392,7 @@ class UITest extends TestCase {
 		);
 
 		$this->assertStringNotContainsString( 'aria-labelledby', $bare );
-		$this->assertStringContainsString( 'class="cutover-audit-section x"', $bare );
+		$this->assertStringContainsString( 'class="switchrail-audit-section x"', $bare );
 	}
 
 	public function test_cards() {
@@ -409,9 +409,9 @@ class UITest extends TestCase {
 			}
 		);
 
-		$this->assertStringContainsString( '<h2 class="cutover-audit-card__title"', $output );
-		$this->assertStringContainsString( '<div class="cutover-audit-card__aside"><em>aside</em></div>', $output );
-		$this->assertStringContainsString( 'cutover-audit-card__body--flush', $output );
+		$this->assertStringContainsString( '<h2 class="switchrail-audit-card__title"', $output );
+		$this->assertStringContainsString( '<div class="switchrail-audit-card__aside"><em>aside</em></div>', $output );
+		$this->assertStringContainsString( 'switchrail-audit-card__body--flush', $output );
 	}
 
 	public function test_steps() {
@@ -459,7 +459,7 @@ class UITest extends TestCase {
 			}
 		);
 
-		$this->assertSame( 20, substr_count( $output, 'cutover-audit-ruler__seg' ) );
+		$this->assertSame( 20, substr_count( $output, 'switchrail-audit-ruler__seg' ) );
 		$this->assertSame( $filled, substr_count( $output, ' is-on' ) );
 		$this->assertStringContainsString( $text, $output );
 	}
@@ -467,8 +467,8 @@ class UITest extends TestCase {
 	public function verdict_scores() {
 		return array(
 			'not scanned'   => array( -1, 0, 'aria-valuetext="Not scanned yet"' ),
-			'zero'          => array( 0, 0, '<span class="cutover-audit-verdict__number">0</span>' ),
-			'half'          => array( 53, 11, '<span class="cutover-audit-verdict__number">53</span>' ),
+			'zero'          => array( 0, 0, '<span class="switchrail-audit-verdict__number">0</span>' ),
+			'half'          => array( 53, 11, '<span class="switchrail-audit-verdict__number">53</span>' ),
 			'full'          => array( 100, 20, 'aria-valuenow="100"' ),
 			'clamped above' => array( 250, 20, 'aria-valuenow="100"' ),
 		);
@@ -509,12 +509,12 @@ class UITest extends TestCase {
 			}
 		);
 
-		$this->assertStringContainsString( 'cutover-audit-verdict--blocking', $output );
-		$this->assertStringContainsString( '<a class="cutover-audit-verdict__tierlink" title="s" href="https://example.test/x">', $output );
-		$this->assertStringContainsString( '<span class="cutover-audit-verdict__tierlink" title="s">', $output );
-		$this->assertStringContainsString( 'cutover-audit-verdict__tier--info is-empty', $output );
+		$this->assertStringContainsString( 'switchrail-audit-verdict--blocking', $output );
+		$this->assertStringContainsString( '<a class="switchrail-audit-verdict__tierlink" title="s" href="https://example.test/x">', $output );
+		$this->assertStringContainsString( '<span class="switchrail-audit-verdict__tierlink" title="s">', $output );
+		$this->assertStringContainsString( 'switchrail-audit-verdict__tier--info is-empty', $output );
 		$this->assertStringContainsString( 'Scanned things', $output );
-		$this->assertStringContainsString( 'class="cutover-audit-btn cutover-audit-btn--ghost"', $output, 'verdict actions are full size' );
+		$this->assertStringContainsString( 'class="switchrail-audit-btn switchrail-audit-btn--ghost"', $output, 'verdict actions are full size' );
 	}
 
 	public function test_manifest() {
@@ -564,12 +564,12 @@ class UITest extends TestCase {
 
 		$this->assertStringContainsString( '1 needs work, 1 review, 1 passing', $output );
 		$this->assertStringNotContainsString( 'Work through', $output );
-		$this->assertStringContainsString( 'page=cutover-audit-plugins&amp;status=not-compatible', $output );
+		$this->assertStringContainsString( 'page=switchrail-audit-plugins&amp;status=not-compatible', $output );
 		$this->assertStringContainsString( 'Awaiting a scan', $output );
 		$this->assertStringContainsString( 'Clear', $output );
 		$this->assertStringContainsString( 'Nothing here', $output );
 		$this->assertStringNotContainsString( '<script>', $output );
-		$this->assertStringContainsString( 'cutover-audit-cell--bad', $output );
+		$this->assertStringContainsString( 'switchrail-audit-cell--bad', $output );
 	}
 
 	public function test_manifest_legend() {
@@ -617,7 +617,7 @@ class UITest extends TestCase {
 		$this->assertStringContainsString( 'data-filter-group="status"', $output );
 		$this->assertMatchesRegularExpression( '/class="active"\s+data-filter-value="review"\s+aria-pressed="true"/', $output );
 		$this->assertMatchesRegularExpression( '/class=""\s+data-filter-value="all"\s+aria-pressed="false"/', $output );
-		$this->assertStringContainsString( 'cutover-audit-dot--warn', $output );
+		$this->assertStringContainsString( 'switchrail-audit-dot--warn', $output );
 		$this->assertStringContainsString( 'data-role="table-search"', $output );
 		$this->assertStringContainsString( 'data-role="scan" hidden', $output );
 		$this->assertStringContainsString( '<button>extra</button>', $output );
@@ -638,7 +638,7 @@ class UITest extends TestCase {
 				UI::render_table_head(
 					array(
 						array( 'label' => '' ),
-						array( 'label' => 'Name', 'sortable' => true, 'class' => 'cutover-audit-col-name' ),
+						array( 'label' => 'Name', 'sortable' => true, 'class' => 'switchrail-audit-col-name' ),
 						array( 'label' => 'Rows', 'sortable' => true, 'sort' => 'number', 'hint' => 'Approximate' ),
 						array( 'label' => 'Notes' ),
 					)
@@ -647,7 +647,7 @@ class UITest extends TestCase {
 		);
 
 		$this->assertStringContainsString( '<span class="screen-reader-text">Details</span>', $output );
-		$this->assertStringContainsString( 'class="cutover-audit-th cutover-audit-col-name is-sortable" aria-sort="none" data-sort-type="text" data-sort-index="1"', $output );
+		$this->assertStringContainsString( 'class="switchrail-audit-th switchrail-audit-col-name is-sortable" aria-sort="none" data-sort-type="text" data-sort-index="1"', $output );
 		$this->assertStringContainsString( 'data-sort-type="number" data-sort-index="2" title="Approximate"', $output );
 		$this->assertStringContainsString( '<span>Notes</span>', $output );
 	}
@@ -659,9 +659,9 @@ class UITest extends TestCase {
 			}
 		);
 
-		$this->assertStringContainsString( '<p class="cutover-audit-empty__title">Nothing</p>', $output );
+		$this->assertStringContainsString( '<p class="switchrail-audit-empty__title">Nothing</p>', $output );
 		$this->assertStringContainsString( 'Really nothing', $output );
-		$this->assertStringContainsString( 'cutover-audit-empty__action', $output );
+		$this->assertStringContainsString( 'switchrail-audit-empty__action', $output );
 
 		$bare = $this->render(
 			static function () {
@@ -669,8 +669,8 @@ class UITest extends TestCase {
 			}
 		);
 
-		$this->assertStringNotContainsString( 'cutover-audit-empty__message', $bare );
-		$this->assertStringNotContainsString( 'cutover-audit-empty__action', $bare );
+		$this->assertStringNotContainsString( 'switchrail-audit-empty__message', $bare );
+		$this->assertStringNotContainsString( 'switchrail-audit-empty__action', $bare );
 	}
 
 	/*
@@ -714,14 +714,14 @@ class UITest extends TestCase {
 			}
 		);
 
-		$this->assertStringContainsString( '<details class="cutover-audit-fix cutover-audit-fix--blocking"', $output );
+		$this->assertStringContainsString( '<details class="switchrail-audit-fix switchrail-audit-fix--blocking"', $output );
 		$this->assertStringContainsString( 'data-target="plugin:p"', $output );
 		$this->assertStringContainsString( '<code>inc/db.php:10</code>', $output );
 		$this->assertStringContainsString( 'in run_query()', $output );
 		$this->assertStringContainsString( 'A note', $output );
 		$this->assertStringNotContainsString( 'How this was detected', $output );
-		$this->assertStringContainsString( '<code>database.unprepared-query</code>', $output, 'the rule id stays, for cutover-audit:ignore' );
-		$this->assertStringContainsString( 'class="cutover-audit-code__copy" data-role="copy"', $output );
+		$this->assertStringContainsString( '<code>database.unprepared-query</code>', $output, 'the rule id stays, for switchrail-audit:ignore' );
+		$this->assertStringContainsString( 'class="switchrail-audit-code__copy" data-role="copy"', $output );
 		$this->assertStringContainsString( 'href="https://docs.wpvip.com/', $output );
 		$this->assertStringContainsString( '>Code change</span>', $output );
 		$this->assertStringNotContainsString( '<script>', $output, 'target names and evidence come from scanned code' );
@@ -737,7 +737,7 @@ class UITest extends TestCase {
 
 		$this->assertStringContainsString( '3 places', $output );
 		$this->assertStringContainsString( '3 locations', $output );
-		$this->assertSame( 1, substr_count( $output, '<pre class="cutover-audit-code">' ), 'only occurrences with evidence show code' );
+		$this->assertSame( 1, substr_count( $output, '<pre class="switchrail-audit-code">' ), 'only occurrences with evidence show code' );
 	}
 
 	public function test_fix_card_mentions_rules_that_also_matched() {
@@ -775,7 +775,7 @@ class UITest extends TestCase {
 			}
 		);
 
-		$this->assertStringContainsString( 'cutover-audit-fix--task cutover-audit-fix--important', $output );
+		$this->assertStringContainsString( 'switchrail-audit-fix--task switchrail-audit-fix--important', $output );
 		$this->assertStringContainsString( 'Site audit', $output );
 		$this->assertStringContainsString( 'href="https://example.test/x"', $output );
 		$this->assertStringNotContainsString( '<script>', $output );
@@ -788,7 +788,7 @@ class UITest extends TestCase {
 			}
 		);
 
-		$this->assertStringContainsString( 'cutover-audit-tierhead--warning', $output );
+		$this->assertStringContainsString( 'switchrail-audit-tierhead--warning', $output );
 		$this->assertStringContainsString( 'Worth checking', $output );
 	}
 
@@ -811,11 +811,11 @@ class UITest extends TestCase {
 		$this->assertStringNotContainsString( 'Rescan one area only', $output, 'nothing to narrow before a first scan' );
 		$this->assertStringNotContainsString( 'data-confirm', $output, 'a first scan has nothing to replace' );
 		$this->assertStringContainsString( 'Rule set ' . Rules::VERSION . ' · ' . count( Rules::all() ) . ' rules', $output );
-		$this->assertStringContainsString( '<h1 class="cutover-audit-head__title">Standards and compatibility</h1>', $output );
+		$this->assertStringContainsString( '<h1 class="switchrail-audit-head__title">Standards and compatibility</h1>', $output );
 		$this->assertStringContainsString( '<hr class="wp-header-end" />', $output );
 		$this->assertStringNotContainsString( 'not affiliated', $output, 'the independence note lives in the Help panel, not on the page' );
 		$this->assertStringNotContainsString( 'href="https://docs.wpvip.com/"', $output, 'the docs link lives in the Help panel, not in the bar' );
-		$this->assertSame( 3, substr_count( $output, 'action=cutover_audit_export' ) );
+		$this->assertSame( 3, substr_count( $output, 'action=switchrail_audit_export' ) );
 		$this->assertStringNotContainsString( 'data-role="help-toggle"', $output );
 	}
 
@@ -877,7 +877,7 @@ class UITest extends TestCase {
 
 	public function test_scan_complete_notice_reports_what_was_read() {
 		$this->store_result( $this->add_plugin( 'p' ), array(), array( 'files_scanned' => 4 ) );
-		$_GET['cutover-audit-scanned'] = 'plugin';
+		$_GET['switchrail-audit-scanned'] = 'plugin';
 
 		$output = $this->render( array( UI::class, 'render_scan_notice' ) );
 
@@ -886,13 +886,13 @@ class UITest extends TestCase {
 	}
 
 	public function test_an_old_scan_complete_link_reports_the_whole_site() {
-		$_GET['cutover-audit-scanned'] = '1';
+		$_GET['switchrail-audit-scanned'] = '1';
 
 		$this->assertStringContainsString( 'Scanned 0 items', $this->render( array( UI::class, 'render_scan_notice' ) ) );
 	}
 
 	public function test_a_browser_rescan_marks_the_page_for_the_queue() {
-		$_GET['cutover-audit-scanning'] = 'theme';
+		$_GET['switchrail-audit-scanning'] = 'theme';
 
 		$output = $this->render( array( UI::class, 'render_scan_notice' ) );
 
@@ -901,7 +901,7 @@ class UITest extends TestCase {
 	}
 
 	public function test_a_browser_rescan_with_a_bad_scope_covers_everything() {
-		$_GET['cutover-audit-scanning'] = '<x>';
+		$_GET['switchrail-audit-scanning'] = '<x>';
 
 		$this->assertStringContainsString( 'data-scope="all"', $this->render( array( UI::class, 'render_scan_notice' ) ) );
 	}
