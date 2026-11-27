@@ -83,6 +83,16 @@ test("a resolved row takes its verdict, and links to its findings", () => {
 	expect($cell.find("a.pfa-status__link").text()).toBe("4 findings");
 });
 
+test("the findings link uses the count the server pluralised", () => {
+	const $ = load(table(pending(1)));
+	const response = verdict("review", 1);
+
+	response.data.count = "1 finding";
+	requests[0].deferred.resolve(response);
+
+	expect($("a.pfa-status__link").text()).toBe("1 finding");
+});
+
 test("a clean row gets no findings link", () => {
 	const $ = load(table(pending(1)));
 

@@ -95,6 +95,14 @@ class Ajax {
 
 		$force  = ! empty( $_POST['force'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce and capability are verified by authorize() at the top of this handler.
 		$result = ( new Scanner() )->get_result( $target, $force );
+		$total  = (int) $result['summary']['total'];
+		$files  = (int) $result['files_scanned'];
+
+		/* translators: %s: Number of findings. */
+		$count_label = sprintf( _n( '%s finding', '%s findings', $total, 'preflight-audit' ), number_format_i18n( $total ) );
+
+		/* translators: %s: Number of PHP files scanned. */
+		$files_label = sprintf( _n( '%s PHP file', '%s PHP files', $files, 'preflight-audit' ), number_format_i18n( $files ) );
 
 		wp_send_json_success(
 			array(
@@ -102,16 +110,18 @@ class Ajax {
 				'status'   => $result['status'],
 				'label'    => Scanner::status_label( $result['status'] ),
 				'state'    => $this->status_state( $result['status'] ),
-				'total'    => (int) $result['summary']['total'],
+				'total'    => $total,
+				'count'    => $count_label,
 				'blocking' => (int) $result['summary']['blocking'],
 				'severity' => $this->highest_severity( $result['summary']['by_severity'] ),
-				'files'    => (int) $result['files_scanned'],
+				'files'    => $files,
 				'url'      => UI::get_findings_url( $result['key'] ),
+				// Each count picks its own plural form; one _n() cannot do both.
 				'summary'  => sprintf(
-					/* translators: 1: Number of findings. 2: Number of PHP files scanned. */
-					_n( '%1$d finding across %2$d PHP file.', '%1$d findings across %2$d PHP files.', (int) $result['summary']['total'], 'preflight-audit' ),
-					(int) $result['summary']['total'],
-					(int) $result['files_scanned']
+					/* translators: 1: Number of findings, already counted, e.g. "2 findings". 2: Number of PHP files, already counted, e.g. "1 PHP file". */
+					__( '%1$s across %2$s.', 'preflight-audit' ),
+					$count_label,
+					$files_label
 				),
 			)
 		);

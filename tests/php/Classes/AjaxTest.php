@@ -142,10 +142,8 @@ class AjaxTest extends TestCase {
 	}
 
 	/**
-	 * The plural form is chosen by the number of findings, so the file count
-	 * is pluralised to match it rather than itself.
+	 * The findings count and the file count each pick their own plural form.
 	 *
-	 * @group known-bug
 	 * @dataProvider plural_cases
 	 */
 	public function test_the_file_count_has_its_own_plural( array $files, $summary ) {
@@ -153,6 +151,13 @@ class AjaxTest extends TestCase {
 		$_POST['target'] = 'plugin:p';
 
 		$this->assertSame( $summary, $this->call( 'scan_target' )->data['summary'] );
+	}
+
+	public function test_the_count_label_has_its_own_plural() {
+		$this->add_plugin( 'p', array( 'a.php' => self::GUARD . "exec( 'ls' );\n" ) );
+		$_POST['target'] = 'plugin:p';
+
+		$this->assertSame( '1 finding', $this->call( 'scan_target' )->data['count'] );
 	}
 
 	public function plural_cases() {
