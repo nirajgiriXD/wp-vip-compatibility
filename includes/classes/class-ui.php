@@ -55,7 +55,7 @@ class UI {
 	 */
 	public static function get_groups() {
 		return array(
-			'summary' => __( 'Readiness', 'preflight-audit' ),
+			'summary' => __( 'Summary', 'preflight-audit' ),
 			'code'    => __( 'Code you ship', 'preflight-audit' ),
 			'site'    => __( 'Site infrastructure', 'preflight-audit' ),
 		);
@@ -71,8 +71,8 @@ class UI {
 			'overview'    => array(
 				'slug'        => 'preflight-audit',
 				'label'       => __( 'Overview', 'preflight-audit' ),
-				'title'       => __( 'Migration readiness', 'preflight-audit' ),
-				'description' => __( 'How ready this site is for the WordPress VIP Platform, where the work is, and what to do first.', 'preflight-audit' ),
+				'title'       => __( 'Standards and compatibility', 'preflight-audit' ),
+				'description' => __( 'How the code on this site measures up to the WordPress VIP platform guidelines and coding standard, where the work is, and what to do first.', 'preflight-audit' ),
 				'icon'        => 'gauge',
 				'group'       => 'summary',
 			),
@@ -80,7 +80,7 @@ class UI {
 				'slug'        => 'pfa-findings',
 				'label'       => __( 'Findings', 'preflight-audit' ),
 				'title'       => __( 'Findings', 'preflight-audit' ),
-				'description' => __( 'Everything that needs doing before this site moves, worst first, with why it matters and how to fix it.', 'preflight-audit' ),
+				'description' => __( 'Everything that needs doing, worst first, with why it matters and how to fix it.', 'preflight-audit' ),
 				'icon'        => 'list',
 				'group'       => 'summary',
 			),
@@ -88,7 +88,7 @@ class UI {
 				'slug'        => 'pfa-plugins',
 				'label'       => __( 'Plugins', 'preflight-audit' ),
 				'title'       => __( 'Plugins', 'preflight-audit' ),
-				'description' => __( 'Every installed plugin with its WordPress VIP verdict, update state and the work it implies.', 'preflight-audit' ),
+				'description' => __( 'Every installed plugin with its verdict against the platform guidelines, update state and the work it implies.', 'preflight-audit' ),
 				'icon'        => 'plug',
 				'group'       => 'code',
 			),
@@ -317,6 +317,8 @@ class UI {
 			'alert'        => '<path d="M12 8.5v5"/><path d="M12 17h.01"/><path d="M10.3 3.9 2.6 17.4A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3.1L13.7 3.9a2 2 0 0 0-3.4 0Z"/>',
 			'info'         => '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
 			'external'     => '<path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14.5V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19V7.5A1.5 1.5 0 0 1 5 6h4.5"/>',
+			'close'        => '<path d="M6 6l12 12"/><path d="M18 6 6 18"/>',
+			'filter-off'   => '<path d="M13 4H3l7 8.5V19l4 2v-8.5l1-1.2"/><path d="m16 4 5 5"/><path d="m21 4-5 5"/>',
 			'copy'         => '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5V5A1.5 1.5 0 0 1 4.5 3.5H13A1.5 1.5 0 0 1 14.5 5v.5"/>',
 			'arrow-right'  => '<path d="M4 12h15"/><path d="m13 6 6 6-6 6"/>',
 			'chevron'      => '<path d="m9 5 7 7-7 7"/>',
@@ -462,12 +464,6 @@ class UI {
 						<?php endforeach; ?>
 					</div>
 				</details>
-
-				<a class="pfa-btn pfa-btn--quiet pfa-btn--sm" href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">
-					<?php echo self::get_icon( 'external', array( 'class' => 'pfa-icon pfa-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-					<span><?php esc_html_e( 'Docs', 'preflight-audit' ); ?></span>
-					<span class="screen-reader-text"><?php esc_html_e( '(WordPress VIP documentation, opens in a new tab)', 'preflight-audit' ); ?></span>
-				</a>
 
 				<?php if ( self::has_help() ) : ?>
 					<?php // Opens the WordPress Help panel, whose own floating tab is hidden on these screens. ?>
@@ -941,7 +937,7 @@ class UI {
 							<span class="pfa-verdict__number pfa-verdict__number--empty">—</span>
 						<?php endif; ?>
 					</p>
-					<p class="pfa-verdict__caption"><?php esc_html_e( 'ready to move', 'preflight-audit' ); ?></p>
+					<p class="pfa-verdict__caption"><?php esc_html_e( 'passing', 'preflight-audit' ); ?></p>
 
 					<div
 						class="pfa-ruler"
@@ -949,7 +945,7 @@ class UI {
 						aria-valuemin="0"
 						aria-valuemax="100"
 						aria-valuenow="<?php echo esc_attr( (string) $score ); ?>"
-						aria-label="<?php esc_attr_e( 'Readiness', 'preflight-audit' ); ?>"
+						aria-label="<?php esc_attr_e( 'Score', 'preflight-audit' ); ?>"
 						<?php echo $scored ? '' : 'aria-valuetext="' . esc_attr__( 'Not scanned yet', 'preflight-audit' ) . '"'; ?>
 					>
 						<?php for ( $i = 0; $i < $segments; $i++ ) : ?>
@@ -1084,10 +1080,10 @@ class UI {
 	 */
 	public static function get_buckets() {
 		return array(
-			'blocked' => array( __( 'Blocked', 'preflight-audit' ), 'bad', 'not-compatible' ),
+			'blocked' => array( __( 'Needs work', 'preflight-audit' ), 'bad', 'not-compatible' ),
 			'review'  => array( __( 'Review', 'preflight-audit' ), 'warn', 'review' ),
 			'pending' => array( __( 'Not scanned', 'preflight-audit' ), 'pending', 'pending' ),
-			'ready'   => array( __( 'Ready', 'preflight-audit' ), 'ok', 'compatible' ),
+			'ready'   => array( __( 'Passing', 'preflight-audit' ), 'ok', 'compatible' ),
 		);
 	}
 
@@ -1162,22 +1158,10 @@ class UI {
 					</ul>
 
 					<div class="pfa-manifest__action">
-						<?php if ( $attention > 0 ) : ?>
-							<?php
-							// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-							echo self::get_arrow_link(
-								$url,
-								sprintf(
-									/* translators: %s: Number of items. */
-									_n( 'Work through %s', 'Work through %s', $attention, 'preflight-audit' ),
-									number_format_i18n( $attention )
-								)
-							);
-							// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-							?>
-						<?php elseif ( (int) $counts['total'] > 0 && (int) $counts['pending'] === (int) $counts['total'] ) : ?>
+						<?php // Nothing when there is work: the area name and the counts already open the screen. ?>
+						<?php if ( 0 === $attention && (int) $counts['total'] > 0 && (int) $counts['pending'] === (int) $counts['total'] ) : ?>
 							<span class="pfa-manifest__clear is-pending"><?php esc_html_e( 'Awaiting a scan', 'preflight-audit' ); ?></span>
-						<?php else : ?>
+						<?php elseif ( 0 === $attention ) : ?>
 							<span class="pfa-manifest__clear">
 								<?php echo self::get_icon( 'check', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 								<?php esc_html_e( 'Clear', 'preflight-audit' ); ?>
@@ -1491,7 +1475,7 @@ class UI {
 			'<td class="pfa-col-status is-%1$s"%2$s data-label="%3$s">%4$s</td>',
 			esc_attr( $state ),
 			$attr_string,
-			esc_attr__( 'WordPress VIP verdict', 'preflight-audit' ),
+			esc_attr__( 'Verdict', 'preflight-audit' ),
 			self::get_status_pill( $state, $label )
 		);
 	}
@@ -1629,23 +1613,6 @@ class UI {
 	}
 
 	/**
-	 * Builds a small labelled metadata chip.
-	 *
-	 * @param string $label The chip label.
-	 * @param string $value The chip value.
-	 * @param string $title Optional tooltip.
-	 * @return string The chip markup.
-	 */
-	public static function get_meta_chip( $label, $value, $title = '' ) {
-		return sprintf(
-			'<span class="pfa-chip"%3$s><span class="pfa-chip__label">%1$s</span><span class="pfa-chip__value">%2$s</span></span>',
-			esc_html( $label ),
-			esc_html( $value ),
-			'' === $title ? '' : ' title="' . esc_attr( $title ) . '"'
-		);
-	}
-
-	/**
 	 * Builds a plain badge.
 	 *
 	 * @param string $label The label.
@@ -1739,7 +1706,6 @@ class UI {
 	 * @return void
 	 */
 	public static function render_fix_card( array $group ) {
-		$confidences = Taxonomy::get_confidences();
 		$fixes       = Taxonomy::get_fixabilities();
 		$tier        = self::get_tier( $group['severity'] );
 		$occurrences = $group['occurrences'];
@@ -1847,7 +1813,10 @@ class UI {
 								</p>
 
 								<?php if ( '' !== $occurrence['evidence'] ) : ?>
-									<pre class="pfa-code"><span class="pfa-code__gutter" aria-hidden="true"><?php echo esc_html( (string) (int) $occurrence['line'] ); ?></span><code><?php echo esc_html( $occurrence['evidence'] ); ?></code></pre>
+									<div class="pfa-codewrap">
+										<pre class="pfa-code"><span class="pfa-code__gutter" aria-hidden="true"><?php echo esc_html( (string) (int) $occurrence['line'] ); ?></span><code><?php echo esc_html( $occurrence['evidence'] ); ?></code></pre>
+										<button type="button" class="pfa-code__copy" data-role="copy" data-clipboard="<?php echo esc_attr( $occurrence['evidence'] ); ?>" aria-label="<?php esc_attr_e( 'Copy to clipboard', 'preflight-audit' ); ?>" title="<?php esc_attr_e( 'Copy to clipboard', 'preflight-audit' ); ?>"><?php echo self::get_icon( 'copy', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?></button>
+									</div>
 								<?php endif; ?>
 
 								<?php if ( '' !== $occurrence['note'] ) : ?>
@@ -1858,71 +1827,23 @@ class UI {
 					</ol>
 				</div>
 
+				<?php // The rule id stays: it is what a `pfa:ignore` annotation needs. ?>
 				<div class="pfa-fix__foot">
-					<details class="pfa-subdetails">
-						<summary class="pfa-subdetails__summary">
-							<?php echo self::get_icon( 'chevron', array( 'class' => 'pfa-icon pfa-icon--xs pfa-subdetails__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-							<span><?php esc_html_e( 'How this was detected', 'preflight-audit' ); ?></span>
-						</summary>
-
-						<div class="pfa-subdetails__body">
-							<p class="pfa-fix__detected"><?php echo esc_html( $group['detected'] ); ?></p>
-
-							<div class="pfa-chips">
+					<p class="pfa-fix__rule">
+						<span class="pfa-fix__rule-label"><?php esc_html_e( 'Rule', 'preflight-audit' ); ?></span>
+						<?php echo self::get_code_snippet( $group['rule'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
+						<?php if ( ! empty( $group['also_matched'] ) ) : ?>
+							<span class="pfa-fix__also">
 								<?php
-								$chips = array(
-									self::get_meta_chip(
-										__( 'Severity', 'preflight-audit' ),
-										Taxonomy::get_label( 'severity', $group['severity'] )
-									),
-									self::get_meta_chip(
-										__( 'Confidence', 'preflight-audit' ),
-										Taxonomy::get_label( 'confidence', $group['confidence'] ),
-										$confidences[ $group['confidence'] ]['description'] ?? ''
-									),
-									self::get_meta_chip(
-										__( 'Fix', 'preflight-audit' ),
-										Taxonomy::get_label( 'fixability', $group['fixability'] ),
-										$fixes[ $group['fixability'] ]['description'] ?? ''
-									),
-									self::get_meta_chip(
-										__( 'Type', 'preflight-audit' ),
-										Taxonomy::get_label( 'type', $group['type'] )
-									),
-									self::get_meta_chip(
-										__( 'Category', 'preflight-audit' ),
-										Taxonomy::get_label( 'category', $group['category'] )
-									),
-									self::get_meta_chip( __( 'Rule', 'preflight-audit' ), $group['rule'] ),
+								printf(
+									/* translators: %s: Comma-separated list of rule identifiers. */
+									esc_html__( 'Also matched: %s', 'preflight-audit' ),
+									esc_html( implode( ', ', $group['also_matched'] ) )
 								);
-
-								if ( '' !== $group['phpcs'] ) {
-									$chips[] = self::get_meta_chip(
-										__( 'PHPCS', 'preflight-audit' ),
-										$group['phpcs'],
-										__( 'The WordPress-VIP-Go sniff that reports the same pattern.', 'preflight-audit' )
-									);
-								}
-
-								foreach ( $chips as $chip ) {
-									echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Every value is escaped inside get_meta_chip().
-								}
 								?>
-							</div>
-
-							<?php if ( ! empty( $group['also_matched'] ) ) : ?>
-								<p class="pfa-fix__also">
-									<?php
-									printf(
-										/* translators: %s: Comma-separated list of rule identifiers. */
-										esc_html__( 'Also matched on these lines: %s', 'preflight-audit' ),
-										esc_html( implode( ', ', $group['also_matched'] ) )
-									);
-									?>
-								</p>
-							<?php endif; ?>
-						</div>
-					</details>
+							</span>
+						<?php endif; ?>
+					</p>
 
 					<?php if ( '' !== $group['doc'] ) : ?>
 						<a class="pfa-link pfa-fix__doc" href="<?php echo esc_url( $group['doc'] ); ?>" target="_blank" rel="noopener noreferrer">

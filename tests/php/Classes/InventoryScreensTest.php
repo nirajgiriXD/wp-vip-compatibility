@@ -113,6 +113,21 @@ class InventoryScreensTest extends TestCase {
 		$this->assertStringNotContainsString( 'Code read', $fresh );
 	}
 
+	public function test_the_detail_card_links_each_topic_to_its_findings() {
+		$this->store_result( $this->add_plugin( 'busy' ), array( $this->finding( 'security.command-execution' ) ) );
+		$this->store_result( $this->add_plugin( 'clean' ), array() );
+		$this->add_plugin( 'fresh' );
+
+		$output = $this->screen( Plugins_Settings::class );
+		$busy   = $this->row( $output, 'plugin:busy' );
+
+		$this->assertStringContainsString( 'class="pfa-detail__card"', $busy );
+		$this->assertStringContainsString( 'class="pfa-topics__link"', $busy );
+		$this->assertStringContainsString( 'target=plugin:busy&amp;category=security', $busy );
+		$this->assertStringContainsString( 'No findings. Nothing to do here.', $this->row( $output, 'plugin:clean' ) );
+		$this->assertStringContainsString( 'pfa-detail__empty">Not scanned yet.', $this->row( $output, 'plugin:fresh' ) );
+	}
+
 	public function test_a_clean_scanned_row_says_none() {
 		$this->store_result( $this->add_plugin( 'clean' ), array() );
 
@@ -211,7 +226,7 @@ class InventoryScreensTest extends TestCase {
 	public function test_the_location_is_shown_relative_to_wp_content() {
 		$this->add_plugin( 'p' );
 
-		$this->assertStringContainsString( '<code>wp-content/plugins/p</code>', $this->screen( Plugins_Settings::class ) );
+		$this->assertStringContainsString( '<code>wp-content/<wbr>plugins/<wbr>p</code>', $this->screen( Plugins_Settings::class ) );
 	}
 
 	/*
@@ -258,7 +273,7 @@ class InventoryScreensTest extends TestCase {
 
 		$output = $this->screen( Mu_Plugins_Settings::class );
 
-		$this->assertStringContainsString( 'None of this migrates as-is', $output );
+		$this->assertStringContainsString( 'None of this ships as-is', $output );
 		$this->assertStringContainsString( '<code>client-mu-plugins/</code>', $output );
 	}
 
@@ -280,7 +295,7 @@ class InventoryScreensTest extends TestCase {
 
 		$row = $this->row( $this->screen( Mu_Plugins_Settings::class ), 'mu-plugin:akismet.php' );
 
-		$this->assertStringContainsString( 'Do not migrate', $row );
+		$this->assertStringContainsString( 'Do not ship', $row );
 		$this->assertStringContainsString( 'Preinstalled by the WordPress VIP platform', $row );
 		$this->assertStringContainsString( 'On the WordPress VIP list', $row );
 		$this->assertStringNotContainsString( 'Move it into client-mu-plugins/', $row );

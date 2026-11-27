@@ -86,7 +86,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 				)
 			),
 			'warning',
-			esc_html__( 'None of this migrates as-is', 'preflight-audit' )
+			esc_html__( 'None of this ships as-is', 'preflight-audit' )
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
@@ -99,7 +99,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 	protected function get_guidance_notes() {
 		return array(
 			__( '<strong>Files and directories are listed separately.</strong> WordPress only auto-loads PHP files sitting at the root of mu-plugins. A directory here is either loaded by one of those files or not loaded at all — worth confirming before you move it.', 'preflight-audit' ),
-			__( '<strong>"Do not migrate" is not a code verdict.</strong> It marks entries WordPress VIP already provides, or that a previous host installed. Copying them into client-mu-plugins/ duplicates platform behaviour rather than preserving it.', 'preflight-audit' ),
+			__( '<strong>"Do not ship" is not a code verdict.</strong> It marks entries WordPress VIP already provides, or that a previous host installed. Copying them into client-mu-plugins/ duplicates platform behaviour rather than preserving it.', 'preflight-audit' ),
 			__( '<strong>Load order changes.</strong> Files in client-mu-plugins/ load alphabetically after the platform\'s own must-use plugins, so code that assumed it ran first may need an explicit hook priority.', 'preflight-audit' ),
 		);
 	}
@@ -126,7 +126,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 				'class' => 'pfa-col-version',
 			),
 			array(
-				'label'    => __( 'WordPress VIP verdict', 'preflight-audit' ),
+				'label'    => __( 'Verdict', 'preflight-audit' ),
 				'class'    => 'pfa-col-status',
 				'sortable' => true,
 			),

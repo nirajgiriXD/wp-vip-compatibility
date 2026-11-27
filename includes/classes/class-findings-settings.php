@@ -51,6 +51,20 @@ class Findings_Settings {
 	}
 
 	/**
+	 * Returns the notes shown in the WordPress Help tab.
+	 *
+	 * @return array<int, string> Note paragraphs, already containing limited HTML.
+	 */
+	public function get_page_guidance() {
+		return array(
+			__( '<strong>Worst first.</strong> The list is ranked by what to do — must fix, should fix, worth checking, FYI. The same issue in several places is one entry, with every place listed under it.', 'preflight-audit' ),
+			__( '<strong>What each entry shows.</strong> The file and line, the code, why it matters on WordPress VIP, and the recommended fix. Where they exist, also an alternative approach and a link to the documentation.', 'preflight-audit' ),
+			__( '<strong>Filters and sharing.</strong> The column of links narrows the list in one click, and each filter is part of the address, so a view can be bookmarked or shared. Press <code>/</code> to search. Export from the top bar as JSON, CSV or Markdown.', 'preflight-audit' ),
+			__( '<strong>Unsure, or already reviewed?</strong> The scan reads code without running it, so when it cannot be sure, it says so under the code instead of guessing. To accept a finding, add <code>// pfa:ignore &lt;rule-id&gt; -- reason</code> to the line, or <code>pfa:ignore-next-line</code> above it, and rescan. Security findings cannot be silenced.', 'preflight-audit' ),
+		);
+	}
+
+	/**
 	 * Runs a full rescan and returns to the screen the request came from.
 	 *
 	 * @return void
@@ -219,7 +233,7 @@ class Findings_Settings {
 		if ( 0 === $aggregate['targets'] ) {
 			UI::render_empty_state(
 				__( 'No scan results yet', 'preflight-audit' ),
-				__( 'Run a scan to analyse every plugin, theme and must-use plugin against the WordPress VIP Platform requirements.', 'preflight-audit' ),
+				__( 'Run a scan to analyse every plugin, theme and must-use plugin against the WordPress VIP platform guidelines.', 'preflight-audit' ),
 				array(
 					'label'   => __( 'Run the first scan', 'preflight-audit' ),
 					'submit'  => 'preflight_audit_rescan',
@@ -648,11 +662,15 @@ class Findings_Settings {
 					<li>
 						<a class="pfa-activefilter" href="<?php echo esc_url( $pill['url'] ); ?>">
 							<span><?php echo esc_html( $pill['label'] ); ?></span>
-							<span class="pfa-activefilter__remove" aria-hidden="true">&times;</span>
+							<span class="pfa-activefilter__remove" aria-hidden="true"><?php echo UI::get_icon( 'close', array( 'class' => 'pfa-icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?></span>
 							<span class="screen-reader-text"><?php esc_html_e( 'Remove this filter', 'preflight-audit' ); ?></span>
 						</a>
 					</li>
 				<?php endforeach; ?>
+				<li>
+					<?php // Back to the whole list, the same place the empty state's "Clear filters" goes. ?>
+					<a class="pfa-clearfilters" href="<?php echo esc_url( $base ); ?>"><?php echo UI::get_icon( 'filter-off', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?><span><?php esc_html_e( 'Clear filters', 'preflight-audit' ); ?></span></a>
+				</li>
 			</ul>
 		</div>
 		<?php

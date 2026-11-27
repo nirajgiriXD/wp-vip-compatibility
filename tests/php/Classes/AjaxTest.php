@@ -114,7 +114,7 @@ class AjaxTest extends TestCase {
 		$this->assertTrue( $response->success );
 		$this->assertSame( 'plugin:writer', $data['target'] );
 		$this->assertSame( 'blocked', $data['status'] );
-		$this->assertSame( 'Blocked', $data['label'] );
+		$this->assertSame( 'Needs work', $data['label'] );
 		$this->assertSame( 'not-compatible', $data['state'] );
 		$this->assertSame( 2, $data['total'] );
 		$this->assertSame( 1, $data['blocking'] );

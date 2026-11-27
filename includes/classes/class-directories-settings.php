@@ -134,7 +134,7 @@ class Directories_Settings {
 					'sortable' => true,
 				),
 				array(
-					'label'    => __( 'WordPress VIP verdict', 'preflight-audit' ),
+					'label'    => __( 'Verdict', 'preflight-audit' ),
 					'class'    => 'pfa-col-status',
 					'sortable' => true,
 				),

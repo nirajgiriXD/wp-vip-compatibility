@@ -265,7 +265,12 @@ class Settings {
 				'id'      => 'pfa-how-to-read',
 				'title'   => $title,
 				'content' => '<p class="pfa-help__title">' . esc_html( $title ) . '</p>'
-					. '<div class="pfa-help__notes">' . wp_kses_post( '<p>' . implode( '</p><p>', $notes ) . '</p>' ) . '</div>',
+					. '<div class="pfa-help__notes">' . wp_kses_post( '<p>' . implode( '</p><p>', $notes ) . '</p>' ) . '</div>'
+					. '<p class="pfa-help__about">' . sprintf(
+						/* translators: %s: Link to the WordPress VIP documentation. */
+						esc_html__( 'Preflight Audit is an independent tool, not affiliated with or endorsed by Automattic or WordPress VIP. Its rules are written from the public %s.', 'preflight-audit' ),
+						'<a href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'WordPress VIP documentation', 'preflight-audit' ) . '<span class="screen-reader-text"> ' . esc_html__( '(opens in a new tab)', 'preflight-audit' ) . '</span></a>'
+					) . '</p>',
 			)
 		);
 	}
@@ -298,7 +303,7 @@ class Settings {
 			esc_html(
 				sprintf(
 					/* translators: %s: Number of findings. */
-					_n( '%s finding must be fixed before migrating', '%s findings must be fixed before migrating', $count, 'preflight-audit' ),
+					_n( '%s finding must be fixed', '%s findings must be fixed', $count, 'preflight-audit' ),
 					number_format_i18n( $count )
 				)
 			)

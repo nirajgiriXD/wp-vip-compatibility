@@ -274,6 +274,13 @@ class FindingsSettingsTest extends TestCase {
 		$this->assertStringContainsString( '<a class="pfa-activefilter" href="' . self::ADMIN . 'pfa-findings">', $output );
 		$this->assertStringContainsString( '<span>Beta</span>', $output );
 		$this->assertStringContainsString( '<input type="hidden" name="target" value="plugin:beta" />', $output, 'search keeps the filter' );
+		$this->assertStringContainsString( '<span>Clear filters</span></a>', $output );
+	}
+
+	public function test_no_clear_filters_link_without_filters() {
+		$this->seed();
+
+		$this->assertStringNotContainsString( 'pfa-clearfilters', $this->screen() );
 	}
 
 	public function test_category_type_and_search_filters() {
@@ -341,7 +348,11 @@ class FindingsSettingsTest extends TestCase {
 		$this->assertStringNotContainsString( '<script>alert', $output );
 	}
 
-	public function test_the_screen_has_no_help_tab_of_its_own() {
-		$this->assertFalse( method_exists( Findings_Settings::class, 'get_page_guidance' ) );
+	public function test_the_screen_has_help_notes() {
+		$notes = Findings_Settings::get_instance()->get_page_guidance();
+
+		$this->assertCount( 4, $notes );
+		$this->assertStringContainsString( '<code>/</code>', $notes[2] );
+		$this->assertStringContainsString( 'pfa:ignore', $notes[3] );
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Preflight Audit
- * Description:       Analyse a WordPress site against the WordPress VIP Platform requirements, with an actionable fix for every issue found.
+ * Description:       Check a site's code against the WordPress VIP platform guidelines and coding standard, with an actionable fix for every issue found.
  * Plugin URI:        https://github.com/nirajgiriXD/preflight-audit
  * Version:           2.0.0
  * Author:            Niraj Giri

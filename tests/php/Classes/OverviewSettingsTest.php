@@ -50,22 +50,22 @@ class OverviewSettingsTest extends TestCase {
 		$output = $this->screen();
 
 		$this->assertStringContainsString( 'pfa-verdict--blocking', $output );
-		$this->assertStringContainsString( 'Not ready to migrate', $output );
-		$this->assertStringContainsString( '1 of 2 scanned items is expected to fail', $output );
-		$this->assertStringContainsString( 'Start with the blockers', $output );
+		$this->assertStringContainsString( 'A few things need attention first', $output );
+		$this->assertStringContainsString( '1 of 2 scanned items has issues likely to cause problems', $output );
+		$this->assertStringContainsString( 'Start with the must-fix items', $output );
 		$this->assertStringContainsString( 'page=pfa-findings&amp;tier=blocking', $output );
 		$this->assertStringContainsString( '<span class="pfa-verdict__number">50</span>', $output );
 	}
 
-	public function test_review_only_means_nothing_will_fail() {
+	public function test_review_only_means_good_shape_with_things_to_review() {
 		$this->store_result( $this->add_plugin( 'a' ), array( $this->finding( 'security.extract' ) ) );
 		$this->store_result( $this->add_plugin( 'b' ), array( $this->finding( 'security.extract' ) ) );
 
 		$output = $this->screen();
 
 		$this->assertStringContainsString( 'pfa-verdict--warning', $output );
-		$this->assertStringContainsString( 'Nothing will fail outright', $output );
-		$this->assertStringContainsString( '2 scanned items need a decision', $output );
+		$this->assertStringContainsString( 'In good shape, with a few things to review', $output );
+		$this->assertStringContainsString( '2 scanned items have findings worth a look', $output );
 		$this->assertStringContainsString( 'Review the findings', $output );
 	}
 
@@ -74,18 +74,22 @@ class OverviewSettingsTest extends TestCase {
 
 		$output = $this->screen();
 
-		$this->assertStringContainsString( 'Ready to migrate', $output );
+		$this->assertStringContainsString( 'Everything looks good', $output );
 		$this->assertStringContainsString( 'Check the database', $output );
 		$this->assertStringContainsString( '<span class="pfa-verdict__number">100</span>', $output );
 	}
 
-	public function test_the_meta_line_names_what_was_scanned() {
+	public function test_the_environment_names_what_was_scanned() {
 		$this->store_result( $this->add_plugin( 'a' ), array(), array( 'files_scanned' => 5 ) );
 		$this->store_result( $this->add_plugin( 'b' ), array(), array( 'files_scanned' => 5 ) );
 		$this->store_result( $this->add_theme( 't' ), array(), array( 'files_scanned' => 2 ) );
 		$this->store_result( $this->add_mu_plugin( 'm.php' ), array(), array( 'files_scanned' => 1 ) );
 
-		$this->assertStringContainsString( '2 plugins, 1 theme, and 1 must-use plugin scanned across 13 PHP files', $this->screen() );
+		$output = $this->screen();
+
+		$this->assertStringNotContainsString( 'pfa-verdict__meta', $output );
+		$this->assertStringContainsString( '2 plugins, 1 theme, and 1 must-use plugin', $output );
+		$this->assertStringContainsString( '13 PHP files read.', $output );
 	}
 
 	public function test_the_tier_counts_include_audit_work() {
@@ -136,13 +140,28 @@ class OverviewSettingsTest extends TestCase {
 		Report::record_snapshot();
 
 		$this->store_result( $this->add_plugin( 'b' ), array( $this->finding( 'security.extract' ) ) );
-		Report::record_snapshot();
+		Report::record_snapshot( 'theme' );
 
 		$this->assertCount( 2, Results_Store::get_history() );
 
 		$output = $this->screen();
 
 		$this->assertStringContainsString( 'pfa-spark', $output );
+		$this->assertStringContainsString( 'data-label="Scanned">Themes</td>', $output );
+		$this->assertStringContainsString( 'data-label="Scanned">Everything</td>', $output );
+	}
+
+	public function test_history_saved_before_scopes_shows_a_dash() {
+		update_option(
+			Results_Store::HISTORY_OPTION,
+			array(
+				array( 'total' => 2, 'score' => 50, 'recorded_at' => time() - 60 ),
+				array( 'total' => 1, 'score' => 75, 'recorded_at' => time() ),
+			)
+		);
+		$this->store_result( $this->add_plugin( 'a' ), array() );
+
+		$this->assertStringContainsString( 'data-label="Scanned"><span class="pfa-dash" aria-hidden="true">—</span></td>', $this->screen() );
 	}
 
 	public function test_names_from_scanned_code_are_escaped() {

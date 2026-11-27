@@ -103,6 +103,9 @@ class ReportTest extends TestCase {
 		$this->assertArrayHasKey( 'theme:t', $index );
 		$this->assertArrayNotHasKey( 'plugin:p', $index, 'plugins were not in scope' );
 		$this->assertArrayNotHasKey( 'plugin:uninstalled', $index, 'pruned although out of scope' );
+
+		$history = Results_Store::get_history();
+		$this->assertSame( 'theme', end( $history )['scope'], 'the history remembers what was rescanned' );
 	}
 
 	public function test_a_database_scope_refreshes_the_database_audit() {
@@ -249,7 +252,7 @@ class ReportTest extends TestCase {
 		$verdict = Report::verdict( $this->add_mu_plugin( 'akismet.php' ), array() );
 
 		$this->assertSame( Scanner::STATUS_REVIEW, $verdict['status'] );
-		$this->assertSame( 'Do not migrate', $verdict['label'] );
+		$this->assertSame( 'Do not ship', $verdict['label'] );
 	}
 
 	public function test_a_caution_plugin_still_gets_its_scanned_verdict() {

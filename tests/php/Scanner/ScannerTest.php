@@ -260,10 +260,10 @@ class ScannerTest extends TestCase {
 
 	public function status_labels() {
 		return array(
-			array( Scanner::STATUS_BLOCKED, 'Blocked' ),
+			array( Scanner::STATUS_BLOCKED, 'Needs work' ),
 			array( Scanner::STATUS_REVIEW, 'Needs review' ),
-			array( Scanner::STATUS_PASS, 'Ready' ),
-			array( 'unknown', 'Ready' ),
+			array( Scanner::STATUS_PASS, 'Passing' ),
+			array( 'unknown', 'Passing' ),
 		);
 	}
 

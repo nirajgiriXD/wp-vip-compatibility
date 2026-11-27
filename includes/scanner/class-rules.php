@@ -600,7 +600,7 @@ class Rules {
 				'fixability'  => Taxonomy::FIX_ARCHITECTURAL,
 				'detected'    => __( 'A raw socket, FTP, SSH, LDAP or third-party database connection.', 'preflight-audit' ),
 				'why'         => __( 'Outbound requests on WordPress VIP are documented for HTTP through the WordPress HTTP API only. Raw sockets, FTP, SSH, LDAP and external database connections depend on network access and PHP extensions the platform does not document, so they may fail on WordPress VIP even though they work locally.', 'preflight-audit' ),
-				'remediation' => __( 'Move the integration behind an HTTPS API reached with the WordPress HTTP API. If that is not possible, confirm the connection with WordPress VIP support before migrating.', 'preflight-audit' ),
+				'remediation' => __( 'Move the integration behind an HTTPS API reached with the WordPress HTTP API. If that is not possible, confirm the connection with WordPress VIP support first.', 'preflight-audit' ),
 				'alternative' => __( 'Where the remote system cannot expose HTTP, run the transfer outside the application and push the results in.', 'preflight-audit' ),
 				'doc'         => 'https://docs.wpvip.com/technical-references/wordpress-on-vip/',
 				'match'       => array(
@@ -1150,7 +1150,7 @@ class Rules {
 				'fixability'  => Taxonomy::FIX_AUTOMATIC,
 				'detected'    => __( 'A WordPress or PHP function that has been deprecated or removed.', 'preflight-audit' ),
 				'why'         => __( 'WordPress VIP tracks current WordPress and PHP versions closely. Deprecated calls emit notices, and the removed PHP extensions in this list cause fatal errors on PHP 8.', 'preflight-audit' ),
-				'remediation' => __( 'Replace the call with its current equivalent before migrating.', 'preflight-audit' ),
+				'remediation' => __( 'Replace the call with its current equivalent.', 'preflight-audit' ),
 				'alternative' => '',
 				'doc'         => 'https://docs.wpvip.com/technical-references/code-quality-and-best-practices/',
 				'phpcs'       => 'WordPress.WP.DeprecatedFunctions',

@@ -96,7 +96,7 @@ class Taxonomy {
 		return array(
 			self::TYPE_INCOMPATIBLE             => array(
 				'label'       => __( 'Incompatible', 'preflight-audit' ),
-				'description' => __( 'Expected to fail or behave incorrectly on the WordPress VIP Platform.', 'preflight-audit' ),
+				'description' => __( 'Likely to fail or behave unexpectedly on the WordPress VIP platform.', 'preflight-audit' ),
 				'blocking'    => true,
 			),
 			self::TYPE_POTENTIALLY_INCOMPATIBLE => array(
@@ -126,12 +126,12 @@ class Taxonomy {
 			),
 			self::TYPE_RECOMMENDATION           => array(
 				'label'       => __( 'Recommendation', 'preflight-audit' ),
-				'description' => __( 'Not a blocker, but worth changing before migrating.', 'preflight-audit' ),
+				'description' => __( 'A small improvement worth considering.', 'preflight-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_INFORMATIONAL            => array(
 				'label'       => __( 'Informational', 'preflight-audit' ),
-				'description' => __( 'Context that helps plan the migration. No action necessarily required.', 'preflight-audit' ),
+				'description' => __( 'Useful context. No action necessarily required.', 'preflight-audit' ),
 				'blocking'    => false,
 			),
 		);
@@ -176,12 +176,12 @@ class Taxonomy {
 		return array(
 			self::TIER_BLOCKING  => array(
 				'label'      => __( 'Must fix', 'preflight-audit' ),
-				'summary'    => __( 'Expected to fail on the WordPress VIP Platform. The migration waits on these.', 'preflight-audit' ),
+				'summary'    => __( 'Likely to cause problems on the WordPress VIP platform. Best fixed first.', 'preflight-audit' ),
 				'severities' => array( self::SEVERITY_CRITICAL ),
 			),
 			self::TIER_IMPORTANT => array(
 				'label'      => __( 'Should fix', 'preflight-audit' ),
-				'summary'    => __( 'Will not stop the migration, but should be dealt with before it.', 'preflight-audit' ),
+				'summary'    => __( 'Unlikely to break anything, but worth fixing soon.', 'preflight-audit' ),
 				'severities' => array( self::SEVERITY_HIGH ),
 			),
 			self::TIER_WARNING   => array(
@@ -191,7 +191,7 @@ class Taxonomy {
 			),
 			self::TIER_INFO      => array(
 				'label'      => __( 'FYI', 'preflight-audit' ),
-				'summary'    => __( 'Context that helps plan the migration. Nothing to do.', 'preflight-audit' ),
+				'summary'    => __( 'For context. No action needed.', 'preflight-audit' ),
 				'severities' => array( self::SEVERITY_LOW, self::SEVERITY_INFO ),
 			),
 		);

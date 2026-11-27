@@ -64,7 +64,7 @@ class Overview_Settings {
 
 		// Reference rather than work, so the two sit side by side below it.
 		echo '<div class="pfa-overview__pair">';
-		$this->render_environment();
+		$this->render_environment( $aggregate, $scanned );
 
 		if ( $scanned ) {
 			$this->render_history();
@@ -81,13 +81,13 @@ class Overview_Settings {
 	 */
 	public function get_page_guidance() {
 		return array(
-			__( '<strong>Readiness</strong> comes from the verdict on every scanned plugin, theme and must-use plugin: a ready item counts in full, one that needs review counts for a little over half, and a blocked one counts for nothing.', 'preflight-audit' ),
+			__( '<strong>The score</strong> comes from the verdict on every scanned plugin, theme and must-use plugin: a passing item counts in full, one that needs review counts for a little over half, and one that needs work does not count yet.', 'preflight-audit' ),
 			__( '<strong>Where the work is</strong> has one square for every plugin, theme, table and path on the site, worst first. Hover a square to see which one it is.', 'preflight-audit' ),
-			__( '<strong>Environment</strong> is what this site runs on today, measured against what it will run on at WordPress VIP. None of it is visible to a code scan.', 'preflight-audit' ),
+			__( '<strong>Environment</strong> is what this site runs on today, compared with the WordPress VIP platform, plus how much the last scan read.', 'preflight-audit' ),
 			__( '<strong>A starting point, not a certificate.</strong> The scan reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Where it cannot resolve a value, a finding records its confidence rather than asserting an incompatibility it cannot prove.', 'preflight-audit' ),
 			sprintf(
 				/* translators: 1: Rule set version. 2: Number of rules. */
-				__( '<strong>What gets checked.</strong> The filesystem and media, the database, caching, cron and outbound requests, security and the environment, and plugins that overlap with what the platform provides. Rule set %1$s has %2$d rules, each mapped to the WordPress VIP requirement it comes from.', 'preflight-audit' ),
+				__( '<strong>What gets checked.</strong> The filesystem and media, the database, caching, cron and outbound requests, security and the environment, and plugins that overlap with what the platform provides. Rule set %1$s has %2$d rules, each mapped to the WordPress VIP guideline it comes from.', 'preflight-audit' ),
 				Rules::VERSION,
 				count( Rules::all() )
 			),
@@ -111,7 +111,7 @@ class Overview_Settings {
 			array(
 				array(
 					'title' => __( 'Scan', 'preflight-audit' ),
-					'body'  => __( 'Every plugin, theme and must-use plugin is read against the WordPress VIP Platform requirements, along with the database schema and the wp-content layout. The code is read, never run, so this is safe on a live site.', 'preflight-audit' ),
+					'body'  => __( 'Every plugin, theme and must-use plugin is read against the WordPress VIP platform guidelines, along with the database schema and the wp-content layout. The code is read, never run, so this is safe on a live site.', 'preflight-audit' ),
 				),
 				array(
 					'title' => __( 'Work through the findings', 'preflight-audit' ),
@@ -119,7 +119,7 @@ class Overview_Settings {
 				),
 				array(
 					'title' => __( 'Rescan', 'preflight-audit' ),
-					'body'  => __( 'Run it again to see the list shrink and the readiness score climb. Export it as JSON, CSV or Markdown whenever the work needs to move into a ticket or a pull request.', 'preflight-audit' ),
+					'body'  => __( 'Run it again to see the list shrink and the score climb. Export it as JSON, CSV or Markdown whenever the work needs to move into a ticket or a pull request.', 'preflight-audit' ),
 				),
 			)
 		);
@@ -149,7 +149,6 @@ class Overview_Settings {
 				'tier'     => $verdict['tier'],
 				'headline' => $verdict['headline'],
 				'summary'  => $verdict['summary'],
-				'meta'     => $this->scan_meta( $aggregate, $scanned ),
 				'actions'  => $verdict['actions'],
 				'tiers'    => $scanned ? $this->get_facts( $aggregate ) : array(),
 			)
@@ -209,7 +208,7 @@ class Overview_Settings {
 			return array(
 				'tier'     => 'ready',
 				'headline' => __( 'Nothing has been scanned yet', 'preflight-audit' ),
-				'summary'  => __( 'Run a scan to check every plugin, theme and must-use plugin against the WordPress VIP Platform requirements. It reads code without running it, so it is safe to run on a live site.', 'preflight-audit' ),
+				'summary'  => __( 'Run a scan to check every plugin, theme and must-use plugin against the WordPress VIP platform guidelines. It reads code without running it, so it is safe to run on a live site.', 'preflight-audit' ),
 				'actions'  => array(
 					array_merge(
 						$rescan,
@@ -230,12 +229,12 @@ class Overview_Settings {
 		if ( $blocked > 0 ) {
 			return array(
 				'tier'     => Taxonomy::TIER_BLOCKING,
-				'headline' => __( 'Not ready to migrate', 'preflight-audit' ),
+				'headline' => __( 'A few things need attention first', 'preflight-audit' ),
 				'summary'  => sprintf(
 					/* translators: 1: Number of blocked targets. 2: Total number of targets. */
 					_n(
-						'%1$d of %2$d scanned items is expected to fail on the WordPress VIP Platform and has to be resolved first.',
-						'%1$d of %2$d scanned items are expected to fail on the WordPress VIP Platform and have to be resolved first.',
+						'%1$d of %2$d scanned items has issues likely to cause problems on the WordPress VIP platform. They are worth fixing first.',
+						'%1$d of %2$d scanned items have issues likely to cause problems on the WordPress VIP platform. They are worth fixing first.',
 						$blocked,
 						'preflight-audit'
 					),
@@ -244,7 +243,7 @@ class Overview_Settings {
 				),
 				'actions'  => array(
 					array(
-						'label'   => __( 'Start with the blockers', 'preflight-audit' ),
+						'label'   => __( 'Start with the must-fix items', 'preflight-audit' ),
 						'url'     => UI::get_findings_url( '', Taxonomy::TIER_BLOCKING ),
 						'icon'    => 'arrow-right',
 						'primary' => true,
@@ -257,12 +256,12 @@ class Overview_Settings {
 		if ( $review > 0 ) {
 			return array(
 				'tier'     => Taxonomy::TIER_WARNING,
-				'headline' => __( 'Nothing will fail outright', 'preflight-audit' ),
+				'headline' => __( 'In good shape, with a few things to review', 'preflight-audit' ),
 				'summary'  => sprintf(
 					/* translators: %d: Number of targets needing review. */
 					_n(
-						'%d scanned item needs a decision before you migrate, but none is expected to break on the platform.',
-						'%d scanned items need a decision before you migrate, but none is expected to break on the platform.',
+						'%d scanned item has findings worth a look. None of them is likely to cause problems on the platform.',
+						'%d scanned items have findings worth a look. None of them is likely to cause problems on the platform.',
 						$review,
 						'preflight-audit'
 					),
@@ -282,8 +281,8 @@ class Overview_Settings {
 
 		return array(
 			'tier'     => 'ready',
-			'headline' => __( 'Ready to migrate', 'preflight-audit' ),
-			'summary'  => __( 'Every scanned plugin, theme and must-use plugin passed. Check the database and wp-content audits before you export.', 'preflight-audit' ),
+			'headline' => __( 'Everything looks good', 'preflight-audit' ),
+			'summary'  => __( 'Every scanned plugin, theme and must-use plugin passed. The database and wp-content checks are worth a look too.', 'preflight-audit' ),
 			'actions'  => array(
 				array(
 					'label'   => __( 'Check the database', 'preflight-audit' ),
@@ -297,22 +296,25 @@ class Overview_Settings {
 	}
 
 	/**
-	 * Builds the single supporting line: how much was read.
+	 * Builds the environment row that says how much was read.
 	 *
 	 * @param array<string, mixed> $aggregate The aggregate.
 	 * @param bool                 $scanned   Whether anything has been scanned.
-	 * @return string The line.
+	 * @return array<string, string>|null The row, or null before the first scan.
 	 */
-	private function scan_meta( array $aggregate, $scanned ) {
+	private function scan_row( array $aggregate, $scanned ) {
 		if ( ! $scanned || $aggregate['scanned_at'] <= 0 ) {
-			return '';
+			return null;
 		}
 
-		return sprintf(
-			/* translators: 1: What was scanned, e.g. "3 plugins, 1 theme and 1 must-use plugin". 2: Number of PHP files. */
-			__( '%1$s scanned across %2$s PHP files', 'preflight-audit' ),
-			$this->scanned_kinds( $aggregate ),
-			number_format_i18n( (int) $aggregate['totals']['files'] )
+		return array(
+			'label' => __( 'Scanned', 'preflight-audit' ),
+			'value' => $this->scanned_kinds( $aggregate ),
+			'hint'  => sprintf(
+				/* translators: %s: Number of PHP files. */
+				_n( '%s PHP file read.', '%s PHP files read.', (int) $aggregate['totals']['files'], 'preflight-audit' ),
+				number_format_i18n( (int) $aggregate['totals']['files'] )
+			),
 		);
 	}
 
@@ -549,9 +551,21 @@ class Overview_Settings {
 	/**
 	 * Renders the environment as a specification sheet.
 	 *
+	 * What the last scan read sits here rather than under the verdict: it is
+	 * reference, not something to act on.
+	 *
+	 * @param array<string, mixed> $aggregate The aggregate.
+	 * @param bool                 $scanned   Whether anything has been scanned.
 	 * @return void
 	 */
-	private function render_environment() {
+	private function render_environment( array $aggregate, $scanned ) {
+		$rows = Report::environment();
+		$scan = $this->scan_row( $aggregate, $scanned );
+
+		if ( null !== $scan ) {
+			$rows[] = $scan;
+		}
+
 		UI::render_card_open(
 			array(
 				'title' => __( 'Environment', 'preflight-audit' ),
@@ -559,7 +573,7 @@ class Overview_Settings {
 			)
 		);
 
-		echo UI::get_defs( Report::environment(), 'pfa-defs--spec' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_defs( $rows, 'pfa-defs--spec' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
 		UI::render_card_close();
 	}
@@ -603,7 +617,7 @@ class Overview_Settings {
 					100,
 					sprintf(
 						/* translators: 1: Number of scans. 2: First score. 3: Latest score. */
-						__( 'Readiness over the last %1$d scans, from %2$d%% to %3$d%%.', 'preflight-audit' ),
+						__( 'Score over the last %1$d scans, from %2$d%% to %3$d%%.', 'preflight-audit' ),
 						count( $scores ),
 						(int) $first['score'],
 						(int) $last['score']
@@ -617,7 +631,7 @@ class Overview_Settings {
 				<span class="pfa-trend__delta pfa-trend__delta--<?php echo esc_attr( $shift > 0 ? 'up' : ( $shift < 0 ? 'down' : 'flat' ) ); ?>">
 					<?php
 					if ( 0 === $shift ) {
-						esc_html_e( 'No change in readiness', 'preflight-audit' );
+						esc_html_e( 'No change in score', 'preflight-audit' );
 					} else {
 						printf(
 							/* translators: 1: Signed change in points, e.g. "+12". 2: Number of scans. */
@@ -643,7 +657,10 @@ class Overview_Settings {
 					'class' => 'pfa-col-name',
 				),
 				array(
-					'label' => __( 'Readiness', 'preflight-audit' ),
+					'label' => __( 'Scanned', 'preflight-audit' ),
+				),
+				array(
+					'label' => __( 'Score', 'preflight-audit' ),
 					'class' => 'pfa-col-number',
 				),
 				array(
@@ -675,7 +692,14 @@ class Overview_Settings {
 				)
 				. '</td>';
 
-			echo '<td class="pfa-col-number" data-label="' . esc_attr__( 'Readiness', 'preflight-audit' ) . '">'
+			// Entries saved before the scope was recorded show a dash, not a guess.
+			echo '<td data-label="' . esc_attr__( 'Scanned', 'preflight-audit' ) . '">'
+				. ( isset( $snapshot['scope'] )
+					? esc_html( Report::get_scope( (string) $snapshot['scope'] )['label'] )
+					: '<span class="pfa-dash" aria-hidden="true">—</span>' )
+				. '</td>';
+
+			echo '<td class="pfa-col-number" data-label="' . esc_attr__( 'Score', 'preflight-audit' ) . '">'
 				. esc_html( sprintf( '%d%%', (int) $snapshot['score'] ) )
 				. '</td>';
 

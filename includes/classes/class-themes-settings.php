@@ -91,7 +91,7 @@ class Themes_Settings extends Inventory_Screen {
 				'class' => 'pfa-col-version',
 			),
 			array(
-				'label'    => __( 'WordPress VIP verdict', 'preflight-audit' ),
+				'label'    => __( 'Verdict', 'preflight-audit' ),
 				'class'    => 'pfa-col-status',
 				'sortable' => true,
 			),

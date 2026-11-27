@@ -217,14 +217,12 @@ class UITest extends TestCase {
 		$this->assertStringContainsString( '&lt;script&gt;', $link );
 	}
 
-	public function test_badges_and_chips_escape_their_text() {
+	public function test_badges_escape_their_text() {
 		$badge = UI::get_badge( self::XSS, 'bad', '"title"' );
-		$chip  = UI::get_meta_chip( 'Rule', self::XSS, 'tip' );
 
 		$this->assertStringContainsString( 'pfa-badge--bad', $badge );
 		$this->assertStringContainsString( 'title="&quot;title&quot;"', $badge );
-		$this->assertStringNotContainsString( '<script>', $badge . $chip );
-		$this->assertStringContainsString( 'title="tip"', $chip );
+		$this->assertStringNotContainsString( '<script>', $badge );
 		$this->assertStringNotContainsString( 'title=', UI::get_badge( 'x' ) );
 	}
 
@@ -564,8 +562,8 @@ class UITest extends TestCase {
 			}
 		);
 
-		$this->assertStringContainsString( '1 blocked, 1 review, 1 ready', $output );
-		$this->assertStringContainsString( 'Work through 2', $output );
+		$this->assertStringContainsString( '1 needs work, 1 review, 1 passing', $output );
+		$this->assertStringNotContainsString( 'Work through', $output );
 		$this->assertStringContainsString( 'page=pfa-plugins&amp;status=not-compatible', $output );
 		$this->assertStringContainsString( 'Awaiting a scan', $output );
 		$this->assertStringContainsString( 'Clear', $output );
@@ -721,7 +719,9 @@ class UITest extends TestCase {
 		$this->assertStringContainsString( '<code>inc/db.php:10</code>', $output );
 		$this->assertStringContainsString( 'in run_query()', $output );
 		$this->assertStringContainsString( 'A note', $output );
-		$this->assertStringContainsString( Rules::get( 'database.unprepared-query' )['phpcs'], $output );
+		$this->assertStringNotContainsString( 'How this was detected', $output );
+		$this->assertStringContainsString( '<code>database.unprepared-query</code>', $output, 'the rule id stays, for pfa:ignore' );
+		$this->assertStringContainsString( 'class="pfa-code__copy" data-role="copy"', $output );
 		$this->assertStringContainsString( 'href="https://docs.wpvip.com/', $output );
 		$this->assertStringContainsString( '>Code change</span>', $output );
 		$this->assertStringNotContainsString( '<script>', $output, 'target names and evidence come from scanned code' );
@@ -753,7 +753,7 @@ class UITest extends TestCase {
 			}
 		);
 
-		$this->assertStringContainsString( 'Also matched on these lines: database.direct-query', $output );
+		$this->assertStringContainsString( 'Also matched: database.direct-query', $output );
 		$this->assertStringNotContainsString( 'Another way to do it', $output );
 		$this->assertStringNotContainsString( 'WordPress VIP documentation', $output );
 		$this->assertStringNotContainsString( 'PHPCS', $output );
@@ -811,8 +811,10 @@ class UITest extends TestCase {
 		$this->assertStringNotContainsString( 'Rescan one area only', $output, 'nothing to narrow before a first scan' );
 		$this->assertStringNotContainsString( 'data-confirm', $output, 'a first scan has nothing to replace' );
 		$this->assertStringContainsString( 'Rule set ' . Rules::VERSION . ' · ' . count( Rules::all() ) . ' rules', $output );
-		$this->assertStringContainsString( '<h1 class="pfa-head__title">Migration readiness</h1>', $output );
+		$this->assertStringContainsString( '<h1 class="pfa-head__title">Standards and compatibility</h1>', $output );
 		$this->assertStringContainsString( '<hr class="wp-header-end" />', $output );
+		$this->assertStringNotContainsString( 'not affiliated', $output, 'the independence note lives in the Help panel, not on the page' );
+		$this->assertStringNotContainsString( 'href="https://docs.wpvip.com/"', $output, 'the docs link lives in the Help panel, not in the bar' );
 		$this->assertSame( 3, substr_count( $output, 'action=preflight_audit_export' ) );
 		$this->assertStringNotContainsString( 'data-role="help-toggle"', $output );
 	}

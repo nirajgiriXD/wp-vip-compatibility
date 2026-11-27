@@ -72,7 +72,7 @@ class SettingsTest extends TestCase {
 
 		$titles = array_column( WP::$submenu, 'menu_title' );
 
-		$this->assertStringContainsString( 'pfa-menu-group pfa-menu-group--first" aria-hidden="true">Readiness</span>Overview', $titles[0] );
+		$this->assertStringContainsString( 'pfa-menu-group pfa-menu-group--first" aria-hidden="true">Summary</span>Overview', $titles[0] );
 		$this->assertStringNotContainsString( 'pfa-menu-group', $titles[1] );
 		$this->assertStringContainsString( '<span class="pfa-menu-group" aria-hidden="true">Code you ship</span>Plugins', $titles[2] );
 		$this->assertStringContainsString( '<span class="pfa-menu-group" aria-hidden="true">Site infrastructure</span>Database', $titles[5] );
@@ -109,7 +109,7 @@ class SettingsTest extends TestCase {
 		$this->settings()->add_plugin_menus();
 
 		$this->assertStringContainsString( '<span class="update-plugins count-2">', WP::$menu[0]['menu_title'] );
-		$this->assertStringContainsString( '2 findings must be fixed before migrating', WP::$menu[0]['menu_title'] );
+		$this->assertStringContainsString( '2 findings must be fixed', WP::$menu[0]['menu_title'] );
 	}
 
 	public function test_no_badge_when_nothing_must_be_fixed() {
@@ -139,6 +139,9 @@ class SettingsTest extends TestCase {
 		$this->assertSame( 'pfa-how-to-read', WP::$screen->help_tabs[0]['id'] );
 		$this->assertSame( 'How to read this list', WP::$screen->help_tabs[0]['title'] );
 		$this->assertStringContainsString( '<div class="pfa-help__notes"><p>', WP::$screen->help_tabs[0]['content'] );
+		$this->assertStringContainsString( '<p class="pfa-help__about">Preflight Audit is an independent tool', WP::$screen->help_tabs[0]['content'] );
+		$this->assertStringContainsString( 'not affiliated with or endorsed by Automattic or WordPress VIP', WP::$screen->help_tabs[0]['content'] );
+		$this->assertStringContainsString( '<a href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">WordPress VIP documentation', WP::$screen->help_tabs[0]['content'] );
 	}
 
 	public function test_the_overview_help_tab_is_titled_as_a_report() {
