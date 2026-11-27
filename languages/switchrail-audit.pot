@@ -3,21 +3,21 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Switchrail Audit 1.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/switchrail-audit\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/cutover-audit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-27T10:49:27+00:00\n"
+"POT-Creation-Date: 2026-11-27T11:26:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: switchrail-audit\n"
 
 #. Plugin Name of the plugin
 #: switchrail-audit.php
-#: includes/classes/class-settings.php:182
-#: includes/classes/class-settings.php:183
+#: includes/classes/class-settings.php:169
+#: includes/classes/class-settings.php:170
 #: includes/classes/class-ui.php:417
 msgid "Switchrail Audit"
 msgstr ""
@@ -98,107 +98,107 @@ msgstr[1] ""
 msgid "%1$s across %2$s."
 msgstr ""
 
-#: includes/classes/class-assets.php:203
+#: includes/classes/class-assets.php:193
 msgid "Scanning…"
 msgstr ""
 
-#: includes/classes/class-assets.php:204
+#: includes/classes/class-assets.php:194
 msgid "Scan failed"
 msgstr ""
 
 #. translators: 1: Number of completed checks. 2: Total number of checks.
-#: includes/classes/class-assets.php:207
+#: includes/classes/class-assets.php:197
 #, php-format
 msgid "Scanning %1$s of %2$s…"
 msgstr ""
 
 #. translators: %s: Number of findings.
-#: includes/classes/class-assets.php:209
+#: includes/classes/class-assets.php:199
 #, php-format
 msgid "%s findings"
 msgstr ""
 
 #. translators: 1: Number of visible rows. 2: Total number of rows.
-#: includes/classes/class-assets.php:212
+#: includes/classes/class-assets.php:202
 #, php-format
 msgid "Showing %1$s of %2$s"
 msgstr ""
 
 #. translators: %s: Total number of rows.
-#: includes/classes/class-assets.php:214
+#: includes/classes/class-assets.php:204
 #, php-format
 msgid "Showing all %s"
 msgstr ""
 
-#: includes/classes/class-assets.php:215
+#: includes/classes/class-assets.php:205
 msgid "No matching results"
 msgstr ""
 
-#: includes/classes/class-assets.php:216
+#: includes/classes/class-assets.php:206
 msgid "Try a different search term, or widen the filters above."
 msgstr ""
 
-#: includes/classes/class-assets.php:218
+#: includes/classes/class-assets.php:208
 msgid "Rescan everything?"
 msgstr ""
 
-#: includes/classes/class-assets.php:219
+#: includes/classes/class-assets.php:209
 msgid "This re-reads every plugin, theme and must-use plugin, and rechecks the database and wp-content. It can take a while on a large site, and the current results are replaced when it finishes."
 msgstr ""
 
-#: includes/classes/class-assets.php:220
+#: includes/classes/class-assets.php:210
 #: includes/classes/class-overview-settings.php:199
 msgid "Rescan everything"
 msgstr ""
 
-#: includes/classes/class-assets.php:221
+#: includes/classes/class-assets.php:211
 msgid "Cancel"
 msgstr ""
 
-#: includes/classes/class-assets.php:223
+#: includes/classes/class-assets.php:213
 msgid "Table pages"
 msgstr ""
 
-#: includes/classes/class-assets.php:224
+#: includes/classes/class-assets.php:214
 msgid "Previous"
 msgstr ""
 
-#: includes/classes/class-assets.php:225
+#: includes/classes/class-assets.php:215
 msgid "Next"
 msgstr ""
 
 #. translators: 1: First row shown. 2: Last row shown. 3: Number of matching rows.
-#: includes/classes/class-assets.php:227
+#: includes/classes/class-assets.php:217
 #, php-format
 msgid "%1$s–%2$s of %3$s"
 msgstr ""
 
 #. translators: 1: Current page. 2: Number of pages.
-#: includes/classes/class-assets.php:229
+#: includes/classes/class-assets.php:219
 #, php-format
 msgid "Page %1$s of %2$s"
 msgstr ""
 
-#: includes/classes/class-assets.php:231
+#: includes/classes/class-assets.php:221
 #: includes/classes/class-ui.php:1819
 #: includes/classes/class-ui.php:1880
 msgid "Copy to clipboard"
 msgstr ""
 
-#: includes/classes/class-assets.php:232
+#: includes/classes/class-assets.php:222
 msgid "Copied"
 msgstr ""
 
-#: includes/classes/class-assets.php:233
+#: includes/classes/class-assets.php:223
 msgid "Press Ctrl+C to copy"
 msgstr ""
 
-#: includes/classes/class-assets.php:235
+#: includes/classes/class-assets.php:225
 #: includes/classes/class-findings-settings.php:481
 msgid "Expand all"
 msgstr ""
 
-#: includes/classes/class-assets.php:236
+#: includes/classes/class-assets.php:226
 msgid "Collapse all"
 msgstr ""
 
@@ -518,7 +518,7 @@ msgid "Details"
 msgstr ""
 
 #: includes/classes/class-inventory-screen.php:360
-#: includes/classes/class-settings.php:268
+#: includes/classes/class-settings.php:255
 #: includes/classes/class-ui.php:1851
 msgid "WordPress VIP documentation"
 msgstr ""
@@ -983,26 +983,26 @@ msgid "Not loaded, but still shipped in the repository and still reviewed by Wor
 msgstr ""
 
 #. translators: %s: Submenu title
-#: includes/classes/class-settings.php:212
+#: includes/classes/class-settings.php:199
 #, php-format
 msgid "Switchrail Audit — %s"
 msgstr ""
 
-#: includes/classes/class-settings.php:256
+#: includes/classes/class-settings.php:243
 msgid "About this report"
 msgstr ""
 
-#: includes/classes/class-settings.php:257
+#: includes/classes/class-settings.php:244
 msgid "How to read this list"
 msgstr ""
 
 #. translators: %s: Link to the WordPress VIP documentation.
-#: includes/classes/class-settings.php:267
+#: includes/classes/class-settings.php:254
 #, php-format
 msgid "Switchrail Audit is an independent tool, not affiliated with or endorsed by Automattic or WordPress VIP. Its rules are written from the public %s."
 msgstr ""
 
-#: includes/classes/class-settings.php:268
+#: includes/classes/class-settings.php:255
 #: includes/classes/class-ui.php:753
 #: includes/classes/class-ui.php:1853
 msgid "(opens in a new tab)"
