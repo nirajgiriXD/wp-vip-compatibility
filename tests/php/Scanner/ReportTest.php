@@ -60,6 +60,32 @@ class ReportTest extends TestCase {
 		$this->assertNotNull( Results_Store::get( 'theme:t' ) );
 	}
 
+	public function test_an_updated_plugin_or_theme_is_scanned_again() {
+		$this->store_result( $this->add_plugin( 'p' ), array() );
+		$this->store_result( $this->add_plugin( 'q' ), array() );
+		$this->store_result( $this->add_theme( 't' ), array() );
+
+		$this->assertSame( 1, Report::forget_upgraded( null, array( 'type' => 'plugin', 'action' => 'update', 'plugins' => array( 'p/p.php' ) ) ) );
+		$this->assertSame( 1, Report::forget_upgraded( null, array( 'type' => 'theme', 'action' => 'update', 'theme' => 't' ) ) );
+
+		$this->assertNull( Results_Store::get( 'plugin:p' ) );
+		$this->assertNull( Results_Store::get( 'theme:t' ) );
+		$this->assertNotNull( Results_Store::get( 'plugin:q' ) );
+	}
+
+	public function test_a_single_file_plugin_update_uses_the_file_as_its_slug() {
+		$this->store_result( array( 'key' => 'plugin:hello.php', 'type' => 'plugin', 'slug' => 'hello.php', 'label' => 'Hello', 'path' => __FILE__ ), array() );
+
+		$this->assertSame( 1, Report::forget_upgraded( null, array( 'type' => 'plugin', 'plugin' => 'hello.php' ) ) );
+	}
+
+	public function test_a_translation_update_forgets_nothing() {
+		$this->store_result( $this->add_plugin( 'p' ), array() );
+
+		$this->assertSame( 0, Report::forget_upgraded( null, array( 'type' => 'translation', 'translations' => array( array( 'slug' => 'p' ) ) ) ) );
+		$this->assertNotNull( Results_Store::get( 'plugin:p' ) );
+	}
+
 	public function test_clear_scope_does_nothing_for_an_audit_area() {
 		$this->store_result( $this->add_plugin( 'p' ), array() );
 

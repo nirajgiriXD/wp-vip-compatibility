@@ -54,15 +54,9 @@ class BootstrapTest extends TestCase {
 		$this->assertNotFalse( has_action( 'admin_post_preflight_audit_export' ) );
 		$this->assertNotFalse( has_action( 'admin_post_preflight_audit_rescan' ) );
 
-		// Activation and deactivation are registered against the main file.
-		$this->assertSame( realpath( PREFLIGHT_AUDIT_FILE ), realpath( WP::$lifecycle['activation'][0][0] ) );
-		$this->assertSame( realpath( PREFLIGHT_AUDIT_FILE ), realpath( WP::$lifecycle['deactivation'][0][0] ) );
-		$this->assertTrue( is_callable( WP::$lifecycle['activation'][0][1] ) );
-
-		// Both handlers are deliberately empty: results survive deactivation.
-		call_user_func( WP::$lifecycle['activation'][0][1] );
-		call_user_func( WP::$lifecycle['deactivation'][0][1] );
-
+		// Nothing runs on activation or deactivation: results survive it.
+		$this->assertEmpty( WP::$lifecycle['activation'] ?? array() );
+		$this->assertEmpty( WP::$lifecycle['deactivation'] ?? array() );
 		$this->assertSame( array(), WP::blog_options() );
 	}
 

@@ -8,6 +8,7 @@
 namespace PREFLIGHT_AUDIT\Includes\Classes;
 
 use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
+use PREFLIGHT_AUDIT\Includes\Scanner\Report;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -70,6 +71,31 @@ class Plugin {
 	 */
 	public function setup_hooks() {
 		add_action( 'init', array( $this, 'load_textdomain' ) );
+
+		// Updates run in wp-admin, but also over WP-CLI and auto-updates on cron,
+		// so this cannot wait for one of the plugin's own screens to load.
+		add_action( 'upgrader_process_complete', array( Report::class, 'forget_upgraded' ), 10, 2 );
+	}
+
+	/**
+	 * Returns the capability every screen, scan and export requires.
+	 *
+	 * On multisite, plugins, themes and the database are shared by the whole
+	 * network, so a single site's administrator would otherwise read findings
+	 * for code and tables that belong to every other site. There it takes a
+	 * network administrator.
+	 *
+	 * @return string The capability.
+	 */
+	public static function get_capability() {
+		$capability = is_multisite() ? 'manage_network_options' : 'manage_options';
+
+		/**
+		 * Filters the capability required to use Preflight Audit.
+		 *
+		 * @param string $capability `manage_network_options` on multisite, `manage_options` otherwise.
+		 */
+		return (string) apply_filters( 'preflight_audit_capability', $capability );
 	}
 
 	/**

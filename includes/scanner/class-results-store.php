@@ -111,7 +111,7 @@ class Results_Store {
 		 */
 		self::flush_index();
 
-		$index = self::get_index();
+		$index = self::read_index();
 
 		$index[ $target_key ] = array(
 			'key'           => $result['key'],
@@ -123,6 +123,7 @@ class Results_Store {
 			'files_scanned' => $result['files_scanned'],
 			'truncated'     => $result['truncated'],
 			'scanned_at'    => $result['scanned_at'],
+			'rules_version' => $result['rules_version'] ?? Rules::VERSION,
 			'fingerprint'   => $result['fingerprint'],
 		);
 
@@ -135,9 +136,32 @@ class Results_Store {
 	/**
 	 * Returns the per-target summary index.
 	 *
+	 * Entries written by an older rule set are left out, exactly as get() leaves
+	 * out their results. Otherwise, after an update that changes the rules, the
+	 * menu badge, the score and every table would keep showing the old verdicts
+	 * while the findings list, which reads the results, showed nothing for them.
+	 * Left out, those targets read as "Not scanned yet" and are scanned again.
+	 *
 	 * @return array<string, array<string, mixed>> Summaries keyed by target key.
 	 */
 	public static function get_index() {
+		return array_filter(
+			self::read_index(),
+			static function ( $entry ) {
+				return ! isset( $entry['rules_version'] ) || Rules::VERSION === $entry['rules_version'];
+			}
+		);
+	}
+
+	/**
+	 * Returns every index entry, including ones from an older rule set.
+	 *
+	 * The write paths use this, so that pruning, forgetting and uninstalling
+	 * still reach results the current rule set no longer reads.
+	 *
+	 * @return array<string, array<string, mixed>> Summaries keyed by target key.
+	 */
+	private static function read_index() {
 		if ( null === self::$index ) {
 			$index = get_option( self::INDEX_OPTION, array() );
 
@@ -186,7 +210,7 @@ class Results_Store {
 	 * @return int The number of entries removed.
 	 */
 	public static function prune( array $valid_keys ) {
-		$index   = self::get_index();
+		$index   = self::read_index();
 		$removed = 0;
 
 		foreach ( array_keys( $index ) as $target_key ) {
@@ -221,7 +245,7 @@ class Results_Store {
 	 * @return int The number of results discarded.
 	 */
 	public static function forget( array $target_keys ) {
-		$index   = self::get_index();
+		$index   = self::read_index();
 		$removed = 0;
 
 		foreach ( $target_keys as $target_key ) {
@@ -249,7 +273,12 @@ class Results_Store {
 	 * @return void
 	 */
 	public static function delete_all() {
-		foreach ( array_keys( self::get_index() ) as $target_key ) {
+		// Uninstall calls this once per site after switch_to_blog(). The
+		// per-request copy belongs to whichever site read it first, so it has
+		// to be re-read here or every later site deletes the wrong list.
+		self::flush_index();
+
+		foreach ( array_keys( self::read_index() ) as $target_key ) {
 			delete_option( self::option_name( $target_key ) );
 		}
 

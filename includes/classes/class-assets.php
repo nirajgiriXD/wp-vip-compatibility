@@ -173,7 +173,7 @@ class Assets {
 		if ( file_exists( PREFLIGHT_AUDIT_DIR . '/assets/css/admin.css' ) ) {
 			wp_register_style(
 				'preflight-audit-admin-styles',
-				PREFLIGHT_AUDIT_URL . '/assets/css/admin.css',
+				PREFLIGHT_AUDIT_URL . 'assets/css/admin.css',
 				array(),
 				filemtime( PREFLIGHT_AUDIT_DIR . '/assets/css/admin.css' )
 			);
@@ -186,7 +186,7 @@ class Assets {
 		if ( file_exists( PREFLIGHT_AUDIT_DIR . '/assets/js/admin.js' ) ) {
 			wp_register_script(
 				'preflight-audit-admin-script',
-				PREFLIGHT_AUDIT_URL . '/assets/js/admin.js',
+				PREFLIGHT_AUDIT_URL . 'assets/js/admin.js',
 				array( 'jquery' ),
 				filemtime( PREFLIGHT_AUDIT_DIR . '/assets/js/admin.js' ),
 				true

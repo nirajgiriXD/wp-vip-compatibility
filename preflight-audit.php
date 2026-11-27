@@ -11,7 +11,7 @@
  * License:           GPLv3 or later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.en.html
  * Requires at least: 6.0
- * Tested up to:      6.7.0
+ * Tested up to:      7.1
  * Requires PHP:      7.4
  *
  * @package preflight-audit
@@ -54,11 +54,14 @@ class Preflight_Audit {
 
 	/**
 	 * Constructor.
+	 *
+	 * There are no activation or deactivation hooks: nothing has to be set up
+	 * before the first scan, and results are deliberately kept on deactivation
+	 * so re-activating does not force a full rescan. uninstall.php removes them.
 	 */
 	public function __construct() {
 
 		$this->plugin_loader();
-		$this->setup_hooks();
 	}
 
 	/**
@@ -69,35 +72,6 @@ class Preflight_Audit {
 	public function plugin_loader() {
 
 		Plugin::get_instance();
-	}
-
-	/**
-	 * Sets up hooks for activation and deactivation.
-	 *
-	 * @return void
-	 */
-	public function setup_hooks() {
-
-		register_activation_hook( __FILE__, array( $this, 'handle_plugin_activation' ) );
-		register_deactivation_hook( __FILE__, array( $this, 'handle_plugin_deactivation' ) );
-	}
-
-	/**
-	 * Handles plugin activation.
-	 *
-	 * @return void
-	 */
-	public function handle_plugin_activation() {
-		// Actions to perform on plugin activation.
-	}
-
-	/**
-	 * Handles plugin deactivation.
-	 *
-	 * @return void
-	 */
-	public function handle_plugin_deactivation() {
-		// Actions to perform on plugin deactivation.
 	}
 }
 

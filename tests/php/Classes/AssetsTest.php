@@ -66,7 +66,8 @@ class AssetsTest extends TestCase {
 		$style  = WP::$assets['registered_styles']['preflight-audit-admin-styles'];
 		$script = WP::$assets['registered_scripts']['preflight-audit-admin-script'];
 
-		$this->assertStringEndsWith( '/assets/css/admin.css', $style['src'] );
+		$this->assertSame( PREFLIGHT_AUDIT_URL . 'assets/css/admin.css', $style['src'] );
+		$this->assertSame( PREFLIGHT_AUDIT_URL . 'assets/js/admin.js', $script['src'] );
 		$this->assertSame( filemtime( PREFLIGHT_AUDIT_DIR . '/assets/css/admin.css' ), $style['ver'] );
 		$this->assertSame( array( 'jquery' ), $script['deps'] );
 		$this->assertTrue( $script['args'] );

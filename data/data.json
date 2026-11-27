@@ -143,7 +143,7 @@
             "status": "unsupported",
             "description": "Apache configuration.",
             "guidance": "WordPress VIP serves requests through NGINX, so this file is ignored. Re-express redirects in vip-config.php or a redirect plugin, and access rules in application code.",
-            "doc": "https://docs.wpvip.com/technical-references/wordpress-on-vip/"
+            "doc": "https://docs.wpvip.com/wordpress-on-vip/"
         },
         ".editorconfig": {
             "status": "supported",

@@ -1212,8 +1212,10 @@ jQuery(document).ready(function ($) {
 
 			if (result.total > 0 && result.url) {
 				$cell.append(
+					// The server picks the plural form; a fixed "%s findings" string
+					// would read "1 findings".
 					$("<a/>", { class: "pfa-status__link", href: result.url, title: result.summary }).text(
-						format(i18n.findingCount, result.total)
+						result.count || format(i18n.findingCount, result.total)
 					)
 				);
 			}

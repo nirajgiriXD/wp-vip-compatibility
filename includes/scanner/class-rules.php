@@ -274,7 +274,7 @@ class Rules {
 				'why'         => __( 'WordPress VIP serves requests through NGINX. There is no .htaccess file, the Apache functions do not exist, and the web root is not writable, so rewrite rules, deny rules and header rules written this way are silently ignored.', 'preflight-audit' ),
 				'remediation' => __( 'Express redirects in PHP — wp_safe_redirect() on the "template_redirect" hook, or the Safe Redirect Manager plugin. Domain-level redirects belong in vip-config.php. Access rules belong in application code.', 'preflight-audit' ),
 				'alternative' => __( 'Send headers with the WordPress HTTP API and the "wp_headers" filter rather than through server configuration.', 'preflight-audit' ),
-				'doc'         => 'https://docs.wpvip.com/technical-references/wordpress-on-vip/',
+				'doc'         => 'https://docs.wpvip.com/wordpress-on-vip/',
 				'match'       => array(
 					'functions' => array( 'insert_with_markers', 'got_mod_rewrite', 'apache_get_modules', 'apache_setenv', 'apache_response_headers', 'apache_request_headers' ),
 					'strings'   => array( '#\.htaccess#i' ),
@@ -467,7 +467,7 @@ class Rules {
 				'why'         => __( 'These functions query the database directly on every call with no object-cache layer in front of them. On a high-traffic site they turn into an uncached query per page view.', 'preflight-audit' ),
 				'remediation' => __( 'Use the cached wrapper WordPress VIP provides: wpcom_vip_url_to_postid(), wpcom_vip_attachment_url_to_postid(), wpcom_vip_count_user_posts(), wpcom_vip_get_adjacent_post(), wpcom_vip_wp_oembed_get() or wpcom_vip_old_slug_redirect(). Otherwise cache the result yourself with wp_cache_get() and wp_cache_set().', 'preflight-audit' ),
 				'alternative' => __( 'Store the resolved ID alongside the data that needed it so the lookup only happens once.', 'preflight-audit' ),
-				'doc'         => 'https://docs.wpvip.com/databases/optimize-queries/uncached-functions/',
+				'doc'         => 'https://docs.wpvip.com/caching/uncached-functions/',
 				'phpcs'       => 'WordPressVIPMinimum.Functions.RestrictedFunctions',
 				'match'       => array(
 					'functions' => array(
@@ -602,7 +602,7 @@ class Rules {
 				'why'         => __( 'Outbound requests on WordPress VIP are documented for HTTP through the WordPress HTTP API only. Raw sockets, FTP, SSH, LDAP and external database connections depend on network access and PHP extensions the platform does not document, so they may fail on WordPress VIP even though they work locally.', 'preflight-audit' ),
 				'remediation' => __( 'Move the integration behind an HTTPS API reached with the WordPress HTTP API. If that is not possible, confirm the connection with WordPress VIP support first.', 'preflight-audit' ),
 				'alternative' => __( 'Where the remote system cannot expose HTTP, run the transfer outside the application and push the results in.', 'preflight-audit' ),
-				'doc'         => 'https://docs.wpvip.com/technical-references/wordpress-on-vip/',
+				'doc'         => 'https://docs.wpvip.com/wordpress-on-vip/',
 				'match'       => array(
 					'functions' => array(
 						'fsockopen',
@@ -949,7 +949,7 @@ class Rules {
 	 * @return array<string, array<string, mixed>> Rule definitions.
 	 */
 	private static function environment_rules() {
-		$platform_doc = 'https://docs.wpvip.com/technical-references/wordpress-on-vip/';
+		$platform_doc = 'https://docs.wpvip.com/wordpress-on-vip/';
 
 		return array(
 			'environment.php-sessions'      => array(
@@ -963,7 +963,7 @@ class Rules {
 				'why'         => __( 'WordPress VIP supports PHP sessions for short-lived data, backed by Memcached, but every request from a user with a session bypasses the page cache. Starting a session for every visitor takes the site off the edge cache.', 'preflight-audit' ),
 				'remediation' => __( 'Start a session only when it is needed, scope it with the path argument of session_set_cookie_params(), and destroy it as soon as the flow is done.', 'preflight-audit' ),
 				'alternative' => __( 'For logged-in users, user meta is often a better home for per-user state, and it is already cached.', 'preflight-audit' ),
-				'doc'         => 'https://docs.wpvip.com/wordpress-on-vip/php-sessions/',
+				'doc'         => 'https://docs.wpvip.com/wordpress-on-vip/php/php-sessions/',
 				'phpcs'       => 'WordPressVIPMinimum.Functions.RestrictedFunctions.session_session_start',
 				'match'       => array(
 					'functions'    => array( 'session_start', 'session_id', 'session_regenerate_id', 'session_destroy', 'session_name', 'session_set_cookie_params' ),
@@ -1089,7 +1089,7 @@ class Rules {
 				'why'         => __( 'Leaving the site switched corrupts every subsequent query and cache read in the request, and the bug surfaces far from its cause. Switching is also expensive, so doing it inside a loop is a common source of slow pages on multisite.', 'preflight-audit' ),
 				'remediation' => __( 'Pair every switch_to_blog() with restore_current_blog(), including on early-return and exception paths.', 'preflight-audit' ),
 				'alternative' => __( 'Where the data is read repeatedly across sites, collect it once and cache it rather than switching per item.', 'preflight-audit' ),
-				'doc'         => 'https://docs.wpvip.com/technical-references/code-quality-and-best-practices/',
+				'doc'         => 'https://docs.wpvip.com/wordpress-on-vip/multisites/',
 				'match'       => array(
 					'functions' => array( 'switch_to_blog' ),
 				),
@@ -1152,7 +1152,7 @@ class Rules {
 				'why'         => __( 'WordPress VIP tracks current WordPress and PHP versions closely. Deprecated calls emit notices, and the removed PHP extensions in this list cause fatal errors on PHP 8.', 'preflight-audit' ),
 				'remediation' => __( 'Replace the call with its current equivalent.', 'preflight-audit' ),
 				'alternative' => '',
-				'doc'         => 'https://docs.wpvip.com/technical-references/code-quality-and-best-practices/',
+				'doc'         => 'https://docs.wpvip.com/wordpress-on-vip/php/versions/',
 				'phpcs'       => 'WordPress.WP.DeprecatedFunctions',
 				'match'       => array(
 					'functions' => array(
@@ -1175,6 +1175,10 @@ class Rules {
 						'eregi',
 						'split',
 						'money_format',
+						'strftime',
+						'gmstrftime',
+						'utf8_encode',
+						'utf8_decode',
 					),
 				),
 			),

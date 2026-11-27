@@ -110,6 +110,12 @@ add_filter( 'preflight_audit_scanner_rules', function ( array $rules ) {
     return $rules;
 } );
 
+// Change who can use the plugin. Default: manage_options, or
+// manage_network_options on multisite.
+add_filter( 'preflight_audit_capability', function () {
+    return 'manage_options';
+} );
+
 // Change which directories are skipped.
 add_filter( 'preflight_audit_scanner_excluded_directories', function ( array $excluded ) {
     $excluded[] = 'third-party';
@@ -125,12 +131,8 @@ add_filter( 'preflight_audit_scanner_excluded_directories', function ( array $ex
 composer install && composer test   # PHP: PHPUnit with Brain Monkey
 npm install && npm test             # admin.js: Jest with jsdom
 
-# Tests for known, unfixed bugs. These are expected to fail.
-vendor/bin/phpunit --group known-bug
-
 # Coding standards. The plugin's own source passes with no violations.
-composer require --dev automattic/vipwpcs phpcompatibility/phpcompatibility-wp
-phpcs --standard=phpcs.xml .
+composer lint
 
 # Translations.
 wp i18n make-pot . languages/preflight-audit.pot

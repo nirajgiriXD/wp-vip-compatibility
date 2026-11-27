@@ -26,6 +26,7 @@ namespace PREFLIGHT_AUDIT\Includes\Classes;
 use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
 use PREFLIGHT_AUDIT\Includes\Scanner\Report;
 use PREFLIGHT_AUDIT\Includes\Scanner\Results_Store;
+use PREFLIGHT_AUDIT\Includes\Scanner\Scanner;
 use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
 use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
 
@@ -70,7 +71,7 @@ class Findings_Settings {
 	 * @return void
 	 */
 	public function handle_rescan() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( Plugin::get_capability() ) ) {
 			wp_die(
 				esc_html__( 'You do not have permission to run compatibility scans.', 'preflight-audit' ),
 				esc_html__( 'Forbidden', 'preflight-audit' ),
@@ -108,18 +109,10 @@ class Findings_Settings {
 		/*
 		 * A full rescan tokenises every PHP file in every plugin, theme and
 		 * must-use plugin. On a site with a few dozen plugins that is minutes of
-		 * work, and the default 30-second limit turns it into a blank page with
-		 * half the results written — which then looks like a scan that found
-		 * nothing rather than one that was cut off. Narrowing the scope is the
-		 * real answer to that; these raises are the safety net. Both are best
-		 * effort, and a host running in safe mode simply ignores them.
+		 * work. Narrowing the scope is the real answer to that; raising the
+		 * limits is the safety net.
 		 */
-		if ( function_exists( 'set_time_limit' ) && false === strpos( (string) ini_get( 'disable_functions' ), 'set_time_limit' ) ) {
-			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.PHP.NoSilencedErrors.Discouraged -- Best effort; ignored where the host forbids it.
-			@set_time_limit( 300 );
-		}
-
-		wp_raise_memory_limit( 'admin' );
+		Scanner::prepare_long_request();
 
 		Report::run_full_scan( true, $scope );
 

@@ -2,7 +2,7 @@
 Contributors: nirajgirixd, mi5t4n
 Tags: coding standards, compatibility, code analysis, code review, phpcs
 Requires at least: 6.0
-Tested up to: 6.7
+Tested up to: 7.1
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv3 or later
@@ -73,7 +73,7 @@ Not affiliated with or endorsed by Automattic, WordPress VIP, or the WordPress F
 
 == Usage ==
 
-Open **Preflight Audit** in the admin menu and run a scan from the header. Results are stored, so screens load without re-analysing the codebase; a target is only re-scanned when its files change or the rule set is updated.
+Open **Preflight Audit** in the admin menu and run a scan from the header. Results are stored, so screens load without re-analysing the codebase. A plugin or theme updated through WordPress, and everything after a rule-set update, is scanned again the next time its screen opens. Code changed any other way, such as a deploy or an edit over SFTP, needs a **Rescan**.
 
 **Rescan** re-reads everything. The caret beside it narrows the rescan to one area — plugins, themes, must-use plugins, the database schema or wp-content — which is what you want after updating a single plugin or converting a few tables, and avoids re-tokenising a codebase that has not changed.
 
@@ -81,7 +81,7 @@ Choosing an area takes you straight to that screen and reads its rows one at a t
 
 **Overview** answers how the site measures up and what to do first. **Findings** is one ranked list of fixes, worst first, with the recommended change visible on every card. **Plugins**, **Themes** and **Must-use** give a per-target verdict, with each row expanding to the evidence behind it. **Database** and **wp-content** check the schema and the application structure against what WordPress VIP requires.
 
-Scan results are stored in the options table and are only readable by users who can `manage_options`. They are removed when the plugin is uninstalled.
+Scan results are stored in the options table and are only readable by users who can `manage_options`, or on multisite by network administrators, since the code and the database are shared by every site. The `preflight_audit_capability` filter changes this. Results are removed when the plugin is uninstalled.
 
 == Frequently Asked Questions ==
 

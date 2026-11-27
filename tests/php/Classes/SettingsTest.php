@@ -58,6 +58,18 @@ class SettingsTest extends TestCase {
 		}
 	}
 
+	public function test_on_multisite_the_menu_needs_a_network_administrator() {
+		WP::$multisite = true;
+
+		$this->settings()->add_plugin_menus();
+
+		$this->assertSame( 'manage_network_options', WP::$menu[0]['capability'] );
+
+		foreach ( WP::$submenu as $entry ) {
+			$this->assertSame( 'manage_network_options', $entry['capability'] );
+		}
+	}
+
 	public function test_the_overview_submenu_has_no_callback_of_its_own() {
 		$this->settings()->add_plugin_menus();
 

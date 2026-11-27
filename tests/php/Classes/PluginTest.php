@@ -35,6 +35,7 @@ class PluginTest extends TestCase {
 		$this->assertNotFalse( has_action( 'admin_menu' ) );
 		$this->assertNotFalse( has_action( 'wp_ajax_preflight_audit_scan_target' ) );
 		$this->assertNotFalse( has_action( 'admin_post_preflight_audit_export' ) );
+		$this->assertNotFalse( has_action( 'upgrader_process_complete' ) );
 	}
 
 	public function test_get_instance_is_a_singleton() {
