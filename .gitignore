@@ -19,3 +19,6 @@ Thumbs.db
 
 # Jest
 /coverage/
+
+# Release builds
+/dist/

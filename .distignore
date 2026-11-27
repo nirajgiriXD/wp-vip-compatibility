@@ -5,6 +5,7 @@ node_modules/
 .gitignore
 .github
 dist/
+scripts/
 .idea
 .vscode/
 webpack.config.js
