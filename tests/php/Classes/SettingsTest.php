@@ -108,24 +108,8 @@ class SettingsTest extends TestCase {
 		$this->assertStringContainsString( '#toplevel_page_preflight-audit .wp-menu-image img{opacity:1', $css );
 	}
 
-	public function test_the_menu_badge_counts_only_must_fix_findings() {
-		$this->store_result(
-			$this->add_plugin( 'p' ),
-			array(
-				$this->finding( 'security.command-execution' ),
-				$this->finding( 'security.dynamic-code', array( 'line' => 2 ) ),
-				$this->finding( 'caching.cache-flush', array( 'line' => 3 ) ),
-			)
-		);
-
-		$this->settings()->add_plugin_menus();
-
-		$this->assertStringContainsString( '<span class="update-plugins count-2">', WP::$menu[0]['menu_title'] );
-		$this->assertStringContainsString( '2 findings must be fixed', WP::$menu[0]['menu_title'] );
-	}
-
-	public function test_no_badge_when_nothing_must_be_fixed() {
-		$this->store_result( $this->add_plugin( 'p' ), array( $this->finding( 'caching.cache-flush' ) ) );
+	public function test_the_menu_title_has_no_count_even_with_must_fix_findings() {
+		$this->store_result( $this->add_plugin( 'p' ), array( $this->finding( 'security.command-execution' ) ) );
 
 		$this->settings()->add_plugin_menus();
 

@@ -8,8 +8,6 @@
 namespace PREFLIGHT_AUDIT\Includes\Classes;
 
 use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
-use PREFLIGHT_AUDIT\Includes\Scanner\Report;
-use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -167,12 +165,10 @@ class Settings {
 	/**
 	 * Adds the plugin menus in the WordPress admin panel.
 	 *
-	 * The admin menu is the plugin's only navigation, so it has to carry what a
-	 * flat list of seven links cannot: how much work is outstanding, and which
-	 * part of the job each screen belongs to. The first gets the same count
-	 * bubble WordPress uses for pending updates — a number there is read without
-	 * being explained. The second is a heading rendered above the first entry of
-	 * each group, which turns seven equal-looking links into three short lists.
+	 * The admin menu is the plugin's only navigation, so it has to show which
+	 * part of the job each screen belongs to. A heading is rendered above the
+	 * first entry of each group, which turns seven equal-looking links into
+	 * three short lists.
 	 *
 	 * @return void
 	 */
@@ -184,7 +180,7 @@ class Settings {
 		// duplicate of the parent under a different name.
 		add_menu_page(
 			__( 'Preflight Audit', 'preflight-audit' ),
-			__( 'Preflight Audit', 'preflight-audit' ) . $this->get_menu_badge(),
+			__( 'Preflight Audit', 'preflight-audit' ),
 			Plugin::get_capability(),
 			$screens['overview']['slug'],
 			fn() => $this->render_settings_page( 'overview' ),
@@ -271,41 +267,6 @@ class Settings {
 						esc_html__( 'Preflight Audit is an independent tool, not affiliated with or endorsed by Automattic or WordPress VIP. Its rules are written from the public %s.', 'preflight-audit' ),
 						'<a href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'WordPress VIP documentation', 'preflight-audit' ) . '<span class="screen-reader-text"> ' . esc_html__( '(opens in a new tab)', 'preflight-audit' ) . '</span></a>'
 					) . '</p>',
-			)
-		);
-	}
-
-	/**
-	 * Builds the count bubble shown on the top-level menu entry.
-	 *
-	 * It counts the findings in the must-fix tier and nothing else. A bubble is a
-	 * claim that something needs doing, so counting anything advisory in it would
-	 * leave a site that is ready to migrate wearing a permanent red badge.
-	 *
-	 * @return string The bubble markup, or an empty string when there is nothing to flag.
-	 */
-	private function get_menu_badge() {
-		$aggregate = Report::aggregate();
-		$count     = 0;
-
-		foreach ( Taxonomy::get_tier_severities( Taxonomy::TIER_BLOCKING ) as $severity ) {
-			$count += (int) ( $aggregate['by_severity'][ $severity ] ?? 0 );
-		}
-
-		if ( $count < 1 ) {
-			return '';
-		}
-
-		return sprintf(
-			' <span class="update-plugins count-%1$d"><span class="plugin-count" aria-hidden="true">%2$s</span><span class="screen-reader-text">%3$s</span></span>',
-			$count,
-			esc_html( number_format_i18n( $count ) ),
-			esc_html(
-				sprintf(
-					/* translators: %s: Number of findings. */
-					_n( '%s finding must be fixed', '%s findings must be fixed', $count, 'preflight-audit' ),
-					number_format_i18n( $count )
-				)
 			)
 		);
 	}

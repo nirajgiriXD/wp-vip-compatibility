@@ -46,8 +46,8 @@ class Results_Store {
 	/**
 	 * Per-request copy of the summary index.
 	 *
-	 * The index is read by the masthead, the menu badge and every screen, which
-	 * is three or four reads of the same option on a single admin page. It is
+	 * The index is read by the masthead and every screen, which is several
+	 * reads of the same option on a single admin page. It is
 	 * kept in step with every write below rather than simply invalidated, so a
 	 * caller never sees a stale copy.
 	 *
@@ -138,7 +138,7 @@ class Results_Store {
 	 *
 	 * Entries written by an older rule set are left out, exactly as get() leaves
 	 * out their results. Otherwise, after an update that changes the rules, the
-	 * menu badge, the score and every table would keep showing the old verdicts
+	 * score and every table would keep showing the old verdicts
 	 * while the findings list, which reads the results, showed nothing for them.
 	 * Left out, those targets read as "Not scanned yet" and are scanned again.
 	 *

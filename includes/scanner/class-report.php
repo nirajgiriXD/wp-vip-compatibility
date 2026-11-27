@@ -350,9 +350,8 @@ class Report {
 	 */
 	public static function aggregate() {
 		/*
-		 * The masthead, the admin-menu badge and the screen itself each ask for
-		 * this within one request, and the badge asks for it on every admin page
-		 * in the site. Keyed on the store's generation so a scan that lands
+		 * The masthead and the screen itself both ask for this within one
+		 * request. Keyed on the store's generation so a scan that lands
 		 * mid-request is still reflected rather than served from a stale copy.
 		 */
 		static $memo = array();
