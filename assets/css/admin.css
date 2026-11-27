@@ -2621,12 +2621,29 @@ code.pfa-item__name {
 	transform: rotate(180deg);
 }
 
+/*
+ * The opened part is a panel of its own, so it reads apart from the summary.
+ * 48px = the 12px summary padding + the 22px mark column + the 14px gap, so
+ * the panel lines up with the title above it.
+ */
 .pfa-fix__body {
 	display: flex;
 	flex-direction: column;
-	gap: 22px;
-	padding: 2px 22px 24px 42px;
-	animation: pfa-rise 0.25s var(--pfa-ease);
+	gap: 16px;
+	margin: 0 16px 18px 48px;
+	padding: 16px 20px;
+	border: 1px solid var(--pfa-rule);
+	border-radius: var(--pfa-radius-lg);
+	background: var(--pfa-sheet-2);
+
+	/* Fade only: a transform made the text settle half a pixel at the end. */
+	animation: pfa-fade 0.18s ease-out;
+}
+
+/* Why / locations / rule, each separated by a thin rule. */
+.pfa-fix__body > * + * {
+	padding-top: 16px;
+	border-top: 1px solid var(--pfa-rule);
 }
 
 .pfa-fix__answer {
@@ -2650,7 +2667,7 @@ code.pfa-item__name {
 .pfa-fix__answer dd {
 	color: var(--pfa-ink-2);
 	font-size: 13.5px;
-	line-height: 1.65;
+	line-height: 1.6;
 }
 
 .pfa-occurrences__list {
@@ -2694,8 +2711,6 @@ code.pfa-item__name {
 	align-items: center;
 	justify-content: space-between;
 	gap: 12px 24px;
-	padding-top: 14px;
-	border-top: 1px dashed var(--pfa-rule-2);
 }
 
 .pfa-fix__doc {
@@ -3380,8 +3395,10 @@ body.pfa-screen #screen-meta .help-tab-content {
 		justify-content: space-between;
 	}
 
+	/* Full width on a phone: the title indent costs too much room there. */
 	.pfa-fix__body {
-		padding: 2px 14px 20px 30px;
+		margin: 0 12px 14px;
+		padding: 14px;
 	}
 
 	/* Tables become stacked records. */
