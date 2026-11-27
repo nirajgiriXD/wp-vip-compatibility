@@ -185,7 +185,7 @@ class Settings {
 		add_menu_page(
 			__( 'Preflight Audit', 'preflight-audit' ),
 			__( 'Preflight Audit', 'preflight-audit' ) . $this->get_menu_badge(),
-			'manage_options',
+			Plugin::get_capability(),
 			$screens['overview']['slug'],
 			fn() => $this->render_settings_page( 'overview' ),
 			self::get_menu_icon_url()
@@ -215,7 +215,7 @@ class Settings {
 				/* translators: %s: Submenu title */
 				sprintf( __( 'Preflight Audit — %s', 'preflight-audit' ), $screen['title'] ),
 				$label,
-				'manage_options',
+				Plugin::get_capability(),
 				$screen['slug'],
 				// The overview is listed as its own first submenu entry so the
 				// menu does not show the plugin name twice under itself. It must be

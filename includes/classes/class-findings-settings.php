@@ -71,7 +71,7 @@ class Findings_Settings {
 	 * @return void
 	 */
 	public function handle_rescan() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( Plugin::get_capability() ) ) {
 			wp_die(
 				esc_html__( 'You do not have permission to run compatibility scans.', 'preflight-audit' ),
 				esc_html__( 'Forbidden', 'preflight-audit' ),

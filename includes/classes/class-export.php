@@ -27,11 +27,6 @@ class Export {
 	use Singleton;
 
 	/**
-	 * Capability required to export.
-	 */
-	const CAPABILITY = 'manage_options';
-
-	/**
 	 * Nonce action.
 	 */
 	const NONCE_ACTION = 'preflight_audit_export_report';
@@ -101,7 +96,7 @@ class Export {
 	 * @return void
 	 */
 	public function handle() {
-		if ( ! current_user_can( self::CAPABILITY ) ) {
+		if ( ! current_user_can( Plugin::get_capability() ) ) {
 			wp_die(
 				esc_html__( 'You do not have permission to export the compatibility report.', 'preflight-audit' ),
 				esc_html__( 'Forbidden', 'preflight-audit' ),

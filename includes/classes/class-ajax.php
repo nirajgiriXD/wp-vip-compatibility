@@ -33,11 +33,6 @@ class Ajax {
 	use Singleton;
 
 	/**
-	 * Capability required for every endpoint.
-	 */
-	const CAPABILITY = 'manage_options';
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -62,7 +57,7 @@ class Ajax {
 	 * @return void
 	 */
 	private function authorize() {
-		if ( ! current_user_can( self::CAPABILITY ) ) {
+		if ( ! current_user_can( Plugin::get_capability() ) ) {
 			wp_send_json_error(
 				array( 'message' => __( 'You do not have permission to run compatibility scans.', 'preflight-audit' ) ),
 				403

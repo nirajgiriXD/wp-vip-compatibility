@@ -110,6 +110,12 @@ add_filter( 'preflight_audit_scanner_rules', function ( array $rules ) {
     return $rules;
 } );
 
+// Change who can use the plugin. Default: manage_options, or
+// manage_network_options on multisite.
+add_filter( 'preflight_audit_capability', function () {
+    return 'manage_options';
+} );
+
 // Change which directories are skipped.
 add_filter( 'preflight_audit_scanner_excluded_directories', function ( array $excluded ) {
     $excluded[] = 'third-party';

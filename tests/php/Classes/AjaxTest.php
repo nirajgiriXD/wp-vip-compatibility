@@ -61,6 +61,18 @@ class AjaxTest extends TestCase {
 	/**
 	 * @dataProvider endpoints
 	 */
+	public function test_on_multisite_the_endpoints_need_a_network_administrator( $method ) {
+		WP::$multisite = true;
+		WP::$can       = false;
+
+		$this->call( $method );
+
+		$this->assertSame( array( 'manage_network_options' ), WP::$checked_caps );
+	}
+
+	/**
+	 * @dataProvider endpoints
+	 */
 	public function test_a_bad_nonce_is_refused( $method ) {
 		WP::$nonce_valid = false;
 

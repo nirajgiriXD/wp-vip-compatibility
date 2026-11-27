@@ -78,6 +78,27 @@ class Plugin {
 	}
 
 	/**
+	 * Returns the capability every screen, scan and export requires.
+	 *
+	 * On multisite, plugins, themes and the database are shared by the whole
+	 * network, so a single site's administrator would otherwise read findings
+	 * for code and tables that belong to every other site. There it takes a
+	 * network administrator.
+	 *
+	 * @return string The capability.
+	 */
+	public static function get_capability() {
+		$capability = is_multisite() ? 'manage_network_options' : 'manage_options';
+
+		/**
+		 * Filters the capability required to use Preflight Audit.
+		 *
+		 * @param string $capability `manage_network_options` on multisite, `manage_options` otherwise.
+		 */
+		return (string) apply_filters( 'preflight_audit_capability', $capability );
+	}
+
+	/**
 	 * Loads the plugin text domain.
 	 *
 	 * @return void

@@ -81,7 +81,7 @@ Choosing an area takes you straight to that screen and reads its rows one at a t
 
 **Overview** answers how the site measures up and what to do first. **Findings** is one ranked list of fixes, worst first, with the recommended change visible on every card. **Plugins**, **Themes** and **Must-use** give a per-target verdict, with each row expanding to the evidence behind it. **Database** and **wp-content** check the schema and the application structure against what WordPress VIP requires.
 
-Scan results are stored in the options table and are only readable by users who can `manage_options`. They are removed when the plugin is uninstalled.
+Scan results are stored in the options table and are only readable by users who can `manage_options`, or on multisite by network administrators, since the code and the database are shared by every site. The `preflight_audit_capability` filter changes this. Results are removed when the plugin is uninstalled.
 
 == Frequently Asked Questions ==
 
