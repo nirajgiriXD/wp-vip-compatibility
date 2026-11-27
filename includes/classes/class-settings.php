@@ -24,7 +24,7 @@ class Settings {
 	 * A file rather than a base64 data URI, because WordPress repaints a data
 	 * URI's fills in one colour and this is the full-colour logo. WordPress
 	 * renders a URL as an <img>, which it dims until hover; see
-	 * print_menu_icon_style().
+	 * Assets::get_menu_styles().
 	 *
 	 * @var string
 	 */
@@ -37,18 +37,6 @@ class Settings {
 	 */
 	public static function get_menu_icon_url() {
 		return CUTOVER_AUDIT_URL . self::MENU_ICON;
-	}
-
-	/**
-	 * Keeps the menu icon at full strength and sized to the other icons.
-	 *
-	 * WordPress shows image menu icons at 60% opacity, which washes out a
-	 * coloured logo. Printed on every admin screen, since the menu is.
-	 *
-	 * @return void
-	 */
-	public function print_menu_icon_style() {
-		echo '<style>#toplevel_page_cutover-audit .wp-menu-image img{opacity:1;width:20px;height:20px;padding-top:8px}</style>' . "\n";
 	}
 
 	/**
@@ -76,7 +64,6 @@ class Settings {
 		// wp-admin/menu.php, which runs before admin_init, so a redirect hooked
 		// there never fires. admin_menu runs before that check.
 		add_action( 'admin_menu', array( $this, 'redirect_retired_screens' ), 0 );
-		add_action( 'admin_head', array( $this, 'print_menu_icon_style' ) );
 	}
 
 	/**

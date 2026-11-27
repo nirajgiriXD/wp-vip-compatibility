@@ -190,6 +190,7 @@ final class WP {
 		'registered_scripts' => array(),
 		'enqueued_styles'    => array(),
 		'enqueued_scripts'   => array(),
+		'inline_styles'      => array(),
 		'localized'          => array(),
 	);
 
@@ -254,6 +255,7 @@ final class WP {
 			'registered_scripts' => array(),
 			'enqueued_styles'    => array(),
 			'enqueued_scripts'   => array(),
+			'inline_styles'      => array(),
 			'localized'          => array(),
 		);
 		self::$lifecycle        = array(

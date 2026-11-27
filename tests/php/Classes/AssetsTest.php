@@ -20,7 +20,8 @@ class AssetsTest extends TestCase {
 		$assets = new Assets();
 
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $assets, 'admin_enqueue_scripts' ) ) );
-		$this->assertSame( 10, has_action( 'admin_head', array( $assets, 'print_menu_styles' ) ) );
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $assets, 'enqueue_menu_styles' ) ) );
+		$this->assertFalse( has_action( 'admin_head', array( $assets, 'print_menu_styles' ) ) );
 		$this->assertSame( 10, has_filter( 'admin_body_class', array( $assets, 'add_body_class' ) ) );
 	}
 
@@ -99,28 +100,54 @@ class AssetsTest extends TestCase {
 		$this->assertSame( 'folded cutover-audit-screen', $assets->add_body_class( 'folded' ) );
 	}
 
+	/**
+	 * Returns the menu CSS attached by enqueue_menu_styles().
+	 *
+	 * @return string
+	 */
+	private function menu_styles() {
+		WP::$assets['inline_styles'] = array();
+
+		( new Assets() )->enqueue_menu_styles();
+
+		return implode( '', WP::$assets['inline_styles']['cutover-audit-menu'] ?? array() );
+	}
+
+	public function test_menu_styles_load_on_every_admin_screen_without_a_file_or_a_style_tag() {
+		$_GET['page'] = 'some-other-plugin';
+
+		$css = $this->menu_styles();
+
+		$this->assertSame( array( 'cutover-audit-menu' ), WP::$assets['enqueued_styles'] );
+		$this->assertFalse( WP::$assets['registered_styles']['cutover-audit-menu']['src'] );
+		$this->assertNotSame( '', $css );
+		$this->assertStringNotContainsString( '<style', $css );
+	}
+
+	public function test_the_menu_icon_is_shown_at_full_opacity() {
+		$this->assertStringContainsString( '#toplevel_page_cutover-audit .wp-menu-image img{opacity:1', $this->menu_styles() );
+	}
+
 	public function test_menu_styles_use_the_admin_colour_scheme() {
 		$GLOBALS['_wp_admin_css_colors'] = array(
 			'fresh'    => (object) array( 'icon_colors' => array( 'base' => '#a7aaad' ) ),
 			'midnight' => (object) array( 'icon_colors' => array( 'base' => '#f1f2f3' ) ),
 		);
 
-		$output = $this->render( array( new Assets(), 'print_menu_styles' ) );
+		$css = $this->menu_styles();
 
-		$this->assertStringContainsString( '#toplevel_page_cutover-audit .cutover-audit-menu-group', $output );
-		$this->assertStringContainsString( 'color: #a7aaad;', $output, 'falls back to the default scheme' );
+		$this->assertStringContainsString( '#toplevel_page_cutover-audit .cutover-audit-menu-group{', $css );
+		$this->assertStringContainsString( 'color:#a7aaad;', $css, 'falls back to the default scheme' );
 
 		WP::$user_options['admin_color'] = 'midnight';
 
-		$this->assertStringContainsString( 'color: #f1f2f3;', $this->render( array( new Assets(), 'print_menu_styles' ) ) );
+		$this->assertStringContainsString( 'color:#f1f2f3;', $this->menu_styles() );
 	}
 
 	public function test_menu_styles_without_a_known_colour_leave_the_colour_out() {
 		$GLOBALS['_wp_admin_css_colors'] = array();
 
-		$output = $this->render( array( new Assets(), 'print_menu_styles' ) );
-
-		$this->assertStringNotContainsString( 'color:', preg_replace( '/border-top:[^;]+;/', '', $output ) );
+		$this->assertStringNotContainsString( 'color:', preg_replace( '/border-top:[^;]+;/', '', $this->menu_styles() ) );
 	}
 
 	protected function tearDown(): void {

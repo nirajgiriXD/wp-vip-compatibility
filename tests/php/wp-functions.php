@@ -550,6 +550,12 @@ function wp_enqueue_style( $handle ) {
 	WP::$assets['enqueued_styles'][] = $handle;
 }
 
+function wp_add_inline_style( $handle, $data ) {
+	WP::$assets['inline_styles'][ $handle ][] = $data;
+
+	return true;
+}
+
 function wp_register_script( $handle, $src, $deps = array(), $ver = false, $args = array() ) {
 	WP::$assets['registered_scripts'][ $handle ] = compact( 'src', 'deps', 'ver', 'args' );
 

@@ -34,7 +34,7 @@ class Assets {
 	private function setup_hooks() {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-		add_action( 'admin_head', array( $this, 'print_menu_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_menu_styles' ) );
 		add_filter( 'admin_body_class', array( $this, 'add_body_class' ) );
 	}
 
@@ -57,54 +57,44 @@ class Assets {
 	}
 
 	/**
-	 * Styles the group headings in the plugin's admin submenu.
+	 * Styles the plugin's entry in the admin menu.
 	 *
-	 * This cannot ride along with the screen stylesheet. The submenu is rendered
-	 * into every admin page, so the headings would show up as stray words on the
-	 * WordPress screens where that stylesheet is deliberately not loaded. It is
-	 * half a dozen rules, so it is printed inline rather than costing a request.
+	 * This cannot ride along with the screen stylesheet. The menu is rendered
+	 * into every admin page, so the group headings would show up as stray words,
+	 * and the logo washed out, on the WordPress screens where that stylesheet is
+	 * deliberately not loaded. It is a handful of rules, so they are attached
+	 * inline to a handle with no file rather than costing a request.
 	 *
 	 * @return void
 	 */
-	public function print_menu_styles() {
-		$slug  = UI::get_screens()['overview']['slug'];
+	public function enqueue_menu_styles() {
+		wp_register_style( 'cutover-audit-menu', false, array(), CUTOVER_AUDIT_VERSION );
+		wp_enqueue_style( 'cutover-audit-menu' );
+		wp_add_inline_style( 'cutover-audit-menu', $this->get_menu_styles() );
+	}
+
+	/**
+	 * Returns the admin menu rules.
+	 *
+	 * WordPress shows an image menu icon at 60% opacity, which washes out a
+	 * coloured logo, so the icon is put back to full strength and sized to the
+	 * other icons. The group headings sit inside their submenu links, so core's
+	 * hover bar (an inset box-shadow) would run down the heading too; it is
+	 * redrawn as a background sized to the item's own line plus its bottom
+	 * padding.
+	 *
+	 * @return string The CSS.
+	 */
+	private function get_menu_styles() {
+		$menu  = '#toplevel_page_' . sanitize_html_class( UI::get_screens()['overview']['slug'] );
 		$color = $this->get_menu_group_color();
-		?>
-		<style id="cutover-audit-menu-styles">
-			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .cutover-audit-menu-group {
-				display: block;
-				margin: 10px -13px 3px;
-				padding: 8px 13px 0;
-				border-top: 1px solid rgba(240, 246, 252, 0.14);
-				<?php if ( '' !== $color ) : ?>
-				color: <?php echo esc_html( $color ); ?>;
-				<?php endif; ?>
-				font-size: 10px;
-				font-weight: 600;
-				line-height: 1.4;
-				letter-spacing: 0.06em;
-				text-transform: uppercase;
-				opacity: 0.55;
-			}
+		$color = ( '' === $color ) ? '' : 'color:' . $color . ';';
 
-			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .cutover-audit-menu-group--first {
-				margin-top: 2px;
-				padding-top: 0;
-				border-top: 0;
-			}
-
-			/*
-			 * The heading sits inside the link, so core's hover bar (an inset
-			 * box-shadow) would run down the heading too. Redraw it as a
-			 * background sized to the item's own line plus its bottom padding.
-			 */
-			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .wp-submenu a:has(.cutover-audit-menu-group):hover,
-			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .wp-submenu a:has(.cutover-audit-menu-group):focus {
-				box-shadow: none;
-				background: linear-gradient(currentColor, currentColor) left bottom / 4px calc(1.4em + 5px) no-repeat;
-			}
-		</style>
-		<?php
+		return $menu . ' .wp-menu-image img{opacity:1;width:20px;height:20px;padding-top:8px}'
+			. $menu . ' .cutover-audit-menu-group{display:block;margin:10px -13px 3px;padding:8px 13px 0;border-top:1px solid rgba(240,246,252,0.14);' . $color . 'font-size:10px;font-weight:600;line-height:1.4;letter-spacing:0.06em;text-transform:uppercase;opacity:0.55}'
+			. $menu . ' .cutover-audit-menu-group--first{margin-top:2px;padding-top:0;border-top:0}'
+			. $menu . ' .wp-submenu a:has(.cutover-audit-menu-group):hover,'
+			. $menu . ' .wp-submenu a:has(.cutover-audit-menu-group):focus{box-shadow:none;background:linear-gradient(currentColor,currentColor) left bottom / 4px calc(1.4em + 5px) no-repeat}';
 	}
 
 	/**

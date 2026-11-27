@@ -35,7 +35,6 @@ class SettingsTest extends TestCase {
 
 		$this->assertSame( 10, has_action( 'admin_menu', array( $settings, 'add_plugin_menus' ) ) );
 		$this->assertSame( 0, has_action( 'admin_menu', array( $settings, 'redirect_retired_screens' ) ) );
-		$this->assertSame( 10, has_action( 'admin_head', array( $settings, 'print_menu_icon_style' ) ) );
 	}
 
 	public function test_the_menu_registers_every_screen_behind_manage_options() {
@@ -98,14 +97,6 @@ class SettingsTest extends TestCase {
 		$this->assertNotFalse( simplexml_load_string( $svg ), 'well-formed SVG' );
 		$this->assertStringContainsString( 'width="20" height="20"', $svg );
 		$this->assertStringContainsString( '#34d399', $svg, 'the logo green' );
-	}
-
-	public function test_the_menu_icon_is_shown_at_full_opacity() {
-		ob_start();
-		$this->settings()->print_menu_icon_style();
-		$css = ob_get_clean();
-
-		$this->assertStringContainsString( '#toplevel_page_cutover-audit .wp-menu-image img{opacity:1', $css );
 	}
 
 	public function test_the_menu_title_has_no_count_even_with_must_fix_findings() {
