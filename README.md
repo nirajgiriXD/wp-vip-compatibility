@@ -129,6 +129,17 @@ phpcs --standard=phpcs.xml .
 wp i18n make-pot . languages/preflight-audit.pot
 ```
 
+### Releasing
+
+```bash
+npm run bump -- patch   # or minor, major, or an exact version such as 2.3.0
+npm run zip             # writes dist/preflight-audit-<version>.zip
+```
+
+`bump` updates the plugin header, `PREFLIGHT_AUDIT_VERSION`, the readme.txt `Stable tag`, the `.pot` file and the test bootstrap. Add the changelog entry to readme.txt yourself.
+
+`zip` packs the files git tracks, minus anything in `.distignore`, under a `preflight-audit/` folder. Add `--list` (`npm run zip -- --list`) to print what went in.
+
 Contribution workflow is in [WORKFLOW.md](WORKFLOW.md).
 
 ## Requirements
