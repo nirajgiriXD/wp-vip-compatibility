@@ -55,7 +55,7 @@ The admin menu carries a count of what must be fixed, so the work is visible fro
 
 = Accuracy =
 
-Results are only as good as their false-positive rate, so the scanner resolves local variable assignments before judging a path, reads `fopen()` modes before calling a read a write, checks whether a query is cached before calling it uncached, and recognises that an admin-only response is not part of the edge cache. Where it still cannot be sure, it lowers the confidence and says why. Findings can be acknowledged in the source with a `// cutover-audit:ignore <rule-id> -- reason` annotation.
+Results are only as good as their false-positive rate, so the scanner resolves local variable assignments before judging a path, checks the `fopen()` mode so a file opened only for reading is not reported as a write, checks whether a query is cached before calling it uncached, and recognises that an admin-only response is not part of the edge cache. Where it still cannot be sure, it lowers the confidence and says why. Findings can be acknowledged in the source with a `// cutover-audit:ignore <rule-id> -- reason` annotation.
 
 The plugin holds itself to the same standard: its own source passes `phpcs --standard=WordPress-VIP-Go`.
 
