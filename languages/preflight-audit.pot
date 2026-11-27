@@ -9,15 +9,15 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-27T04:54:20+00:00\n"
+"POT-Creation-Date: 2026-11-27T10:12:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: preflight-audit\n"
 
 #. Plugin Name of the plugin
 #: preflight-audit.php
-#: includes/classes/class-settings.php:186
-#: includes/classes/class-settings.php:187
+#: includes/classes/class-settings.php:182
+#: includes/classes/class-settings.php:183
 #: includes/classes/class-ui.php:416
 msgid "Preflight Audit"
 msgstr ""
@@ -42,47 +42,61 @@ msgstr ""
 msgid "https://github.com/nirajgiriXD/"
 msgstr ""
 
-#: functions.php:35
+#: functions.php:36
 msgid "Error: Unknown scan target"
 msgstr ""
 
-#: functions.php:42
-#: includes/scanner/class-report.php:433
+#: functions.php:43
+#: includes/scanner/class-report.php:485
 #: includes/scanner/class-taxonomy.php:98
 msgid "Incompatible"
 msgstr ""
 
-#: functions.php:44
+#: functions.php:45
 #: includes/classes/class-directories-settings.php:112
 #: includes/scanner/class-directory-audit.php:221
-#: includes/scanner/class-scanner.php:346
+#: includes/scanner/class-scanner.php:364
 msgid "Needs review"
 msgstr ""
 
-#: functions.php:46
+#: functions.php:47
 msgid "Compatible"
 msgstr ""
 
-#: includes/classes/class-ajax.php:67
-#: includes/classes/class-findings-settings.php:75
+#: includes/classes/class-ajax.php:62
+#: includes/classes/class-findings-settings.php:76
 msgid "You do not have permission to run compatibility scans."
 msgstr ""
 
-#: includes/classes/class-ajax.php:87
+#: includes/classes/class-ajax.php:82
 msgid "No scan target was supplied."
 msgstr ""
 
-#: includes/classes/class-ajax.php:93
+#: includes/classes/class-ajax.php:88
 msgid "Unknown scan target."
 msgstr ""
 
-#. translators: 1: Number of findings. 2: Number of PHP files scanned.
-#: includes/classes/class-ajax.php:112
+#. translators: %s: Number of findings.
+#: includes/classes/class-ajax.php:101
 #, php-format
-msgid "%1$d finding across %2$d PHP file."
-msgid_plural "%1$d findings across %2$d PHP files."
+msgid "%s finding"
+msgid_plural "%s findings"
 msgstr[0] ""
 msgstr[1] ""
+
+#. translators: %s: Number of PHP files scanned.
+#: includes/classes/class-ajax.php:104
+#, php-format
+msgid "%s PHP file"
+msgid_plural "%s PHP files"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: Number of findings, already counted, e.g. "2 findings". 2: Number of PHP files, already counted, e.g. "1 PHP file".
+#: includes/classes/class-ajax.php:121
+#, php-format
+msgid "%1$s across %2$s."
+msgstr ""
 
 #: includes/classes/class-assets.php:203
 msgid "Scanning…"
@@ -180,7 +194,7 @@ msgid "Press Ctrl+C to copy"
 msgstr ""
 
 #: includes/classes/class-assets.php:235
-#: includes/classes/class-findings-settings.php:488
+#: includes/classes/class-findings-settings.php:481
 msgid "Expand all"
 msgstr ""
 
@@ -244,7 +258,7 @@ msgstr ""
 #: includes/classes/class-database-settings.php:248
 #: includes/classes/class-inventory-screen.php:279
 #: includes/classes/class-ui.php:1086
-#: includes/scanner/class-scanner.php:348
+#: includes/scanner/class-scanner.php:366
 msgid "Passing"
 msgstr ""
 
@@ -326,7 +340,7 @@ msgid "Search paths…"
 msgstr ""
 
 #: includes/classes/class-directories-settings.php:103
-#: includes/classes/class-findings-settings.php:569
+#: includes/classes/class-findings-settings.php:562
 #: includes/classes/class-mu-plugins-settings.php:165
 #: includes/scanner/class-report.php:57
 msgid "Everything"
@@ -354,126 +368,126 @@ msgstr ""
 msgid "Reference"
 msgstr ""
 
-#: includes/classes/class-export.php:59
+#: includes/classes/class-export.php:54
 msgid "JSON"
 msgstr ""
 
-#: includes/classes/class-export.php:60
+#: includes/classes/class-export.php:55
 msgid "Every finding, for CI and tooling."
 msgstr ""
 
-#: includes/classes/class-export.php:65
+#: includes/classes/class-export.php:60
 msgid "CSV"
 msgstr ""
 
-#: includes/classes/class-export.php:66
+#: includes/classes/class-export.php:61
 msgid "One row per finding, for a spreadsheet."
 msgstr ""
 
-#: includes/classes/class-export.php:71
+#: includes/classes/class-export.php:66
 msgid "Markdown"
 msgstr ""
 
-#: includes/classes/class-export.php:72
+#: includes/classes/class-export.php:67
 msgid "For pasting into a ticket or PR."
 msgstr ""
 
-#: includes/classes/class-export.php:106
+#: includes/classes/class-export.php:101
 msgid "You do not have permission to export the compatibility report."
 msgstr ""
 
-#: includes/classes/class-export.php:107
-#: includes/classes/class-findings-settings.php:76
+#: includes/classes/class-export.php:102
+#: includes/classes/class-findings-settings.php:77
 msgid "Forbidden"
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:60
+#: includes/classes/class-findings-settings.php:61
 msgid "<strong>Worst first.</strong> The list is ranked by what to do — must fix, should fix, worth checking, FYI. The same issue in several places is one entry, with every place listed under it."
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:61
+#: includes/classes/class-findings-settings.php:62
 msgid "<strong>What each entry shows.</strong> The file and line, the code, why it matters on WordPress VIP, and the recommended fix. Where they exist, also an alternative approach and a link to the documentation."
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:62
+#: includes/classes/class-findings-settings.php:63
 msgid "<strong>Filters and sharing.</strong> The column of links narrows the list in one click, and each filter is part of the address, so a view can be bookmarked or shared. Press <code>/</code> to search. Export from the top bar as JSON, CSV or Markdown."
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:63
+#: includes/classes/class-findings-settings.php:64
 msgid "<strong>Unsure, or already reviewed?</strong> The scan reads code without running it, so when it cannot be sure, it says so under the code instead of guessing. To accept a finding, add <code>// pfa:ignore &lt;rule-id&gt; -- reason</code> to the line, or <code>pfa:ignore-next-line</code> above it, and rescan. Security findings cannot be silenced."
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:235
+#: includes/classes/class-findings-settings.php:228
 msgid "No scan results yet"
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:236
+#: includes/classes/class-findings-settings.php:229
 msgid "Run a scan to analyse every plugin, theme and must-use plugin against the WordPress VIP platform guidelines."
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:238
+#: includes/classes/class-findings-settings.php:231
 #: includes/classes/class-overview-settings.php:216
 msgid "Run the first scan"
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:299
+#: includes/classes/class-findings-settings.php:292
 msgid "Nothing matches these filters"
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:300
+#: includes/classes/class-findings-settings.php:293
 msgid "Clear them to see everything the last scan reported."
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:302
-#: includes/classes/class-findings-settings.php:672
+#: includes/classes/class-findings-settings.php:295
+#: includes/classes/class-findings-settings.php:665
 msgid "Clear filters"
 msgstr ""
 
 #. translators: %s: Number of issues on screen.
-#: includes/classes/class-findings-settings.php:449
+#: includes/classes/class-findings-settings.php:442
 #, php-format
 msgid "%s issue"
 msgid_plural "%s issues"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/classes/class-findings-settings.php:460
+#: includes/classes/class-findings-settings.php:453
 msgid "Filter by what to do"
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:517
+#: includes/classes/class-findings-settings.php:510
 msgid "Search findings by rule, file or function"
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:524
+#: includes/classes/class-findings-settings.php:517
 msgid "Search findings…"
 msgstr ""
 
 #. translators: %s: The search term.
-#: includes/classes/class-findings-settings.php:648
+#: includes/classes/class-findings-settings.php:641
 #, php-format
 msgid "Matching “%s”"
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:666
+#: includes/classes/class-findings-settings.php:659
 msgid "Remove this filter"
 msgstr ""
 
 #. translators: %s: Comma-separated item names.
-#: includes/classes/class-findings-settings.php:714
+#: includes/classes/class-findings-settings.php:707
 #, php-format
 msgid "The scan stopped early on %s because of their size, so this list is not complete for them. Fix what is here and rescan to see the rest."
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:719
+#: includes/classes/class-findings-settings.php:712
 msgid "Partial results"
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:799
+#: includes/classes/class-findings-settings.php:792
 msgid "Nothing in this tier"
 msgstr ""
 
-#: includes/classes/class-findings-settings.php:800
+#: includes/classes/class-findings-settings.php:793
 msgid "Choose another tier above, or Everything to see the whole list."
 msgstr ""
 
@@ -483,7 +497,7 @@ msgstr ""
 
 #: includes/classes/class-inventory-screen.php:269
 #: includes/classes/class-ui.php:1083
-#: includes/scanner/class-scanner.php:344
+#: includes/scanner/class-scanner.php:362
 msgid "Needs work"
 msgstr ""
 
@@ -504,7 +518,7 @@ msgid "Details"
 msgstr ""
 
 #: includes/classes/class-inventory-screen.php:360
-#: includes/classes/class-settings.php:272
+#: includes/classes/class-settings.php:268
 #: includes/classes/class-ui.php:1850
 msgid "WordPress VIP documentation"
 msgstr ""
@@ -796,7 +810,7 @@ msgstr[1] ""
 
 #. translators: %s: Number of themes.
 #: includes/classes/class-overview-settings.php:342
-#: includes/scanner/class-report.php:273
+#: includes/scanner/class-report.php:326
 #, php-format
 msgid "%s theme"
 msgid_plural "%s themes"
@@ -805,7 +819,7 @@ msgstr[1] ""
 
 #. translators: %s: Number of must-use plugins.
 #: includes/classes/class-overview-settings.php:347
-#: includes/scanner/class-report.php:277
+#: includes/scanner/class-report.php:330
 #, php-format
 msgid "%s must-use plugin"
 msgid_plural "%s must-use plugins"
@@ -814,7 +828,7 @@ msgstr[1] ""
 
 #. translators: %s: Number of plugins.
 #: includes/classes/class-overview-settings.php:352
-#: includes/scanner/class-report.php:269
+#: includes/scanner/class-report.php:322
 #, php-format
 msgid "%s plugin"
 msgid_plural "%s plugins"
@@ -969,38 +983,30 @@ msgid "Not loaded, but still shipped in the repository and still reviewed by Wor
 msgstr ""
 
 #. translators: %s: Submenu title
-#: includes/classes/class-settings.php:216
+#: includes/classes/class-settings.php:212
 #, php-format
 msgid "Preflight Audit — %s"
 msgstr ""
 
-#: includes/classes/class-settings.php:260
+#: includes/classes/class-settings.php:256
 msgid "About this report"
 msgstr ""
 
-#: includes/classes/class-settings.php:261
+#: includes/classes/class-settings.php:257
 msgid "How to read this list"
 msgstr ""
 
 #. translators: %s: Link to the WordPress VIP documentation.
-#: includes/classes/class-settings.php:271
+#: includes/classes/class-settings.php:267
 #, php-format
 msgid "Preflight Audit is an independent tool, not affiliated with or endorsed by Automattic or WordPress VIP. Its rules are written from the public %s."
 msgstr ""
 
-#: includes/classes/class-settings.php:272
+#: includes/classes/class-settings.php:268
 #: includes/classes/class-ui.php:752
 #: includes/classes/class-ui.php:1852
 msgid "(opens in a new tab)"
 msgstr ""
-
-#. translators: %s: Number of findings.
-#: includes/classes/class-settings.php:306
-#, php-format
-msgid "%s finding must be fixed"
-msgid_plural "%s findings must be fixed"
-msgstr[0] ""
-msgstr[1] ""
 
 #: includes/classes/class-themes-settings.php:40
 msgid "Search themes by name or author"
@@ -1085,8 +1091,8 @@ msgstr ""
 #: includes/classes/class-ui.php:89
 #: includes/classes/class-ui.php:90
 #: includes/scanner/class-report.php:66
-#: includes/scanner/class-report.php:549
-#: includes/scanner/class-report.php:745
+#: includes/scanner/class-report.php:601
+#: includes/scanner/class-report.php:797
 msgid "Plugins"
 msgstr ""
 
@@ -1097,7 +1103,7 @@ msgstr ""
 #: includes/classes/class-ui.php:97
 #: includes/classes/class-ui.php:98
 #: includes/scanner/class-report.php:73
-#: includes/scanner/class-report.php:550
+#: includes/scanner/class-report.php:602
 msgid "Themes"
 msgstr ""
 
@@ -1111,8 +1117,8 @@ msgstr ""
 
 #: includes/classes/class-ui.php:106
 #: includes/scanner/class-report.php:80
-#: includes/scanner/class-report.php:551
-#: includes/scanner/class-report.php:760
+#: includes/scanner/class-report.php:603
+#: includes/scanner/class-report.php:812
 msgid "Must-use plugins"
 msgstr ""
 
@@ -1123,8 +1129,8 @@ msgstr ""
 #: includes/classes/class-ui.php:113
 #: includes/classes/class-ui.php:114
 #: includes/scanner/class-report.php:87
-#: includes/scanner/class-report.php:789
-#: includes/scanner/class-report.php:804
+#: includes/scanner/class-report.php:841
+#: includes/scanner/class-report.php:856
 #: includes/scanner/class-taxonomy.php:308
 msgid "Database"
 msgstr ""
@@ -1135,12 +1141,12 @@ msgstr ""
 
 #: includes/classes/class-ui.php:121
 #: includes/scanner/class-report.php:94
-#: includes/scanner/class-report.php:819
+#: includes/scanner/class-report.php:871
 msgid "wp-content"
 msgstr ""
 
 #: includes/classes/class-ui.php:122
-#: includes/scanner/class-report.php:553
+#: includes/scanner/class-report.php:605
 msgid "wp-content layout"
 msgstr ""
 
@@ -1202,7 +1208,7 @@ msgid "passing"
 msgstr ""
 
 #: includes/classes/class-ui.php:949
-#: includes/scanner/class-report.php:457
+#: includes/scanner/class-report.php:509
 msgid "Not scanned yet"
 msgstr ""
 
@@ -1457,24 +1463,24 @@ msgid "A cache header is set by hand. Confirm the value matches what the WordPre
 msgstr ""
 
 #. translators: %s: The SQL statement type, for example "CREATE TABLE".
-#: includes/scanner/class-guards.php:533
+#: includes/scanner/class-guards.php:539
 #, php-format
 msgid "The query issues a %s statement."
 msgstr ""
 
-#: includes/scanner/class-guards.php:542
+#: includes/scanner/class-guards.php:548
 msgid "DDL appears in the same function as this query."
 msgstr ""
 
-#: includes/scanner/class-guards.php:572
+#: includes/scanner/class-guards.php:578
 msgid "The path is anchored to a known base directory, so the risk depends entirely on how the variable part is validated."
 msgstr ""
 
-#: includes/scanner/class-guards.php:651
+#: includes/scanner/class-guards.php:657
 msgid "The path is built from the application directory, which is read-only on WordPress VIP."
 msgstr ""
 
-#: includes/scanner/class-guards.php:659
+#: includes/scanner/class-guards.php:665
 msgid "The destination could not be resolved statically. Confirm it resolves to the uploads directory or /tmp/ at runtime."
 msgstr ""
 
@@ -1515,7 +1521,7 @@ msgid "Recheck what sits in wp-content today."
 msgstr ""
 
 #. translators: %s: Number of database tables.
-#: includes/scanner/class-report.php:238
+#: includes/scanner/class-report.php:291
 #, php-format
 msgid "Measured the schema again. %s table checked."
 msgid_plural "Measured the schema again. %s tables checked."
@@ -1523,7 +1529,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: Number of entries in wp-content.
-#: includes/scanner/class-report.php:248
+#: includes/scanner/class-report.php:301
 #, php-format
 msgid "Looked at wp-content again. %s entry checked."
 msgid_plural "Looked at wp-content again. %s entries checked."
@@ -1531,7 +1537,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: Number of scanned items.
-#: includes/scanner/class-report.php:281
+#: includes/scanner/class-report.php:334
 #, php-format
 msgid "%s item"
 msgid_plural "%s items"
@@ -1539,95 +1545,95 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: What was scanned, already counted, e.g. "12 plugins". 2: Number of PHP files.
-#: includes/scanner/class-report.php:287
+#: includes/scanner/class-report.php:340
 #, php-format
 msgid "Scanned %1$s across %2$s PHP file."
 msgid_plural "Scanned %1$s across %2$s PHP files."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/scanner/class-report.php:446
+#: includes/scanner/class-report.php:498
 msgid "Do not ship"
 msgstr ""
 
-#: includes/scanner/class-report.php:552
+#: includes/scanner/class-report.php:604
 msgid "Database tables"
 msgstr ""
 
-#: includes/scanner/class-report.php:587
+#: includes/scanner/class-report.php:639
 msgid "PHP"
 msgstr ""
 
-#: includes/scanner/class-report.php:590
+#: includes/scanner/class-report.php:642
 msgid "Within the range WordPress VIP runs."
 msgstr ""
 
-#: includes/scanner/class-report.php:591
+#: includes/scanner/class-report.php:643
 msgid "WordPress VIP runs PHP 8.0 and above. Test on a supported version first."
 msgstr ""
 
-#: includes/scanner/class-report.php:595
+#: includes/scanner/class-report.php:647
 msgid "WordPress"
 msgstr ""
 
-#: includes/scanner/class-report.php:597
+#: includes/scanner/class-report.php:649
 msgid "WordPress VIP tracks the latest release closely."
 msgstr ""
 
-#: includes/scanner/class-report.php:600
+#: includes/scanner/class-report.php:652
 msgid "Object cache"
 msgstr ""
 
-#: includes/scanner/class-report.php:602
+#: includes/scanner/class-report.php:654
 msgid "Persistent"
 msgstr ""
 
-#: includes/scanner/class-report.php:603
+#: includes/scanner/class-report.php:655
 msgid "Not persistent"
 msgstr ""
 
-#: includes/scanner/class-report.php:605
+#: includes/scanner/class-report.php:657
 msgid "Matches the WordPress VIP environment, where the object cache is always persistent."
 msgstr ""
 
-#: includes/scanner/class-report.php:606
+#: includes/scanner/class-report.php:658
 msgid "WordPress VIP always has a persistent object cache. Uncached queries behave differently there."
 msgstr ""
 
-#: includes/scanner/class-report.php:610
+#: includes/scanner/class-report.php:662
 msgid "Install type"
 msgstr ""
 
-#: includes/scanner/class-report.php:612
+#: includes/scanner/class-report.php:664
 msgid "Multisite"
 msgstr ""
 
-#: includes/scanner/class-report.php:613
+#: includes/scanner/class-report.php:665
 msgid "Single site"
 msgstr ""
 
-#: includes/scanner/class-report.php:615
+#: includes/scanner/class-report.php:667
 msgid "On WordPress VIP, a multisite network layout is agreed with the platform team up front."
 msgstr ""
 
-#: includes/scanner/class-report.php:619
+#: includes/scanner/class-report.php:671
 msgid "Database size"
 msgstr ""
 
 #. translators: %s: Number of tables.
-#: includes/scanner/class-report.php:623
+#: includes/scanner/class-report.php:675
 #, php-format
 msgid "%s table"
 msgid_plural "%s tables"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/scanner/class-report.php:628
+#: includes/scanner/class-report.php:680
 msgid "Rule set"
 msgstr ""
 
 #. translators: %s: Number of rules.
-#: includes/scanner/class-report.php:632
+#: includes/scanner/class-report.php:684
 #, php-format
 msgid "%s rule, each mapped to a WordPress VIP guideline."
 msgid_plural "%s rules, each mapped to a WordPress VIP guideline."
@@ -1635,79 +1641,79 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: Number of plugins.
-#: includes/scanner/class-report.php:739
+#: includes/scanner/class-report.php:791
 #, php-format
 msgid "Replace %d plugin WordPress VIP lists as incompatible"
 msgid_plural "Replace %d plugins WordPress VIP lists as incompatible"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/scanner/class-report.php:742
+#: includes/scanner/class-report.php:794
 msgid "WordPress VIP documents these as incompatible with the platform. No code change makes them work."
 msgstr ""
 
-#: includes/scanner/class-report.php:744
+#: includes/scanner/class-report.php:796
 msgid "Open plugins"
 msgstr ""
 
 #. translators: %d: Number of must-use plugins.
-#: includes/scanner/class-report.php:754
+#: includes/scanner/class-report.php:806
 #, php-format
 msgid "Relocate %d must-use plugin"
 msgid_plural "Relocate %d must-use plugins"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/scanner/class-report.php:757
+#: includes/scanner/class-report.php:809
 msgid "WordPress VIP reserves wp-content/mu-plugins for platform code. Anything you ship belongs in client-mu-plugins/."
 msgstr ""
 
-#: includes/scanner/class-report.php:759
+#: includes/scanner/class-report.php:811
 msgid "Open must-use"
 msgstr ""
 
 #. translators: %d: Number of tables.
-#: includes/scanner/class-report.php:783
+#: includes/scanner/class-report.php:835
 #, php-format
 msgid "Convert %d table to InnoDB and utf8mb4"
 msgid_plural "Convert %d tables to InnoDB and utf8mb4"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/scanner/class-report.php:786
+#: includes/scanner/class-report.php:838
 msgid "WordPress VIP will not import a database with an unsupported storage engine or collation."
 msgstr ""
 
-#: includes/scanner/class-report.php:788
+#: includes/scanner/class-report.php:840
 msgid "Show the SQL"
 msgstr ""
 
 #. translators: %d: Number of tables.
-#: includes/scanner/class-report.php:798
+#: includes/scanner/class-report.php:850
 #, php-format
 msgid "Report %d non-standard table prefix to WordPress VIP"
 msgid_plural "Report %d non-standard table prefixes to WordPress VIP"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/scanner/class-report.php:801
+#: includes/scanner/class-report.php:853
 msgid "The prefix is embedded in option names and user meta keys, so renaming tables without WordPress VIP confirming it breaks roles and capabilities."
 msgstr ""
 
-#: includes/scanner/class-report.php:803
-#: includes/scanner/class-report.php:818
+#: includes/scanner/class-report.php:855
+#: includes/scanner/class-report.php:870
 msgid "Open the audit"
 msgstr ""
 
 #. translators: %d: Number of paths.
-#: includes/scanner/class-report.php:813
+#: includes/scanner/class-report.php:865
 #, php-format
 msgid "Remove or relocate %d path in wp-content"
 msgid_plural "Remove or relocate %d paths in wp-content"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/scanner/class-report.php:816
+#: includes/scanner/class-report.php:868
 msgid "These conflict with the WordPress VIP application structure, or with drop-ins the platform installs itself."
 msgstr ""
 
