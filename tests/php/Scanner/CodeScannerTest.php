@@ -110,6 +110,7 @@ class CodeScannerTest extends TestCase {
 			'cache flush'                   => array( 'wp_cache_flush();', 'caching.cache-flush' ),
 			'cookie'                        => array( "setcookie( 'a', 'b' );", 'caching.frontend-cookie' ),
 			'deprecated function'           => array( "get_page_by_title( 'About' );", 'standards.deprecated-function' ),
+			'function deprecated in PHP 8'  => array( '$s = utf8_encode( $raw );', 'standards.deprecated-function' ),
 			'rewrite flush'                 => array( 'flush_rewrite_rules();', 'standards.flush-rewrite-rules' ),
 			'unsafe redirect'               => array( 'wp_redirect( $url );', 'standards.unsafe-redirect' ),
 			'debug output'                  => array( 'var_dump( $x );', 'environment.debug-output' ),
