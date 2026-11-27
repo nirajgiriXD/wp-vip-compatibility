@@ -31,15 +31,15 @@ function preflight_audit_uninstall_site() {
 }
 
 if ( is_multisite() ) {
-	$site_ids = get_sites(
+	$preflight_audit_site_ids = get_sites(
 		array(
 			'fields' => 'ids',
 			'number' => 0,
 		)
 	);
 
-	foreach ( $site_ids as $site_id ) {
-		switch_to_blog( $site_id );
+	foreach ( $preflight_audit_site_ids as $preflight_audit_site_id ) {
+		switch_to_blog( $preflight_audit_site_id );
 		preflight_audit_uninstall_site();
 		restore_current_blog();
 	}
