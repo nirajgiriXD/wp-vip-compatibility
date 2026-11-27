@@ -79,13 +79,17 @@ class OverviewSettingsTest extends TestCase {
 		$this->assertStringContainsString( '<span class="pfa-verdict__number">100</span>', $output );
 	}
 
-	public function test_the_meta_line_names_what_was_scanned() {
+	public function test_the_environment_names_what_was_scanned() {
 		$this->store_result( $this->add_plugin( 'a' ), array(), array( 'files_scanned' => 5 ) );
 		$this->store_result( $this->add_plugin( 'b' ), array(), array( 'files_scanned' => 5 ) );
 		$this->store_result( $this->add_theme( 't' ), array(), array( 'files_scanned' => 2 ) );
 		$this->store_result( $this->add_mu_plugin( 'm.php' ), array(), array( 'files_scanned' => 1 ) );
 
-		$this->assertStringContainsString( '2 plugins, 1 theme, and 1 must-use plugin scanned across 13 PHP files', $this->screen() );
+		$output = $this->screen();
+
+		$this->assertStringNotContainsString( 'pfa-verdict__meta', $output );
+		$this->assertStringContainsString( '2 plugins, 1 theme, and 1 must-use plugin', $output );
+		$this->assertStringContainsString( '13 PHP files read.', $output );
 	}
 
 	public function test_the_tier_counts_include_audit_work() {

@@ -64,7 +64,7 @@ class Overview_Settings {
 
 		// Reference rather than work, so the two sit side by side below it.
 		echo '<div class="pfa-overview__pair">';
-		$this->render_environment();
+		$this->render_environment( $aggregate, $scanned );
 
 		if ( $scanned ) {
 			$this->render_history();
@@ -149,7 +149,6 @@ class Overview_Settings {
 				'tier'     => $verdict['tier'],
 				'headline' => $verdict['headline'],
 				'summary'  => $verdict['summary'],
-				'meta'     => $this->scan_meta( $aggregate, $scanned ),
 				'actions'  => $verdict['actions'],
 				'tiers'    => $scanned ? $this->get_facts( $aggregate ) : array(),
 			)
@@ -297,22 +296,25 @@ class Overview_Settings {
 	}
 
 	/**
-	 * Builds the single supporting line: how much was read.
+	 * Builds the environment row that says how much was read.
 	 *
 	 * @param array<string, mixed> $aggregate The aggregate.
 	 * @param bool                 $scanned   Whether anything has been scanned.
-	 * @return string The line.
+	 * @return array<string, string>|null The row, or null before the first scan.
 	 */
-	private function scan_meta( array $aggregate, $scanned ) {
+	private function scan_row( array $aggregate, $scanned ) {
 		if ( ! $scanned || $aggregate['scanned_at'] <= 0 ) {
-			return '';
+			return null;
 		}
 
-		return sprintf(
-			/* translators: 1: What was scanned, e.g. "3 plugins, 1 theme and 1 must-use plugin". 2: Number of PHP files. */
-			__( '%1$s scanned across %2$s PHP files', 'preflight-audit' ),
-			$this->scanned_kinds( $aggregate ),
-			number_format_i18n( (int) $aggregate['totals']['files'] )
+		return array(
+			'label' => __( 'Scanned', 'preflight-audit' ),
+			'value' => $this->scanned_kinds( $aggregate ),
+			'hint'  => sprintf(
+				/* translators: %s: Number of PHP files. */
+				_n( '%s PHP file read.', '%s PHP files read.', (int) $aggregate['totals']['files'], 'preflight-audit' ),
+				number_format_i18n( (int) $aggregate['totals']['files'] )
+			),
 		);
 	}
 
@@ -549,9 +551,21 @@ class Overview_Settings {
 	/**
 	 * Renders the environment as a specification sheet.
 	 *
+	 * What the last scan read sits here rather than under the verdict: it is
+	 * reference, not something to act on.
+	 *
+	 * @param array<string, mixed> $aggregate The aggregate.
+	 * @param bool                 $scanned   Whether anything has been scanned.
 	 * @return void
 	 */
-	private function render_environment() {
+	private function render_environment( array $aggregate, $scanned ) {
+		$rows = Report::environment();
+		$scan = $this->scan_row( $aggregate, $scanned );
+
+		if ( null !== $scan ) {
+			$rows[] = $scan;
+		}
+
 		UI::render_card_open(
 			array(
 				'title' => __( 'Environment', 'preflight-audit' ),
@@ -559,7 +573,7 @@ class Overview_Settings {
 			)
 		);
 
-		echo UI::get_defs( Report::environment(), 'pfa-defs--spec' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_defs( $rows, 'pfa-defs--spec' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
 		UI::render_card_close();
 	}
