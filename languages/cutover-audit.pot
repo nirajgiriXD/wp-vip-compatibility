@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-27T10:27:41+00:00\n"
+"POT-Creation-Date: 2026-11-27T10:49:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: cutover-audit\n"
@@ -18,13 +18,13 @@ msgstr ""
 #: cutover-audit.php
 #: includes/classes/class-settings.php:182
 #: includes/classes/class-settings.php:183
-#: includes/classes/class-ui.php:416
+#: includes/classes/class-ui.php:417
 msgid "Cutover Audit"
 msgstr ""
 
 #. Plugin URI of the plugin
 #: cutover-audit.php
-msgid "https://github.com/nirajgiriXD/preflight-audit"
+msgid "https://github.com/nirajgiriXD/cutover-audit"
 msgstr ""
 
 #. Description of the plugin
@@ -180,8 +180,8 @@ msgid "Page %1$s of %2$s"
 msgstr ""
 
 #: includes/classes/class-assets.php:231
-#: includes/classes/class-ui.php:1818
-#: includes/classes/class-ui.php:1879
+#: includes/classes/class-ui.php:1819
+#: includes/classes/class-ui.php:1880
 msgid "Copy to clipboard"
 msgstr ""
 
@@ -257,7 +257,7 @@ msgstr ""
 #: includes/classes/class-database-settings.php:154
 #: includes/classes/class-database-settings.php:248
 #: includes/classes/class-inventory-screen.php:279
-#: includes/classes/class-ui.php:1086
+#: includes/classes/class-ui.php:1087
 #: includes/scanner/class-scanner.php:366
 msgid "Passing"
 msgstr ""
@@ -300,7 +300,7 @@ msgstr ""
 #: includes/classes/class-mu-plugins-settings.php:129
 #: includes/classes/class-plugins-settings.php:105
 #: includes/classes/class-themes-settings.php:94
-#: includes/classes/class-ui.php:1478
+#: includes/classes/class-ui.php:1479
 msgid "Verdict"
 msgstr ""
 
@@ -496,13 +496,13 @@ msgid "All verdicts"
 msgstr ""
 
 #: includes/classes/class-inventory-screen.php:269
-#: includes/classes/class-ui.php:1083
+#: includes/classes/class-ui.php:1084
 #: includes/scanner/class-scanner.php:362
 msgid "Needs work"
 msgstr ""
 
 #: includes/classes/class-inventory-screen.php:274
-#: includes/classes/class-ui.php:1084
+#: includes/classes/class-ui.php:1085
 msgid "Review"
 msgstr ""
 
@@ -513,13 +513,13 @@ msgid "Show details for %s"
 msgstr ""
 
 #: includes/classes/class-inventory-screen.php:351
-#: includes/classes/class-ui.php:1376
+#: includes/classes/class-ui.php:1377
 msgid "Details"
 msgstr ""
 
 #: includes/classes/class-inventory-screen.php:360
 #: includes/classes/class-settings.php:268
-#: includes/classes/class-ui.php:1850
+#: includes/classes/class-ui.php:1851
 msgid "WordPress VIP documentation"
 msgstr ""
 
@@ -553,7 +553,7 @@ msgstr ""
 
 #. translators: %s: Human-readable time difference.
 #: includes/classes/class-inventory-screen.php:476
-#: includes/classes/class-ui.php:437
+#: includes/classes/class-ui.php:438
 #, php-format
 msgid "Scanned %s ago"
 msgstr ""
@@ -734,7 +734,7 @@ msgid "Findings are ranked, must-fix first. Each one names the file and line, sa
 msgstr ""
 
 #: includes/classes/class-overview-settings.php:121
-#: includes/classes/class-ui.php:509
+#: includes/classes/class-ui.php:510
 msgid "Rescan"
 msgstr ""
 
@@ -837,7 +837,7 @@ msgstr[1] ""
 
 #. translators: %d: Number of places in the code.
 #: includes/classes/class-overview-settings.php:400
-#: includes/classes/class-ui.php:1737
+#: includes/classes/class-ui.php:1738
 #, php-format
 msgid "%d place"
 msgid_plural "%d places"
@@ -895,7 +895,7 @@ msgstr ""
 
 #: includes/classes/class-overview-settings.php:663
 #: includes/classes/class-overview-settings.php:702
-#: includes/classes/class-ui.php:948
+#: includes/classes/class-ui.php:949
 msgid "Score"
 msgstr ""
 
@@ -1003,8 +1003,8 @@ msgid "Cutover Audit is an independent tool, not affiliated with or endorsed by 
 msgstr ""
 
 #: includes/classes/class-settings.php:268
-#: includes/classes/class-ui.php:752
-#: includes/classes/class-ui.php:1852
+#: includes/classes/class-ui.php:753
+#: includes/classes/class-ui.php:1853
 msgid "(opens in a new tab)"
 msgstr ""
 
@@ -1155,93 +1155,93 @@ msgid "What sits in wp-content today, and how each entry maps onto the WordPress
 msgstr ""
 
 #. translators: 1: Rule set version. 2: Number of rules.
-#: includes/classes/class-ui.php:421
+#: includes/classes/class-ui.php:422
 #, php-format
 msgid "Rule set %1$s · %2$d rules"
 msgstr ""
 
-#: includes/classes/class-ui.php:441
+#: includes/classes/class-ui.php:442
 msgid "Never scanned"
 msgstr ""
 
-#: includes/classes/class-ui.php:451
+#: includes/classes/class-ui.php:452
 msgid "Export"
 msgstr ""
 
-#: includes/classes/class-ui.php:454
+#: includes/classes/class-ui.php:455
 msgid "Download the full report"
 msgstr ""
 
-#: includes/classes/class-ui.php:472
+#: includes/classes/class-ui.php:473
 msgid "Help"
 msgstr ""
 
-#: includes/classes/class-ui.php:509
+#: includes/classes/class-ui.php:510
 msgid "Run a scan"
 msgstr ""
 
-#: includes/classes/class-ui.php:553
-#: includes/classes/class-ui.php:557
+#: includes/classes/class-ui.php:554
+#: includes/classes/class-ui.php:558
 msgid "Rescan one area only"
 msgstr ""
 
-#: includes/classes/class-ui.php:576
+#: includes/classes/class-ui.php:577
 msgid "This page"
 msgstr ""
 
-#: includes/classes/class-ui.php:641
+#: includes/classes/class-ui.php:642
 msgid "Each row below is being read in turn. The totals above them fill in once it finishes."
 msgstr ""
 
 #. translators: %s: The area being rescanned, e.g. "Plugins".
-#: includes/classes/class-ui.php:646
+#: includes/classes/class-ui.php:647
 #, php-format
 msgid "Rescanning %s"
 msgstr ""
 
-#: includes/classes/class-ui.php:665
+#: includes/classes/class-ui.php:666
 msgid "Scan complete"
 msgstr ""
 
-#: includes/classes/class-ui.php:940
+#: includes/classes/class-ui.php:941
 msgid "passing"
 msgstr ""
 
-#: includes/classes/class-ui.php:949
+#: includes/classes/class-ui.php:950
 #: includes/scanner/class-report.php:509
 msgid "Not scanned yet"
 msgstr ""
 
-#: includes/classes/class-ui.php:984
+#: includes/classes/class-ui.php:985
 msgid "Outstanding work"
 msgstr ""
 
-#: includes/classes/class-ui.php:1085
+#: includes/classes/class-ui.php:1086
 msgid "Not scanned"
 msgstr ""
 
-#: includes/classes/class-ui.php:1128
+#: includes/classes/class-ui.php:1129
 msgid "Nothing here"
 msgstr ""
 
-#: includes/classes/class-ui.php:1163
+#: includes/classes/class-ui.php:1164
 msgid "Awaiting a scan"
 msgstr ""
 
-#: includes/classes/class-ui.php:1167
+#: includes/classes/class-ui.php:1168
 msgid "Clear"
 msgstr ""
 
-#: includes/classes/class-ui.php:1268
+#: includes/classes/class-ui.php:1269
 msgid "Search results"
 msgstr ""
 
-#: includes/classes/class-ui.php:1269
+#: includes/classes/class-ui.php:1270
 msgid "Search…"
 msgstr ""
 
 #. translators: 1: Number of findings. 2: Tier label, e.g. "must fix".
-#: includes/classes/class-ui.php:1520
+#: includes/classes/class-ui.php:1521
 #, php-format
 msgid "%1$s finding: %2$s"
 msgid_plural "%1$s findings: %2$s"
@@ -1249,7 +1249,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: Number of findings.
-#: includes/classes/class-ui.php:1565
+#: includes/classes/class-ui.php:1566
 #, php-format
 msgid "Fix %d finding"
 msgid_plural "Fix %d findings"
@@ -1257,39 +1257,39 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: Number of findings.
-#: includes/classes/class-ui.php:1571
+#: includes/classes/class-ui.php:1572
 #, php-format
 msgid "Review %d finding"
 msgid_plural "Review %d findings"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/classes/class-ui.php:1673
+#: includes/classes/class-ui.php:1674
 msgid "Found by auditing the site rather than by reading code, so there is no file and line to show."
 msgstr ""
 
-#: includes/classes/class-ui.php:1674
+#: includes/classes/class-ui.php:1675
 msgid "Site audit"
 msgstr ""
 
-#: includes/classes/class-ui.php:1680
+#: includes/classes/class-ui.php:1681
 msgid "Why:"
 msgstr ""
 
-#: includes/classes/class-ui.php:1748
+#: includes/classes/class-ui.php:1749
 msgid "Fix:"
 msgstr ""
 
-#: includes/classes/class-ui.php:1765
+#: includes/classes/class-ui.php:1766
 msgid "Why it matters on WordPress VIP"
 msgstr ""
 
-#: includes/classes/class-ui.php:1771
+#: includes/classes/class-ui.php:1772
 msgid "Another way to do it"
 msgstr ""
 
 #. translators: %d: Number of occurrences.
-#: includes/classes/class-ui.php:1782
+#: includes/classes/class-ui.php:1783
 #, php-format
 msgid "%d location"
 msgid_plural "%d locations"
@@ -1297,23 +1297,23 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: Line number.
-#: includes/classes/class-ui.php:1797
+#: includes/classes/class-ui.php:1798
 #, php-format
 msgid "line %d"
 msgstr ""
 
 #. translators: %s: Function or method name.
-#: includes/classes/class-ui.php:1807
+#: includes/classes/class-ui.php:1808
 #, php-format
 msgid "in %s()"
 msgstr ""
 
-#: includes/classes/class-ui.php:1833
+#: includes/classes/class-ui.php:1834
 msgid "Rule"
 msgstr ""
 
 #. translators: %s: Comma-separated list of rule identifiers.
-#: includes/classes/class-ui.php:1840
+#: includes/classes/class-ui.php:1841
 #, php-format
 msgid "Also matched: %s"
 msgstr ""

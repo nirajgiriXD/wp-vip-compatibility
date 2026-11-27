@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Cutover Audit
  * Description:       Check a site's code against the WordPress VIP platform guidelines and coding standard, with an actionable fix for every issue found.
- * Plugin URI:        https://github.com/nirajgiriXD/preflight-audit
+ * Plugin URI:        https://github.com/nirajgiriXD/cutover-audit
  * Version:           1.0.0
  * Author:            Niraj Giri
  * Author URI:        https://github.com/nirajgiriXD/
