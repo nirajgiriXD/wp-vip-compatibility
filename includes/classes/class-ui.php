@@ -272,6 +272,29 @@ class UI {
 	 */
 
 	/**
+	 * Returns the full-colour plugin logo as inline SVG.
+	 *
+	 * The artwork of assets/icon.svg without its tile: the seal it sits in
+	 * paints the same ink background, so the logo matches the directory icon
+	 * and banner. Unlike the icons it keeps its own colours.
+	 *
+	 * @return string The SVG markup.
+	 */
+	public static function get_logo() {
+		return '<svg class="pfa-logo" aria-hidden="true" focusable="false" viewBox="0 0 256 256" width="38" height="38">'
+			. '<g fill="none" stroke-linecap="round" stroke-linejoin="round">'
+			. '<path d="M46 160l12 12 24-26" stroke="#34d399" stroke-width="14"/>'
+			. '<path d="M46 210l12 12 24-26" stroke="#34d399" stroke-width="14"/>'
+			. '<path d="M110 160h86" stroke="#fffefb" stroke-width="12" opacity="0.85"/>'
+			. '<path d="M110 210h58" stroke="#fffefb" stroke-width="12" opacity="0.85"/>'
+			. '</g>'
+			. '<path d="M40 118Q86 124 122 98" fill="none" stroke="#34d399" stroke-width="7" stroke-linecap="round" stroke-dasharray="0.5 15"/>'
+			. '<path d="M214 42 110 84l40 16z" fill="#fffefb"/>'
+			. '<path d="M214 42 150 100l16 40z" fill="#b9c6c9"/>'
+			. '</svg>';
+	}
+
+	/**
 	 * Returns an inline SVG icon.
 	 *
 	 * Icons are stroked with `currentColor` so they inherit the surrounding text
@@ -307,7 +330,6 @@ class UI {
 			'clock'        => '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/>',
 			'expand'       => '<path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/>',
 			'collapse'     => '<path d="m7 20 5-5 5 5"/><path d="m7 4 5 5 5-5"/>',
-			'logo'         => '<path d="M21 3 8.5 8l4.2 1.8L14.5 14Z"/><path d="m21 3-8.3 6.8"/><path d="m3.5 17.5 2.5 2.5 4.5-5"/><path d="M14 18.5h6.5"/><path d="M3.5 11h.01"/><path d="M6.5 11.2h.01"/>',
 		);
 
 		if ( ! isset( $paths[ $name ] ) ) {
@@ -384,9 +406,9 @@ class UI {
 		$scanned   = $aggregate['targets'] > 0 && $aggregate['scanned_at'] > 0;
 		?>
 		<div class="pfa-bar">
-			<a class="pfa-brand" href="<?php echo esc_url( self::get_screen_url( 'overview' ) ); ?>">
+			<div class="pfa-brand">
 				<span class="pfa-brand__seal" aria-hidden="true">
-					<?php echo self::get_icon( 'logo' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+					<?php echo self::get_logo(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 				</span>
 				<span class="pfa-brand__text">
 					<span class="pfa-brand__name"><?php esc_html_e( 'Preflight Audit', 'preflight-audit' ); ?></span>
@@ -401,7 +423,7 @@ class UI {
 						?>
 					</span>
 				</span>
-			</a>
+			</div>
 
 			<div class="pfa-bar__actions">
 				<span class="pfa-scanstate<?php echo $scanned ? '' : ' is-empty'; ?>">

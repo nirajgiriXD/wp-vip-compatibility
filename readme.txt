@@ -136,9 +136,10 @@ Fixes three security issues in 1.0.0: AJAX endpoints that required only a logged
 
 == Screenshots ==
 
-1. Overview with the migration readiness score and per-category breakdown.
-2. The fix list, ranked worst first, with one-click filters.
-3. An expanded finding showing evidence, rationale and remediation.
-4. The database audit with per-table verdicts and the SQL to fix them.
-5. The plugins screen, with a row expanded to its evidence.
-6. The themes screen, leading with the active theme.
+1. Overview with the migration readiness score, the outstanding work by tier, and where to start.
+2. Findings, filtered to one tier, with a finding expanded to its evidence, rationale and remediation.
+3. Plugins, with a row expanded to its author, location and findings.
+4. Themes, with the active theme expanded.
+5. Must-use plugins, each with where it belongs on WordPress VIP.
+6. The database audit with per-table verdicts and the SQL to fix them.
+7. The wp-content layout measured against the WordPress VIP application structure.

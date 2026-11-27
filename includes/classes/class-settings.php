@@ -21,15 +21,37 @@ class Settings {
 	use Singleton;
 
 	/**
-	 * The admin menu icon: the plugin logo as a single-colour 20x20 SVG.
+	 * The admin menu icon, relative to the plugin URL.
 	 *
-	 * Base64 because that is the only form WordPress recolours to match the
-	 * admin colour scheme. Every shape sets `fill`, which is what it rewrites.
-	 * The source is the plane, flight path and tick from assets/icon.svg.
+	 * A file rather than a base64 data URI, because WordPress repaints a data
+	 * URI's fills in one colour and this is the full-colour logo. WordPress
+	 * renders a URL as an <img>, which it dims until hover; see
+	 * print_menu_icon_style().
 	 *
 	 * @var string
 	 */
-	const MENU_ICON = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCAyMCI+PHBhdGggZmlsbD0iYmxhY2siIGQ9Ik0xOSAxLjYgNy44IDYuMmwzLjcgMS42ek0xOSAxLjZsLTYuOCA2LjkgMS40IDMuN3pNMSAxNS4ybDEuNC0xLjQgMS40IDEuNCAzLjgtMy44TDkgMTIuOCAzLjggMTh6TTExLjUgMTQuOEgxOGExIDEgMCAwIDEgMCAyaC02LjVhMSAxIDAgMCAxIDAtMnoiLz48Y2lyY2xlIGZpbGw9ImJsYWNrIiBjeD0iMS44IiBjeT0iOS40IiByPSIwLjc1Ii8+PGNpcmNsZSBmaWxsPSJibGFjayIgY3g9IjQuMyIgY3k9IjkuNiIgcj0iMC43NSIvPjxjaXJjbGUgZmlsbD0iYmxhY2siIGN4PSI2LjgiIGN5PSI5IiByPSIwLjc1Ii8+PC9zdmc+';
+	const MENU_ICON = 'assets/menu-icon.svg';
+
+	/**
+	 * Returns the URL of the admin menu icon.
+	 *
+	 * @return string
+	 */
+	public static function get_menu_icon_url() {
+		return PREFLIGHT_AUDIT_URL . self::MENU_ICON;
+	}
+
+	/**
+	 * Keeps the menu icon at full strength and sized to the other icons.
+	 *
+	 * WordPress shows image menu icons at 60% opacity, which washes out a
+	 * coloured logo. Printed on every admin screen, since the menu is.
+	 *
+	 * @return void
+	 */
+	public function print_menu_icon_style() {
+		echo '<style>#toplevel_page_preflight-audit .wp-menu-image img{opacity:1;width:20px;height:20px;padding-top:8px}</style>' . "\n";
+	}
 
 	/**
 	 * Holds registered settings classes.
@@ -56,6 +78,7 @@ class Settings {
 		// wp-admin/menu.php, which runs before admin_init, so a redirect hooked
 		// there never fires. admin_menu runs before that check.
 		add_action( 'admin_menu', array( $this, 'redirect_retired_screens' ), 0 );
+		add_action( 'admin_head', array( $this, 'print_menu_icon_style' ) );
 	}
 
 	/**
@@ -165,7 +188,7 @@ class Settings {
 			'manage_options',
 			$screens['overview']['slug'],
 			fn() => $this->render_settings_page( 'overview' ),
-			self::MENU_ICON
+			self::get_menu_icon_url()
 		);
 
 		$headed = array();
