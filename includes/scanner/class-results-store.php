@@ -273,7 +273,12 @@ class Results_Store {
 	 * @return void
 	 */
 	public static function delete_all() {
-		foreach ( array_keys( self::get_index() ) as $target_key ) {
+		// Uninstall calls this once per site after switch_to_blog(). The
+		// per-request copy belongs to whichever site read it first, so it has
+		// to be re-read here or every later site deletes the wrong list.
+		self::flush_index();
+
+		foreach ( array_keys( self::read_index() ) as $target_key ) {
 			delete_option( self::option_name( $target_key ) );
 		}
 
