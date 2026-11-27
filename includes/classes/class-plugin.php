@@ -8,6 +8,7 @@
 namespace PREFLIGHT_AUDIT\Includes\Classes;
 
 use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
+use PREFLIGHT_AUDIT\Includes\Scanner\Report;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -70,6 +71,10 @@ class Plugin {
 	 */
 	public function setup_hooks() {
 		add_action( 'init', array( $this, 'load_textdomain' ) );
+
+		// Updates run in wp-admin, but also over WP-CLI and auto-updates on cron,
+		// so this cannot wait for one of the plugin's own screens to load.
+		add_action( 'upgrader_process_complete', array( Report::class, 'forget_upgraded' ), 10, 2 );
 	}
 
 	/**

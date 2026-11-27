@@ -73,7 +73,7 @@ Not affiliated with or endorsed by Automattic, WordPress VIP, or the WordPress F
 
 == Usage ==
 
-Open **Preflight Audit** in the admin menu and run a scan from the header. Results are stored, so screens load without re-analysing the codebase; a target is only re-scanned when its files change or the rule set is updated.
+Open **Preflight Audit** in the admin menu and run a scan from the header. Results are stored, so screens load without re-analysing the codebase. A plugin or theme updated through WordPress, and everything after a rule-set update, is scanned again the next time its screen opens. Code changed any other way, such as a deploy or an edit over SFTP, needs a **Rescan**.
 
 **Rescan** re-reads everything. The caret beside it narrows the rescan to one area — plugins, themes, must-use plugins, the database schema or wp-content — which is what you want after updating a single plugin or converting a few tables, and avoids re-tokenising a codebase that has not changed.
 

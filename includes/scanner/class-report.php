@@ -133,6 +133,59 @@ class Report {
 	}
 
 	/**
+	 * Discards the stored results for plugins and themes WordPress just updated.
+	 *
+	 * The screens only scan rows that have no stored result, so without this an
+	 * updated plugin would keep the verdict its old code earned until someone
+	 * pressed Rescan. Hooked to `upgrader_process_complete`.
+	 *
+	 * @param mixed                $upgrader   The upgrader instance.
+	 * @param array<string, mixed> $hook_extra What was upgraded.
+	 * @return int How many stored results were discarded.
+	 */
+	public static function forget_upgraded( $upgrader, $hook_extra ) {
+		$hook_extra = (array) $hook_extra;
+		$type       = $hook_extra['type'] ?? '';
+		$items      = array();
+
+		if ( 'plugin' === $type ) {
+			$items = (array) ( $hook_extra['plugins'] ?? $hook_extra['plugin'] ?? array() );
+
+			// A plugin installed over an existing copy names itself here instead.
+			if ( empty( $items ) && is_object( $upgrader ) && method_exists( $upgrader, 'plugin_info' ) ) {
+				$items = array_filter( array( $upgrader->plugin_info() ) );
+			}
+		} elseif ( 'theme' === $type ) {
+			$items = (array) ( $hook_extra['themes'] ?? $hook_extra['theme'] ?? array() );
+
+			if ( empty( $items ) && is_object( $upgrader ) && method_exists( $upgrader, 'theme_info' ) ) {
+				$theme = $upgrader->theme_info();
+				$items = is_object( $theme ) && method_exists( $theme, 'get_stylesheet' ) ? array( $theme->get_stylesheet() ) : array();
+			}
+		}
+
+		$keys = array();
+
+		foreach ( $items as $item ) {
+			$item = (string) $item;
+
+			if ( '' === $item ) {
+				continue;
+			}
+
+			if ( 'plugin' === $type ) {
+				// Same slug rule as Targets: a single-file plugin is its own slug.
+				$slug = dirname( $item );
+				$item = ( '.' === $slug ) ? $item : $slug;
+			}
+
+			$keys[] = Targets::key( $type, $item );
+		}
+
+		return empty( $keys ) ? 0 : Results_Store::forget( $keys );
+	}
+
+	/**
 	 * Records where the whole site stands, as one history snapshot.
 	 *
 	 * Split out of run_full_scan() because a browser-side rescan finishes in the
