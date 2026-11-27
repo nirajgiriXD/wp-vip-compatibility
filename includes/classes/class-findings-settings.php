@@ -662,11 +662,15 @@ class Findings_Settings {
 					<li>
 						<a class="pfa-activefilter" href="<?php echo esc_url( $pill['url'] ); ?>">
 							<span><?php echo esc_html( $pill['label'] ); ?></span>
-							<span class="pfa-activefilter__remove" aria-hidden="true">&times;</span>
+							<span class="pfa-activefilter__remove" aria-hidden="true"><?php echo UI::get_icon( 'close', array( 'class' => 'pfa-icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?></span>
 							<span class="screen-reader-text"><?php esc_html_e( 'Remove this filter', 'preflight-audit' ); ?></span>
 						</a>
 					</li>
 				<?php endforeach; ?>
+				<li>
+					<?php // Back to the whole list, the same place the empty state's "Clear filters" goes. ?>
+					<a class="pfa-clearfilters" href="<?php echo esc_url( $base ); ?>"><?php echo UI::get_icon( 'filter-off', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?><span><?php esc_html_e( 'Clear filters', 'preflight-audit' ); ?></span></a>
+				</li>
 			</ul>
 		</div>
 		<?php

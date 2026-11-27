@@ -2405,7 +2405,35 @@ code.pfa-item__name {
 .pfa-activefilters {
 	display: flex;
 	flex-wrap: wrap;
+	align-items: center;
 	gap: 6px;
+}
+
+/* A plain text link after the tags, so it reads as "all of the above". */
+.pfa .pfa-clearfilters {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	margin-left: 6px;
+	color: var(--pfa-ink-2);
+	font-size: 12.5px;
+	font-weight: 500;
+	text-decoration: none;
+}
+
+/* Underline the words only, not the gap before them. */
+.pfa .pfa-clearfilters span {
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+/* A funnel with an X: "remove every filter", unlike the X on each tag. */
+.pfa-clearfilters .pfa-icon {
+	stroke-width: 1.8;
+}
+
+.pfa .pfa-clearfilters:hover {
+	color: var(--pfa-ink);
 }
 
 .pfa .pfa-activefilter {
@@ -2435,8 +2463,13 @@ code.pfa-item__name {
 	border-radius: 3px;
 	background: var(--pfa-paper-2);
 	color: var(--pfa-ink-2);
-	font-size: 13px;
-	line-height: 1;
+}
+
+/* A drawn X rather than the × character, which sits off-centre in most fonts. */
+.pfa-activefilter__remove .pfa-icon {
+	width: 10px;
+	height: 10px;
+	stroke-width: 2.2;
 }
 
 /* Tier headings. */

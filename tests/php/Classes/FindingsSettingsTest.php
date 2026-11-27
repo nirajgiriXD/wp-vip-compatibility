@@ -274,6 +274,13 @@ class FindingsSettingsTest extends TestCase {
 		$this->assertStringContainsString( '<a class="pfa-activefilter" href="' . self::ADMIN . 'pfa-findings">', $output );
 		$this->assertStringContainsString( '<span>Beta</span>', $output );
 		$this->assertStringContainsString( '<input type="hidden" name="target" value="plugin:beta" />', $output, 'search keeps the filter' );
+		$this->assertStringContainsString( '<span>Clear filters</span></a>', $output );
+	}
+
+	public function test_no_clear_filters_link_without_filters() {
+		$this->seed();
+
+		$this->assertStringNotContainsString( 'pfa-clearfilters', $this->screen() );
 	}
 
 	public function test_category_type_and_search_filters() {

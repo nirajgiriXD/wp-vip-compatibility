@@ -317,6 +317,8 @@ class UI {
 			'alert'        => '<path d="M12 8.5v5"/><path d="M12 17h.01"/><path d="M10.3 3.9 2.6 17.4A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3.1L13.7 3.9a2 2 0 0 0-3.4 0Z"/>',
 			'info'         => '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
 			'external'     => '<path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14.5V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19V7.5A1.5 1.5 0 0 1 5 6h4.5"/>',
+			'close'        => '<path d="M6 6l12 12"/><path d="M18 6 6 18"/>',
+			'filter-off'   => '<path d="M13 4H3l7 8.5V19l4 2v-8.5l1-1.2"/><path d="m16 4 5 5"/><path d="m21 4-5 5"/>',
 			'copy'         => '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5V5A1.5 1.5 0 0 1 4.5 3.5H13A1.5 1.5 0 0 1 14.5 5v.5"/>',
 			'arrow-right'  => '<path d="M4 12h15"/><path d="m13 6 6 6-6 6"/>',
 			'chevron'      => '<path d="m9 5 7 7-7 7"/>',
