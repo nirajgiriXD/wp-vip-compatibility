@@ -3,7 +3,7 @@
  * Plugin Name:       Preflight Audit
  * Description:       Check a site's code against the WordPress VIP platform guidelines and coding standard, with an actionable fix for every issue found.
  * Plugin URI:        https://github.com/nirajgiriXD/preflight-audit
- * Version:           2.0.0
+ * Version:           1.0.0
  * Author:            Niraj Giri
  * Author URI:        https://github.com/nirajgiriXD/
  * Text Domain:       preflight-audit
@@ -35,7 +35,7 @@ if ( ! defined( 'PREFLIGHT_AUDIT_URL' ) ) {
 }
 
 if ( ! defined( 'PREFLIGHT_AUDIT_VERSION' ) ) {
-	define( 'PREFLIGHT_AUDIT_VERSION', '2.0.0' );
+	define( 'PREFLIGHT_AUDIT_VERSION', '1.0.0' );
 }
 
 // Require necessary files.

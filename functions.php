@@ -19,11 +19,12 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Returns the compatibility verdict for a scan target.
  *
+ * Accepts a target key such as `plugin:akismet`. A filesystem path is also
+ * accepted and resolved against the known targets, but a path that does not
+ * belong to a known plugin, theme or must-use plugin is rejected rather than
+ * scanned.
+ *
  * @since 1.0.0
- * @since 2.0.0 Accepts a target key such as `plugin:akismet`. A filesystem path
- *              is still accepted and resolved against the known targets, but a
- *              path that does not belong to a known plugin, theme or must-use
- *              plugin is rejected rather than scanned.
  *
  * @param string $target The target key, or a legacy filesystem path.
  * @return string One of `Compatible`, `Needs review`, `Incompatible`, or an error message.
@@ -94,10 +95,11 @@ function preflight_audit_get_json_data() {
 /**
  * Returns the compatibility counts for one target type.
  *
- * @since 2.0.0 Delegates to Report::area_counts(), which is the single place the
- *              verdict for a target is decided. This function used to resolve it
- *              a second time, with its own rules, so a plugin could be counted
- *              one way here and displayed another way on screen.
+ * Delegates to Report::area_counts(), the single place the verdict for a
+ * target is decided, so a target is counted here exactly as it is shown on
+ * screen.
+ *
+ * @since 1.0.0
  *
  * @param string $type One of `plugin`, `theme`, `mu-plugin`, `database`, `directories`.
  * @return array<string, int> Counts keyed `compatible`, `needs_review`, `not_compatible`.

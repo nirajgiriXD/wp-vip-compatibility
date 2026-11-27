@@ -34,7 +34,7 @@ define( 'DAY_IN_SECONDS', 86400 );
 define( 'PREFLIGHT_AUDIT_FILE', dirname( __DIR__, 2 ) . '/preflight-audit.php' );
 define( 'PREFLIGHT_AUDIT_DIR', dirname( __DIR__, 2 ) );
 define( 'PREFLIGHT_AUDIT_URL', 'https://example.test/wp-content/plugins/preflight-audit/' );
-define( 'PREFLIGHT_AUDIT_VERSION', '2.0.0' );
+define( 'PREFLIGHT_AUDIT_VERSION', '1.0.0' );
 
 require_once PREFLIGHT_AUDIT_DIR . '/includes/helpers/class-autoloader.php';
 require_once PREFLIGHT_AUDIT_DIR . '/functions.php';

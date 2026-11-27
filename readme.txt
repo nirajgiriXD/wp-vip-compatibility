@@ -4,7 +4,7 @@ Tags: coding standards, compatibility, code analysis, code review, phpcs
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.0.0
+Stable tag: 1.0.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -109,36 +109,17 @@ Yes. Filter `preflight_audit_scanner_rules` to add, modify or remove rules, and 
 
 No. It reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Test on a WordPress VIP environment before relying on the result.
 
-== Upgrade Notice ==
-
-= 2.0.0 =
-
-Fixes three security issues in 1.0.0: AJAX endpoints that required only a logged-in user, a scan target taken as a raw filesystem path, and report files written to a publicly readable URL under uploads. The admin screens and the stored result format are both rewritten, so the first load after upgrading runs a fresh scan.
-
 == Changelog ==
-
-= 2.0.0 =
-
-* Replaced line-based regular-expression matching with a PHP tokeniser, removing the false positives from comments, docblocks, string literals and method calls.
-* Added a rule engine of 47 rules, each carrying its WordPress VIP justification, remediation, alternative approach, PHPCS sniff and documentation link.
-* Added independent severity, confidence and fixability ratings, and a three-state verdict (ready / needs review / blocked) in place of a binary compatible/incompatible flag.
-* Added a findings report with filters, search, grouping, scan history and JSON/CSV/Markdown export.
-* Rescanning can be narrowed to one area — plugins, themes, must-use plugins, the database or wp-content — instead of always re-reading the whole codebase. Choosing an area opens its screen and resolves the rows there behind a progress bar.
-* Security: added capability checks to every AJAX endpoint, which previously required only a logged-in user.
-* Security: scan requests now name a validated target instead of an arbitrary filesystem path, closing a path-disclosure and traversal surface.
-* Security: removed the report files written to `wp-content/uploads/wvc-logs/`, which were publicly downloadable; reports are now stored privately and exported through an authenticated download.
-* Performance: reference data is loaded lazily and split, so a 1.1 MB JSON file is no longer parsed on every request including the front end.
-* Performance: scan results are fingerprinted and cached, so screens no longer re-scan the whole codebase on every load.
-* Performance: removed the remote update check that ran on every render of the plugins screen.
-* Fixed a verdict comparison against a translated string, which broke the compatibility status on non-English sites.
-* Corrected `uploads/`, `upgrade/` and `index.php` being reported as WordPress VIP-incompatible.
-* Corrected the database audit: cached, with per-table size and source, and prefix guidance that matches WordPress VIP's own instruction not to rename tables unprompted.
-* Expanded the reference data with WordPress VIP's documented incompatible plugins, plugins needing testing, plugins the platform already provides, and the full WP Engine must-use plugin list.
-* The plugin's own source now passes `phpcs --standard=WordPress-VIP-Go` with no violations.
 
 = 1.0.0 =
 
 * Initial release.
+* Scans every plugin, theme and must-use plugin with a PHP tokeniser against 47 rules drawn from the WordPress VIP platform guidelines, each with a recommended fix and a documentation link.
+* Audits the database schema (engine, collation and prefix) and the wp-content layout.
+* Ranks every finding as must fix, should fix, worth checking or FYI, and gives each plugin, theme, table and path a verdict.
+* An overview with a score, where to start and scan history; a findings list with filters and search; export to JSON, CSV or Markdown.
+* Rescans can be narrowed to one area: plugins, themes, must-use plugins, the database or wp-content.
+* Findings can be acknowledged in the source with a `pfa:ignore` annotation.
 
 == Screenshots ==
 
