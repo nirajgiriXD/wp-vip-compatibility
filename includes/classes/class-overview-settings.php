@@ -83,11 +83,11 @@ class Overview_Settings {
 		return array(
 			__( '<strong>The score</strong> comes from the verdict on every scanned plugin, theme and must-use plugin: a passing item counts in full, one that needs review counts for a little over half, and one that needs work does not count yet.', 'preflight-audit' ),
 			__( '<strong>Where the work is</strong> has one square for every plugin, theme, table and path on the site, worst first. Hover a square to see which one it is.', 'preflight-audit' ),
-			__( '<strong>Environment</strong> is what this site runs on today, measured against what it will run on at WordPress VIP. None of it is visible to a code scan.', 'preflight-audit' ),
+			__( '<strong>Environment</strong> is what this site runs on today, compared with the WordPress VIP platform, plus how much the last scan read.', 'preflight-audit' ),
 			__( '<strong>A starting point, not a certificate.</strong> The scan reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Where it cannot resolve a value, a finding records its confidence rather than asserting an incompatibility it cannot prove.', 'preflight-audit' ),
 			sprintf(
 				/* translators: 1: Rule set version. 2: Number of rules. */
-				__( '<strong>What gets checked.</strong> The filesystem and media, the database, caching, cron and outbound requests, security and the environment, and plugins that overlap with what the platform provides. Rule set %1$s has %2$d rules, each mapped to the WordPress VIP requirement it comes from.', 'preflight-audit' ),
+				__( '<strong>What gets checked.</strong> The filesystem and media, the database, caching, cron and outbound requests, security and the environment, and plugins that overlap with what the platform provides. Rule set %1$s has %2$d rules, each mapped to the WordPress VIP guideline it comes from.', 'preflight-audit' ),
 				Rules::VERSION,
 				count( Rules::all() )
 			),
