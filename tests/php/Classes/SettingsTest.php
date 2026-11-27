@@ -139,6 +139,9 @@ class SettingsTest extends TestCase {
 		$this->assertSame( 'pfa-how-to-read', WP::$screen->help_tabs[0]['id'] );
 		$this->assertSame( 'How to read this list', WP::$screen->help_tabs[0]['title'] );
 		$this->assertStringContainsString( '<div class="pfa-help__notes"><p>', WP::$screen->help_tabs[0]['content'] );
+		$this->assertStringContainsString( '<p class="pfa-help__about">Preflight Audit is an independent tool', WP::$screen->help_tabs[0]['content'] );
+		$this->assertStringContainsString( 'not affiliated with or endorsed by Automattic or WordPress VIP', WP::$screen->help_tabs[0]['content'] );
+		$this->assertStringContainsString( '<a href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">WordPress VIP documentation', WP::$screen->help_tabs[0]['content'] );
 	}
 
 	public function test_the_overview_help_tab_is_titled_as_a_report() {

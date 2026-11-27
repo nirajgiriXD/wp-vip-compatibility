@@ -3044,6 +3044,16 @@ body.pfa-screen #screen-meta .help-tab-content {
 	font-size: 12px;
 }
 
+/* The independence note: on every Help panel, after the notes, kept quiet. */
+.pfa-help__about {
+	margin: 18px 0 0 !important;
+	padding-top: 12px;
+	border-top: 1px solid var(--pfa-rule);
+	color: var(--pfa-ink-3);
+	font-size: 12px;
+	line-height: 1.5;
+}
+
 .pfa-empty {
 	display: flex;
 	flex-direction: column;

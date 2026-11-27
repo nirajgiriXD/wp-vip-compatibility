@@ -463,12 +463,6 @@ class UI {
 					</div>
 				</details>
 
-				<a class="pfa-btn pfa-btn--quiet pfa-btn--sm" href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">
-					<?php echo self::get_icon( 'external', array( 'class' => 'pfa-icon pfa-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-					<span><?php esc_html_e( 'Docs', 'preflight-audit' ); ?></span>
-					<span class="screen-reader-text"><?php esc_html_e( '(WordPress VIP documentation, opens in a new tab)', 'preflight-audit' ); ?></span>
-				</a>
-
 				<?php if ( self::has_help() ) : ?>
 					<?php // Opens the WordPress Help panel, whose own floating tab is hidden on these screens. ?>
 					<button type="button" class="pfa-btn pfa-btn--quiet pfa-btn--sm" data-role="help-toggle" aria-controls="contextual-help-wrap" aria-expanded="false">

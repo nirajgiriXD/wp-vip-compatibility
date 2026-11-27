@@ -813,6 +813,8 @@ class UITest extends TestCase {
 		$this->assertStringContainsString( 'Rule set ' . Rules::VERSION . ' · ' . count( Rules::all() ) . ' rules', $output );
 		$this->assertStringContainsString( '<h1 class="pfa-head__title">Standards and compatibility</h1>', $output );
 		$this->assertStringContainsString( '<hr class="wp-header-end" />', $output );
+		$this->assertStringNotContainsString( 'not affiliated', $output, 'the independence note lives in the Help panel, not on the page' );
+		$this->assertStringNotContainsString( 'href="https://docs.wpvip.com/"', $output, 'the docs link lives in the Help panel, not in the bar' );
 		$this->assertSame( 3, substr_count( $output, 'action=preflight_audit_export' ) );
 		$this->assertStringNotContainsString( 'data-role="help-toggle"', $output );
 	}
