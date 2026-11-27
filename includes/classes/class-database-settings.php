@@ -151,7 +151,7 @@ class Database_Settings {
 							),
 							array(
 								'value' => 'compatible',
-								'label' => __( 'Ready', 'preflight-audit' ),
+								'label' => __( 'Passing', 'preflight-audit' ),
 								'dot'   => 'ok',
 							),
 						),
@@ -245,7 +245,7 @@ class Database_Settings {
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		echo UI::get_status_cell(
 			$state,
-			$compatible ? __( 'Ready', 'preflight-audit' ) : __( 'Needs changes', 'preflight-audit' )
+			$compatible ? __( 'Passing', 'preflight-audit' ) : __( 'Needs changes', 'preflight-audit' )
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 

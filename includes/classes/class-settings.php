@@ -298,7 +298,7 @@ class Settings {
 			esc_html(
 				sprintf(
 					/* translators: %s: Number of findings. */
-					_n( '%s finding must be fixed before migrating', '%s findings must be fixed before migrating', $count, 'preflight-audit' ),
+					_n( '%s finding must be fixed', '%s findings must be fixed', $count, 'preflight-audit' ),
 					number_format_i18n( $count )
 				)
 			)

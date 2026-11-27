@@ -50,22 +50,22 @@ class OverviewSettingsTest extends TestCase {
 		$output = $this->screen();
 
 		$this->assertStringContainsString( 'pfa-verdict--blocking', $output );
-		$this->assertStringContainsString( 'Not ready to migrate', $output );
-		$this->assertStringContainsString( '1 of 2 scanned items is expected to fail', $output );
-		$this->assertStringContainsString( 'Start with the blockers', $output );
+		$this->assertStringContainsString( 'A few things need attention first', $output );
+		$this->assertStringContainsString( '1 of 2 scanned items has issues likely to cause problems', $output );
+		$this->assertStringContainsString( 'Start with the must-fix items', $output );
 		$this->assertStringContainsString( 'page=pfa-findings&amp;tier=blocking', $output );
 		$this->assertStringContainsString( '<span class="pfa-verdict__number">50</span>', $output );
 	}
 
-	public function test_review_only_means_nothing_will_fail() {
+	public function test_review_only_means_good_shape_with_things_to_review() {
 		$this->store_result( $this->add_plugin( 'a' ), array( $this->finding( 'security.extract' ) ) );
 		$this->store_result( $this->add_plugin( 'b' ), array( $this->finding( 'security.extract' ) ) );
 
 		$output = $this->screen();
 
 		$this->assertStringContainsString( 'pfa-verdict--warning', $output );
-		$this->assertStringContainsString( 'Nothing will fail outright', $output );
-		$this->assertStringContainsString( '2 scanned items need a decision', $output );
+		$this->assertStringContainsString( 'In good shape, with a few things to review', $output );
+		$this->assertStringContainsString( '2 scanned items have findings worth a look', $output );
 		$this->assertStringContainsString( 'Review the findings', $output );
 	}
 
@@ -74,7 +74,7 @@ class OverviewSettingsTest extends TestCase {
 
 		$output = $this->screen();
 
-		$this->assertStringContainsString( 'Ready to migrate', $output );
+		$this->assertStringContainsString( 'Everything looks good', $output );
 		$this->assertStringContainsString( 'Check the database', $output );
 		$this->assertStringContainsString( '<span class="pfa-verdict__number">100</span>', $output );
 	}

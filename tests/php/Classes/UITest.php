@@ -564,7 +564,7 @@ class UITest extends TestCase {
 			}
 		);
 
-		$this->assertStringContainsString( '1 blocked, 1 review, 1 ready', $output );
+		$this->assertStringContainsString( '1 needs work, 1 review, 1 passing', $output );
 		$this->assertStringContainsString( 'Work through 2', $output );
 		$this->assertStringContainsString( 'page=pfa-plugins&amp;status=not-compatible', $output );
 		$this->assertStringContainsString( 'Awaiting a scan', $output );
@@ -811,7 +811,7 @@ class UITest extends TestCase {
 		$this->assertStringNotContainsString( 'Rescan one area only', $output, 'nothing to narrow before a first scan' );
 		$this->assertStringNotContainsString( 'data-confirm', $output, 'a first scan has nothing to replace' );
 		$this->assertStringContainsString( 'Rule set ' . Rules::VERSION . ' · ' . count( Rules::all() ) . ' rules', $output );
-		$this->assertStringContainsString( '<h1 class="pfa-head__title">Migration readiness</h1>', $output );
+		$this->assertStringContainsString( '<h1 class="pfa-head__title">Standards and compatibility</h1>', $output );
 		$this->assertStringContainsString( '<hr class="wp-header-end" />', $output );
 		$this->assertSame( 3, substr_count( $output, 'action=preflight_audit_export' ) );
 		$this->assertStringNotContainsString( 'data-role="help-toggle"', $output );

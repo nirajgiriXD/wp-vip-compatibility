@@ -249,7 +249,7 @@ class ReportTest extends TestCase {
 		$verdict = Report::verdict( $this->add_mu_plugin( 'akismet.php' ), array() );
 
 		$this->assertSame( Scanner::STATUS_REVIEW, $verdict['status'] );
-		$this->assertSame( 'Do not migrate', $verdict['label'] );
+		$this->assertSame( 'Do not ship', $verdict['label'] );
 	}
 
 	public function test_a_caution_plugin_still_gets_its_scanned_verdict() {

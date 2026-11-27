@@ -72,11 +72,11 @@ class Plugins_Settings extends Inventory_Screen {
 		return array(
 			sprintf(
 				/* translators: %s: Link to the findings report. */
-				__( '<strong>Verdicts.</strong> "Blocked" means at least one finding is expected to fail on WordPress VIP. "Review" means there is work to do that will not by itself stop a migration. %s for the detail behind every verdict.', 'preflight-audit' ),
+				__( '<strong>Verdicts.</strong> "Needs work" means at least one finding is likely to cause problems on WordPress VIP. "Review" means there are findings worth a look that are unlikely to break anything. %s for the detail behind every verdict.', 'preflight-audit' ),
 				'<a href="' . esc_url( UI::get_findings_url() ) . '">' . esc_html__( 'Open the findings report', 'preflight-audit' ) . '</a>'
 			),
 			__( '<strong>Inactive plugins still count.</strong> They ship in the repository and are still read by the WordPress VIP Code Analysis Bot. Removing the ones you do not use is the quickest way to shorten this list.', 'preflight-audit' ),
-			__( '<strong>Updates.</strong> An arrow next to a version means WordPress has a newer release. Update before you migrate, so WordPress VIP reviews the code you will actually ship.', 'preflight-audit' ),
+			__( '<strong>Updates.</strong> An arrow next to a version means WordPress has a newer release. Update first, so the scan reads the code you will actually ship.', 'preflight-audit' ),
 		);
 	}
 

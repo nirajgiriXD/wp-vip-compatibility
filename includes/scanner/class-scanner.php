@@ -341,11 +341,11 @@ class Scanner {
 	public static function status_label( $status ) {
 		switch ( $status ) {
 			case self::STATUS_BLOCKED:
-				return __( 'Blocked', 'preflight-audit' );
+				return __( 'Needs work', 'preflight-audit' );
 			case self::STATUS_REVIEW:
 				return __( 'Needs review', 'preflight-audit' );
 			default:
-				return __( 'Ready', 'preflight-audit' );
+				return __( 'Passing', 'preflight-audit' );
 		}
 	}
 }

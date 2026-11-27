@@ -266,7 +266,7 @@ abstract class Inventory_Screen {
 				),
 				array(
 					'value' => 'not-compatible',
-					'label' => __( 'Blocked', 'preflight-audit' ),
+					'label' => __( 'Needs work', 'preflight-audit' ),
 					'dot'   => 'bad',
 				),
 				array(
@@ -276,7 +276,7 @@ abstract class Inventory_Screen {
 				),
 				array(
 					'value' => 'compatible',
-					'label' => __( 'Ready', 'preflight-audit' ),
+					'label' => __( 'Passing', 'preflight-audit' ),
 					'dot'   => 'ok',
 				),
 			),
@@ -549,7 +549,7 @@ abstract class Inventory_Screen {
 		if ( '' !== $available ) {
 			printf(
 				'<span class="pfa-version__update" title="%1$s">%2$s</span>',
-				esc_attr__( 'An update is available. Update before you migrate, so WordPress VIP reviews the code you will actually ship.', 'preflight-audit' ),
+				esc_attr__( 'An update is available. Update first, so the scan reads the code you will actually ship.', 'preflight-audit' ),
 				esc_html(
 					sprintf(
 						/* translators: %s: Version number. */

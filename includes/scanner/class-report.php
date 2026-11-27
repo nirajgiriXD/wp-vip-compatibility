@@ -438,7 +438,7 @@ class Report {
 				array(
 					'status' => Scanner::STATUS_REVIEW,
 					'state'  => 'review',
-					'label'  => __( 'Do not migrate', 'preflight-audit' ),
+					'label'  => __( 'Do not ship', 'preflight-audit' ),
 				)
 			);
 		}
@@ -607,7 +607,7 @@ class Report {
 					? __( 'Multisite', 'preflight-audit' )
 					: __( 'Single site', 'preflight-audit' ),
 				'hint'  => is_multisite()
-					? __( 'A multisite migration needs the network layout agreed with WordPress VIP up front.', 'preflight-audit' )
+					? __( 'On WordPress VIP, a multisite network layout is agreed with the platform team up front.', 'preflight-audit' )
 					: '',
 			),
 			array(
@@ -624,7 +624,7 @@ class Report {
 				'value' => Rules::VERSION,
 				'hint'  => sprintf(
 					/* translators: %s: Number of rules. */
-					_n( '%s rule, each mapped to a WordPress VIP requirement.', '%s rules, each mapped to a WordPress VIP requirement.', count( Rules::all() ), 'preflight-audit' ),
+					_n( '%s rule, each mapped to a WordPress VIP guideline.', '%s rules, each mapped to a WordPress VIP guideline.', count( Rules::all() ), 'preflight-audit' ),
 					number_format_i18n( count( Rules::all() ) )
 				),
 			),
@@ -1184,7 +1184,7 @@ class Report {
 		$lines[] = sprintf( '- Site: %s', home_url() );
 		$lines[] = sprintf( '- Generated: %s', gmdate( 'Y-m-d H:i' ) . ' UTC' );
 		$lines[] = sprintf( '- Rule set: %s', Rules::VERSION );
-		$lines[] = sprintf( '- Readiness: %d%%', $aggregate['score'] );
+		$lines[] = sprintf( '- Score: %d%%', $aggregate['score'] );
 		$lines[] = sprintf(
 			'- Targets: %d ready, %d need review, %d blocked',
 			$aggregate['statuses'][ Scanner::STATUS_PASS ],

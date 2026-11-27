@@ -55,7 +55,7 @@ class UI {
 	 */
 	public static function get_groups() {
 		return array(
-			'summary' => __( 'Readiness', 'preflight-audit' ),
+			'summary' => __( 'Summary', 'preflight-audit' ),
 			'code'    => __( 'Code you ship', 'preflight-audit' ),
 			'site'    => __( 'Site infrastructure', 'preflight-audit' ),
 		);
@@ -71,8 +71,8 @@ class UI {
 			'overview'    => array(
 				'slug'        => 'preflight-audit',
 				'label'       => __( 'Overview', 'preflight-audit' ),
-				'title'       => __( 'Migration readiness', 'preflight-audit' ),
-				'description' => __( 'How ready this site is for the WordPress VIP Platform, where the work is, and what to do first.', 'preflight-audit' ),
+				'title'       => __( 'Standards and compatibility', 'preflight-audit' ),
+				'description' => __( 'How the code on this site measures up to the WordPress VIP platform guidelines and coding standard, where the work is, and what to do first.', 'preflight-audit' ),
 				'icon'        => 'gauge',
 				'group'       => 'summary',
 			),
@@ -80,7 +80,7 @@ class UI {
 				'slug'        => 'pfa-findings',
 				'label'       => __( 'Findings', 'preflight-audit' ),
 				'title'       => __( 'Findings', 'preflight-audit' ),
-				'description' => __( 'Everything that needs doing before this site moves, worst first, with why it matters and how to fix it.', 'preflight-audit' ),
+				'description' => __( 'Everything that needs doing, worst first, with why it matters and how to fix it.', 'preflight-audit' ),
 				'icon'        => 'list',
 				'group'       => 'summary',
 			),
@@ -88,7 +88,7 @@ class UI {
 				'slug'        => 'pfa-plugins',
 				'label'       => __( 'Plugins', 'preflight-audit' ),
 				'title'       => __( 'Plugins', 'preflight-audit' ),
-				'description' => __( 'Every installed plugin with its WordPress VIP verdict, update state and the work it implies.', 'preflight-audit' ),
+				'description' => __( 'Every installed plugin with its verdict against the platform guidelines, update state and the work it implies.', 'preflight-audit' ),
 				'icon'        => 'plug',
 				'group'       => 'code',
 			),
@@ -941,7 +941,7 @@ class UI {
 							<span class="pfa-verdict__number pfa-verdict__number--empty">—</span>
 						<?php endif; ?>
 					</p>
-					<p class="pfa-verdict__caption"><?php esc_html_e( 'ready to move', 'preflight-audit' ); ?></p>
+					<p class="pfa-verdict__caption"><?php esc_html_e( 'passing', 'preflight-audit' ); ?></p>
 
 					<div
 						class="pfa-ruler"
@@ -949,7 +949,7 @@ class UI {
 						aria-valuemin="0"
 						aria-valuemax="100"
 						aria-valuenow="<?php echo esc_attr( (string) $score ); ?>"
-						aria-label="<?php esc_attr_e( 'Readiness', 'preflight-audit' ); ?>"
+						aria-label="<?php esc_attr_e( 'Score', 'preflight-audit' ); ?>"
 						<?php echo $scored ? '' : 'aria-valuetext="' . esc_attr__( 'Not scanned yet', 'preflight-audit' ) . '"'; ?>
 					>
 						<?php for ( $i = 0; $i < $segments; $i++ ) : ?>
@@ -1084,10 +1084,10 @@ class UI {
 	 */
 	public static function get_buckets() {
 		return array(
-			'blocked' => array( __( 'Blocked', 'preflight-audit' ), 'bad', 'not-compatible' ),
+			'blocked' => array( __( 'Needs work', 'preflight-audit' ), 'bad', 'not-compatible' ),
 			'review'  => array( __( 'Review', 'preflight-audit' ), 'warn', 'review' ),
 			'pending' => array( __( 'Not scanned', 'preflight-audit' ), 'pending', 'pending' ),
-			'ready'   => array( __( 'Ready', 'preflight-audit' ), 'ok', 'compatible' ),
+			'ready'   => array( __( 'Passing', 'preflight-audit' ), 'ok', 'compatible' ),
 		);
 	}
 

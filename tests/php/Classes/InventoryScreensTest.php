@@ -258,7 +258,7 @@ class InventoryScreensTest extends TestCase {
 
 		$output = $this->screen( Mu_Plugins_Settings::class );
 
-		$this->assertStringContainsString( 'None of this migrates as-is', $output );
+		$this->assertStringContainsString( 'None of this ships as-is', $output );
 		$this->assertStringContainsString( '<code>client-mu-plugins/</code>', $output );
 	}
 
@@ -280,7 +280,7 @@ class InventoryScreensTest extends TestCase {
 
 		$row = $this->row( $this->screen( Mu_Plugins_Settings::class ), 'mu-plugin:akismet.php' );
 
-		$this->assertStringContainsString( 'Do not migrate', $row );
+		$this->assertStringContainsString( 'Do not ship', $row );
 		$this->assertStringContainsString( 'Preinstalled by the WordPress VIP platform', $row );
 		$this->assertStringContainsString( 'On the WordPress VIP list', $row );
 		$this->assertStringNotContainsString( 'Move it into client-mu-plugins/', $row );

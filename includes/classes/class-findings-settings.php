@@ -219,7 +219,7 @@ class Findings_Settings {
 		if ( 0 === $aggregate['targets'] ) {
 			UI::render_empty_state(
 				__( 'No scan results yet', 'preflight-audit' ),
-				__( 'Run a scan to analyse every plugin, theme and must-use plugin against the WordPress VIP Platform requirements.', 'preflight-audit' ),
+				__( 'Run a scan to analyse every plugin, theme and must-use plugin against the WordPress VIP platform guidelines.', 'preflight-audit' ),
 				array(
 					'label'   => __( 'Run the first scan', 'preflight-audit' ),
 					'submit'  => 'preflight_audit_rescan',
