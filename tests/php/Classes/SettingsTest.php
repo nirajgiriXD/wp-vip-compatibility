@@ -35,6 +35,7 @@ class SettingsTest extends TestCase {
 
 		$this->assertSame( 10, has_action( 'admin_menu', array( $settings, 'add_plugin_menus' ) ) );
 		$this->assertSame( 0, has_action( 'admin_menu', array( $settings, 'redirect_retired_screens' ) ) );
+		$this->assertSame( 10, has_action( 'admin_head', array( $settings, 'print_menu_icon_style' ) ) );
 	}
 
 	public function test_the_menu_registers_every_screen_behind_manage_options() {
@@ -44,7 +45,7 @@ class SettingsTest extends TestCase {
 		$this->assertSame( 'preflight-audit', WP::$menu[0]['menu_slug'] );
 		$this->assertSame( 'manage_options', WP::$menu[0]['capability'] );
 		$this->assertSame( 'Preflight Audit', WP::$menu[0]['page_title'] );
-		$this->assertSame( Settings::MENU_ICON, WP::$menu[0]['icon_url'] );
+		$this->assertSame( PREFLIGHT_AUDIT_URL . 'assets/menu-icon.svg', WP::$menu[0]['icon_url'] );
 
 		$this->assertSame(
 			array( 'preflight-audit', 'pfa-findings', 'pfa-plugins', 'pfa-themes', 'pfa-mu-plugins', 'pfa-database', 'pfa-directories' ),
@@ -77,15 +78,22 @@ class SettingsTest extends TestCase {
 		$this->assertStringContainsString( '<span class="pfa-menu-group" aria-hidden="true">Site infrastructure</span>Database', $titles[5] );
 	}
 
-	public function test_the_menu_icon_is_a_recolourable_svg() {
-		$this->assertStringStartsWith( 'data:image/svg+xml;base64,', Settings::MENU_ICON );
+	public function test_the_menu_icon_is_the_full_colour_logo_file() {
+		$svg = file_get_contents( PREFLIGHT_AUDIT_DIR . '/' . Settings::MENU_ICON );
 
-		$svg = base64_decode( substr( Settings::MENU_ICON, strlen( 'data:image/svg+xml;base64,' ) ) );
-
-		$this->assertStringStartsWith( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">', $svg );
+		// A URL, not a data URI, so WordPress does not repaint it in one colour.
+		$this->assertStringStartsNotWith( 'data:', Settings::get_menu_icon_url() );
 		$this->assertNotFalse( simplexml_load_string( $svg ), 'well-formed SVG' );
-		$this->assertStringNotContainsString( 'stroke', $svg, 'WordPress only recolours fills' );
-		$this->assertSame( substr_count( $svg, '<path' ) + substr_count( $svg, '<circle' ), substr_count( $svg, 'fill=' ) );
+		$this->assertStringContainsString( 'width="20" height="20"', $svg );
+		$this->assertStringContainsString( '#34d399', $svg, 'the logo green' );
+	}
+
+	public function test_the_menu_icon_is_shown_at_full_opacity() {
+		ob_start();
+		$this->settings()->print_menu_icon_style();
+		$css = ob_get_clean();
+
+		$this->assertStringContainsString( '#toplevel_page_preflight-audit .wp-menu-image img{opacity:1', $css );
 	}
 
 	public function test_the_menu_badge_counts_only_must_fix_findings() {
