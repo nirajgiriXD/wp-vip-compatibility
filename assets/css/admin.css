@@ -1659,25 +1659,39 @@ body.pfa-screen,
 	border-bottom: 0;
 }
 
-/* Drawer: a compact grid inside an expanded table row. */
-.pfa-defs--drawer {
+/* Detail card: one fact per line, label beside value, ruled between. */
+.pfa-defs--detail .pfa-def {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-	gap: 16px 28px;
+	grid-template-columns: 110px minmax(0, 1fr);
+	gap: 2px 16px;
+	align-items: baseline;
+	padding: 9px 0;
+	border-top: 1px solid var(--pfa-rule);
 }
 
-.pfa-defs--drawer .pfa-def {
-	display: flex;
-	flex-direction: column;
-	gap: 5px;
-	min-width: 0;
+.pfa-defs--detail .pfa-def:first-child {
+	padding-top: 0;
+	border-top: 0;
 }
 
-.pfa-defs--drawer .pfa-def--bad .pfa-def__main {
+.pfa-defs--detail .pfa-def__main {
+	font-size: 13px;
+	overflow-wrap: normal;
+}
+
+.pfa-defs--detail code {
+	padding: 0;
+	background: none;
+	color: var(--pfa-ink);
+	font-size: 12.5px;
+	font-weight: 400;
+}
+
+.pfa-defs--detail .pfa-def--bad .pfa-def__main {
 	color: var(--pfa-block-ink);
 }
 
-.pfa-defs--drawer .pfa-def--warn .pfa-def__main {
+.pfa-defs--detail .pfa-def--warn .pfa-def__main {
 	color: var(--pfa-imp-ink);
 }
 
@@ -2196,18 +2210,46 @@ code.pfa-item__name {
 	border-bottom: 1px solid var(--pfa-rule) !important;
 }
 
+/*
+ * 50px = the 36px toggle column + the 14px cell padding, so the card
+ * lines up with the item name above it.
+ */
 .pfa-detail {
+	padding: 2px 14px 18px 50px;
+
+	/*
+	 * Fade only. A transform here made the text settle half a pixel when the
+	 * animation ended, which read as the content jumping sideways.
+	 */
+	animation: pfa-fade 0.18s ease-out;
+}
+
+/* A card of its own, so it reads apart from the row: facts | topics. */
+.pfa-detail__card {
+	display: grid;
+	grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+	border: 1px solid var(--pfa-rule-2);
+	border-radius: var(--pfa-radius-lg);
+	background: var(--pfa-sheet);
+	box-shadow: 0 1px 2px rgba(23, 25, 30, 0.04);
+}
+
+.pfa-detail__section {
 	display: flex;
 	flex-direction: column;
-	gap: 18px;
-	padding: 6px 22px 22px 64px;
-	animation: pfa-rise 0.22s var(--pfa-ease);
+	gap: 14px;
+	min-width: 0;
+	padding: 16px 20px 18px;
+}
+
+.pfa-detail__section + .pfa-detail__section {
+	border-left: 1px solid var(--pfa-rule);
 }
 
 .pfa .pfa-detail__title {
-	margin: 0 0 10px;
+	margin: 0;
 	padding: 0;
-	color: var(--pfa-ink-2);
+	color: var(--pfa-ink-3);
 	font-family: var(--pfa-mono);
 	font-size: 10.5px;
 	font-weight: 500;
@@ -2219,6 +2261,82 @@ code.pfa-item__name {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
+}
+
+.pfa .pfa-detail__empty {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+	color: var(--pfa-ink-3);
+	font-size: 13px;
+}
+
+.pfa .pfa-detail__empty.is-clear {
+	color: var(--pfa-ok-ink);
+}
+
+/* Findings by topic: name, a bar scaled to the largest, the count. */
+.pfa .pfa-topics {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pfa .pfa-topics li {
+	margin: 0;
+}
+
+.pfa .pfa-topics__link {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(60px, 34%) 28px;
+	align-items: center;
+	gap: 12px;
+	margin: 0 -8px;
+	padding: 6px 8px;
+	border-radius: var(--pfa-radius);
+	color: var(--pfa-ink);
+	text-decoration: none;
+}
+
+.pfa .pfa-topics__link:hover {
+	background: var(--pfa-sheet-2);
+}
+
+.pfa .pfa-topics__link:focus-visible {
+	box-shadow: var(--pfa-focus);
+	outline: 0;
+}
+
+.pfa-topics__name {
+	overflow: hidden;
+	font-size: 13px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.pfa-topics__bar {
+	height: 6px;
+	border-radius: 3px;
+	background: var(--pfa-paper-2);
+	overflow: hidden;
+}
+
+.pfa-topics__bar > span {
+	display: block;
+	height: 100%;
+	border-radius: inherit;
+	background: var(--pfa-accent);
+}
+
+.pfa-topics__count {
+	font-family: var(--pfa-mono);
+	font-size: 12.5px;
+	font-weight: 600;
+	text-align: right;
 }
 
 .pfa-no-results td {
@@ -3035,6 +3153,16 @@ body.pfa-screen #screen-meta .help-tab-content {
 	}
 }
 
+@keyframes pfa-fade {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
 @keyframes pfa-pop {
 	from {
 		opacity: 0;
@@ -3330,6 +3458,20 @@ body.pfa-screen #screen-meta .help-tab-content {
 
 	.pfa-detail {
 		padding: 14px;
+	}
+
+	/* Stack the two halves of the detail card. */
+	.pfa-detail__card {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.pfa-detail__section + .pfa-detail__section {
+		border-top: 1px solid var(--pfa-rule);
+		border-left: 0;
+	}
+
+	.pfa-defs--detail .pfa-def {
+		grid-template-columns: 90px minmax(0, 1fr);
 	}
 }
 

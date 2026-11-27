@@ -340,30 +340,39 @@ abstract class Inventory_Screen {
 			(int) $columns
 		);
 
-		echo '<div class="pfa-detail">';
+		/*
+		 * A card of its own, so the drawer reads as a separate thing from the
+		 * row above it: the facts on the left, what the findings are about on
+		 * the right.
+		 */
+		echo '<div class="pfa-detail"><div class="pfa-detail__card">';
 
-		echo UI::get_defs( $this->get_detail_rows( $target, $verdict, $context, $entry ), 'pfa-defs--drawer' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo '<section class="pfa-detail__section">';
+		echo '<h3 class="pfa-detail__title">' . esc_html__( 'Details', 'preflight-audit' ) . '</h3>';
+		echo UI::get_defs( $this->get_detail_rows( $target, $verdict, $context, $entry ), 'pfa-defs--detail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
-		$categories = array_filter( (array) ( $summary['by_category'] ?? array() ) );
-
-		if ( ! empty( $categories ) ) {
-			arsort( $categories );
-
-			echo '<div class="pfa-detail__block">';
-			echo '<h3 class="pfa-detail__title">' . esc_html__( 'What the findings are about', 'preflight-audit' ) . '</h3>';
-			echo '<div class="pfa-chips">';
-
-			foreach ( $categories as $category => $count ) {
-				// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-				echo UI::get_meta_chip(
-					Taxonomy::get_label( 'category', $category ),
-					number_format_i18n( (int) $count )
-				);
-				// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-			}
-
-			echo '</div></div>';
+		// No findings button here: the row's own "Review N findings" link already goes there.
+		if ( is_array( $verdict['known'] ) && ! empty( $verdict['known']['doc'] ) ) {
+			echo '<div class="pfa-detail__actions">';
+			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+			echo UI::get_action_button(
+				array(
+					'label'    => __( 'WordPress VIP documentation', 'preflight-audit' ),
+					'url'      => $verdict['known']['doc'],
+					'icon'     => 'external',
+					'external' => true,
+				)
+			);
+			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '</div>';
 		}
+
+		echo '</section>';
+
+		echo '<section class="pfa-detail__section">';
+		echo '<h3 class="pfa-detail__title">' . esc_html__( 'What the findings are about', 'preflight-audit' ) . '</h3>';
+
+		$this->render_detail_topics( $target, $entry, (array) ( $summary['by_category'] ?? array() ) );
 
 		if ( ! empty( $entry['truncated'] ) ) {
 			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
@@ -374,38 +383,57 @@ abstract class Inventory_Screen {
 			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		$actions = array();
+		echo '</section>';
 
-		if ( $verdict['total'] > 0 ) {
-			$actions[] = array(
-				'label'   => __( 'Open the findings', 'preflight-audit' ),
-				'url'     => UI::get_findings_url( $target['key'] ),
-				'icon'    => 'list',
-				'primary' => true,
-			);
-		}
-
-		if ( is_array( $verdict['known'] ) && ! empty( $verdict['known']['doc'] ) ) {
-			$actions[] = array(
-				'label'    => __( 'WordPress VIP documentation', 'preflight-audit' ),
-				'url'      => $verdict['known']['doc'],
-				'icon'     => 'external',
-				'external' => true,
-			);
-		}
-
-		if ( ! empty( $actions ) ) {
-			echo '<div class="pfa-detail__actions">';
-
-			foreach ( $actions as $action ) {
-				echo UI::get_action_button( $action ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-			}
-
-			echo '</div>';
-		}
-
-		echo '</div>';
+		echo '</div></div>';
 		echo '</td></tr>';
+	}
+
+	/**
+	 * Renders the findings by topic: one line each, biggest first, with a bar
+	 * scaled to the largest and a link to just those findings.
+	 *
+	 * @param array<string, mixed> $target     The target.
+	 * @param array<string, mixed> $entry      The stored index entry.
+	 * @param array<string, int>   $categories Finding counts keyed by category.
+	 * @return void
+	 */
+	protected function render_detail_topics( array $target, array $entry, array $categories ) {
+		$categories = array_filter( array_map( 'intval', $categories ) );
+
+		if ( empty( $categories ) ) {
+			$message = empty( $entry )
+				? __( 'Not scanned yet.', 'preflight-audit' )
+				: __( 'No findings. Nothing to do here.', 'preflight-audit' );
+
+			printf(
+				'<p class="pfa-detail__empty%1$s">%2$s%3$s</p>',
+				empty( $entry ) ? '' : ' is-clear',
+				empty( $entry ) ? '' : UI::get_icon( 'check', array( 'class' => 'pfa-icon pfa-icon--xs' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+				esc_html( $message )
+			);
+
+			return;
+		}
+
+		arsort( $categories );
+
+		$largest = max( $categories );
+		$base    = UI::get_findings_url( $target['key'] );
+
+		echo '<ul class="pfa-topics">';
+
+		foreach ( $categories as $category => $count ) {
+			printf(
+				'<li><a class="pfa-topics__link" href="%1$s"><span class="pfa-topics__name">%2$s</span><span class="pfa-topics__bar" aria-hidden="true"><span style="width:%3$d%%"></span></span><span class="pfa-topics__count">%4$s</span></a></li>',
+				esc_url( add_query_arg( 'category', $category, $base ) ),
+				esc_html( Taxonomy::get_label( 'category', $category ) ),
+				(int) max( 6, round( $count / $largest * 100 ) ),
+				esc_html( number_format_i18n( $count ) )
+			);
+		}
+
+		echo '</ul>';
 	}
 
 	/**
@@ -420,8 +448,7 @@ abstract class Inventory_Screen {
 	protected function get_detail_rows( array $target, array $verdict, array $context, array $entry ) {
 		unset( $context );
 
-		$summary = $entry['summary'] ?? array();
-		$rows    = array();
+		$rows = array();
 
 		if ( '' !== $target['author'] ) {
 			$rows[] = array(
@@ -430,9 +457,10 @@ abstract class Inventory_Screen {
 			);
 		}
 
+		// A long path may only wrap after a slash, never mid-name.
 		$rows[] = array(
 			'label' => __( 'Location', 'preflight-audit' ),
-			'html'  => '<code>' . esc_html( $this->get_relative_path( $target ) ) . '</code>',
+			'html'  => '<code>' . implode( '/<wbr>', array_map( 'esc_html', explode( '/', $this->get_relative_path( $target ) ) ) ) . '</code>',
 		);
 
 		if ( ! empty( $entry ) ) {
@@ -451,14 +479,7 @@ abstract class Inventory_Screen {
 			);
 		}
 
-		$severity_bar = UI::get_severity_bar( (array) ( $summary['by_severity'] ?? array() ), $target['key'] );
-
-		if ( '' !== $severity_bar ) {
-			$rows[] = array(
-				'label' => __( 'Findings by importance', 'preflight-audit' ),
-				'html'  => $severity_bar,
-			);
-		}
+		// No findings-by-importance row: the row above already shows those counts.
 
 		if ( is_array( $verdict['known'] ) ) {
 			/*
