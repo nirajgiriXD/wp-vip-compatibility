@@ -1,6 +1,6 @@
 === Preflight Audit ===
 Contributors: nirajgirixd, mi5t4n
-Tags: vip, compatibility, migration, code analysis, phpcs
+Tags: coding standards, compatibility, code analysis, code review, phpcs
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
@@ -8,20 +8,22 @@ Stable tag: 2.0.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
-Analyse a WordPress site against the WordPress VIP Platform requirements, and get an actionable fix for every issue found.
+Check a site's code against the WordPress VIP platform guidelines and coding standard, with an actionable fix for every issue found.
 
 == Description ==
 
-This plugin reports what has to change before a WordPress site can move to the WordPress VIP Platform, and what to change it to.
+This plugin checks a site's plugins, themes, database and file layout against the publicly documented WordPress VIP platform guidelines and the WordPress-VIP-Go coding standard. It reports what breaks those guidelines, and what to change it to.
+
+Use it as an everyday coding-standard and compatibility check, since the guidelines are a strict, well-documented bar for performance, security and scale on any host. Or use it as a checklist before moving a site to the platform.
 
 It scans every plugin, theme and must-use plugin with a PHP tokeniser rather than pattern-matching raw text, so a function name in a comment, a docblock or a string literal is not mistaken for a call, and `$pdo->exec()` is not mistaken for a shell command. Where a value cannot be resolved at analysis time, the finding says so and records its confidence instead of asserting an incompatibility it cannot prove.
 
 = Findings are separated by what they actually are =
 
-* **Incompatible** — expected to fail on the platform.
+* **Incompatible** — likely to fail on the platform.
 * **Potentially incompatible** — depends on runtime conditions; needs a human check.
 * **Performance concern** — works, but does not scale.
-* **Security concern** — flagged by WordPress VIP code review.
+* **Security concern** — the kind of issue the platform's code-review guidelines call out.
 * **Redundant on WordPress VIP** — the platform already provides it.
 * **Coding-standard violation** — reported by the WordPress-VIP-Go PHPCS standard.
 * **Recommendation** and **Informational**.
@@ -47,9 +49,9 @@ The issue title, what was detected, why it matters on the WordPress VIP Platform
 
 = Reporting =
 
-An overall readiness score and the first three things to do; a map of every plugin, theme, table and path on the site, one square each, by verdict; one ranked list of fixes with the recommended change on the face of every entry, filtered from a column of one-click links; per-plugin, per-theme and per-table breakdowns; scan history with a change summary between runs; and export to JSON, CSV or Markdown for CI, an analysis sheet or a pull request.
+An overall score and the first three things to do; a map of every plugin, theme, table and path on the site, one square each, by verdict; one ranked list of fixes with the recommended change on the face of every entry, filtered from a column of one-click links; per-plugin, per-theme and per-table breakdowns; scan history with a change summary between runs; and export to JSON, CSV or Markdown for CI, an analysis sheet or a pull request.
 
-The admin menu carries a count of what must be fixed before migrating, so the work is visible from anywhere in wp-admin without opening the plugin.
+The admin menu carries a count of what must be fixed, so the work is visible from anywhere in wp-admin without opening the plugin.
 
 = Accuracy =
 
@@ -77,15 +79,19 @@ Open **Preflight Audit** in the admin menu and run a scan from the header. Resul
 
 Choosing an area takes you straight to that screen and reads its rows one at a time behind a progress bar, so you watch the work happen instead of waiting on a blank page. Stopping partway is safe: rows that never resolved stay marked unscanned and are picked up the next time you open that screen.
 
-**Overview** answers how ready the site is and what to do first. **Findings** is one ranked list of fixes, worst first, with the recommended change visible on every card. **Plugins**, **Themes** and **Must-use** give a per-target verdict, with each row expanding to the evidence behind it. **Database** and **wp-content** check the schema and the application structure against what WordPress VIP requires.
+**Overview** answers how the site measures up and what to do first. **Findings** is one ranked list of fixes, worst first, with the recommended change visible on every card. **Plugins**, **Themes** and **Must-use** give a per-target verdict, with each row expanding to the evidence behind it. **Database** and **wp-content** check the schema and the application structure against what WordPress VIP requires.
 
 Scan results are stored in the options table and are only readable by users who can `manage_options`. They are removed when the plugin is uninstalled.
 
 == Frequently Asked Questions ==
 
-= Does a "Blocked" verdict mean the plugin cannot be migrated? =
+= Do I need to host on WordPress VIP to use this? =
 
-It means at least one finding is expected to fail on the platform as written. Most are fixable — open Findings for the specific change required.
+No. The guidelines it checks against are public, and most describe good practice on any host. A few findings, such as "Redundant on WordPress VIP" or the wp-content layout, only matter if you host there or plan to.
+
+= Does a "Needs work" verdict mean the plugin cannot be used? =
+
+No. It means at least one finding is likely to cause problems on the WordPress VIP platform as written. Most are fixable — open Findings for the specific change required.
 
 = Why is `uploads/` not reported as incompatible? =
 
@@ -136,7 +142,7 @@ Fixes three security issues in 1.0.0: AJAX endpoints that required only a logged
 
 == Screenshots ==
 
-1. Overview with the migration readiness score, the outstanding work by tier, and where to start.
+1. Overview with the score, the outstanding work by tier, and where to start.
 2. Findings, filtered to one tier, with a finding expanded to its evidence, rationale and remediation.
 3. Plugins, with a row expanded to its author, location and findings.
 4. Themes, with the active theme expanded.

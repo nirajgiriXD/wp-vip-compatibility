@@ -1,12 +1,17 @@
 # Preflight Audit
 
-Analyse a WordPress site against the [WordPress VIP Platform](https://docs.wpvip.com/) requirements, and get an actionable fix for every issue found.
+Check a site's code against the [WordPress VIP platform guidelines](https://docs.wpvip.com/) and coding standard, with an actionable fix for every issue found.
 
 > Not affiliated with or endorsed by Automattic, WordPress VIP, or the WordPress Foundation.
 
 ## What it does
 
-The plugin scans every plugin, theme and must-use plugin on the site and reports what has to change before the site can move to WordPress VIP — and what to change it to.
+The plugin scans every plugin, theme and must-use plugin on the site against the publicly documented WordPress VIP platform guidelines and the `WordPress-VIP-Go` coding standard, and reports what breaks them — and what to change it to.
+
+Use it two ways:
+
+- **As an everyday code check.** The guidelines are a strict, well-documented bar for performance, security and scale, and most of them are good practice on any host.
+- **Before a move to the platform.** The same report doubles as a checklist of what has to change first.
 
 Analysis is done with the PHP tokeniser rather than by matching patterns against raw text. That distinction matters: a function name in a comment, a docblock or a string literal is not a call, `$pdo->exec()` is not a shell command, and `fopen( $path, 'r' )` is not a filesystem write. Where a value cannot be resolved statically, the finding records its confidence rather than asserting an incompatibility it cannot prove.
 
@@ -21,9 +26,9 @@ Four independent axes, because collapsing them is what makes a deprecated functi
 | **Confidence** | Definitive · High · Medium · Low |
 | **Fixability** | Automatic · Manual · Configuration · Architectural |
 
-Those four are the scanner's reasoning, and they stay behind a disclosure on each finding. The interface itself uses one vocabulary and one only, derived from severity and phrased as an instruction — **must fix**, **should fix**, **worth checking**, **FYI** — so nobody has to learn that "critical", "incompatible" and "blocked" are three different scales.
+Those four are the scanner's reasoning, and they stay behind a disclosure on each finding. The interface itself uses one vocabulary and one only, derived from severity and phrased as an instruction — **must fix**, **should fix**, **worth checking**, **FYI** — so nobody has to learn that "critical", "incompatible" and "needs work" are three different scales.
 
-A target ends up in one of three states: **ready**, **needs review** (work to do that will not by itself stop a migration), or **blocked** (something is expected to fail on the platform).
+A target ends up in one of three states: **passing**, **needs review** (findings worth a look that are unlikely to break anything), or **needs work** (something is likely to cause problems on the platform).
 
 ## What every finding tells you
 
@@ -51,11 +56,11 @@ A target ends up in one of three states: **ready**, **needs review** (work to do
 
 ## Screens
 
-The screens are designed as a migration manifest: a ruled document on a paper ground rather than a dashboard of cards. Colour is spent on urgency only, and every urgency level also has its own shape, so the scale reads without colour.
+The screens are designed as a manifest: a ruled document on a paper ground rather than a dashboard of cards. Colour is spent on urgency only, and every urgency level also has its own shape, so the scale reads without colour.
 
-The WordPress admin menu carries a count of what must be fixed before migrating, split under headings into three groups — readiness, the code you ship, and the site's own infrastructure.
+The admin menu carries a count of what must be fixed, split under headings into three groups — summary, the code you ship, and the site's own infrastructure.
 
-- **Overview** — readiness score, the outstanding work by tier, the first three things to do, a map of every item on the site by verdict, the environment the site runs on, and how the report has moved over recent scans.
+- **Overview** — score, the outstanding work by tier, the first three things to do, a map of every item on the site by verdict, the environment the site runs on, and how the report has moved over recent scans.
 - **Findings** — one flat list of fixes, worst first, each entry carrying the recommended fix on its face. Filters sit in a sticky column of links — what to do about it, then what it is about — applied on click and reflected in the URL. Press `/` to jump to search.
 - **Plugins** — every installed plugin with its verdict, activation state, available update and severity split; each row expands to its evidence.
 - **Themes** — the active theme in detail, plus every other theme that still ships in the repository.
