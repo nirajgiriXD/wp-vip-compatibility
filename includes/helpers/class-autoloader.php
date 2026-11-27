@@ -2,10 +2,10 @@
 /**
  * Autoloader to load classes
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Includes\Helpers;
+namespace CUTOVER_AUDIT\Includes\Helpers;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,7 +35,7 @@ abstract class Autoloader {
 	 */
 	public static function run_autoloader( $classname ) {
 
-		$namespace_prefix = 'PREFLIGHT_AUDIT\\';
+		$namespace_prefix = 'CUTOVER_AUDIT\\';
 
 		// Does the class use the namespace prefix?
 		$namespace_prefix_length = strlen( $namespace_prefix );
@@ -75,7 +75,7 @@ abstract class Autoloader {
 		}
 
 		// Construct the full file path.
-		$file_path = sprintf( '%s/includes/%s/%s.php', untrailingslashit( PREFLIGHT_AUDIT_DIR ), $directories, $file_name );
+		$file_path = sprintf( '%s/includes/%s/%s.php', untrailingslashit( CUTOVER_AUDIT_DIR ), $directories, $file_name );
 
 		if ( file_exists( $file_path ) ) {
 			require_once $file_path;

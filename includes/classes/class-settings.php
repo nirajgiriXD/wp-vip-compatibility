@@ -2,12 +2,12 @@
 /**
  * Class to handle plugin settings.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Includes\Classes;
+namespace CUTOVER_AUDIT\Includes\Classes;
 
-use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
+use CUTOVER_AUDIT\Includes\Traits\Singleton;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -36,7 +36,7 @@ class Settings {
 	 * @return string
 	 */
 	public static function get_menu_icon_url() {
-		return PREFLIGHT_AUDIT_URL . self::MENU_ICON;
+		return CUTOVER_AUDIT_URL . self::MENU_ICON;
 	}
 
 	/**
@@ -48,7 +48,7 @@ class Settings {
 	 * @return void
 	 */
 	public function print_menu_icon_style() {
-		echo '<style>#toplevel_page_preflight-audit .wp-menu-image img{opacity:1;width:20px;height:20px;padding-top:8px}</style>' . "\n";
+		echo '<style>#toplevel_page_cutover-audit .wp-menu-image img{opacity:1;width:20px;height:20px;padding-top:8px}</style>' . "\n";
 	}
 
 	/**
@@ -92,7 +92,7 @@ class Settings {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen detection on a GET request.
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 
-		if ( ! in_array( $page, array( 'pfa-inventory', 'pfa-site' ), true ) ) {
+		if ( ! in_array( $page, array( 'cutover-audit-inventory', 'cutover-audit-site' ), true ) ) {
 			return;
 		}
 
@@ -110,7 +110,7 @@ class Settings {
 			'database'    => 'database',
 		);
 
-		if ( 'pfa-inventory' === $page ) {
+		if ( 'cutover-audit-inventory' === $page ) {
 			$key = $targets[ $kind ] ?? 'plugins';
 		} else {
 			$key = $targets[ $section ] ?? 'database';
@@ -179,8 +179,8 @@ class Settings {
 		// The overview is also the first submenu entry, so the menu never shows a
 		// duplicate of the parent under a different name.
 		add_menu_page(
-			__( 'Preflight Audit', 'preflight-audit' ),
-			__( 'Preflight Audit', 'preflight-audit' ),
+			__( 'Cutover Audit', 'cutover-audit' ),
+			__( 'Cutover Audit', 'cutover-audit' ),
 			Plugin::get_capability(),
 			$screens['overview']['slug'],
 			fn() => $this->render_settings_page( 'overview' ),
@@ -201,15 +201,15 @@ class Settings {
 			if ( ! isset( $headed[ $group ] ) && isset( $groups[ $group ] ) ) {
 				// The first heading sits directly under the menu title, where a
 				// separator above it would divide nothing.
-				$modifier         = empty( $headed ) ? ' pfa-menu-group--first' : '';
+				$modifier         = empty( $headed ) ? ' cutover-audit-menu-group--first' : '';
 				$headed[ $group ] = true;
-				$label            = '<span class="pfa-menu-group' . $modifier . '" aria-hidden="true">' . esc_html( $groups[ $group ] ) . '</span>' . $label;
+				$label            = '<span class="cutover-audit-menu-group' . $modifier . '" aria-hidden="true">' . esc_html( $groups[ $group ] ) . '</span>' . $label;
 			}
 
 			$hook = add_submenu_page(
 				$screens['overview']['slug'],
 				/* translators: %s: Submenu title */
-				sprintf( __( 'Preflight Audit — %s', 'preflight-audit' ), $screen['title'] ),
+				sprintf( __( 'Cutover Audit — %s', 'cutover-audit' ), $screen['title'] ),
 				$label,
 				Plugin::get_capability(),
 				$screen['slug'],
@@ -253,19 +253,19 @@ class Settings {
 
 		// The overview is a report rather than a list.
 		$title = ( 'overview' === $key )
-			? __( 'About this report', 'preflight-audit' )
-			: __( 'How to read this list', 'preflight-audit' );
+			? __( 'About this report', 'cutover-audit' )
+			: __( 'How to read this list', 'cutover-audit' );
 
 		$screen->add_help_tab(
 			array(
-				'id'      => 'pfa-how-to-read',
+				'id'      => 'cutover-audit-how-to-read',
 				'title'   => $title,
-				'content' => '<p class="pfa-help__title">' . esc_html( $title ) . '</p>'
-					. '<div class="pfa-help__notes">' . wp_kses_post( '<p>' . implode( '</p><p>', $notes ) . '</p>' ) . '</div>'
-					. '<p class="pfa-help__about">' . sprintf(
+				'content' => '<p class="cutover-audit-help__title">' . esc_html( $title ) . '</p>'
+					. '<div class="cutover-audit-help__notes">' . wp_kses_post( '<p>' . implode( '</p><p>', $notes ) . '</p>' ) . '</div>'
+					. '<p class="cutover-audit-help__about">' . sprintf(
 						/* translators: %s: Link to the WordPress VIP documentation. */
-						esc_html__( 'Preflight Audit is an independent tool, not affiliated with or endorsed by Automattic or WordPress VIP. Its rules are written from the public %s.', 'preflight-audit' ),
-						'<a href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'WordPress VIP documentation', 'preflight-audit' ) . '<span class="screen-reader-text"> ' . esc_html__( '(opens in a new tab)', 'preflight-audit' ) . '</span></a>'
+						esc_html__( 'Cutover Audit is an independent tool, not affiliated with or endorsed by Automattic or WordPress VIP. Its rules are written from the public %s.', 'cutover-audit' ),
+						'<a href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'WordPress VIP documentation', 'cutover-audit' ) . '<span class="screen-reader-text"> ' . esc_html__( '(opens in a new tab)', 'cutover-audit' ) . '</span></a>'
 					) . '</p>',
 			)
 		);

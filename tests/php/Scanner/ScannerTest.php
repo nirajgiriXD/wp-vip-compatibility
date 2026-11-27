@@ -2,21 +2,21 @@
 /**
  * Tests for scan orchestration.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Scanner;
+namespace CUTOVER_AUDIT\Tests\Scanner;
 
 use Brain\Monkey\Filters;
-use PREFLIGHT_AUDIT\Includes\Scanner\Results_Store;
-use PREFLIGHT_AUDIT\Includes\Scanner\Rules;
-use PREFLIGHT_AUDIT\Includes\Scanner\Scanner;
-use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
-use PREFLIGHT_AUDIT\Tests\Support\Sandbox;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
+use CUTOVER_AUDIT\Includes\Scanner\Rules;
+use CUTOVER_AUDIT\Includes\Scanner\Scanner;
+use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
+use CUTOVER_AUDIT\Tests\Support\Sandbox;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
- * @covers \PREFLIGHT_AUDIT\Includes\Scanner\Scanner
+ * @covers \CUTOVER_AUDIT\Includes\Scanner\Scanner
  */
 class ScannerTest extends TestCase {
 
@@ -132,7 +132,7 @@ class ScannerTest extends TestCase {
 			)
 		);
 
-		Filters\expectApplied( 'preflight_audit_scanner_excluded_directories' )->andReturn( array( 'legacy' ) );
+		Filters\expectApplied( 'cutover_audit_scanner_excluded_directories' )->andReturn( array( 'legacy' ) );
 
 		$files = array_values( ( new Scanner() )->php_files( $target['path'] ) );
 		sort( $files );

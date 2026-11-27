@@ -8,37 +8,37 @@
  *
  * Usage: php export-runner.php <format>
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
 // phpcs:disable -- Test support script.
 
 require dirname( __DIR__ ) . '/bootstrap.php';
 
-use PREFLIGHT_AUDIT\Includes\Classes\Export;
-use PREFLIGHT_AUDIT\Includes\Scanner\Scanner;
-use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
-use PREFLIGHT_AUDIT\Tests\Support\Fake_Wpdb;
-use PREFLIGHT_AUDIT\Tests\Support\Sandbox;
-use PREFLIGHT_AUDIT\Tests\Support\WP;
+use CUTOVER_AUDIT\Includes\Classes\Export;
+use CUTOVER_AUDIT\Includes\Scanner\Scanner;
+use CUTOVER_AUDIT\Includes\Scanner\Targets;
+use CUTOVER_AUDIT\Tests\Support\Fake_Wpdb;
+use CUTOVER_AUDIT\Tests\Support\Sandbox;
+use CUTOVER_AUDIT\Tests\Support\WP;
 
 Brain\Monkey\setUp();
 WP::reset();
 Sandbox::reset();
 $GLOBALS['wpdb'] = new Fake_Wpdb();
 
-$preflight_audit_headers = array();
+$cutover_audit_headers = array();
 
 Patchwork\redefine(
 	'header',
-	static function ( $header ) use ( &$preflight_audit_headers ) {
-		$preflight_audit_headers[] = $header;
+	static function ( $header ) use ( &$cutover_audit_headers ) {
+		$cutover_audit_headers[] = $header;
 	}
 );
 
 register_shutdown_function(
-	static function () use ( &$preflight_audit_headers ) {
-		fwrite( STDERR, json_encode( array( 'headers' => $preflight_audit_headers, 'nocache' => WP::$nocache_calls ) ) );
+	static function () use ( &$cutover_audit_headers ) {
+		fwrite( STDERR, json_encode( array( 'headers' => $cutover_audit_headers, 'nocache' => WP::$nocache_calls ) ) );
 	}
 );
 

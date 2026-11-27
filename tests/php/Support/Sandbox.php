@@ -2,10 +2,10 @@
 /**
  * The fake wp-content directory the scanner reads.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Support;
+namespace CUTOVER_AUDIT\Tests\Support;
 
 /**
  * Creates and empties the sandbox wp-content tree.

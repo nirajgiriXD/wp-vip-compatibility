@@ -2,19 +2,19 @@
 /**
  * Tests for the admin menu and screen routing.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Classes;
+namespace CUTOVER_AUDIT\Tests\Classes;
 
-use PREFLIGHT_AUDIT\Includes\Classes\Settings;
-use PREFLIGHT_AUDIT\Tests\Support\Fake_Screen;
-use PREFLIGHT_AUDIT\Tests\Support\Redirect;
-use PREFLIGHT_AUDIT\Tests\Support\WP;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Classes\Settings;
+use CUTOVER_AUDIT\Tests\Support\Fake_Screen;
+use CUTOVER_AUDIT\Tests\Support\Redirect;
+use CUTOVER_AUDIT\Tests\Support\WP;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
- * @covers \PREFLIGHT_AUDIT\Includes\Classes\Settings
+ * @covers \CUTOVER_AUDIT\Includes\Classes\Settings
  */
 class SettingsTest extends TestCase {
 
@@ -42,19 +42,19 @@ class SettingsTest extends TestCase {
 		$this->settings()->add_plugin_menus();
 
 		$this->assertCount( 1, WP::$menu );
-		$this->assertSame( 'preflight-audit', WP::$menu[0]['menu_slug'] );
+		$this->assertSame( 'cutover-audit', WP::$menu[0]['menu_slug'] );
 		$this->assertSame( 'manage_options', WP::$menu[0]['capability'] );
-		$this->assertSame( 'Preflight Audit', WP::$menu[0]['page_title'] );
-		$this->assertSame( PREFLIGHT_AUDIT_URL . 'assets/menu-icon.svg', WP::$menu[0]['icon_url'] );
+		$this->assertSame( 'Cutover Audit', WP::$menu[0]['page_title'] );
+		$this->assertSame( CUTOVER_AUDIT_URL . 'assets/menu-icon.svg', WP::$menu[0]['icon_url'] );
 
 		$this->assertSame(
-			array( 'preflight-audit', 'pfa-findings', 'pfa-plugins', 'pfa-themes', 'pfa-mu-plugins', 'pfa-database', 'pfa-directories' ),
+			array( 'cutover-audit', 'cutover-audit-findings', 'cutover-audit-plugins', 'cutover-audit-themes', 'cutover-audit-mu-plugins', 'cutover-audit-database', 'cutover-audit-directories' ),
 			array_column( WP::$submenu, 'menu_slug' )
 		);
 
 		foreach ( WP::$submenu as $entry ) {
 			$this->assertSame( 'manage_options', $entry['capability'] );
-			$this->assertSame( 'preflight-audit', $entry['parent_slug'] );
+			$this->assertSame( 'cutover-audit', $entry['parent_slug'] );
 		}
 	}
 
@@ -84,14 +84,14 @@ class SettingsTest extends TestCase {
 
 		$titles = array_column( WP::$submenu, 'menu_title' );
 
-		$this->assertStringContainsString( 'pfa-menu-group pfa-menu-group--first" aria-hidden="true">Summary</span>Overview', $titles[0] );
-		$this->assertStringNotContainsString( 'pfa-menu-group', $titles[1] );
-		$this->assertStringContainsString( '<span class="pfa-menu-group" aria-hidden="true">Code you ship</span>Plugins', $titles[2] );
-		$this->assertStringContainsString( '<span class="pfa-menu-group" aria-hidden="true">Site infrastructure</span>Database', $titles[5] );
+		$this->assertStringContainsString( 'cutover-audit-menu-group cutover-audit-menu-group--first" aria-hidden="true">Summary</span>Overview', $titles[0] );
+		$this->assertStringNotContainsString( 'cutover-audit-menu-group', $titles[1] );
+		$this->assertStringContainsString( '<span class="cutover-audit-menu-group" aria-hidden="true">Code you ship</span>Plugins', $titles[2] );
+		$this->assertStringContainsString( '<span class="cutover-audit-menu-group" aria-hidden="true">Site infrastructure</span>Database', $titles[5] );
 	}
 
 	public function test_the_menu_icon_is_the_full_colour_logo_file() {
-		$svg = file_get_contents( PREFLIGHT_AUDIT_DIR . '/' . Settings::MENU_ICON );
+		$svg = file_get_contents( CUTOVER_AUDIT_DIR . '/' . Settings::MENU_ICON );
 
 		// A URL, not a data URI, so WordPress does not repaint it in one colour.
 		$this->assertStringStartsNotWith( 'data:', Settings::get_menu_icon_url() );
@@ -105,7 +105,7 @@ class SettingsTest extends TestCase {
 		$this->settings()->print_menu_icon_style();
 		$css = ob_get_clean();
 
-		$this->assertStringContainsString( '#toplevel_page_preflight-audit .wp-menu-image img{opacity:1', $css );
+		$this->assertStringContainsString( '#toplevel_page_cutover-audit .wp-menu-image img{opacity:1', $css );
 	}
 
 	public function test_the_menu_title_has_no_count_even_with_must_fix_findings() {
@@ -113,16 +113,16 @@ class SettingsTest extends TestCase {
 
 		$this->settings()->add_plugin_menus();
 
-		$this->assertSame( 'Preflight Audit', WP::$menu[0]['menu_title'] );
+		$this->assertSame( 'Cutover Audit', WP::$menu[0]['menu_title'] );
 	}
 
 	public function test_every_screen_hooks_its_help_tab_to_its_load_action() {
 		$this->settings()->add_plugin_menus();
 
-		$this->assertTrue( has_action( 'load-toplevel_page_preflight-audit' ) );
+		$this->assertTrue( has_action( 'load-toplevel_page_cutover-audit' ) );
 
-		foreach ( array( 'pfa-findings', 'pfa-plugins', 'pfa-themes', 'pfa-mu-plugins', 'pfa-database', 'pfa-directories' ) as $slug ) {
-			$this->assertTrue( has_action( 'load-preflight-audit_page_' . $slug ), $slug );
+		foreach ( array( 'cutover-audit-findings', 'cutover-audit-plugins', 'cutover-audit-themes', 'cutover-audit-mu-plugins', 'cutover-audit-database', 'cutover-audit-directories' ) as $slug ) {
+			$this->assertTrue( has_action( 'load-cutover-audit_page_' . $slug ), $slug );
 		}
 	}
 
@@ -132,10 +132,10 @@ class SettingsTest extends TestCase {
 		$this->call_private( $this->settings(), 'add_help_tab', array( 'plugins' ) );
 
 		$this->assertCount( 1, WP::$screen->help_tabs );
-		$this->assertSame( 'pfa-how-to-read', WP::$screen->help_tabs[0]['id'] );
+		$this->assertSame( 'cutover-audit-how-to-read', WP::$screen->help_tabs[0]['id'] );
 		$this->assertSame( 'How to read this list', WP::$screen->help_tabs[0]['title'] );
-		$this->assertStringContainsString( '<div class="pfa-help__notes"><p>', WP::$screen->help_tabs[0]['content'] );
-		$this->assertStringContainsString( '<p class="pfa-help__about">Preflight Audit is an independent tool', WP::$screen->help_tabs[0]['content'] );
+		$this->assertStringContainsString( '<div class="cutover-audit-help__notes"><p>', WP::$screen->help_tabs[0]['content'] );
+		$this->assertStringContainsString( '<p class="cutover-audit-help__about">Cutover Audit is an independent tool', WP::$screen->help_tabs[0]['content'] );
 		$this->assertStringContainsString( 'not affiliated with or endorsed by Automattic or WordPress VIP', WP::$screen->help_tabs[0]['content'] );
 		$this->assertStringContainsString( '<a href="https://docs.wpvip.com/" target="_blank" rel="noopener noreferrer">WordPress VIP documentation', WP::$screen->help_tabs[0]['content'] );
 	}
@@ -168,8 +168,8 @@ class SettingsTest extends TestCase {
 			}
 		);
 
-		$this->assertStringStartsWith( '<div class="wrap pfa">', trim( $output ) );
-		$this->assertStringContainsString( '<h1 class="pfa-head__title">Database</h1>', $output );
+		$this->assertStringStartsWith( '<div class="wrap cutover-audit">', trim( $output ) );
+		$this->assertStringContainsString( '<h1 class="cutover-audit-head__title">Database</h1>', $output );
 		$this->assertStringEndsWith( '</div></div>', trim( $output ) );
 	}
 
@@ -204,17 +204,17 @@ class SettingsTest extends TestCase {
 		$admin = 'https://example.test/wp-admin/admin.php?page=';
 
 		return array(
-			'inventory'                => array( array( 'page' => 'pfa-inventory' ), $admin . 'pfa-plugins' ),
-			'inventory, themes'        => array( array( 'page' => 'pfa-inventory', 'kind' => 'theme' ), $admin . 'pfa-themes' ),
-			'inventory, mu, filtered'  => array( array( 'page' => 'pfa-inventory', 'kind' => 'mu-plugin', 'status' => 'review' ), $admin . 'pfa-mu-plugins&status=review' ),
-			'inventory, unknown kind'  => array( array( 'page' => 'pfa-inventory', 'kind' => 'widgets' ), $admin . 'pfa-plugins' ),
-			'site'                     => array( array( 'page' => 'pfa-site' ), $admin . 'pfa-database' ),
-			'site, directories'        => array( array( 'page' => 'pfa-site', 'section' => 'directories' ), $admin . 'pfa-directories' ),
+			'inventory'                => array( array( 'page' => 'cutover-audit-inventory' ), $admin . 'cutover-audit-plugins' ),
+			'inventory, themes'        => array( array( 'page' => 'cutover-audit-inventory', 'kind' => 'theme' ), $admin . 'cutover-audit-themes' ),
+			'inventory, mu, filtered'  => array( array( 'page' => 'cutover-audit-inventory', 'kind' => 'mu-plugin', 'status' => 'review' ), $admin . 'cutover-audit-mu-plugins&status=review' ),
+			'inventory, unknown kind'  => array( array( 'page' => 'cutover-audit-inventory', 'kind' => 'widgets' ), $admin . 'cutover-audit-plugins' ),
+			'site'                     => array( array( 'page' => 'cutover-audit-site' ), $admin . 'cutover-audit-database' ),
+			'site, directories'        => array( array( 'page' => 'cutover-audit-site', 'section' => 'directories' ), $admin . 'cutover-audit-directories' ),
 		);
 	}
 
 	public function test_current_screens_are_not_redirected() {
-		$_GET['page'] = 'pfa-plugins';
+		$_GET['page'] = 'cutover-audit-plugins';
 		$this->settings()->redirect_retired_screens();
 
 		unset( $_GET['page'] );

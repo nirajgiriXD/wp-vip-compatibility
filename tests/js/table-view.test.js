@@ -11,12 +11,12 @@ afterEach(() => {
 });
 
 const visibleNames = ($) =>
-	$("tbody tr.pfa-row:visible")
-		.map((index, row) => $(row).find(".pfa-col-name").text())
+	$("tbody tr.cutover-audit-row:visible")
+		.map((index, row) => $(row).find(".cutover-audit-col-name").text())
 		.get();
 
 const count = ($, value, group = "status") =>
-	$(`[data-filter-group='${group}'] [data-filter-value='${value}'] .pfa-segmented__count`).text();
+	$(`[data-filter-group='${group}'] [data-filter-value='${value}'] .cutover-audit-segmented__count`).text();
 
 const rows = [
 	{ name: "Alpha", status: "not-compatible", attrs: { state: "active" } },
@@ -84,7 +84,7 @@ describe("filtering", () => {
 
 		$("[data-filter-value='not-compatible']").trigger("click");
 
-		const $empty = $("tr.pfa-no-results");
+		const $empty = $("tr.cutover-audit-no-results");
 
 		expect($empty.length).toBe(1);
 		expect($empty.is(":visible")).toBe(true);
@@ -134,7 +134,7 @@ describe("searching", () => {
 describe("sorting", () => {
 	test("a sortable header sorts ascending, then descending, keeping drawers with their rows", () => {
 		const $ = load(table(rows, { sortable: true }));
-		const $sort = $(".pfa-th__sort");
+		const $sort = $(".cutover-audit-th__sort");
 
 		$sort.trigger("click");
 		expect(visibleNames($)).toEqual(["Alpha", "Beta", "Delta", "Gamma"]);
@@ -144,8 +144,8 @@ describe("sorting", () => {
 		expect(visibleNames($)).toEqual(["Gamma", "Delta", "Beta", "Alpha"]);
 		expect($sort.closest("th").attr("aria-sort")).toBe("descending");
 
-		$("tbody > tr.pfa-row").each(function () {
-			expect($(this).next().hasClass("pfa-row-detail")).toBe(true);
+		$("tbody > tr.cutover-audit-row").each(function () {
+			expect($(this).next().hasClass("cutover-audit-row-detail")).toBe(true);
 		});
 	});
 
@@ -158,11 +158,11 @@ describe("sorting", () => {
 		const $ = load(
 			table(numbers, {
 				expandable: false,
-				extraHeads: ['<th class="pfa-th is-sortable" data-sort-type="number" aria-sort="none"><button type="button" class="pfa-th__sort">Rows</button></th>']
+				extraHeads: ['<th class="cutover-audit-th is-sortable" data-sort-type="number" aria-sort="none"><button type="button" class="cutover-audit-th__sort">Rows</button></th>']
 			})
 		);
 
-		$("th[data-sort-type='number'] .pfa-th__sort").trigger("click");
+		$("th[data-sort-type='number'] .cutover-audit-th__sort").trigger("click");
 
 		expect(visibleNames($)).toEqual(["c", "b", "a"]);
 	});
@@ -176,19 +176,19 @@ describe("paging", () => {
 
 	test("rows are shown twenty at a time with a pager", () => {
 		const $ = load(table(many));
-		const $pager = $(".pfa-pager");
+		const $pager = $(".cutover-audit-pager");
 
 		expect(visibleNames($)).toHaveLength(20);
 		expect($pager.prop("hidden")).toBe(false);
-		expect($pager.find(".pfa-pager__range").text()).toBe("1–20 of 45");
-		expect($pager.find(".pfa-pager__page").text()).toBe("Page 1 of 3");
+		expect($pager.find(".cutover-audit-pager__range").text()).toBe("1–20 of 45");
+		expect($pager.find(".cutover-audit-pager__page").text()).toBe("Page 1 of 3");
 		expect($pager.find("[data-page='prev']").prop("disabled")).toBe(true);
 
 		$pager.find("[data-page='next']").trigger("click");
 		$pager.find("[data-page='next']").trigger("click");
 
 		expect(visibleNames($)).toHaveLength(5);
-		expect($pager.find(".pfa-pager__range").text()).toBe("41–45 of 45");
+		expect($pager.find(".cutover-audit-pager__range").text()).toBe("41–45 of 45");
 		expect($pager.find("[data-page='next']").prop("disabled")).toBe(true);
 
 		$pager.find("[data-page='prev']").trigger("click");
@@ -198,11 +198,11 @@ describe("paging", () => {
 	test("filtering returns to the first page and hides a pager with one page", () => {
 		const $ = load(table(many));
 
-		$(".pfa-pager [data-page='next']").trigger("click");
+		$(".cutover-audit-pager [data-page='next']").trigger("click");
 		$("[data-filter-value='review']").trigger("click");
 
 		expect(visibleNames($)).toHaveLength(5);
-		expect($(".pfa-pager").prop("hidden")).toBe(true);
+		expect($(".cutover-audit-pager").prop("hidden")).toBe(true);
 	});
 });
 
@@ -210,7 +210,7 @@ describe("row drawers", () => {
 	test("the toggle opens and closes the drawer", () => {
 		const $ = load(table(rows));
 		const $toggle = $("[data-role='row-toggle']").first();
-		const $detail = $toggle.closest("tr").next(".pfa-row-detail");
+		const $detail = $toggle.closest("tr").next(".cutover-audit-row-detail");
 
 		$toggle.trigger("click");
 		expect($toggle.attr("aria-expanded")).toBe("true");
@@ -224,21 +224,21 @@ describe("row drawers", () => {
 
 	test("clicking the row opens it, but a link inside the row does not", () => {
 		const $ = load(table(rows));
-		const $row = $("tr.pfa-row").first();
+		const $row = $("tr.cutover-audit-row").first();
 
 		$row.find("a").trigger("click");
 		expect($row.hasClass("is-open")).toBe(false);
 
-		$row.find(".pfa-col-status").trigger("click");
+		$row.find(".cutover-audit-col-status").trigger("click");
 		expect($row.hasClass("is-open")).toBe(true);
 	});
 
 	test("finishing a text selection is not a click", () => {
 		const $ = load(table(rows));
-		const $row = $("tr.pfa-row").first();
+		const $row = $("tr.cutover-audit-row").first();
 		const spy = jest.spyOn(window, "getSelection").mockReturnValue({ toString: () => "Alpha" });
 
-		$row.find(".pfa-col-status").trigger("click");
+		$row.find(".cutover-audit-col-status").trigger("click");
 
 		expect($row.hasClass("is-open")).toBe(false);
 		spy.mockRestore();
@@ -246,8 +246,8 @@ describe("row drawers", () => {
 
 	test("an open drawer is hidden with its filtered-out row and comes back open", () => {
 		const $ = load(table(rows));
-		const $row = $("tr.pfa-row").first();
-		const $detail = $row.next(".pfa-row-detail");
+		const $row = $("tr.cutover-audit-row").first();
+		const $detail = $row.next(".cutover-audit-row-detail");
 
 		$row.find("[data-role='row-toggle']").trigger("click");
 		$("[data-filter-value='compatible']").trigger("click");
@@ -259,9 +259,9 @@ describe("row drawers", () => {
 
 	test("a row without a drawer does nothing", () => {
 		const $ = load(table(rows));
-		const $row = $("tr.pfa-row").first();
+		const $row = $("tr.cutover-audit-row").first();
 
-		$row.next(".pfa-row-detail").remove();
+		$row.next(".cutover-audit-row-detail").remove();
 		$row.find("[data-role='row-toggle']").trigger("click");
 
 		expect($row.find("[data-role='row-toggle']").attr("aria-expanded")).toBe("false");
@@ -271,5 +271,5 @@ describe("row drawers", () => {
 test("a table view without a table is ignored", () => {
 	const $ = load('<div data-role="table-view"></div>');
 
-	expect($(".pfa-pager").length).toBe(0);
+	expect($(".cutover-audit-pager").length).toBe(0);
 });

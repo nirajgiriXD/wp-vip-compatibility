@@ -2,18 +2,18 @@
 /**
  * Tests for the report download.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Classes;
+namespace CUTOVER_AUDIT\Tests\Classes;
 
-use PREFLIGHT_AUDIT\Includes\Classes\Export;
-use PREFLIGHT_AUDIT\Tests\Support\WP;
-use PREFLIGHT_AUDIT\Tests\Support\Wp_Die;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Classes\Export;
+use CUTOVER_AUDIT\Tests\Support\WP;
+use CUTOVER_AUDIT\Tests\Support\Wp_Die;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
- * @covers \PREFLIGHT_AUDIT\Includes\Classes\Export
+ * @covers \CUTOVER_AUDIT\Includes\Classes\Export
  */
 class ExportTest extends TestCase {
 
@@ -56,7 +56,7 @@ class ExportTest extends TestCase {
 		$url = Export::get_url( 'csv' );
 
 		$this->assertStringStartsWith( 'https://example.test/wp-admin/admin-post.php?', $url );
-		$this->assertStringContainsString( 'action=preflight_audit_export', $url );
+		$this->assertStringContainsString( 'action=cutover_audit_export', $url );
 		$this->assertStringContainsString( 'format=csv', $url );
 		$this->assertStringContainsString( '_wpnonce=' . wp_create_nonce( Export::NONCE_ACTION ), $url );
 	}
@@ -64,7 +64,7 @@ class ExportTest extends TestCase {
 	public function test_the_handler_is_registered_on_admin_post() {
 		$export = new Export();
 
-		$this->assertSame( 10, has_action( 'admin_post_preflight_audit_export', array( $export, 'handle' ) ) );
+		$this->assertSame( 10, has_action( 'admin_post_cutover_audit_export', array( $export, 'handle' ) ) );
 	}
 
 	public function test_a_user_without_the_capability_is_refused() {
@@ -94,7 +94,7 @@ class ExportTest extends TestCase {
 		$payload = json_decode( $sent['body'], true );
 
 		$this->assertIsArray( $payload, 'The body is clean JSON, with the buffered output discarded' );
-		$this->assertSame( 'preflight-audit', $payload['generator'] );
+		$this->assertSame( 'cutover-audit', $payload['generator'] );
 		$this->assertCount( 1, $payload['findings'] );
 		$this->assertStringContainsString( "\n    ", $sent['body'], 'pretty-printed' );
 		$this->assertStringContainsString( 'https://docs.wpvip.com/', $sent['body'], 'slashes are not escaped' );
@@ -104,7 +104,7 @@ class ExportTest extends TestCase {
 		$this->assertSame( 1, $sent['nocache'] );
 
 		$disposition = preg_grep( '/^Content-Disposition:/', $sent['headers'] );
-		$this->assertMatchesRegularExpression( '/attachment; filename="preflight-audit-example-test-\d{8}-\d{6}\.json"/', reset( $disposition ) );
+		$this->assertMatchesRegularExpression( '/attachment; filename="cutover-audit-example-test-\d{8}-\d{6}\.json"/', reset( $disposition ) );
 		$this->assertEmpty( preg_grep( '/^Content-Length:/i', $sent['headers'] ), 'No length: compression would make it wrong' );
 	}
 
@@ -114,7 +114,7 @@ class ExportTest extends TestCase {
 		$this->assertStringStartsWith( '"target_type","target"', $sent['body'] );
 		$this->assertStringNotContainsString( 'STRAY OUTPUT', $sent['body'] );
 		$this->assertContains( 'Content-Type: text/csv; charset=utf-8', $sent['headers'] );
-		$this->assertNotEmpty( preg_grep( '/filename="preflight-audit-.*\.csv"/', $sent['headers'] ) );
+		$this->assertNotEmpty( preg_grep( '/filename="cutover-audit-.*\.csv"/', $sent['headers'] ) );
 	}
 
 	public function test_markdown_download() {
@@ -128,7 +128,7 @@ class ExportTest extends TestCase {
 		$sent = $this->download( '../../etc/passwd' );
 
 		$this->assertIsArray( json_decode( $sent['body'], true ) );
-		$this->assertNotEmpty( preg_grep( '/filename="preflight-audit-.*\.json"/', $sent['headers'] ) );
+		$this->assertNotEmpty( preg_grep( '/filename="cutover-audit-.*\.json"/', $sent['headers'] ) );
 	}
 
 	public function test_no_format_means_json() {

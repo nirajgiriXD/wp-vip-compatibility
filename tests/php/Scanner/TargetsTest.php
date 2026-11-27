@@ -2,18 +2,18 @@
 /**
  * Tests for the scan target registry.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Scanner;
+namespace CUTOVER_AUDIT\Tests\Scanner;
 
-use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
-use PREFLIGHT_AUDIT\Tests\Support\Sandbox;
-use PREFLIGHT_AUDIT\Tests\Support\WP;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Scanner\Targets;
+use CUTOVER_AUDIT\Tests\Support\Sandbox;
+use CUTOVER_AUDIT\Tests\Support\WP;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
- * @covers \PREFLIGHT_AUDIT\Includes\Scanner\Targets
+ * @covers \CUTOVER_AUDIT\Includes\Scanner\Targets
  */
 class TargetsTest extends TestCase {
 

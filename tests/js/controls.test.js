@@ -38,13 +38,13 @@ function supportDialogs() {
 
 describe("menus", () => {
 	const markup = `
-		<details class="pfa-menu" open><summary>Export</summary><a href="#" id="inside">JSON</a></details>
-		<details class="pfa-menu"><summary>Rescan</summary></details>
+		<details class="cutover-audit-menu" open><summary>Export</summary><a href="#" id="inside">JSON</a></details>
+		<details class="cutover-audit-menu"><summary>Rescan</summary></details>
 		<p id="outside">elsewhere</p>`;
 
 	test("a click outside closes an open menu, a click inside does not", () => {
 		const $ = load(markup);
-		const menu = $(".pfa-menu")[0];
+		const menu = $(".cutover-audit-menu")[0];
 
 		$("#inside").trigger("click");
 		expect(menu.open).toBe(true);
@@ -55,7 +55,7 @@ describe("menus", () => {
 
 	test("Escape closes an open menu and returns focus to it", () => {
 		const $ = load(markup);
-		const menu = $(".pfa-menu")[0];
+		const menu = $(".cutover-audit-menu")[0];
 
 		$(document).trigger($.Event("keydown", { key: "Escape" }));
 
@@ -68,7 +68,7 @@ describe("menus", () => {
 
 		$(document).trigger($.Event("keydown", { key: "a" }));
 
-		expect($(".pfa-menu")[0].open).toBe(true);
+		expect($(".cutover-audit-menu")[0].open).toBe(true);
 	});
 });
 
@@ -93,7 +93,7 @@ describe("help", () => {
 });
 
 describe("the / shortcut", () => {
-	const markup = `<div class="pfa"><input type="search" class="pfa-search__input" id="search" /><textarea id="notes"></textarea></div>`;
+	const markup = `<div class="cutover-audit"><input type="search" class="cutover-audit-search__input" id="search" /><textarea id="notes"></textarea></div>`;
 
 	test("focuses the search field", () => {
 		const $ = load(markup);
@@ -118,8 +118,8 @@ describe("the / shortcut", () => {
 
 describe("rescan confirmation", () => {
 	const markup = `
-		<div class="wrap pfa">
-			<form class="pfa-inline-form" data-confirm="rescan-all" id="rescan" method="post">
+		<div class="wrap cutover-audit">
+			<form class="cutover-audit-inline-form" data-confirm="rescan-all" id="rescan" method="post">
 				<button type="submit" id="go">Rescan</button>
 			</form>
 		</div>`;
@@ -145,12 +145,12 @@ describe("rescan confirmation", () => {
 
 		$("#rescan").trigger("submit");
 
-		const $dialog = $("dialog.pfa-dialog");
+		const $dialog = $("dialog.cutover-audit-dialog");
 
 		expect($dialog.length).toBe(1);
-		expect($dialog.parent().is(".wrap.pfa")).toBe(true);
+		expect($dialog.parent().is(".wrap.cutover-audit")).toBe(true);
 		expect($dialog[0].open).toBe(true);
-		expect($dialog.find(".pfa-dialog__title").text()).toBe("Rescan everything?");
+		expect($dialog.find(".cutover-audit-dialog__title").text()).toBe("Rescan everything?");
 		expect($("#go").hasClass("is-busy")).toBe(false);
 		expect(document.activeElement).toBe($dialog.find("[data-dialog='confirm']")[0]);
 	});
@@ -162,7 +162,7 @@ describe("rescan confirmation", () => {
 		$("#rescan").trigger("submit");
 		$("[data-dialog='cancel']").trigger("click");
 
-		expect($("dialog.pfa-dialog")[0].open).toBe(false);
+		expect($("dialog.cutover-audit-dialog")[0].open).toBe(false);
 		expect(document.activeElement.id).toBe("go");
 		expect($("#rescan").attr("data-confirmed")).toBeUndefined();
 	});
@@ -172,9 +172,9 @@ describe("rescan confirmation", () => {
 		const $ = load(markup);
 
 		$("#rescan").trigger("submit");
-		$("dialog.pfa-dialog").trigger("click");
+		$("dialog.cutover-audit-dialog").trigger("click");
 
-		expect($("dialog.pfa-dialog")[0].open).toBe(false);
+		expect($("dialog.cutover-audit-dialog")[0].open).toBe(false);
 	});
 
 	test("confirming submits the form and shows it as busy", () => {
@@ -202,14 +202,14 @@ describe("rescan confirmation", () => {
 		$("[data-dialog='cancel']").trigger("click");
 		$("#rescan").trigger("submit");
 
-		expect($("dialog.pfa-dialog").length).toBe(1);
+		expect($("dialog.cutover-audit-dialog").length).toBe(1);
 	});
 });
 
 describe("busy buttons", () => {
 	test("only the pressed button in the scope menu shows as busy", () => {
 		const $ = load(`
-			<form class="pfa-menu__form" id="menu">
+			<form class="cutover-audit-menu__form" id="menu">
 				<button type="submit" name="scope" value="plugin" id="plugins">Plugins</button>
 				<button type="submit" name="scope" value="theme" id="themes">Themes</button>
 			</form>`);
@@ -222,7 +222,7 @@ describe("busy buttons", () => {
 	});
 
 	test("a submit with no known button marks the first one", () => {
-		const $ = load(`<form class="pfa-inline-form" id="f"><button type="submit" id="a">A</button></form>`);
+		const $ = load(`<form class="cutover-audit-inline-form" id="f"><button type="submit" id="a">A</button></form>`);
 
 		$("#f").trigger("submit");
 

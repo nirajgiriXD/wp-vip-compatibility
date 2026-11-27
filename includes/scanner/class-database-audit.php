@@ -11,12 +11,12 @@
  * `information_schema` — which is the single most expensive query a WordPress
  * site can make on a large database.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Includes\Scanner;
+namespace CUTOVER_AUDIT\Includes\Scanner;
 
-use PREFLIGHT_AUDIT\Includes\Classes\Plugin;
+use CUTOVER_AUDIT\Includes\Classes\Plugin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -28,7 +28,7 @@ class Database_Audit {
 	/**
 	 * Cache key for the audit result.
 	 */
-	const CACHE_KEY = 'preflight_audit_database_audit';
+	const CACHE_KEY = 'cutover_audit_database_audit';
 
 	/**
 	 * How long the audit result stays cached.
@@ -154,10 +154,10 @@ class Database_Audit {
 			$findings[] = array(
 				'kind'        => 'engine',
 				'severity'    => Taxonomy::SEVERITY_HIGH,
-				'label'       => __( 'Unsupported storage engine', 'preflight-audit' ),
+				'label'       => __( 'Unsupported storage engine', 'cutover-audit' ),
 				/* translators: %s: Current storage engine, for example "MyISAM". */
-				'detail'      => sprintf( __( 'The table uses %s. WordPress VIP requires InnoDB.', 'preflight-audit' ), $engine ),
-				'remediation' => __( 'Convert the table before exporting the database for import.', 'preflight-audit' ),
+				'detail'      => sprintf( __( 'The table uses %s. WordPress VIP requires InnoDB.', 'cutover-audit' ), $engine ),
+				'remediation' => __( 'Convert the table before exporting the database for import.', 'cutover-audit' ),
 				'sql'         => sprintf( 'ALTER TABLE `%s` ENGINE = InnoDB;', $name ),
 			);
 		}
@@ -168,12 +168,12 @@ class Database_Audit {
 			$findings[] = array(
 				'kind'        => 'collation',
 				'severity'    => Taxonomy::SEVERITY_HIGH,
-				'label'       => __( 'Unsupported collation', 'preflight-audit' ),
+				'label'       => __( 'Unsupported collation', 'cutover-audit' ),
 				/* translators: %s: Current collation. */
-				'detail'      => sprintf( __( '%s is not on the WordPress VIP supported collation list. WordPress VIP expects a utf8mb4 collation.', 'preflight-audit' ), $collation ),
+				'detail'      => sprintf( __( '%s is not on the WordPress VIP supported collation list. WordPress VIP expects a utf8mb4 collation.', 'cutover-audit' ), $collation ),
 				'remediation' => ( '' === $suggestion )
-					? __( 'No direct utf8mb4 equivalent exists for this collation. Pick the closest supported one and verify the data after converting.', 'preflight-audit' )
-					: __( 'Convert the table to the equivalent utf8mb4 collation. Run it against a backup first and check any columns holding non-ASCII text.', 'preflight-audit' ),
+					? __( 'No direct utf8mb4 equivalent exists for this collation. Pick the closest supported one and verify the data after converting.', 'cutover-audit' )
+					: __( 'Convert the table to the equivalent utf8mb4 collation. Run it against a backup first and check any columns holding non-ASCII text.', 'cutover-audit' ),
 				'sql'         => ( '' === $suggestion )
 					? ''
 					: sprintf( 'ALTER TABLE `%1$s` CONVERT TO CHARACTER SET utf8mb4 COLLATE %2$s;', $name, $suggestion ),
@@ -184,9 +184,9 @@ class Database_Audit {
 			$findings[] = array(
 				'kind'        => 'prefix',
 				'severity'    => Taxonomy::SEVERITY_MEDIUM,
-				'label'       => __( 'Non-standard table prefix', 'preflight-audit' ),
-				'detail'      => __( 'WordPress VIP expects every table to use the wp_ prefix.', 'preflight-audit' ),
-				'remediation' => __( 'Report the prefix to WordPress VIP and only rename tables once WordPress VIP confirms it is required. Renaming also means updating option names and user meta keys that embed the prefix — wp_user_roles, wp_capabilities, wp_user_level and wp_user-settings — or users lose their roles.', 'preflight-audit' ),
+				'label'       => __( 'Non-standard table prefix', 'cutover-audit' ),
+				'detail'      => __( 'WordPress VIP expects every table to use the wp_ prefix.', 'cutover-audit' ),
+				'remediation' => __( 'Report the prefix to WordPress VIP and only rename tables once WordPress VIP confirms it is required. Renaming also means updating option names and user meta keys that embed the prefix — wp_user_roles, wp_capabilities, wp_user_level and wp_user-settings — or users lose their roles.', 'cutover-audit' ),
 				'sql'         => sprintf( 'ALTER TABLE `%1$s` RENAME TO `wp_%1$s`;', $name ),
 			);
 		}
@@ -258,7 +258,7 @@ class Database_Audit {
 		$unprefixed = preg_replace( '/^\d+_/', '', $unprefixed );
 
 		if ( isset( $core[ $unprefixed ] ) ) {
-			return __( 'WordPress core', 'preflight-audit' );
+			return __( 'WordPress core', 'cutover-audit' );
 		}
 
 		if ( isset( $vendor[ $unprefixed ] ) ) {
@@ -268,12 +268,12 @@ class Database_Audit {
 			// the usual owner and the rest are add-ons that reuse it.
 			return ( count( $owners ) > 3 )
 				/* translators: 1: Plugin slug. 2: Number of additional plugins. */
-				? sprintf( __( '%1$s (and %2$d others)', 'preflight-audit' ), $owners[0], count( $owners ) - 1 )
+				? sprintf( __( '%1$s (and %2$d others)', 'cutover-audit' ), $owners[0], count( $owners ) - 1 )
 				: implode( ', ', $owners );
 		}
 
 		return ( 0 === strpos( $name, 'wp_' ) )
-			? __( 'Custom', 'preflight-audit' )
-			: __( 'Unknown', 'preflight-audit' );
+			? __( 'Custom', 'cutover-audit' )
+			: __( 'Unknown', 'cutover-audit' );
 	}
 }

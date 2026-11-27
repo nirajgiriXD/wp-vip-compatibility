@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * Builds the release ZIP: dist/preflight-audit-<version>.zip
+ * Builds the release ZIP: dist/cutover-audit-<version>.zip
  *
  *   npm run zip
  *
  * The ZIP holds the files git tracks, minus anything .distignore matches,
- * inside a top-level preflight-audit/ folder so WordPress installs it under
+ * inside a top-level cutover-audit/ folder so WordPress installs it under
  * the right directory name. Untracked files (vendor/, node_modules/, notes)
  * are never shipped, even when .distignore forgets them.
  *
@@ -21,7 +21,7 @@ const zlib = require( 'zlib' );
 const { execFileSync } = require( 'child_process' );
 
 const ROOT = path.resolve( __dirname, '..' );
-const SLUG = 'preflight-audit';
+const SLUG = 'cutover-audit';
 
 function fail( message ) {
 	console.error( `Error: ${ message }` );

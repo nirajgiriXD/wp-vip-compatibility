@@ -2,19 +2,19 @@
 /**
  * Tests for the overview screen.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Classes;
+namespace CUTOVER_AUDIT\Tests\Classes;
 
-use PREFLIGHT_AUDIT\Includes\Classes\Overview_Settings;
-use PREFLIGHT_AUDIT\Includes\Scanner\Report;
-use PREFLIGHT_AUDIT\Includes\Scanner\Results_Store;
-use PREFLIGHT_AUDIT\Includes\Scanner\Rules;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Classes\Overview_Settings;
+use CUTOVER_AUDIT\Includes\Scanner\Report;
+use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
+use CUTOVER_AUDIT\Includes\Scanner\Rules;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
- * @covers \PREFLIGHT_AUDIT\Includes\Classes\Overview_Settings
+ * @covers \CUTOVER_AUDIT\Includes\Classes\Overview_Settings
  */
 class OverviewSettingsTest extends TestCase {
 
@@ -40,7 +40,7 @@ class OverviewSettingsTest extends TestCase {
 		$this->assertStringContainsString( 'aria-valuetext="Not scanned yet"', $output );
 		$this->assertStringContainsString( 'Environment', $output );
 		$this->assertStringNotContainsString( 'Where the work is', $output );
-		$this->assertStringNotContainsString( 'pfa-verdict__tiers', $output );
+		$this->assertStringNotContainsString( 'cutover-audit-verdict__tiers', $output );
 	}
 
 	public function test_a_blocked_item_means_not_ready() {
@@ -49,12 +49,12 @@ class OverviewSettingsTest extends TestCase {
 
 		$output = $this->screen();
 
-		$this->assertStringContainsString( 'pfa-verdict--blocking', $output );
+		$this->assertStringContainsString( 'cutover-audit-verdict--blocking', $output );
 		$this->assertStringContainsString( 'A few things need attention first', $output );
 		$this->assertStringContainsString( '1 of 2 scanned items has issues likely to cause problems', $output );
 		$this->assertStringContainsString( 'Start with the must-fix items', $output );
-		$this->assertStringContainsString( 'page=pfa-findings&amp;tier=blocking', $output );
-		$this->assertStringContainsString( '<span class="pfa-verdict__number">50</span>', $output );
+		$this->assertStringContainsString( 'page=cutover-audit-findings&amp;tier=blocking', $output );
+		$this->assertStringContainsString( '<span class="cutover-audit-verdict__number">50</span>', $output );
 	}
 
 	public function test_review_only_means_good_shape_with_things_to_review() {
@@ -63,7 +63,7 @@ class OverviewSettingsTest extends TestCase {
 
 		$output = $this->screen();
 
-		$this->assertStringContainsString( 'pfa-verdict--warning', $output );
+		$this->assertStringContainsString( 'cutover-audit-verdict--warning', $output );
 		$this->assertStringContainsString( 'In good shape, with a few things to review', $output );
 		$this->assertStringContainsString( '2 scanned items have findings worth a look', $output );
 		$this->assertStringContainsString( 'Review the findings', $output );
@@ -76,7 +76,7 @@ class OverviewSettingsTest extends TestCase {
 
 		$this->assertStringContainsString( 'Everything looks good', $output );
 		$this->assertStringContainsString( 'Check the database', $output );
-		$this->assertStringContainsString( '<span class="pfa-verdict__number">100</span>', $output );
+		$this->assertStringContainsString( '<span class="cutover-audit-verdict__number">100</span>', $output );
 	}
 
 	public function test_the_environment_names_what_was_scanned() {
@@ -87,7 +87,7 @@ class OverviewSettingsTest extends TestCase {
 
 		$output = $this->screen();
 
-		$this->assertStringNotContainsString( 'pfa-verdict__meta', $output );
+		$this->assertStringNotContainsString( 'cutover-audit-verdict__meta', $output );
 		$this->assertStringContainsString( '2 plugins, 1 theme, and 1 must-use plugin', $output );
 		$this->assertStringContainsString( '13 PHP files read.', $output );
 	}
@@ -99,8 +99,8 @@ class OverviewSettingsTest extends TestCase {
 		$output = $this->screen();
 
 		// One critical finding and one table to convert are both "must fix".
-		$this->assertMatchesRegularExpression( '#Must fix</span>\s*<span class="pfa-verdict__tiercount">2</span>#', $output );
-		$this->assertMatchesRegularExpression( '#Worth checking</span>\s*<span class="pfa-verdict__tiercount">0</span>#', $output );
+		$this->assertMatchesRegularExpression( '#Must fix</span>\s*<span class="cutover-audit-verdict__tiercount">2</span>#', $output );
+		$this->assertMatchesRegularExpression( '#Worth checking</span>\s*<span class="cutover-audit-verdict__tiercount">0</span>#', $output );
 	}
 
 	public function test_start_here_lists_the_first_jobs_worst_first() {
@@ -146,7 +146,7 @@ class OverviewSettingsTest extends TestCase {
 
 		$output = $this->screen();
 
-		$this->assertStringContainsString( 'pfa-spark', $output );
+		$this->assertStringContainsString( 'cutover-audit-spark', $output );
 		$this->assertStringContainsString( 'data-label="Scanned">Themes</td>', $output );
 		$this->assertStringContainsString( 'data-label="Scanned">Everything</td>', $output );
 	}
@@ -161,7 +161,7 @@ class OverviewSettingsTest extends TestCase {
 		);
 		$this->store_result( $this->add_plugin( 'a' ), array() );
 
-		$this->assertStringContainsString( 'data-label="Scanned"><span class="pfa-dash" aria-hidden="true">—</span></td>', $this->screen() );
+		$this->assertStringContainsString( 'data-label="Scanned"><span class="cutover-audit-dash" aria-hidden="true">—</span></td>', $this->screen() );
 	}
 
 	public function test_names_from_scanned_code_are_escaped() {

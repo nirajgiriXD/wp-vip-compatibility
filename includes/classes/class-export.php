@@ -9,13 +9,13 @@
  * through admin-post behind a nonce and a capability check, so the report never
  * exists as a public file.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Includes\Classes;
+namespace CUTOVER_AUDIT\Includes\Classes;
 
-use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
-use PREFLIGHT_AUDIT\Includes\Scanner\Report;
+use CUTOVER_AUDIT\Includes\Traits\Singleton;
+use CUTOVER_AUDIT\Includes\Scanner\Report;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -29,12 +29,12 @@ class Export {
 	/**
 	 * Nonce action.
 	 */
-	const NONCE_ACTION = 'preflight_audit_export_report';
+	const NONCE_ACTION = 'cutover_audit_export_report';
 
 	/**
 	 * admin-post action name.
 	 */
-	const ACTION = 'preflight_audit_export';
+	const ACTION = 'cutover_audit_export';
 
 	/**
 	 * Constructor.
@@ -51,20 +51,20 @@ class Export {
 	public static function get_formats() {
 		return array(
 			'json' => array(
-				'label'       => __( 'JSON', 'preflight-audit' ),
-				'description' => __( 'Every finding, for CI and tooling.', 'preflight-audit' ),
+				'label'       => __( 'JSON', 'cutover-audit' ),
+				'description' => __( 'Every finding, for CI and tooling.', 'cutover-audit' ),
 				'extension'   => 'json',
 				'mime'        => 'application/json',
 			),
 			'csv'  => array(
-				'label'       => __( 'CSV', 'preflight-audit' ),
-				'description' => __( 'One row per finding, for a spreadsheet.', 'preflight-audit' ),
+				'label'       => __( 'CSV', 'cutover-audit' ),
+				'description' => __( 'One row per finding, for a spreadsheet.', 'cutover-audit' ),
 				'extension'   => 'csv',
 				'mime'        => 'text/csv',
 			),
 			'md'   => array(
-				'label'       => __( 'Markdown', 'preflight-audit' ),
-				'description' => __( 'For pasting into a ticket or PR.', 'preflight-audit' ),
+				'label'       => __( 'Markdown', 'cutover-audit' ),
+				'description' => __( 'For pasting into a ticket or PR.', 'cutover-audit' ),
 				'extension'   => 'md',
 				'mime'        => 'text/markdown',
 			),
@@ -98,8 +98,8 @@ class Export {
 	public function handle() {
 		if ( ! current_user_can( Plugin::get_capability() ) ) {
 			wp_die(
-				esc_html__( 'You do not have permission to export the compatibility report.', 'preflight-audit' ),
-				esc_html__( 'Forbidden', 'preflight-audit' ),
+				esc_html__( 'You do not have permission to export the compatibility report.', 'cutover-audit' ),
+				esc_html__( 'Forbidden', 'cutover-audit' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -126,7 +126,7 @@ class Export {
 		}
 
 		$filename = sprintf(
-			'preflight-audit-%1$s-%2$s.%3$s',
+			'cutover-audit-%1$s-%2$s.%3$s',
 			sanitize_title( (string) wp_parse_url( home_url(), PHP_URL_HOST ) ),
 			gmdate( 'Ymd-His' ),
 			$formats[ $format ]['extension']

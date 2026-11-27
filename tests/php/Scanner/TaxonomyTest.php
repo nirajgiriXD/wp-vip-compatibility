@@ -2,16 +2,16 @@
 /**
  * Tests for the finding vocabulary.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Scanner;
+namespace CUTOVER_AUDIT\Tests\Scanner;
 
-use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
- * @covers \PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy
+ * @covers \CUTOVER_AUDIT\Includes\Scanner\Taxonomy
  */
 class TaxonomyTest extends TestCase {
 

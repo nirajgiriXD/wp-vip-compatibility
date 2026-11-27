@@ -15,12 +15,12 @@
  * "works on WordPress VIP" list: that is a claim about someone else's product
  * this plugin cannot source.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Includes\Scanner;
+namespace CUTOVER_AUDIT\Includes\Scanner;
 
-use PREFLIGHT_AUDIT\Includes\Classes\Plugin;
+use CUTOVER_AUDIT\Includes\Classes\Plugin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -100,11 +100,11 @@ class Known_Plugins {
 	public static function label( $classification ) {
 		switch ( $classification ) {
 			case self::INCOMPATIBLE:
-				return __( 'Listed incompatible by WordPress VIP', 'preflight-audit' );
+				return __( 'Listed incompatible by WordPress VIP', 'cutover-audit' );
 			case self::CAUTION:
-				return __( 'Needs testing on WordPress VIP', 'preflight-audit' );
+				return __( 'Needs testing on WordPress VIP', 'cutover-audit' );
 			default:
-				return __( 'Provided by the WordPress VIP platform', 'preflight-audit' );
+				return __( 'Provided by the WordPress VIP platform', 'cutover-audit' );
 		}
 	}
 

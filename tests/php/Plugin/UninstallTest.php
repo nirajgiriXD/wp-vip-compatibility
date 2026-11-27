@@ -5,15 +5,15 @@
  * uninstall.php runs top-level code and declares a function, so every test
  * loads it in a process of its own.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Plugin;
+namespace CUTOVER_AUDIT\Tests\Plugin;
 
-use PREFLIGHT_AUDIT\Includes\Scanner\Database_Audit;
-use PREFLIGHT_AUDIT\Includes\Scanner\Results_Store;
-use PREFLIGHT_AUDIT\Tests\Support\WP;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Scanner\Database_Audit;
+use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
+use CUTOVER_AUDIT\Tests\Support\WP;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
  * @runTestsInSeparateProcesses
@@ -37,8 +37,8 @@ class UninstallTest extends TestCase {
 		$this->seed_current_blog();
 		update_option( 'unrelated_option', 'keep me' );
 
-		define( 'WP_UNINSTALL_PLUGIN', 'preflight-audit/preflight-audit.php' );
-		require PREFLIGHT_AUDIT_DIR . '/uninstall.php';
+		define( 'WP_UNINSTALL_PLUGIN', 'cutover-audit/cutover-audit.php' );
+		require CUTOVER_AUDIT_DIR . '/uninstall.php';
 
 		$this->assertSame( array( 'unrelated_option' => 'keep me' ), WP::blog_options() );
 		$this->assertArrayNotHasKey( Database_Audit::CACHE_KEY, WP::$transients[1] );
@@ -46,7 +46,7 @@ class UninstallTest extends TestCase {
 
 	public function test_uninstall_refuses_to_run_unless_wordpress_is_uninstalling() {
 		$php    = escapeshellarg( PHP_BINARY );
-		$script = escapeshellarg( PREFLIGHT_AUDIT_DIR . '/uninstall.php' );
+		$script = escapeshellarg( CUTOVER_AUDIT_DIR . '/uninstall.php' );
 		$output = shell_exec( "{$php} {$script} 2>&1" ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_shell_exec
 
 		$this->assertSame( '', (string) $output );
@@ -67,8 +67,8 @@ class UninstallTest extends TestCase {
 		$this->seed_current_blog();
 		restore_current_blog();
 
-		define( 'WP_UNINSTALL_PLUGIN', 'preflight-audit/preflight-audit.php' );
-		require PREFLIGHT_AUDIT_DIR . '/uninstall.php';
+		define( 'WP_UNINSTALL_PLUGIN', 'cutover-audit/cutover-audit.php' );
+		require CUTOVER_AUDIT_DIR . '/uninstall.php';
 
 		$this->assertSame( array(), WP::$options[1], 'site 1' );
 		$this->assertSame( array(), WP::$options[2], 'site 2' );
@@ -84,8 +84,8 @@ class UninstallTest extends TestCase {
 		update_option( Results_Store::HISTORY_OPTION, array( 1 ) );
 		restore_current_blog();
 
-		define( 'WP_UNINSTALL_PLUGIN', 'preflight-audit/preflight-audit.php' );
-		require PREFLIGHT_AUDIT_DIR . '/uninstall.php';
+		define( 'WP_UNINSTALL_PLUGIN', 'cutover-audit/cutover-audit.php' );
+		require CUTOVER_AUDIT_DIR . '/uninstall.php';
 
 		$this->assertArrayNotHasKey( Results_Store::HISTORY_OPTION, WP::$options[1] );
 		$this->assertArrayNotHasKey( Results_Store::HISTORY_OPTION, WP::$options[3] );

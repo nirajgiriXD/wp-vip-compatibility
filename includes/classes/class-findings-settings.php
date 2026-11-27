@@ -18,17 +18,17 @@
  * an option is measured against the filters that would still apply after
  * clicking it, so an option that says 4 always yields 4 cards.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Includes\Classes;
+namespace CUTOVER_AUDIT\Includes\Classes;
 
-use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
-use PREFLIGHT_AUDIT\Includes\Scanner\Report;
-use PREFLIGHT_AUDIT\Includes\Scanner\Results_Store;
-use PREFLIGHT_AUDIT\Includes\Scanner\Scanner;
-use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
-use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
+use CUTOVER_AUDIT\Includes\Traits\Singleton;
+use CUTOVER_AUDIT\Includes\Scanner\Report;
+use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
+use CUTOVER_AUDIT\Includes\Scanner\Scanner;
+use CUTOVER_AUDIT\Includes\Scanner\Targets;
+use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -42,13 +42,13 @@ class Findings_Settings {
 	/**
 	 * Nonce action for the rescan button.
 	 */
-	const RESCAN_ACTION = 'preflight_audit_rescan_all';
+	const RESCAN_ACTION = 'cutover_audit_rescan_all';
 
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
-		add_action( 'admin_post_preflight_audit_rescan', array( $this, 'handle_rescan' ) );
+		add_action( 'admin_post_cutover_audit_rescan', array( $this, 'handle_rescan' ) );
 	}
 
 	/**
@@ -58,10 +58,10 @@ class Findings_Settings {
 	 */
 	public function get_page_guidance() {
 		return array(
-			__( '<strong>Worst first.</strong> The list is ranked by what to do — must fix, should fix, worth checking, FYI. The same issue in several places is one entry, with every place listed under it.', 'preflight-audit' ),
-			__( '<strong>What each entry shows.</strong> The file and line, the code, why it matters on WordPress VIP, and the recommended fix. Where they exist, also an alternative approach and a link to the documentation.', 'preflight-audit' ),
-			__( '<strong>Filters and sharing.</strong> The column of links narrows the list in one click, and each filter is part of the address, so a view can be bookmarked or shared. Press <code>/</code> to search. Export from the top bar as JSON, CSV or Markdown.', 'preflight-audit' ),
-			__( '<strong>Unsure, or already reviewed?</strong> The scan reads code without running it, so when it cannot be sure, it says so under the code instead of guessing. To accept a finding, add <code>// pfa:ignore &lt;rule-id&gt; -- reason</code> to the line, or <code>pfa:ignore-next-line</code> above it, and rescan. Security findings cannot be silenced.', 'preflight-audit' ),
+			__( '<strong>Worst first.</strong> The list is ranked by what to do — must fix, should fix, worth checking, FYI. The same issue in several places is one entry, with every place listed under it.', 'cutover-audit' ),
+			__( '<strong>What each entry shows.</strong> The file and line, the code, why it matters on WordPress VIP, and the recommended fix. Where they exist, also an alternative approach and a link to the documentation.', 'cutover-audit' ),
+			__( '<strong>Filters and sharing.</strong> The column of links narrows the list in one click, and each filter is part of the address, so a view can be bookmarked or shared. Press <code>/</code> to search. Export from the top bar as JSON, CSV or Markdown.', 'cutover-audit' ),
+			__( '<strong>Unsure, or already reviewed?</strong> The scan reads code without running it, so when it cannot be sure, it says so under the code instead of guessing. To accept a finding, add <code>// cutover-audit:ignore &lt;rule-id&gt; -- reason</code> to the line, or <code>cutover-audit:ignore-next-line</code> above it, and rescan. Security findings cannot be silenced.', 'cutover-audit' ),
 		);
 	}
 
@@ -73,8 +73,8 @@ class Findings_Settings {
 	public function handle_rescan() {
 		if ( ! current_user_can( Plugin::get_capability() ) ) {
 			wp_die(
-				esc_html__( 'You do not have permission to run compatibility scans.', 'preflight-audit' ),
-				esc_html__( 'Forbidden', 'preflight-audit' ),
+				esc_html__( 'You do not have permission to run compatibility scans.', 'cutover-audit' ),
+				esc_html__( 'Forbidden', 'cutover-audit' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -102,7 +102,7 @@ class Findings_Settings {
 		if ( ! empty( $definition['async'] ) ) {
 			Report::clear_scope( $scope );
 
-			wp_safe_redirect( $this->get_redirect_url( $definition['screen'], 'pfa-scanning', $scope ) );
+			wp_safe_redirect( $this->get_redirect_url( $definition['screen'], 'cutover-audit-scanning', $scope ) );
 			exit;
 		}
 
@@ -118,7 +118,7 @@ class Findings_Settings {
 
 		// The scope rides back on the redirect so the confirmation can report
 		// what was actually read rather than the site-wide totals.
-		wp_safe_redirect( $this->get_redirect_url( $definition['screen'], 'pfa-scanned', $scope ) );
+		wp_safe_redirect( $this->get_redirect_url( $definition['screen'], 'cutover-audit-scanned', $scope ) );
 		exit;
 	}
 
@@ -192,7 +192,7 @@ class Findings_Settings {
 			 * replay a finished scan's confirmation, or restart a rescan, on the
 			 * next press. Everything else is the reader's view and is kept.
 			 */
-			unset( $query['page'], $query['pfa-scanned'], $query['pfa-scanning'] );
+			unset( $query['page'], $query['cutover-audit-scanned'], $query['cutover-audit-scanning'] );
 
 			$args = array();
 
@@ -225,11 +225,11 @@ class Findings_Settings {
 
 		if ( 0 === $aggregate['targets'] ) {
 			UI::render_empty_state(
-				__( 'No scan results yet', 'preflight-audit' ),
-				__( 'Run a scan to analyse every plugin, theme and must-use plugin against the WordPress VIP platform guidelines.', 'preflight-audit' ),
+				__( 'No scan results yet', 'cutover-audit' ),
+				__( 'Run a scan to analyse every plugin, theme and must-use plugin against the WordPress VIP platform guidelines.', 'cutover-audit' ),
 				array(
-					'label'   => __( 'Run the first scan', 'preflight-audit' ),
-					'submit'  => 'preflight_audit_rescan',
+					'label'   => __( 'Run the first scan', 'cutover-audit' ),
+					'submit'  => 'cutover_audit_rescan',
 					'nonce'   => self::RESCAN_ACTION,
 					'icon'    => 'refresh',
 					'primary' => true,
@@ -278,21 +278,21 @@ class Findings_Settings {
 
 		// The filters are a card of their own, and each tier below is a card, so
 		// the "Everything" view reads as a few clear blocks rather than one list.
-		echo '<div class="pfa-findings">';
-		echo '<div class="pfa-findings__controls pfa-sheet">';
+		echo '<div class="cutover-audit-findings">';
+		echo '<div class="cutover-audit-findings__controls cutover-audit-sheet">';
 
 		$this->render_toolbar( $filters, $scope, $other, $findings, $shown, $base );
 		$this->render_active_filters( $filters, $base );
 
 		echo '</div>';
-		echo '<div class="pfa-findings__main">';
+		echo '<div class="cutover-audit-findings__main">';
 
 		if ( empty( $findings ) && empty( $shown ) ) {
 			UI::render_empty_state(
-				__( 'Nothing matches these filters', 'preflight-audit' ),
-				__( 'Clear them to see everything the last scan reported.', 'preflight-audit' ),
+				__( 'Nothing matches these filters', 'cutover-audit' ),
+				__( 'Clear them to see everything the last scan reported.', 'cutover-audit' ),
 				array(
-					'label' => __( 'Clear filters', 'preflight-audit' ),
+					'label' => __( 'Clear filters', 'cutover-audit' ),
 					'url'   => $base,
 				)
 			);
@@ -439,7 +439,7 @@ class Findings_Settings {
 			// pluralised here so the script never has to.
 			$options[ $index ]['summary'] = sprintf(
 				/* translators: %s: Number of issues on screen. */
-				_n( '%s issue', '%s issues', (int) $option['count'], 'preflight-audit' ),
+				_n( '%s issue', '%s issues', (int) $option['count'], 'cutover-audit' ),
 				number_format_i18n( (int) $option['count'] )
 			);
 
@@ -448,16 +448,16 @@ class Findings_Settings {
 			}
 		}
 		?>
-		<div class="pfa-toolbar pfa-findings__toolbar">
-			<div class="pfa-toolbar__filters">
-				<nav class="pfa-segmented" aria-label="<?php esc_attr_e( 'Filter by what to do', 'preflight-audit' ); ?>">
+		<div class="cutover-audit-toolbar cutover-audit-findings__toolbar">
+			<div class="cutover-audit-toolbar__filters">
+				<nav class="cutover-audit-segmented" aria-label="<?php esc_attr_e( 'Filter by what to do', 'cutover-audit' ); ?>">
 					<?php foreach ( $options as $option ) : ?>
 						<?php
-						$classes = 'pfa-segmented__option' . ( $option['active'] ? ' active' : '' ) . ( ! empty( $option['empty'] ) ? ' is-empty' : '' );
+						$classes = 'cutover-audit-segmented__option' . ( $option['active'] ? ' active' : '' ) . ( ! empty( $option['empty'] ) ? ' is-empty' : '' );
 						$data    = sprintf( ' data-tier="%1$s" data-summary="%2$s"', esc_attr( $option['tier'] ?? '' ), esc_attr( $option['summary'] ) );
 						$inner   = ( empty( $option['tier'] ) ? '' : UI::get_mark( $option['tier'] ) )
 							. '<span>' . esc_html( $option['label'] ) . '</span>'
-							. '<span class="pfa-segmented__count">' . esc_html( number_format_i18n( (int) $option['count'] ) ) . '</span>';
+							. '<span class="cutover-audit-segmented__count">' . esc_html( number_format_i18n( (int) $option['count'] ) ) . '</span>';
 						?>
 						<?php if ( ! empty( $option['empty'] ) ) : ?>
 							<span class="<?php echo esc_attr( $classes ); ?>" title="<?php echo esc_attr( $option['title'] ?? '' ); ?>"<?php echo $data; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?>><?php echo $inner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?></span>
@@ -469,16 +469,16 @@ class Findings_Settings {
 
 			</div>
 
-			<div class="pfa-toolbar__tools">
-				<p class="pfa-result-count" data-role="findings-count" aria-live="polite"><?php echo esc_html( $summary ); ?></p>
+			<div class="cutover-audit-toolbar__tools">
+				<p class="cutover-audit-result-count" data-role="findings-count" aria-live="polite"><?php echo esc_html( $summary ); ?></p>
 
 				<?php $this->render_search( $filters ); ?>
 
 				<?php if ( ! empty( $findings ) ) : ?>
 					<?php // Revealed by the script, which is what makes it work. ?>
-					<button type="button" class="pfa-btn pfa-btn--ghost pfa-btn--sm pfa-findings__expand" data-role="expand-all" aria-pressed="false" hidden>
-						<?php echo UI::get_icon( 'expand', array( 'class' => 'pfa-icon pfa-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-						<span><?php esc_html_e( 'Expand all', 'preflight-audit' ); ?></span>
+					<button type="button" class="cutover-audit-btn cutover-audit-btn--ghost cutover-audit-btn--sm cutover-audit-findings__expand" data-role="expand-all" aria-pressed="false" hidden>
+						<?php echo UI::get_icon( 'expand', array( 'class' => 'cutover-audit-icon cutover-audit-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<span><?php esc_html_e( 'Expand all', 'cutover-audit' ); ?></span>
 					</button>
 				<?php endif; ?>
 			</div>
@@ -500,25 +500,25 @@ class Findings_Settings {
 	private function render_search( array $filters ) {
 		?>
 		<?php // The slug comes from the screen map rather than a literal, so it cannot drift away from the page it posts to. ?>
-		<form class="pfa-search pfa-search--form" method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" role="search">
+		<form class="cutover-audit-search cutover-audit-search--form" method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" role="search">
 			<input type="hidden" name="page" value="<?php echo esc_attr( UI::get_screens()['findings']['slug'] ); ?>" />
 			<?php foreach ( $this->query_args( $filters, 'search' ) as $name => $value ) : ?>
 				<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
 			<?php endforeach; ?>
 
-			<?php echo UI::get_icon( 'search', array( 'class' => 'pfa-icon pfa-icon--sm pfa-search__icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-			<label class="screen-reader-text" for="pfa-findings-search"><?php esc_html_e( 'Search findings by rule, file or function', 'preflight-audit' ); ?></label>
+			<?php echo UI::get_icon( 'search', array( 'class' => 'cutover-audit-icon cutover-audit-icon--sm cutover-audit-search__icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+			<label class="screen-reader-text" for="cutover-audit-findings-search"><?php esc_html_e( 'Search findings by rule, file or function', 'cutover-audit' ); ?></label>
 			<input
 				type="search"
-				id="pfa-findings-search"
-				class="pfa-search__input"
+				id="cutover-audit-findings-search"
+				class="cutover-audit-search__input"
 				name="s"
 				value="<?php echo esc_attr( $filters['search'] ); ?>"
-				placeholder="<?php esc_attr_e( 'Search findings…', 'preflight-audit' ); ?>"
+				placeholder="<?php esc_attr_e( 'Search findings…', 'cutover-audit' ); ?>"
 				autocomplete="off"
 				spellcheck="false"
 			/>
-			<kbd class="pfa-search__key" aria-hidden="true">/</kbd>
+			<kbd class="cutover-audit-search__key" aria-hidden="true">/</kbd>
 		</form>
 		<?php
 	}
@@ -559,7 +559,7 @@ class Findings_Settings {
 
 		$options = array(
 			array(
-				'label'  => __( 'Everything', 'preflight-audit' ),
+				'label'  => __( 'Everything', 'cutover-audit' ),
 				'url'    => add_query_arg( $this->query_args( $filters, 'tier' ), $base ),
 				'count'  => $total,
 				'active' => ( '' === $filters['tier'] ),
@@ -638,7 +638,7 @@ class Findings_Settings {
 			$pills[] = array(
 				'label' => sprintf(
 					/* translators: %s: The search term. */
-					__( 'Matching “%s”', 'preflight-audit' ),
+					__( 'Matching “%s”', 'cutover-audit' ),
 					$filters['search']
 				),
 				'url'   => add_query_arg( $this->query_args( $filters, 'search' ), $base ),
@@ -649,20 +649,20 @@ class Findings_Settings {
 			return;
 		}
 		?>
-		<div class="pfa-findings__active">
-			<ul class="pfa-activefilters">
+		<div class="cutover-audit-findings__active">
+			<ul class="cutover-audit-activefilters">
 				<?php foreach ( $pills as $pill ) : ?>
 					<li>
-						<a class="pfa-activefilter" href="<?php echo esc_url( $pill['url'] ); ?>">
+						<a class="cutover-audit-activefilter" href="<?php echo esc_url( $pill['url'] ); ?>">
 							<span><?php echo esc_html( $pill['label'] ); ?></span>
-							<span class="pfa-activefilter__remove" aria-hidden="true"><?php echo UI::get_icon( 'close', array( 'class' => 'pfa-icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?></span>
-							<span class="screen-reader-text"><?php esc_html_e( 'Remove this filter', 'preflight-audit' ); ?></span>
+							<span class="cutover-audit-activefilter__remove" aria-hidden="true"><?php echo UI::get_icon( 'close', array( 'class' => 'cutover-audit-icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?></span>
+							<span class="screen-reader-text"><?php esc_html_e( 'Remove this filter', 'cutover-audit' ); ?></span>
 						</a>
 					</li>
 				<?php endforeach; ?>
 				<li>
 					<?php // Back to the whole list, the same place the empty state's "Clear filters" goes. ?>
-					<a class="pfa-clearfilters" href="<?php echo esc_url( $base ); ?>"><?php echo UI::get_icon( 'filter-off', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?><span><?php esc_html_e( 'Clear filters', 'preflight-audit' ); ?></span></a>
+					<a class="cutover-audit-clearfilters" href="<?php echo esc_url( $base ); ?>"><?php echo UI::get_icon( 'filter-off', array( 'class' => 'cutover-audit-icon cutover-audit-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?><span><?php esc_html_e( 'Clear filters', 'cutover-audit' ); ?></span></a>
 				</li>
 			</ul>
 		</div>
@@ -704,12 +704,12 @@ class Findings_Settings {
 			esc_html(
 				sprintf(
 					/* translators: %s: Comma-separated item names. */
-					__( 'The scan stopped early on %s because of their size, so this list is not complete for them. Fix what is here and rescan to see the rest.', 'preflight-audit' ),
+					__( 'The scan stopped early on %s because of their size, so this list is not complete for them. Fix what is here and rescan to see the rest.', 'cutover-audit' ),
 					implode( ', ', $truncated )
 				)
 			),
 			'info',
-			esc_html__( 'Partial results', 'preflight-audit' )
+			esc_html__( 'Partial results', 'cutover-audit' )
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
@@ -748,7 +748,7 @@ class Findings_Settings {
 			$tasks_by_tier[ $task['tier'] ][] = $task;
 		}
 
-		echo '<div class="pfa-fixlist">';
+		echo '<div class="cutover-audit-fixlist">';
 
 		$visible = 0;
 
@@ -766,7 +766,7 @@ class Findings_Settings {
 			$visible += $show ? 1 : 0;
 
 			printf(
-				'<section class="pfa-tiergroup pfa-tiergroup--%1$s" data-tier="%1$s"%2$s>',
+				'<section class="cutover-audit-tiergroup cutover-audit-tiergroup--%1$s" data-tier="%1$s"%2$s>',
 				esc_attr( $tier ),
 				$show ? '' : ' hidden'
 			);
@@ -789,8 +789,8 @@ class Findings_Settings {
 		// Shown by the script when the selected tier has nothing in it.
 		printf( '<div data-role="tier-empty"%s>', $visible ? ' hidden' : '' );
 		UI::render_empty_state(
-			__( 'Nothing in this tier', 'preflight-audit' ),
-			__( 'Choose another tier above, or Everything to see the whole list.', 'preflight-audit' )
+			__( 'Nothing in this tier', 'cutover-audit' ),
+			__( 'Choose another tier above, or Everything to see the whole list.', 'cutover-audit' )
 		);
 		echo '</div>';
 	}

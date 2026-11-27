@@ -4,10 +4,10 @@
  *
  * This trait implements the Singleton design pattern.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Includes\Traits;
+namespace CUTOVER_AUDIT\Includes\Traits;
 
 defined( 'ABSPATH' ) || exit;
 

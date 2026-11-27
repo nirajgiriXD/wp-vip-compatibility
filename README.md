@@ -1,4 +1,4 @@
-# Preflight Audit
+# Cutover Audit
 
 Check a site's code against the [WordPress VIP platform guidelines](https://docs.wpvip.com/) and coding standard, with an actionable fix for every issue found.
 
@@ -37,7 +37,7 @@ A target ends up in one of three states: **passing**, **needs review** (findings
 - File, line and enclosing function, with the line of code as evidence
 - The recommended fix, and an alternative approach where one exists
 - A link to the WordPress VIP documentation page the rule was derived from
-- The rule id, copyable, for silencing it with `pfa:ignore` once reviewed
+- The rule id, copyable, for silencing it with `cutover-audit:ignore` once reviewed
 
 The JSON, CSV and Markdown exports also carry the severity, confidence, fixability and matching `WordPress-VIP-Go` PHPCS sniff of every finding.
 
@@ -89,9 +89,9 @@ Where it still cannot be sure, it lowers the confidence and explains why in the 
 ### Suppressing a reviewed finding
 
 ```php
-$path = '/wp-content/uploads'; // pfa:ignore filesystem.hardcoded-uploads-path -- Documentation string, not a path we use.
+$path = '/wp-content/uploads'; // cutover-audit:ignore filesystem.hardcoded-uploads-path -- Documentation string, not a path we use.
 
-// pfa:ignore-next-line environment.runtime-ini-change -- CLI-only script, never runs on a web request.
+// cutover-audit:ignore-next-line environment.runtime-ini-change -- CLI-only script, never runs on a web request.
 ini_set( 'memory_limit', '512M' );
 ```
 
@@ -103,7 +103,7 @@ Security findings cannot be suppressed. The annotation lives in the code being s
 
 ```php
 // Add, change or remove rules.
-add_filter( 'preflight_audit_scanner_rules', function ( array $rules ) {
+add_filter( 'cutover_audit_scanner_rules', function ( array $rules ) {
     $rules['acme.custom-rule'] = array( /* … */ );
     unset( $rules['environment.debug-output'] );
 
@@ -112,12 +112,12 @@ add_filter( 'preflight_audit_scanner_rules', function ( array $rules ) {
 
 // Change who can use the plugin. Default: manage_options, or
 // manage_network_options on multisite.
-add_filter( 'preflight_audit_capability', function () {
+add_filter( 'cutover_audit_capability', function () {
     return 'manage_options';
 } );
 
 // Change which directories are skipped.
-add_filter( 'preflight_audit_scanner_excluded_directories', function ( array $excluded ) {
+add_filter( 'cutover_audit_scanner_excluded_directories', function ( array $excluded ) {
     $excluded[] = 'third-party';
 
     return $excluded;
@@ -135,19 +135,19 @@ npm install && npm test             # admin.js: Jest with jsdom
 composer lint
 
 # Translations.
-wp i18n make-pot . languages/preflight-audit.pot
+wp i18n make-pot . languages/cutover-audit.pot
 ```
 
 ### Releasing
 
 ```bash
 npm run bump -- patch   # or minor, major, or an exact version such as 2.3.0
-npm run zip             # writes dist/preflight-audit-<version>.zip
+npm run zip             # writes dist/cutover-audit-<version>.zip
 ```
 
-`bump` updates the plugin header, `PREFLIGHT_AUDIT_VERSION`, the readme.txt `Stable tag`, the `.pot` file and the test bootstrap. Add the changelog entry to readme.txt yourself.
+`bump` updates the plugin header, `CUTOVER_AUDIT_VERSION`, the readme.txt `Stable tag`, the `.pot` file and the test bootstrap. Add the changelog entry to readme.txt yourself.
 
-`zip` packs the files git tracks, minus anything in `.distignore`, under a `preflight-audit/` folder. Add `--list` (`npm run zip -- --list`) to print what went in.
+`zip` packs the files git tracks, minus anything in `.distignore`, under a `cutover-audit/` folder. Add `--list` (`npm run zip -- --list`) to print what went in.
 
 Contribution workflow is in [WORKFLOW.md](WORKFLOW.md).
 

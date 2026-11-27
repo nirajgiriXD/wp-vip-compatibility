@@ -2,10 +2,10 @@
 /**
  * In-memory state behind the fake WordPress functions.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Support;
+namespace CUTOVER_AUDIT\Tests\Support;
 
 /**
  * Holds everything the fake WordPress layer reads and writes.

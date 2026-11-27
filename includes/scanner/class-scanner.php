@@ -9,10 +9,10 @@
  * re-scanned every plugin on every page load and on every one of the five
  * overview AJAX calls.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Includes\Scanner;
+namespace CUTOVER_AUDIT\Includes\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -217,7 +217,7 @@ class Scanner {
 		 * @param string[] $excluded Lower-case directory names.
 		 */
 		return (array) apply_filters(
-			'preflight_audit_scanner_excluded_directories',
+			'cutover_audit_scanner_excluded_directories',
 			array( 'vendor', 'vendor_prefixed', 'node_modules', 'bower_components', '.git', '.svn', 'dist', 'build' )
 		);
 	}
@@ -359,11 +359,11 @@ class Scanner {
 	public static function status_label( $status ) {
 		switch ( $status ) {
 			case self::STATUS_BLOCKED:
-				return __( 'Needs work', 'preflight-audit' );
+				return __( 'Needs work', 'cutover-audit' );
 			case self::STATUS_REVIEW:
-				return __( 'Needs review', 'preflight-audit' );
+				return __( 'Needs review', 'cutover-audit' );
 			default:
-				return __( 'Passing', 'preflight-audit' );
+				return __( 'Passing', 'cutover-audit' );
 		}
 	}
 }

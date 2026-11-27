@@ -18,15 +18,15 @@
  * - Depth through disclosure. What to do is always visible, the evidence for it
  *   is one interaction away, and how the scanner reached it is two.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Includes\Classes;
+namespace CUTOVER_AUDIT\Includes\Classes;
 
-use PREFLIGHT_AUDIT\Includes\Scanner\Report;
-use PREFLIGHT_AUDIT\Includes\Scanner\Rules;
-use PREFLIGHT_AUDIT\Includes\Scanner\Scanner;
-use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
+use CUTOVER_AUDIT\Includes\Scanner\Report;
+use CUTOVER_AUDIT\Includes\Scanner\Rules;
+use CUTOVER_AUDIT\Includes\Scanner\Scanner;
+use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -55,9 +55,9 @@ class UI {
 	 */
 	public static function get_groups() {
 		return array(
-			'summary' => __( 'Summary', 'preflight-audit' ),
-			'code'    => __( 'Code you ship', 'preflight-audit' ),
-			'site'    => __( 'Site infrastructure', 'preflight-audit' ),
+			'summary' => __( 'Summary', 'cutover-audit' ),
+			'code'    => __( 'Code you ship', 'cutover-audit' ),
+			'site'    => __( 'Site infrastructure', 'cutover-audit' ),
 		);
 	}
 
@@ -69,58 +69,58 @@ class UI {
 	public static function get_screens() {
 		return array(
 			'overview'    => array(
-				'slug'        => 'preflight-audit',
-				'label'       => __( 'Overview', 'preflight-audit' ),
-				'title'       => __( 'Standards and compatibility', 'preflight-audit' ),
-				'description' => __( 'How the code on this site measures up to the WordPress VIP platform guidelines and coding standard, where the work is, and what to do first.', 'preflight-audit' ),
+				'slug'        => 'cutover-audit',
+				'label'       => __( 'Overview', 'cutover-audit' ),
+				'title'       => __( 'Standards and compatibility', 'cutover-audit' ),
+				'description' => __( 'How the code on this site measures up to the WordPress VIP platform guidelines and coding standard, where the work is, and what to do first.', 'cutover-audit' ),
 				'icon'        => 'gauge',
 				'group'       => 'summary',
 			),
 			'findings'    => array(
-				'slug'        => 'pfa-findings',
-				'label'       => __( 'Findings', 'preflight-audit' ),
-				'title'       => __( 'Findings', 'preflight-audit' ),
-				'description' => __( 'Everything that needs doing, worst first, with why it matters and how to fix it.', 'preflight-audit' ),
+				'slug'        => 'cutover-audit-findings',
+				'label'       => __( 'Findings', 'cutover-audit' ),
+				'title'       => __( 'Findings', 'cutover-audit' ),
+				'description' => __( 'Everything that needs doing, worst first, with why it matters and how to fix it.', 'cutover-audit' ),
 				'icon'        => 'list',
 				'group'       => 'summary',
 			),
 			'plugins'     => array(
-				'slug'        => 'pfa-plugins',
-				'label'       => __( 'Plugins', 'preflight-audit' ),
-				'title'       => __( 'Plugins', 'preflight-audit' ),
-				'description' => __( 'Every installed plugin with its verdict against the platform guidelines, update state and the work it implies.', 'preflight-audit' ),
+				'slug'        => 'cutover-audit-plugins',
+				'label'       => __( 'Plugins', 'cutover-audit' ),
+				'title'       => __( 'Plugins', 'cutover-audit' ),
+				'description' => __( 'Every installed plugin with its verdict against the platform guidelines, update state and the work it implies.', 'cutover-audit' ),
 				'icon'        => 'plug',
 				'group'       => 'code',
 			),
 			'themes'      => array(
-				'slug'        => 'pfa-themes',
-				'label'       => __( 'Themes', 'preflight-audit' ),
-				'title'       => __( 'Themes', 'preflight-audit' ),
-				'description' => __( 'Every installed theme, with the active one marked. Inactive themes still ship in the repository.', 'preflight-audit' ),
+				'slug'        => 'cutover-audit-themes',
+				'label'       => __( 'Themes', 'cutover-audit' ),
+				'title'       => __( 'Themes', 'cutover-audit' ),
+				'description' => __( 'Every installed theme, with the active one marked. Inactive themes still ship in the repository.', 'cutover-audit' ),
 				'icon'        => 'brush',
 				'group'       => 'code',
 			),
 			'mu-plugins'  => array(
-				'slug'        => 'pfa-mu-plugins',
-				'label'       => __( 'Must-use', 'preflight-audit' ),
-				'title'       => __( 'Must-use plugins', 'preflight-audit' ),
-				'description' => __( 'WordPress VIP reserves wp-content/mu-plugins for platform code, so everything here needs a decision.', 'preflight-audit' ),
+				'slug'        => 'cutover-audit-mu-plugins',
+				'label'       => __( 'Must-use', 'cutover-audit' ),
+				'title'       => __( 'Must-use plugins', 'cutover-audit' ),
+				'description' => __( 'WordPress VIP reserves wp-content/mu-plugins for platform code, so everything here needs a decision.', 'cutover-audit' ),
 				'icon'        => 'bolt',
 				'group'       => 'code',
 			),
 			'database'    => array(
-				'slug'        => 'pfa-database',
-				'label'       => __( 'Database', 'preflight-audit' ),
-				'title'       => __( 'Database', 'preflight-audit' ),
-				'description' => __( 'The schema measured against the storage engine, collation and prefix WordPress VIP requires on import.', 'preflight-audit' ),
+				'slug'        => 'cutover-audit-database',
+				'label'       => __( 'Database', 'cutover-audit' ),
+				'title'       => __( 'Database', 'cutover-audit' ),
+				'description' => __( 'The schema measured against the storage engine, collation and prefix WordPress VIP requires on import.', 'cutover-audit' ),
 				'icon'        => 'database',
 				'group'       => 'site',
 			),
 			'directories' => array(
-				'slug'        => 'pfa-directories',
-				'label'       => __( 'wp-content', 'preflight-audit' ),
-				'title'       => __( 'wp-content layout', 'preflight-audit' ),
-				'description' => __( 'What sits in wp-content today, and how each entry maps onto the WordPress VIP application structure.', 'preflight-audit' ),
+				'slug'        => 'cutover-audit-directories',
+				'label'       => __( 'wp-content', 'cutover-audit' ),
+				'title'       => __( 'wp-content layout', 'cutover-audit' ),
+				'description' => __( 'What sits in wp-content today, and how each entry maps onto the WordPress VIP application structure.', 'cutover-audit' ),
 				'icon'        => 'folder',
 				'group'       => 'site',
 			),
@@ -136,7 +136,7 @@ class UI {
 	 */
 	public static function get_screen_url( $key, $args = array() ) {
 		$screens = self::get_screens();
-		$slug    = $screens[ $key ]['slug'] ?? 'preflight-audit';
+		$slug    = $screens[ $key ]['slug'] ?? 'cutover-audit';
 		$url     = admin_url( 'admin.php?page=' . $slug );
 
 		return empty( $args ) ? $url : add_query_arg( $args, $url );
@@ -258,7 +258,7 @@ class UI {
 	 */
 	public static function get_mark( $tier, $labeled = false ) {
 		return sprintf(
-			'<span class="pfa-mark pfa-mark--%1$s" aria-hidden="%2$s"></span>%3$s',
+			'<span class="cutover-audit-mark cutover-audit-mark--%1$s" aria-hidden="%2$s"></span>%3$s',
 			esc_attr( $tier ),
 			$labeled ? 'false' : 'true',
 			$labeled ? '<span class="screen-reader-text">' . esc_html( self::get_tier_label( $tier ) ) . '</span>' : ''
@@ -281,7 +281,7 @@ class UI {
 	 * @return string The SVG markup.
 	 */
 	public static function get_logo() {
-		return '<svg class="pfa-logo" aria-hidden="true" focusable="false" viewBox="0 0 256 256" width="38" height="38">'
+		return '<svg class="cutover-audit-logo" aria-hidden="true" focusable="false" viewBox="0 0 256 256" width="38" height="38">'
 			. '<g fill="none" stroke-linecap="round" stroke-linejoin="round">'
 			. '<path d="M46 160l12 12 24-26" stroke="#34d399" stroke-width="14"/>'
 			. '<path d="M46 210l12 12 24-26" stroke="#34d399" stroke-width="14"/>'
@@ -341,7 +341,7 @@ class UI {
 		$attrs = wp_parse_args(
 			$attrs,
 			array(
-				'class'       => 'pfa-icon',
+				'class'       => 'cutover-audit-icon',
 				'aria-hidden' => 'true',
 				'focusable'   => 'false',
 			)
@@ -376,13 +376,13 @@ class UI {
 	 * @return void
 	 */
 	public static function render_shell_open( $current ) {
-		echo '<div class="wrap pfa">';
+		echo '<div class="wrap cutover-audit">';
 
 		self::render_bar( $current );
 		self::render_page_head( $current );
 
 		echo '<hr class="wp-header-end" />';
-		echo '<div class="pfa-main" id="pfa-main">';
+		echo '<div class="cutover-audit-main" id="cutover-audit-main">';
 	}
 
 	/**
@@ -407,18 +407,18 @@ class UI {
 		$aggregate = Report::aggregate();
 		$scanned   = $aggregate['targets'] > 0 && $aggregate['scanned_at'] > 0;
 		?>
-		<div class="pfa-bar">
-			<div class="pfa-brand">
-				<span class="pfa-brand__seal" aria-hidden="true">
+		<div class="cutover-audit-bar">
+			<div class="cutover-audit-brand">
+				<span class="cutover-audit-brand__seal" aria-hidden="true">
 					<?php echo self::get_logo(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 				</span>
-				<span class="pfa-brand__text">
-					<span class="pfa-brand__name"><?php esc_html_e( 'Preflight Audit', 'preflight-audit' ); ?></span>
-					<span class="pfa-brand__meta">
+				<span class="cutover-audit-brand__text">
+					<span class="cutover-audit-brand__name"><?php esc_html_e( 'Cutover Audit', 'cutover-audit' ); ?></span>
+					<span class="cutover-audit-brand__meta">
 						<?php
 						printf(
 							/* translators: 1: Rule set version. 2: Number of rules. */
-							esc_html__( 'Rule set %1$s · %2$d rules', 'preflight-audit' ),
+							esc_html__( 'Rule set %1$s · %2$d rules', 'cutover-audit' ),
 							esc_html( Rules::VERSION ),
 							count( Rules::all() )
 						);
@@ -427,39 +427,39 @@ class UI {
 				</span>
 			</div>
 
-			<div class="pfa-bar__actions">
-				<span class="pfa-scanstate<?php echo $scanned ? '' : ' is-empty'; ?>">
-					<span class="pfa-scanstate__dot" aria-hidden="true"></span>
+			<div class="cutover-audit-bar__actions">
+				<span class="cutover-audit-scanstate<?php echo $scanned ? '' : ' is-empty'; ?>">
+					<span class="cutover-audit-scanstate__dot" aria-hidden="true"></span>
 					<?php
 					if ( $scanned ) {
 						printf(
 							/* translators: %s: Human-readable time difference. */
-							esc_html__( 'Scanned %s ago', 'preflight-audit' ),
+							esc_html__( 'Scanned %s ago', 'cutover-audit' ),
 							esc_html( human_time_diff( $aggregate['scanned_at'] ) )
 						);
 					} else {
-						esc_html_e( 'Never scanned', 'preflight-audit' );
+						esc_html_e( 'Never scanned', 'cutover-audit' );
 					}
 					?>
 				</span>
 
 				<?php self::render_rescan_control( $scanned, $current ); ?>
 
-				<details class="pfa-menu">
-					<summary class="pfa-btn pfa-btn--ghost pfa-btn--sm">
-						<?php echo self::get_icon( 'download', array( 'class' => 'pfa-icon pfa-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-						<span><?php esc_html_e( 'Export', 'preflight-audit' ); ?></span>
+				<details class="cutover-audit-menu">
+					<summary class="cutover-audit-btn cutover-audit-btn--ghost cutover-audit-btn--sm">
+						<?php echo self::get_icon( 'download', array( 'class' => 'cutover-audit-icon cutover-audit-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<span><?php esc_html_e( 'Export', 'cutover-audit' ); ?></span>
 					</summary>
-					<div class="pfa-menu__panel pfa-menu__panel--rich">
-						<p class="pfa-menu__title"><?php esc_html_e( 'Download the full report', 'preflight-audit' ); ?></p>
+					<div class="cutover-audit-menu__panel cutover-audit-menu__panel--rich">
+						<p class="cutover-audit-menu__title"><?php esc_html_e( 'Download the full report', 'cutover-audit' ); ?></p>
 						<?php foreach ( Export::get_formats() as $slug => $format ) : ?>
-							<a class="pfa-menu__item pfa-menu__row" href="<?php echo esc_url( Export::get_url( $slug ) ); ?>">
-								<span class="pfa-menu__tile pfa-menu__tile--ext" aria-hidden="true"><?php echo esc_html( $format['extension'] ); ?></span>
-								<span class="pfa-menu__text">
-									<span class="pfa-menu__label"><?php echo esc_html( $format['label'] ); ?></span>
-									<span class="pfa-menu__hint"><?php echo esc_html( $format['description'] ); ?></span>
+							<a class="cutover-audit-menu__item cutover-audit-menu__row" href="<?php echo esc_url( Export::get_url( $slug ) ); ?>">
+								<span class="cutover-audit-menu__tile cutover-audit-menu__tile--ext" aria-hidden="true"><?php echo esc_html( $format['extension'] ); ?></span>
+								<span class="cutover-audit-menu__text">
+									<span class="cutover-audit-menu__label"><?php echo esc_html( $format['label'] ); ?></span>
+									<span class="cutover-audit-menu__hint"><?php echo esc_html( $format['description'] ); ?></span>
 								</span>
-								<?php echo self::get_icon( 'download', array( 'class' => 'pfa-icon pfa-icon--sm pfa-menu__go' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+								<?php echo self::get_icon( 'download', array( 'class' => 'cutover-audit-icon cutover-audit-icon--sm cutover-audit-menu__go' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 							</a>
 						<?php endforeach; ?>
 					</div>
@@ -467,9 +467,9 @@ class UI {
 
 				<?php if ( self::has_help() ) : ?>
 					<?php // Opens the WordPress Help panel, whose own floating tab is hidden on these screens. ?>
-					<button type="button" class="pfa-btn pfa-btn--quiet pfa-btn--sm" data-role="help-toggle" aria-controls="contextual-help-wrap" aria-expanded="false">
-						<?php echo self::get_icon( 'info', array( 'class' => 'pfa-icon pfa-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-						<span><?php esc_html_e( 'Help', 'preflight-audit' ); ?></span>
+					<button type="button" class="cutover-audit-btn cutover-audit-btn--quiet cutover-audit-btn--sm" data-role="help-toggle" aria-controls="contextual-help-wrap" aria-expanded="false">
+						<?php echo self::get_icon( 'info', array( 'class' => 'cutover-audit-icon cutover-audit-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<span><?php esc_html_e( 'Help', 'cutover-audit' ); ?></span>
 					</button>
 				<?php endif; ?>
 			</div>
@@ -506,8 +506,8 @@ class UI {
 	private static function render_rescan_control( $scanned, $current ) {
 		$button = self::get_action_button(
 			array(
-				'label'   => $scanned ? __( 'Rescan', 'preflight-audit' ) : __( 'Run a scan', 'preflight-audit' ),
-				'submit'  => 'preflight_audit_rescan',
+				'label'   => $scanned ? __( 'Rescan', 'cutover-audit' ) : __( 'Run a scan', 'cutover-audit' ),
+				'submit'  => 'cutover_audit_rescan',
 				'nonce'   => Findings_Settings::RESCAN_ACTION,
 				'fields'  => array( 'scope' => Report::SCOPE_ALL ),
 				'icon'    => 'refresh',
@@ -544,39 +544,39 @@ class UI {
 			);
 		}
 		?>
-		<div class="pfa-split">
+		<div class="cutover-audit-split">
 			<?php echo $button; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
 
-			<details class="pfa-menu pfa-split__more">
-				<summary class="pfa-btn pfa-btn--primary pfa-btn--sm pfa-split__caret">
-					<?php echo self::get_icon( 'chevron-down', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-					<span class="screen-reader-text"><?php esc_html_e( 'Rescan one area only', 'preflight-audit' ); ?></span>
+			<details class="cutover-audit-menu cutover-audit-split__more">
+				<summary class="cutover-audit-btn cutover-audit-btn--primary cutover-audit-btn--sm cutover-audit-split__caret">
+					<?php echo self::get_icon( 'chevron-down', array( 'class' => 'cutover-audit-icon cutover-audit-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+					<span class="screen-reader-text"><?php esc_html_e( 'Rescan one area only', 'cutover-audit' ); ?></span>
 				</summary>
 
-				<div class="pfa-menu__panel pfa-menu__panel--rich">
-					<p class="pfa-menu__title"><?php esc_html_e( 'Rescan one area only', 'preflight-audit' ); ?></p>
+				<div class="cutover-audit-menu__panel cutover-audit-menu__panel--rich">
+					<p class="cutover-audit-menu__title"><?php esc_html_e( 'Rescan one area only', 'cutover-audit' ); ?></p>
 
-					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="pfa-menu__form">
-						<input type="hidden" name="action" value="preflight_audit_rescan" />
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="cutover-audit-menu__form">
+						<input type="hidden" name="action" value="cutover_audit_rescan" />
 						<?php wp_nonce_field( Findings_Settings::RESCAN_ACTION ); ?>
 
 						<?php foreach ( $grouped as $group => $members ) : ?>
-							<div class="pfa-rescan__group" role="group" aria-label="<?php echo esc_attr( $groups[ $group ] ?? '' ); ?>">
-								<p class="pfa-rescan__heading" aria-hidden="true"><?php echo esc_html( $groups[ $group ] ?? '' ); ?></p>
+							<div class="cutover-audit-rescan__group" role="group" aria-label="<?php echo esc_attr( $groups[ $group ] ?? '' ); ?>">
+								<p class="cutover-audit-rescan__heading" aria-hidden="true"><?php echo esc_html( $groups[ $group ] ?? '' ); ?></p>
 
 								<?php foreach ( $members as $slug => $scope ) : ?>
-									<button type="submit" class="pfa-menu__item pfa-menu__row" name="scope" value="<?php echo esc_attr( $slug ); ?>">
-										<span class="pfa-menu__tile" aria-hidden="true">
-											<?php echo self::get_icon( $scope['icon'], array( 'class' => 'pfa-icon pfa-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+									<button type="submit" class="cutover-audit-menu__item cutover-audit-menu__row" name="scope" value="<?php echo esc_attr( $slug ); ?>">
+										<span class="cutover-audit-menu__tile" aria-hidden="true">
+											<?php echo self::get_icon( $scope['icon'], array( 'class' => 'cutover-audit-icon cutover-audit-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 										</span>
-										<span class="pfa-menu__text">
-											<span class="pfa-menu__label">
+										<span class="cutover-audit-menu__text">
+											<span class="cutover-audit-menu__label">
 												<?php echo esc_html( $scope['label'] ); ?>
 												<?php if ( $scope['current'] ) : ?>
-													<span class="pfa-menu__tag"><?php esc_html_e( 'This page', 'preflight-audit' ); ?></span>
+													<span class="cutover-audit-menu__tag"><?php esc_html_e( 'This page', 'cutover-audit' ); ?></span>
 												<?php endif; ?>
 											</span>
-											<span class="pfa-menu__hint"><?php echo esc_html( $scope['hint'] ); ?></span>
+											<span class="cutover-audit-menu__hint"><?php echo esc_html( $scope['hint'] ); ?></span>
 										</span>
 									</button>
 								<?php endforeach; ?>
@@ -604,9 +604,9 @@ class UI {
 
 		$screen = $screens[ $current ];
 		?>
-		<header class="pfa-head">
-			<h1 class="pfa-head__title"><?php echo esc_html( $screen['title'] ); ?></h1>
-			<p class="pfa-head__lede"><?php echo esc_html( $screen['description'] ); ?></p>
+		<header class="cutover-audit-head">
+			<h1 class="cutover-audit-head__title"><?php echo esc_html( $screen['title'] ); ?></h1>
+			<p class="cutover-audit-head__lede"><?php echo esc_html( $screen['description'] ); ?></p>
 		</header>
 		<?php
 	}
@@ -622,8 +622,8 @@ class UI {
 	 */
 	public static function render_scan_notice() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Presentation only; the scan itself was nonce-checked in Findings_Settings::handle_rescan().
-		$scanned  = isset( $_GET['pfa-scanned'] ) ? sanitize_key( wp_unslash( $_GET['pfa-scanned'] ) ) : '';
-		$scanning = isset( $_GET['pfa-scanning'] ) ? sanitize_key( wp_unslash( $_GET['pfa-scanning'] ) ) : '';
+		$scanned  = isset( $_GET['cutover-audit-scanned'] ) ? sanitize_key( wp_unslash( $_GET['cutover-audit-scanned'] ) ) : '';
+		$scanning = isset( $_GET['cutover-audit-scanning'] ) ? sanitize_key( wp_unslash( $_GET['cutover-audit-scanning'] ) ) : '';
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		/*
@@ -638,12 +638,12 @@ class UI {
 				'<div data-role="scan-report" data-scope="%1$s">%2$s</div>',
 				esc_attr( $scanning ),
 				self::get_notice( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-					esc_html__( 'Each row below is being read in turn. The totals above them fill in once it finishes.', 'preflight-audit' ),
+					esc_html__( 'Each row below is being read in turn. The totals above them fill in once it finishes.', 'cutover-audit' ),
 					'info',
 					esc_html(
 						sprintf(
 							/* translators: %s: The area being rescanned, e.g. "Plugins". */
-							__( 'Rescanning %s', 'preflight-audit' ),
+							__( 'Rescanning %s', 'cutover-audit' ),
 							Report::get_scope( $scanning )['label']
 						)
 					)
@@ -662,7 +662,7 @@ class UI {
 		echo self::get_notice(
 			esc_html( Report::scope_outcome( Report::resolve_scope( $scanned ) ) ),
 			'success',
-			esc_html__( 'Scan complete', 'preflight-audit' )
+			esc_html__( 'Scan complete', 'cutover-audit' )
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
@@ -709,13 +709,13 @@ class UI {
 			)
 		);
 
-		$classes = 'pfa-btn ' . ( $action['primary'] ? 'pfa-btn--primary' : 'pfa-btn--ghost' );
+		$classes = 'cutover-audit-btn ' . ( $action['primary'] ? 'cutover-audit-btn--primary' : 'cutover-audit-btn--ghost' );
 
 		if ( $action['small'] ) {
-			$classes .= ' pfa-btn--sm';
+			$classes .= ' cutover-audit-btn--sm';
 		}
 
-		$icon = '' === $action['icon'] ? '' : self::get_icon( $action['icon'], array( 'class' => 'pfa-icon pfa-icon--sm' ) );
+		$icon = '' === $action['icon'] ? '' : self::get_icon( $action['icon'], array( 'class' => 'cutover-audit-icon cutover-audit-icon--sm' ) );
 
 		if ( '' !== $action['submit'] ) {
 			$fields = '';
@@ -729,7 +729,7 @@ class UI {
 			}
 
 			return sprintf(
-				'<form method="post" action="%1$s" class="pfa-inline-form"%8$s><input type="hidden" name="action" value="%2$s" />%3$s%4$s<button type="submit" class="%5$s">%6$s<span>%7$s</span></button></form>',
+				'<form method="post" action="%1$s" class="cutover-audit-inline-form"%8$s><input type="hidden" name="action" value="%2$s" />%3$s%4$s<button type="submit" class="%5$s">%6$s<span>%7$s</span></button></form>',
 				esc_url( admin_url( 'admin-post.php' ) ),
 				esc_attr( $action['submit'] ),
 				$fields,
@@ -749,7 +749,7 @@ class UI {
 			$icon,
 			esc_html( $action['label'] ),
 			$action['external'] ? ' target="_blank" rel="noopener noreferrer"' : '',
-			$action['external'] ? '<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'preflight-audit' ) . '</span>' : ''
+			$action['external'] ? '<span class="screen-reader-text">' . esc_html__( '(opens in a new tab)', 'cutover-audit' ) . '</span>' : ''
 		);
 	}
 
@@ -762,10 +762,10 @@ class UI {
 	 */
 	public static function get_arrow_link( $url, $label ) {
 		return sprintf(
-			'<a class="pfa-link" href="%1$s"><span>%2$s</span>%3$s</a>',
+			'<a class="cutover-audit-link" href="%1$s"><span>%2$s</span>%3$s</a>',
 			esc_url( $url ),
 			esc_html( $label ),
-			self::get_icon( 'arrow-right', array( 'class' => 'pfa-icon pfa-icon--xs pfa-link__arrow' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+			self::get_icon( 'arrow-right', array( 'class' => 'cutover-audit-icon cutover-audit-icon--xs cutover-audit-link__arrow' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
 		);
 	}
 
@@ -807,26 +807,26 @@ class UI {
 			)
 		);
 
-		$heading_id = self::next_id( 'pfa-section' );
-		$classes    = 'pfa-section' . ( $args['flush'] ? ' pfa-section--sheet' : '' ) . ( '' === $args['modifier'] ? '' : ' ' . $args['modifier'] );
+		$heading_id = self::next_id( 'cutover-audit-section' );
+		$classes    = 'cutover-audit-section' . ( $args['flush'] ? ' cutover-audit-section--sheet' : '' ) . ( '' === $args['modifier'] ? '' : ' ' . $args['modifier'] );
 		?>
 		<section class="<?php echo esc_attr( $classes ); ?>"<?php echo ( '' === $args['title'] ) ? '' : ' aria-labelledby="' . esc_attr( $heading_id ) . '"'; ?>>
 			<?php if ( '' !== $args['title'] ) : ?>
-				<header class="pfa-section__head">
-					<div class="pfa-section__heading">
-						<h2 class="pfa-section__title" id="<?php echo esc_attr( $heading_id ); ?>">
+				<header class="cutover-audit-section__head">
+					<div class="cutover-audit-section__heading">
+						<h2 class="cutover-audit-section__title" id="<?php echo esc_attr( $heading_id ); ?>">
 							<?php echo esc_html( $args['title'] ); ?>
 							<?php if ( '' !== $args['count'] ) : ?>
-								<span class="pfa-section__count"><?php echo esc_html( $args['count'] ); ?></span>
+								<span class="cutover-audit-section__count"><?php echo esc_html( $args['count'] ); ?></span>
 							<?php endif; ?>
 						</h2>
 						<?php if ( '' !== $args['summary'] ) : ?>
-							<p class="pfa-section__summary"><?php echo esc_html( $args['summary'] ); ?></p>
+							<p class="cutover-audit-section__summary"><?php echo esc_html( $args['summary'] ); ?></p>
 						<?php endif; ?>
 					</div>
 
 					<?php if ( ! empty( $args['actions'] ) ) : ?>
-						<div class="pfa-section__actions">
+						<div class="cutover-audit-section__actions">
 							<?php
 							foreach ( $args['actions'] as $action ) {
 								echo self::get_action_button( $action ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
@@ -837,7 +837,7 @@ class UI {
 				</header>
 			<?php endif; ?>
 
-			<div class="pfa-section__body">
+			<div class="cutover-audit-section__body">
 		<?php
 	}
 
@@ -865,12 +865,12 @@ class UI {
 		$items = '';
 
 		foreach ( $rows as $row ) {
-			$tone  = empty( $row['tone'] ) ? '' : ' pfa-def--' . $row['tone'];
-			$hint  = empty( $row['hint'] ) ? '' : '<span class="pfa-def__hint">' . esc_html( $row['hint'] ) . '</span>';
+			$tone  = empty( $row['tone'] ) ? '' : ' cutover-audit-def--' . $row['tone'];
+			$hint  = empty( $row['hint'] ) ? '' : '<span class="cutover-audit-def__hint">' . esc_html( $row['hint'] ) . '</span>';
 			$value = empty( $row['html'] ) ? esc_html( (string) ( $row['value'] ?? '' ) ) : $row['html'];
 
 			$items .= sprintf(
-				'<div class="pfa-def%1$s"><dt class="pfa-def__label">%2$s</dt><dd class="pfa-def__value"><span class="pfa-def__main">%3$s</span>%4$s</dd></div>',
+				'<div class="cutover-audit-def%1$s"><dt class="cutover-audit-def__label">%2$s</dt><dd class="cutover-audit-def__value"><span class="cutover-audit-def__main">%3$s</span>%4$s</dd></div>',
 				esc_attr( $tone ),
 				esc_html( (string) ( $row['label'] ?? '' ) ),
 				$value,
@@ -878,7 +878,7 @@ class UI {
 			);
 		}
 
-		return '<dl class="' . esc_attr( trim( 'pfa-defs ' . $modifier ) ) . '">' . $items . '</dl>';
+		return '<dl class="' . esc_attr( trim( 'cutover-audit-defs ' . $modifier ) ) . '">' . $items . '</dl>';
 	}
 
 	/*
@@ -927,40 +927,40 @@ class UI {
 		$segments = 20;
 		$filled   = (int) round( $score / ( 100 / $segments ) );
 		?>
-		<section class="pfa-verdict pfa-verdict--<?php echo esc_attr( $args['tier'] ); ?>" aria-labelledby="pfa-verdict-title">
-			<div class="pfa-verdict__main">
-				<div class="pfa-verdict__score">
-					<p class="pfa-verdict__figure">
+		<section class="cutover-audit-verdict cutover-audit-verdict--<?php echo esc_attr( $args['tier'] ); ?>" aria-labelledby="cutover-audit-verdict-title">
+			<div class="cutover-audit-verdict__main">
+				<div class="cutover-audit-verdict__score">
+					<p class="cutover-audit-verdict__figure">
 						<?php if ( $scored ) : ?>
-							<span class="pfa-verdict__number"><?php echo esc_html( number_format_i18n( $score ) ); ?></span><span class="pfa-verdict__unit">%</span>
+							<span class="cutover-audit-verdict__number"><?php echo esc_html( number_format_i18n( $score ) ); ?></span><span class="cutover-audit-verdict__unit">%</span>
 						<?php else : ?>
-							<span class="pfa-verdict__number pfa-verdict__number--empty">—</span>
+							<span class="cutover-audit-verdict__number cutover-audit-verdict__number--empty">—</span>
 						<?php endif; ?>
 					</p>
-					<p class="pfa-verdict__caption"><?php esc_html_e( 'passing', 'preflight-audit' ); ?></p>
+					<p class="cutover-audit-verdict__caption"><?php esc_html_e( 'passing', 'cutover-audit' ); ?></p>
 
 					<div
-						class="pfa-ruler"
+						class="cutover-audit-ruler"
 						role="meter"
 						aria-valuemin="0"
 						aria-valuemax="100"
 						aria-valuenow="<?php echo esc_attr( (string) $score ); ?>"
-						aria-label="<?php esc_attr_e( 'Score', 'preflight-audit' ); ?>"
-						<?php echo $scored ? '' : 'aria-valuetext="' . esc_attr__( 'Not scanned yet', 'preflight-audit' ) . '"'; ?>
+						aria-label="<?php esc_attr_e( 'Score', 'cutover-audit' ); ?>"
+						<?php echo $scored ? '' : 'aria-valuetext="' . esc_attr__( 'Not scanned yet', 'cutover-audit' ) . '"'; ?>
 					>
 						<?php for ( $i = 0; $i < $segments; $i++ ) : ?>
-							<span class="pfa-ruler__seg<?php echo ( $i < $filled ) ? ' is-on' : ''; ?>" style="--i:<?php echo esc_attr( (string) $i ); ?>"></span>
+							<span class="cutover-audit-ruler__seg<?php echo ( $i < $filled ) ? ' is-on' : ''; ?>" style="--i:<?php echo esc_attr( (string) $i ); ?>"></span>
 						<?php endfor; ?>
 					</div>
-					<p class="pfa-ruler__scale" aria-hidden="true"><span>0</span><span>50</span><span>100</span></p>
+					<p class="cutover-audit-ruler__scale" aria-hidden="true"><span>0</span><span>50</span><span>100</span></p>
 				</div>
 
-				<div class="pfa-verdict__body">
-					<h2 class="pfa-verdict__headline" id="pfa-verdict-title"><?php echo esc_html( $args['headline'] ); ?></h2>
-					<p class="pfa-verdict__summary"><?php echo esc_html( $args['summary'] ); ?></p>
+				<div class="cutover-audit-verdict__body">
+					<h2 class="cutover-audit-verdict__headline" id="cutover-audit-verdict-title"><?php echo esc_html( $args['headline'] ); ?></h2>
+					<p class="cutover-audit-verdict__summary"><?php echo esc_html( $args['summary'] ); ?></p>
 
 					<?php if ( ! empty( $args['actions'] ) ) : ?>
-						<div class="pfa-verdict__actions">
+						<div class="cutover-audit-verdict__actions">
 							<?php
 							foreach ( $args['actions'] as $action ) {
 								echo self::get_action_button( array_merge( $action, array( 'small' => false ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
@@ -970,7 +970,7 @@ class UI {
 					<?php endif; ?>
 
 					<?php if ( '' !== $args['meta'] ) : ?>
-						<p class="pfa-verdict__meta"><?php echo esc_html( $args['meta'] ); ?></p>
+						<p class="cutover-audit-verdict__meta"><?php echo esc_html( $args['meta'] ); ?></p>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -981,19 +981,19 @@ class UI {
 			// this screen exists to give.
 			if ( ! empty( $args['tiers'] ) ) :
 				?>
-				<ul class="pfa-verdict__tiers" aria-label="<?php esc_attr_e( 'Outstanding work', 'preflight-audit' ); ?>">
+				<ul class="cutover-audit-verdict__tiers" aria-label="<?php esc_attr_e( 'Outstanding work', 'cutover-audit' ); ?>">
 					<?php foreach ( $args['tiers'] as $fact ) : ?>
 						<?php
 						$empty = ( '' === $fact['url'] );
 						$tag   = $empty ? 'span' : 'a';
 						?>
-						<li class="pfa-verdict__tier pfa-verdict__tier--<?php echo esc_attr( $fact['tier'] ); ?><?php echo $empty ? ' is-empty' : ''; ?>">
-							<<?php echo esc_html( $tag ); ?> class="pfa-verdict__tierlink" title="<?php echo esc_attr( $fact['summary'] ); ?>"<?php echo $empty ? '' : ' href="' . esc_url( $fact['url'] ) . '"'; ?>>
+						<li class="cutover-audit-verdict__tier cutover-audit-verdict__tier--<?php echo esc_attr( $fact['tier'] ); ?><?php echo $empty ? ' is-empty' : ''; ?>">
+							<<?php echo esc_html( $tag ); ?> class="cutover-audit-verdict__tierlink" title="<?php echo esc_attr( $fact['summary'] ); ?>"<?php echo $empty ? '' : ' href="' . esc_url( $fact['url'] ) . '"'; ?>>
 								<?php echo self::get_mark( $fact['tier'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-								<span class="pfa-verdict__tierlabel"><?php echo esc_html( $fact['label'] ); ?></span>
-								<span class="pfa-verdict__tiercount"><?php echo esc_html( $fact['value'] ); ?></span>
+								<span class="cutover-audit-verdict__tierlabel"><?php echo esc_html( $fact['label'] ); ?></span>
+								<span class="cutover-audit-verdict__tiercount"><?php echo esc_html( $fact['value'] ); ?></span>
 								<?php if ( ! $empty ) : ?>
-									<?php echo self::get_icon( 'arrow-right', array( 'class' => 'pfa-icon pfa-icon--xs pfa-verdict__tierarrow' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+									<?php echo self::get_icon( 'arrow-right', array( 'class' => 'cutover-audit-icon cutover-audit-icon--xs cutover-audit-verdict__tierarrow' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 								<?php endif; ?>
 							</<?php echo esc_html( $tag ); ?>>
 						</li>
@@ -1028,16 +1028,16 @@ class UI {
 			)
 		);
 
-		$heading_id = self::next_id( 'pfa-card' );
+		$heading_id = self::next_id( 'cutover-audit-card' );
 		?>
-		<section class="<?php echo esc_attr( trim( 'pfa-card ' . $args['modifier'] ) ); ?>" aria-labelledby="<?php echo esc_attr( $heading_id ); ?>">
-			<header class="pfa-card__head">
-				<h2 class="pfa-card__title" id="<?php echo esc_attr( $heading_id ); ?>"><?php echo esc_html( $args['title'] ); ?></h2>
+		<section class="<?php echo esc_attr( trim( 'cutover-audit-card ' . $args['modifier'] ) ); ?>" aria-labelledby="<?php echo esc_attr( $heading_id ); ?>">
+			<header class="cutover-audit-card__head">
+				<h2 class="cutover-audit-card__title" id="<?php echo esc_attr( $heading_id ); ?>"><?php echo esc_html( $args['title'] ); ?></h2>
 				<?php if ( '' !== $args['aside'] ) : ?>
-					<div class="pfa-card__aside"><?php echo $args['aside']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the caller. ?></div>
+					<div class="cutover-audit-card__aside"><?php echo $args['aside']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the caller. ?></div>
 				<?php endif; ?>
 			</header>
-			<div class="pfa-card__body<?php echo $args['flush'] ? ' pfa-card__body--flush' : ''; ?>">
+			<div class="cutover-audit-card__body<?php echo $args['flush'] ? ' cutover-audit-card__body--flush' : ''; ?>">
 		<?php
 	}
 
@@ -1061,12 +1061,12 @@ class UI {
 			return;
 		}
 		?>
-		<ol class="pfa-steps">
+		<ol class="cutover-audit-steps">
 			<?php foreach ( $steps as $position => $step ) : ?>
-				<li class="pfa-step">
-					<span class="pfa-step__rank" aria-hidden="true"><?php echo esc_html( sprintf( '%02d', $position + 1 ) ); ?></span>
-					<strong class="pfa-step__title"><?php echo esc_html( $step['title'] ); ?></strong>
-					<span class="pfa-step__body"><?php echo esc_html( $step['body'] ); ?></span>
+				<li class="cutover-audit-step">
+					<span class="cutover-audit-step__rank" aria-hidden="true"><?php echo esc_html( sprintf( '%02d', $position + 1 ) ); ?></span>
+					<strong class="cutover-audit-step__title"><?php echo esc_html( $step['title'] ); ?></strong>
+					<span class="cutover-audit-step__body"><?php echo esc_html( $step['body'] ); ?></span>
 				</li>
 			<?php endforeach; ?>
 		</ol>
@@ -1080,10 +1080,10 @@ class UI {
 	 */
 	public static function get_buckets() {
 		return array(
-			'blocked' => array( __( 'Needs work', 'preflight-audit' ), 'bad', 'not-compatible' ),
-			'review'  => array( __( 'Review', 'preflight-audit' ), 'warn', 'review' ),
-			'pending' => array( __( 'Not scanned', 'preflight-audit' ), 'pending', 'pending' ),
-			'ready'   => array( __( 'Passing', 'preflight-audit' ), 'ok', 'compatible' ),
+			'blocked' => array( __( 'Needs work', 'cutover-audit' ), 'bad', 'not-compatible' ),
+			'review'  => array( __( 'Review', 'cutover-audit' ), 'warn', 'review' ),
+			'pending' => array( __( 'Not scanned', 'cutover-audit' ), 'pending', 'pending' ),
+			'ready'   => array( __( 'Passing', 'cutover-audit' ), 'ok', 'compatible' ),
 		);
 	}
 
@@ -1102,7 +1102,7 @@ class UI {
 	public static function render_manifest( array $areas ) {
 		$buckets = self::get_buckets();
 		?>
-		<div class="pfa-manifest">
+		<div class="cutover-audit-manifest">
 			<?php foreach ( $areas as $area ) : ?>
 				<?php
 				$counts    = $area['counts'];
@@ -1116,22 +1116,22 @@ class UI {
 					}
 				}
 				?>
-				<div class="pfa-manifest__row">
-					<div class="pfa-manifest__name">
-						<?php echo self::get_icon( $area['icon'], array( 'class' => 'pfa-icon pfa-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+				<div class="cutover-audit-manifest__row">
+					<div class="cutover-audit-manifest__name">
+						<?php echo self::get_icon( $area['icon'], array( 'class' => 'cutover-audit-icon cutover-audit-icon--sm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 						<a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $area['label'] ); ?></a>
-						<span class="pfa-manifest__total"><?php echo esc_html( number_format_i18n( (int) $counts['total'] ) ); ?></span>
+						<span class="cutover-audit-manifest__total"><?php echo esc_html( number_format_i18n( (int) $counts['total'] ) ); ?></span>
 					</div>
 
-					<div class="pfa-manifest__cells">
+					<div class="cutover-audit-manifest__cells">
 						<?php if ( empty( $area['items'] ) ) : ?>
-							<span class="pfa-manifest__none"><?php esc_html_e( 'Nothing here', 'preflight-audit' ); ?></span>
+							<span class="cutover-audit-manifest__none"><?php esc_html_e( 'Nothing here', 'cutover-audit' ); ?></span>
 						<?php else : ?>
 							<span class="screen-reader-text"><?php echo esc_html( implode( ', ', $sentence ) ); ?></span>
-							<span class="pfa-cells" aria-hidden="true">
+							<span class="cutover-audit-cells" aria-hidden="true">
 								<?php foreach ( $area['items'] as $position => $item ) : ?>
 									<span
-										class="pfa-cell pfa-cell--<?php echo esc_attr( $buckets[ $item['bucket'] ][1] ?? 'pending' ); ?>"
+										class="cutover-audit-cell cutover-audit-cell--<?php echo esc_attr( $buckets[ $item['bucket'] ][1] ?? 'pending' ); ?>"
 										title="<?php echo esc_attr( $item['name'] . ' — ' . ( $buckets[ $item['bucket'] ][0] ?? '' ) ); ?>"
 										style="--i:<?php echo esc_attr( (string) min( $position, 60 ) ); ?>"
 									></span>
@@ -1140,7 +1140,7 @@ class UI {
 						<?php endif; ?>
 					</div>
 
-					<ul class="pfa-manifest__counts">
+					<ul class="cutover-audit-manifest__counts">
 						<?php foreach ( $buckets as $bucket => $definition ) : ?>
 							<?php
 							if ( empty( $counts[ $bucket ] ) || 'ready' === $bucket ) {
@@ -1149,22 +1149,22 @@ class UI {
 							?>
 							<li>
 								<a href="<?php echo esc_url( add_query_arg( 'status', $definition[2], $url ) ); ?>">
-									<span class="pfa-dot pfa-dot--<?php echo esc_attr( $definition[1] ); ?>" aria-hidden="true"></span>
-									<span class="pfa-manifest__num"><?php echo esc_html( number_format_i18n( (int) $counts[ $bucket ] ) ); ?></span>
+									<span class="cutover-audit-dot cutover-audit-dot--<?php echo esc_attr( $definition[1] ); ?>" aria-hidden="true"></span>
+									<span class="cutover-audit-manifest__num"><?php echo esc_html( number_format_i18n( (int) $counts[ $bucket ] ) ); ?></span>
 									<?php echo esc_html( strtolower( $definition[0] ) ); ?>
 								</a>
 							</li>
 						<?php endforeach; ?>
 					</ul>
 
-					<div class="pfa-manifest__action">
+					<div class="cutover-audit-manifest__action">
 						<?php // Nothing when there is work: the area name and the counts already open the screen. ?>
 						<?php if ( 0 === $attention && (int) $counts['total'] > 0 && (int) $counts['pending'] === (int) $counts['total'] ) : ?>
-							<span class="pfa-manifest__clear is-pending"><?php esc_html_e( 'Awaiting a scan', 'preflight-audit' ); ?></span>
+							<span class="cutover-audit-manifest__clear is-pending"><?php esc_html_e( 'Awaiting a scan', 'cutover-audit' ); ?></span>
 						<?php elseif ( 0 === $attention ) : ?>
-							<span class="pfa-manifest__clear">
-								<?php echo self::get_icon( 'check', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-								<?php esc_html_e( 'Clear', 'preflight-audit' ); ?>
+							<span class="cutover-audit-manifest__clear">
+								<?php echo self::get_icon( 'check', array( 'class' => 'cutover-audit-icon cutover-audit-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+								<?php esc_html_e( 'Clear', 'cutover-audit' ); ?>
 							</span>
 						<?php endif; ?>
 					</div>
@@ -1184,13 +1184,13 @@ class UI {
 
 		foreach ( self::get_buckets() as $definition ) {
 			$items .= sprintf(
-				'<li><span class="pfa-cell pfa-cell--%1$s"></span>%2$s</li>',
+				'<li><span class="cutover-audit-cell cutover-audit-cell--%1$s"></span>%2$s</li>',
 				esc_attr( $definition[1] ),
 				esc_html( $definition[0] )
 			);
 		}
 
-		return '<ul class="pfa-legend" aria-hidden="true">' . $items . '</ul>';
+		return '<ul class="cutover-audit-legend" aria-hidden="true">' . $items . '</ul>';
 	}
 
 	/**
@@ -1223,7 +1223,7 @@ class UI {
 		$last = explode( ',', end( $points ) );
 
 		return sprintf(
-			'<svg class="pfa-spark" viewBox="0 0 %1$d %2$d" width="%1$d" height="%2$d" role="img" aria-label="%3$s" preserveAspectRatio="none"><line class="pfa-spark__base" x1="0" y1="%4$s" x2="%1$d" y2="%4$s"/><polyline class="pfa-spark__line" points="%5$s"/><circle class="pfa-spark__dot" cx="%6$s" cy="%7$s" r="3"/></svg>',
+			'<svg class="cutover-audit-spark" viewBox="0 0 %1$d %2$d" width="%1$d" height="%2$d" role="img" aria-label="%3$s" preserveAspectRatio="none"><line class="cutover-audit-spark__base" x1="0" y1="%4$s" x2="%1$d" y2="%4$s"/><polyline class="cutover-audit-spark__line" points="%5$s"/><circle class="cutover-audit-spark__dot" cx="%6$s" cy="%7$s" r="3"/></svg>',
 			(int) $width,
 			(int) $height,
 			esc_attr( $label ),
@@ -1265,21 +1265,21 @@ class UI {
 			$args,
 			array(
 				'groups'        => array(),
-				'search_label'  => __( 'Search results', 'preflight-audit' ),
-				'placeholder'   => __( 'Search…', 'preflight-audit' ),
+				'search_label'  => __( 'Search results', 'cutover-audit' ),
+				'placeholder'   => __( 'Search…', 'cutover-audit' ),
 				'show_search'   => true,
 				'show_progress' => false,
 				'actions'       => '',
 			)
 		);
 
-		$search_id = self::next_id( 'pfa-search' );
+		$search_id = self::next_id( 'cutover-audit-search' );
 		?>
-		<div class="pfa-toolbar">
-			<div class="pfa-toolbar__filters">
+		<div class="cutover-audit-toolbar">
+			<div class="cutover-audit-toolbar__filters">
 				<?php foreach ( $args['groups'] as $group ) : ?>
 					<div
-						class="pfa-segmented"
+						class="cutover-audit-segmented"
 						role="group"
 						data-filter-group="<?php echo esc_attr( $group['name'] ); ?>"
 						aria-label="<?php echo esc_attr( $group['label'] ); ?>"
@@ -1293,33 +1293,33 @@ class UI {
 								aria-pressed="<?php echo $is_active ? 'true' : 'false'; ?>"
 							>
 								<?php if ( ! empty( $option['dot'] ) ) : ?>
-									<span class="pfa-dot pfa-dot--<?php echo esc_attr( $option['dot'] ); ?>" aria-hidden="true"></span>
+									<span class="cutover-audit-dot cutover-audit-dot--<?php echo esc_attr( $option['dot'] ); ?>" aria-hidden="true"></span>
 								<?php endif; ?>
 								<span><?php echo esc_html( $option['label'] ); ?></span>
-								<span class="pfa-segmented__count" data-count="<?php echo esc_attr( $option['value'] ); ?>"></span>
+								<span class="cutover-audit-segmented__count" data-count="<?php echo esc_attr( $option['value'] ); ?>"></span>
 							</button>
 						<?php endforeach; ?>
 					</div>
 				<?php endforeach; ?>
 			</div>
 
-			<div class="pfa-toolbar__tools">
-				<p class="pfa-result-count" data-role="result-count" role="status" aria-live="polite"></p>
+			<div class="cutover-audit-toolbar__tools">
+				<p class="cutover-audit-result-count" data-role="result-count" role="status" aria-live="polite"></p>
 
 				<?php if ( $args['show_search'] ) : ?>
-					<div class="pfa-search">
-						<?php echo self::get_icon( 'search', array( 'class' => 'pfa-icon pfa-icon--sm pfa-search__icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+					<div class="cutover-audit-search">
+						<?php echo self::get_icon( 'search', array( 'class' => 'cutover-audit-icon cutover-audit-icon--sm cutover-audit-search__icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 						<label class="screen-reader-text" for="<?php echo esc_attr( $search_id ); ?>"><?php echo esc_html( $args['search_label'] ); ?></label>
 						<input
 							type="search"
 							id="<?php echo esc_attr( $search_id ); ?>"
-							class="pfa-search__input"
+							class="cutover-audit-search__input"
 							data-role="table-search"
 							placeholder="<?php echo esc_attr( $args['placeholder'] ); ?>"
 							autocomplete="off"
 							spellcheck="false"
 						/>
-						<kbd class="pfa-search__key" aria-hidden="true">/</kbd>
+						<kbd class="cutover-audit-search__key" aria-hidden="true">/</kbd>
 					</div>
 				<?php endif; ?>
 
@@ -1328,13 +1328,13 @@ class UI {
 		</div>
 
 		<?php if ( $args['show_progress'] ) : ?>
-			<div class="pfa-scan" data-role="scan" hidden>
-				<div class="pfa-scan__head">
-					<span class="pfa-spinner" aria-hidden="true"></span>
-					<span class="pfa-scan__label" data-role="scan-label" role="status" aria-live="polite"></span>
+			<div class="cutover-audit-scan" data-role="scan" hidden>
+				<div class="cutover-audit-scan__head">
+					<span class="cutover-audit-spinner" aria-hidden="true"></span>
+					<span class="cutover-audit-scan__label" data-role="scan-label" role="status" aria-live="polite"></span>
 				</div>
-				<div class="pfa-scan__track">
-					<div class="pfa-scan__bar" data-role="scan-bar" style="width:0%"></div>
+				<div class="cutover-audit-scan__track">
+					<div class="cutover-audit-scan__bar" data-role="scan-bar" style="width:0%"></div>
 				</div>
 			</div>
 			<?php
@@ -1352,7 +1352,7 @@ class UI {
 		echo '<thead><tr>';
 
 		foreach ( $columns as $index => $column ) {
-			$classes = array( 'pfa-th' );
+			$classes = array( 'cutover-audit-th' );
 
 			if ( ! empty( $column['class'] ) ) {
 				$classes[] = $column['class'];
@@ -1373,12 +1373,12 @@ class UI {
 			);
 
 			if ( '' === ( $column['label'] ?? '' ) ) {
-				echo '<span class="screen-reader-text">' . esc_html__( 'Details', 'preflight-audit' ) . '</span>';
+				echo '<span class="screen-reader-text">' . esc_html__( 'Details', 'cutover-audit' ) . '</span>';
 			} elseif ( $sortable ) {
 				printf(
-					'<button type="button" class="pfa-th__sort"><span>%1$s</span>%2$s</button>',
+					'<button type="button" class="cutover-audit-th__sort"><span>%1$s</span>%2$s</button>',
 					esc_html( $column['label'] ),
-					self::get_icon( 'sort', array( 'class' => 'pfa-icon pfa-icon--xs pfa-th__icon' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+					self::get_icon( 'sort', array( 'class' => 'cutover-audit-icon cutover-audit-icon--xs cutover-audit-th__icon' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
 				);
 			} else {
 				echo '<span>' . esc_html( $column['label'] ) . '</span>';
@@ -1396,7 +1396,7 @@ class UI {
 	 * @param string $prefix An identifier prefix.
 	 * @return string The id.
 	 */
-	public static function next_id( $prefix = 'pfa' ) {
+	public static function next_id( $prefix = 'cutover-audit' ) {
 		++self::$sequence;
 
 		return $prefix . '-' . self::$sequence;
@@ -1411,10 +1411,10 @@ class UI {
 	 */
 	public static function get_row_toggle( $target_id, $label ) {
 		return sprintf(
-			'<td class="pfa-col-toggle"><button type="button" class="pfa-rowtoggle" data-role="row-toggle" aria-expanded="false" aria-controls="%1$s"><span class="screen-reader-text">%2$s</span>%3$s</button></td>',
+			'<td class="cutover-audit-col-toggle"><button type="button" class="cutover-audit-rowtoggle" data-role="row-toggle" aria-expanded="false" aria-controls="%1$s"><span class="screen-reader-text">%2$s</span>%3$s</button></td>',
 			esc_attr( $target_id ),
 			esc_html( $label ),
-			self::get_icon( 'chevron', array( 'class' => 'pfa-icon pfa-icon--xs' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+			self::get_icon( 'chevron', array( 'class' => 'cutover-audit-icon cutover-audit-icon--xs' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
 		);
 	}
 
@@ -1438,7 +1438,7 @@ class UI {
 	public static function get_status_pill( $state, $label ) {
 		if ( 'pending' === $state ) {
 			return sprintf(
-				'<span class="pfa-status pfa-status--pending"><span class="pfa-spinner pfa-spinner--xs" aria-hidden="true"></span><span>%s</span></span>',
+				'<span class="cutover-audit-status cutover-audit-status--pending"><span class="cutover-audit-spinner cutover-audit-spinner--xs" aria-hidden="true"></span><span>%s</span></span>',
 				esc_html( $label )
 			);
 		}
@@ -1450,7 +1450,7 @@ class UI {
 		);
 
 		return sprintf(
-			'<span class="pfa-status pfa-status--%1$s"><span class="pfa-status__glyph" aria-hidden="true"></span><span>%2$s</span></span>',
+			'<span class="cutover-audit-status cutover-audit-status--%1$s"><span class="cutover-audit-status__glyph" aria-hidden="true"></span><span>%2$s</span></span>',
 			esc_attr( $modifiers[ $state ] ?? 'warn' ),
 			esc_html( $label )
 		);
@@ -1472,10 +1472,10 @@ class UI {
 		}
 
 		return sprintf(
-			'<td class="pfa-col-status is-%1$s"%2$s data-label="%3$s">%4$s</td>',
+			'<td class="cutover-audit-col-status is-%1$s"%2$s data-label="%3$s">%4$s</td>',
 			esc_attr( $state ),
 			$attr_string,
-			esc_attr__( 'Verdict', 'preflight-audit' ),
+			esc_attr__( 'Verdict', 'cutover-audit' ),
 			self::get_status_pill( $state, $label )
 		);
 	}
@@ -1517,7 +1517,7 @@ class UI {
 
 			$title = sprintf(
 				/* translators: 1: Number of findings. 2: Tier label, e.g. "must fix". */
-				_n( '%1$s finding: %2$s', '%1$s findings: %2$s', $count, 'preflight-audit' ),
+				_n( '%1$s finding: %2$s', '%1$s findings: %2$s', $count, 'cutover-audit' ),
 				number_format_i18n( $count ),
 				strtolower( self::get_tier_label( $tier ) )
 			);
@@ -1530,16 +1530,16 @@ class UI {
 			);
 
 			$parts .= ( '' === $target_key )
-				? sprintf( '<span class="pfa-sev" title="%1$s">%2$s</span>', esc_attr( $title ), $body )
+				? sprintf( '<span class="cutover-audit-sev" title="%1$s">%2$s</span>', esc_attr( $title ), $body )
 				: sprintf(
-					'<a class="pfa-sev" href="%1$s" title="%2$s">%3$s</a>',
+					'<a class="cutover-audit-sev" href="%1$s" title="%2$s">%3$s</a>',
 					esc_url( self::get_findings_url( $target_key, $tier ) ),
 					esc_attr( $title ),
 					$body
 				);
 		}
 
-		return ( '' === $parts ) ? '' : '<span class="pfa-sevbar">' . $parts . '</span>';
+		return ( '' === $parts ) ? '' : '<span class="cutover-audit-sevbar">' . $parts . '</span>';
 	}
 
 	/**
@@ -1562,13 +1562,13 @@ class UI {
 		if ( Scanner::STATUS_BLOCKED === ( $verdict['status'] ?? '' ) ) {
 			$label = sprintf(
 				/* translators: %d: Number of findings. */
-				_n( 'Fix %d finding', 'Fix %d findings', $total, 'preflight-audit' ),
+				_n( 'Fix %d finding', 'Fix %d findings', $total, 'cutover-audit' ),
 				$total
 			);
 		} else {
 			$label = sprintf(
 				/* translators: %d: Number of findings. */
-				_n( 'Review %d finding', 'Review %d findings', $total, 'preflight-audit' ),
+				_n( 'Review %d finding', 'Review %d findings', $total, 'cutover-audit' ),
 				$total
 			);
 		}
@@ -1591,10 +1591,10 @@ class UI {
 		);
 
 		if ( empty( $parts ) ) {
-			return '<span class="pfa-dash" aria-hidden="true">—</span>';
+			return '<span class="cutover-audit-dash" aria-hidden="true">—</span>';
 		}
 
-		return '<ul class="pfa-notes"><li>' . implode( '</li><li>', $parts ) . '</li></ul>';
+		return '<ul class="cutover-audit-notes"><li>' . implode( '</li><li>', $parts ) . '</li></ul>';
 	}
 
 	/**
@@ -1605,7 +1605,7 @@ class UI {
 	 */
 	public static function get_tier_pill( $tier ) {
 		return sprintf(
-			'<span class="pfa-tier pfa-tier--%1$s">%2$s%3$s</span>',
+			'<span class="cutover-audit-tier cutover-audit-tier--%1$s">%2$s%3$s</span>',
 			esc_attr( $tier ),
 			self::get_mark( $tier ),
 			esc_html( self::get_tier_label( $tier ) )
@@ -1622,7 +1622,7 @@ class UI {
 	 */
 	public static function get_badge( $label, $tone = 'neutral', $title = '' ) {
 		return sprintf(
-			'<span class="pfa-badge pfa-badge--%1$s"%3$s>%2$s</span>',
+			'<span class="cutover-audit-badge cutover-audit-badge--%1$s"%3$s>%2$s</span>',
 			esc_attr( $tone ),
 			esc_html( $label ),
 			'' === $title ? '' : ' title="' . esc_attr( $title ) . '"'
@@ -1638,10 +1638,10 @@ class UI {
 	public static function render_tier_heading( $tier ) {
 		$tiers = self::get_tiers();
 		?>
-		<h2 class="pfa-tierhead pfa-tierhead--<?php echo esc_attr( $tier ); ?>">
+		<h2 class="cutover-audit-tierhead cutover-audit-tierhead--<?php echo esc_attr( $tier ); ?>">
 			<?php echo self::get_mark( $tier ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
-			<span class="pfa-tierhead__label"><?php echo esc_html( $tiers[ $tier ]['label'] ?? $tier ); ?></span>
-			<span class="pfa-tierhead__summary"><?php echo esc_html( $tiers[ $tier ]['summary'] ?? '' ); ?></span>
+			<span class="cutover-audit-tierhead__label"><?php echo esc_html( $tiers[ $tier ]['label'] ?? $tier ); ?></span>
+			<span class="cutover-audit-tierhead__summary"><?php echo esc_html( $tiers[ $tier ]['summary'] ?? '' ); ?></span>
 		</h2>
 		<?php
 	}
@@ -1659,34 +1659,34 @@ class UI {
 	public static function render_task_card( array $action ) {
 		$tier = $action['tier'];
 		?>
-		<div class="pfa-fix pfa-fix--task pfa-fix--<?php echo esc_attr( $tier ); ?>" data-tier="<?php echo esc_attr( $tier ); ?>">
-			<div class="pfa-fix__summary">
-				<span class="pfa-fix__mark"><?php echo self::get_mark( $tier, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?></span>
+		<div class="cutover-audit-fix cutover-audit-fix--task cutover-audit-fix--<?php echo esc_attr( $tier ); ?>" data-tier="<?php echo esc_attr( $tier ); ?>">
+			<div class="cutover-audit-fix__summary">
+				<span class="cutover-audit-fix__mark"><?php echo self::get_mark( $tier, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?></span>
 
-				<span class="pfa-fix__main">
-					<strong class="pfa-fix__title"><?php echo esc_html( $action['title'] ); ?></strong>
+				<span class="cutover-audit-fix__main">
+					<strong class="cutover-audit-fix__title"><?php echo esc_html( $action['title'] ); ?></strong>
 
-					<span class="pfa-fix__where">
+					<span class="cutover-audit-fix__where">
 						<?php if ( ! empty( $action['source'] ) ) : ?>
-							<span class="pfa-fix__target"><?php echo esc_html( $action['source'] ); ?></span>
+							<span class="cutover-audit-fix__target"><?php echo esc_html( $action['source'] ); ?></span>
 						<?php endif; ?>
-						<span class="pfa-fix__places" title="<?php esc_attr_e( 'Found by auditing the site rather than by reading code, so there is no file and line to show.', 'preflight-audit' ); ?>">
-							<?php esc_html_e( 'Site audit', 'preflight-audit' ); ?>
+						<span class="cutover-audit-fix__places" title="<?php esc_attr_e( 'Found by auditing the site rather than by reading code, so there is no file and line to show.', 'cutover-audit' ); ?>">
+							<?php esc_html_e( 'Site audit', 'cutover-audit' ); ?>
 						</span>
 					</span>
 
-					<span class="pfa-fix__lead">
-						<span class="pfa-fix__lead-text">
-							<span class="screen-reader-text"><?php esc_html_e( 'Why:', 'preflight-audit' ); ?></span>
+					<span class="cutover-audit-fix__lead">
+						<span class="cutover-audit-fix__lead-text">
+							<span class="screen-reader-text"><?php esc_html_e( 'Why:', 'cutover-audit' ); ?></span>
 							<?php echo esc_html( $action['detail'] ); ?>
 						</span>
 					</span>
 				</span>
 
-				<span class="pfa-fix__aside">
-					<a class="pfa-btn pfa-btn--ghost pfa-btn--sm" href="<?php echo esc_url( $action['url'] ); ?>">
+				<span class="cutover-audit-fix__aside">
+					<a class="cutover-audit-btn cutover-audit-btn--ghost cutover-audit-btn--sm" href="<?php echo esc_url( $action['url'] ); ?>">
 						<span><?php echo esc_html( $action['action'] ); ?></span>
-						<?php echo self::get_icon( 'arrow-right', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<?php echo self::get_icon( 'arrow-right', array( 'class' => 'cutover-audit-icon cutover-audit-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 					</a>
 				</span>
 			</div>
@@ -1712,29 +1712,29 @@ class UI {
 		$count       = count( $occurrences );
 		$effort      = Taxonomy::get_fixability_short( $group['fixability'] );
 		?>
-		<details class="pfa-fix pfa-fix--<?php echo esc_attr( $tier ); ?>"
+		<details class="cutover-audit-fix cutover-audit-fix--<?php echo esc_attr( $tier ); ?>"
 			data-tier="<?php echo esc_attr( $tier ); ?>"
 			data-severity="<?php echo esc_attr( $group['severity'] ); ?>"
 			data-type="<?php echo esc_attr( $group['type'] ); ?>"
 			data-category="<?php echo esc_attr( $group['category'] ); ?>"
 			data-target="<?php echo esc_attr( $group['target_key'] ); ?>">
 
-			<summary class="pfa-fix__summary">
-				<span class="pfa-fix__mark"><?php echo self::get_mark( $tier, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?></span>
+			<summary class="cutover-audit-fix__summary">
+				<span class="cutover-audit-fix__mark"><?php echo self::get_mark( $tier, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?></span>
 
-				<span class="pfa-fix__main">
-					<strong class="pfa-fix__title"><?php echo esc_html( $group['title'] ); ?></strong>
+				<span class="cutover-audit-fix__main">
+					<strong class="cutover-audit-fix__title"><?php echo esc_html( $group['title'] ); ?></strong>
 
-					<span class="pfa-fix__where">
-						<span class="pfa-fix__target"><?php echo esc_html( $group['target_label'] ); ?></span>
-						<span class="pfa-fix__places">
+					<span class="cutover-audit-fix__where">
+						<span class="cutover-audit-fix__target"><?php echo esc_html( $group['target_label'] ); ?></span>
+						<span class="cutover-audit-fix__places">
 							<?php if ( 1 === $count ) : ?>
 								<code><?php echo esc_html( $occurrences[0]['file'] . ':' . $occurrences[0]['line'] ); ?></code>
 							<?php else : ?>
 								<?php
 								printf(
 									/* translators: %d: Number of places in the code. */
-									esc_html( _n( '%d place', '%d places', $count, 'preflight-audit' ) ),
+									esc_html( _n( '%d place', '%d places', $count, 'cutover-audit' ) ),
 									(int) $count
 								);
 								?>
@@ -1742,69 +1742,69 @@ class UI {
 						</span>
 					</span>
 
-					<span class="pfa-fix__lead">
-						<?php echo self::get_icon( 'arrow-right', array( 'class' => 'pfa-icon pfa-icon--xs pfa-fix__lead-icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-						<span class="pfa-fix__lead-text">
-							<span class="screen-reader-text"><?php esc_html_e( 'Fix:', 'preflight-audit' ); ?></span>
+					<span class="cutover-audit-fix__lead">
+						<?php echo self::get_icon( 'arrow-right', array( 'class' => 'cutover-audit-icon cutover-audit-icon--xs cutover-audit-fix__lead-icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<span class="cutover-audit-fix__lead-text">
+							<span class="screen-reader-text"><?php esc_html_e( 'Fix:', 'cutover-audit' ); ?></span>
 							<?php echo esc_html( $group['remediation'] ); ?>
 						</span>
 					</span>
 				</span>
 
-				<span class="pfa-fix__aside">
+				<span class="cutover-audit-fix__aside">
 					<?php if ( '' !== $effort ) : ?>
-						<span class="pfa-fix__effort" title="<?php echo esc_attr( $fixes[ $group['fixability'] ]['description'] ?? '' ); ?>"><?php echo esc_html( $effort ); ?></span>
+						<span class="cutover-audit-fix__effort" title="<?php echo esc_attr( $fixes[ $group['fixability'] ]['description'] ?? '' ); ?>"><?php echo esc_html( $effort ); ?></span>
 					<?php endif; ?>
-					<?php echo self::get_icon( 'chevron-down', array( 'class' => 'pfa-icon pfa-icon--xs pfa-fix__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+					<?php echo self::get_icon( 'chevron-down', array( 'class' => 'cutover-audit-icon cutover-audit-icon--xs cutover-audit-fix__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 				</span>
 			</summary>
 
-			<div class="pfa-fix__body">
-				<dl class="pfa-fix__answer">
+			<div class="cutover-audit-fix__body">
+				<dl class="cutover-audit-fix__answer">
 					<div>
-						<dt><?php esc_html_e( 'Why it matters on WordPress VIP', 'preflight-audit' ); ?></dt>
+						<dt><?php esc_html_e( 'Why it matters on WordPress VIP', 'cutover-audit' ); ?></dt>
 						<dd><?php echo esc_html( $group['why'] ); ?></dd>
 					</div>
 
 					<?php if ( '' !== $group['alternative'] ) : ?>
 						<div>
-							<dt><?php esc_html_e( 'Another way to do it', 'preflight-audit' ); ?></dt>
+							<dt><?php esc_html_e( 'Another way to do it', 'cutover-audit' ); ?></dt>
 							<dd><?php echo esc_html( $group['alternative'] ); ?></dd>
 						</div>
 					<?php endif; ?>
 				</dl>
 
-				<div class="pfa-occurrences">
-					<h3 class="pfa-occurrences__title">
+				<div class="cutover-audit-occurrences">
+					<h3 class="cutover-audit-occurrences__title">
 						<?php
 						printf(
 							/* translators: %d: Number of occurrences. */
-							esc_html( _n( '%d location', '%d locations', $count, 'preflight-audit' ) ),
+							esc_html( _n( '%d location', '%d locations', $count, 'cutover-audit' ) ),
 							(int) $count
 						);
 						?>
 					</h3>
 
-					<ol class="pfa-occurrences__list">
+					<ol class="cutover-audit-occurrences__list">
 						<?php foreach ( $occurrences as $occurrence ) : ?>
-							<li class="pfa-occurrence">
-								<p class="pfa-occurrence__where">
-									<code class="pfa-occurrence__file"><?php echo esc_html( $occurrence['file'] ); ?></code>
-									<span class="pfa-occurrence__line">
+							<li class="cutover-audit-occurrence">
+								<p class="cutover-audit-occurrence__where">
+									<code class="cutover-audit-occurrence__file"><?php echo esc_html( $occurrence['file'] ); ?></code>
+									<span class="cutover-audit-occurrence__line">
 										<?php
 										printf(
 											/* translators: %d: Line number. */
-											esc_html__( 'line %d', 'preflight-audit' ),
+											esc_html__( 'line %d', 'cutover-audit' ),
 											(int) $occurrence['line']
 										);
 										?>
 									</span>
 									<?php if ( '' !== $occurrence['scope'] ) : ?>
-										<span class="pfa-occurrence__scope">
+										<span class="cutover-audit-occurrence__scope">
 											<?php
 											printf(
 												/* translators: %s: Function or method name. */
-												esc_html__( 'in %s()', 'preflight-audit' ),
+												esc_html__( 'in %s()', 'cutover-audit' ),
 												esc_html( $occurrence['scope'] )
 											);
 											?>
@@ -1813,31 +1813,31 @@ class UI {
 								</p>
 
 								<?php if ( '' !== $occurrence['evidence'] ) : ?>
-									<div class="pfa-codewrap">
-										<pre class="pfa-code"><span class="pfa-code__gutter" aria-hidden="true"><?php echo esc_html( (string) (int) $occurrence['line'] ); ?></span><code><?php echo esc_html( $occurrence['evidence'] ); ?></code></pre>
-										<button type="button" class="pfa-code__copy" data-role="copy" data-clipboard="<?php echo esc_attr( $occurrence['evidence'] ); ?>" aria-label="<?php esc_attr_e( 'Copy to clipboard', 'preflight-audit' ); ?>" title="<?php esc_attr_e( 'Copy to clipboard', 'preflight-audit' ); ?>"><?php echo self::get_icon( 'copy', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?></button>
+									<div class="cutover-audit-codewrap">
+										<pre class="cutover-audit-code"><span class="cutover-audit-code__gutter" aria-hidden="true"><?php echo esc_html( (string) (int) $occurrence['line'] ); ?></span><code><?php echo esc_html( $occurrence['evidence'] ); ?></code></pre>
+										<button type="button" class="cutover-audit-code__copy" data-role="copy" data-clipboard="<?php echo esc_attr( $occurrence['evidence'] ); ?>" aria-label="<?php esc_attr_e( 'Copy to clipboard', 'cutover-audit' ); ?>" title="<?php esc_attr_e( 'Copy to clipboard', 'cutover-audit' ); ?>"><?php echo self::get_icon( 'copy', array( 'class' => 'cutover-audit-icon cutover-audit-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?></button>
 									</div>
 								<?php endif; ?>
 
 								<?php if ( '' !== $occurrence['note'] ) : ?>
-									<p class="pfa-occurrence__note"><?php echo esc_html( $occurrence['note'] ); ?></p>
+									<p class="cutover-audit-occurrence__note"><?php echo esc_html( $occurrence['note'] ); ?></p>
 								<?php endif; ?>
 							</li>
 						<?php endforeach; ?>
 					</ol>
 				</div>
 
-				<?php // The rule id stays: it is what a `pfa:ignore` annotation needs. ?>
-				<div class="pfa-fix__foot">
-					<p class="pfa-fix__rule">
-						<span class="pfa-fix__rule-label"><?php esc_html_e( 'Rule', 'preflight-audit' ); ?></span>
+				<?php // The rule id stays: it is what a `cutover-audit:ignore` annotation needs. ?>
+				<div class="cutover-audit-fix__foot">
+					<p class="cutover-audit-fix__rule">
+						<span class="cutover-audit-fix__rule-label"><?php esc_html_e( 'Rule', 'cutover-audit' ); ?></span>
 						<?php echo self::get_code_snippet( $group['rule'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
 						<?php if ( ! empty( $group['also_matched'] ) ) : ?>
-							<span class="pfa-fix__also">
+							<span class="cutover-audit-fix__also">
 								<?php
 								printf(
 									/* translators: %s: Comma-separated list of rule identifiers. */
-									esc_html__( 'Also matched: %s', 'preflight-audit' ),
+									esc_html__( 'Also matched: %s', 'cutover-audit' ),
 									esc_html( implode( ', ', $group['also_matched'] ) )
 								);
 								?>
@@ -1846,10 +1846,10 @@ class UI {
 					</p>
 
 					<?php if ( '' !== $group['doc'] ) : ?>
-						<a class="pfa-link pfa-fix__doc" href="<?php echo esc_url( $group['doc'] ); ?>" target="_blank" rel="noopener noreferrer">
-							<span><?php esc_html_e( 'WordPress VIP documentation', 'preflight-audit' ); ?></span>
-							<?php echo self::get_icon( 'external', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-							<span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'preflight-audit' ); ?></span>
+						<a class="cutover-audit-link cutover-audit-fix__doc" href="<?php echo esc_url( $group['doc'] ); ?>" target="_blank" rel="noopener noreferrer">
+							<span><?php esc_html_e( 'WordPress VIP documentation', 'cutover-audit' ); ?></span>
+							<?php echo self::get_icon( 'external', array( 'class' => 'cutover-audit-icon cutover-audit-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+							<span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'cutover-audit' ); ?></span>
 						</a>
 					<?php endif; ?>
 				</div>
@@ -1873,12 +1873,12 @@ class UI {
 	 */
 	public static function get_code_snippet( $code, $block = false ) {
 		return sprintf(
-			'<span class="pfa-snippet%5$s"><code>%1$s</code><button type="button" class="pfa-snippet__copy" data-role="copy" data-clipboard="%2$s" aria-label="%3$s" title="%3$s">%4$s</button></span>',
+			'<span class="cutover-audit-snippet%5$s"><code>%1$s</code><button type="button" class="cutover-audit-snippet__copy" data-role="copy" data-clipboard="%2$s" aria-label="%3$s" title="%3$s">%4$s</button></span>',
 			esc_html( $code ),
 			esc_attr( $code ),
-			esc_attr__( 'Copy to clipboard', 'preflight-audit' ),
-			self::get_icon( 'copy', array( 'class' => 'pfa-icon pfa-icon--xs' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
-			$block ? ' pfa-snippet--block' : ''
+			esc_attr__( 'Copy to clipboard', 'cutover-audit' ),
+			self::get_icon( 'copy', array( 'class' => 'cutover-audit-icon cutover-audit-icon--xs' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+			$block ? ' cutover-audit-snippet--block' : ''
 		);
 	}
 
@@ -1901,10 +1901,10 @@ class UI {
 		$role = in_array( $type, array( 'success', 'error' ), true ) ? ' role="status"' : '';
 
 		return sprintf(
-			'<div class="pfa-notice pfa-notice--%1$s"%5$s>%2$s<div class="pfa-notice__body">%3$s%4$s</div></div>',
+			'<div class="cutover-audit-notice cutover-audit-notice--%1$s"%5$s>%2$s<div class="cutover-audit-notice__body">%3$s%4$s</div></div>',
 			esc_attr( $type ),
-			self::get_icon( $icons[ $type ] ?? 'info', array( 'class' => 'pfa-icon pfa-icon--sm pfa-notice__icon' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
-			$title ? '<strong class="pfa-notice__title">' . esc_html( $title ) . '</strong> ' : '',
+			self::get_icon( $icons[ $type ] ?? 'info', array( 'class' => 'cutover-audit-icon cutover-audit-icon--sm cutover-audit-notice__icon' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup.
+			$title ? '<strong class="cutover-audit-notice__title">' . esc_html( $title ) . '</strong> ' : '',
 			wp_kses_post( $message ),
 			$role
 		);
@@ -1920,16 +1920,16 @@ class UI {
 	 */
 	public static function render_empty_state( $title, $message = '', $action = array() ) {
 		?>
-		<div class="pfa-empty">
-			<span class="pfa-empty__icon" aria-hidden="true">
+		<div class="cutover-audit-empty">
+			<span class="cutover-audit-empty__icon" aria-hidden="true">
 				<?php echo self::get_icon( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 			</span>
-			<p class="pfa-empty__title"><?php echo esc_html( $title ); ?></p>
+			<p class="cutover-audit-empty__title"><?php echo esc_html( $title ); ?></p>
 			<?php if ( $message ) : ?>
-				<p class="pfa-empty__message"><?php echo esc_html( $message ); ?></p>
+				<p class="cutover-audit-empty__message"><?php echo esc_html( $message ); ?></p>
 			<?php endif; ?>
 			<?php if ( ! empty( $action ) ) : ?>
-				<p class="pfa-empty__action">
+				<p class="cutover-audit-empty__action">
 					<?php echo self::get_action_button( array_merge( $action, array( 'small' => false ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
 				</p>
 			<?php endif; ?>

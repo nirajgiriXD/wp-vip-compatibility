@@ -2,12 +2,12 @@
 /**
  * This file contains the class and methods to register and enqueue the required scripts and styles.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Includes\Classes;
+namespace CUTOVER_AUDIT\Includes\Classes;
 
-use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
+use CUTOVER_AUDIT\Includes\Traits\Singleton;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -53,7 +53,7 @@ class Assets {
 			return $classes;
 		}
 
-		return $classes . ' pfa-screen';
+		return $classes . ' cutover-audit-screen';
 	}
 
 	/**
@@ -70,8 +70,8 @@ class Assets {
 		$slug  = UI::get_screens()['overview']['slug'];
 		$color = $this->get_menu_group_color();
 		?>
-		<style id="pfa-menu-styles">
-			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .pfa-menu-group {
+		<style id="cutover-audit-menu-styles">
+			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .cutover-audit-menu-group {
 				display: block;
 				margin: 10px -13px 3px;
 				padding: 8px 13px 0;
@@ -87,7 +87,7 @@ class Assets {
 				opacity: 0.55;
 			}
 
-			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .pfa-menu-group--first {
+			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .cutover-audit-menu-group--first {
 				margin-top: 2px;
 				padding-top: 0;
 				border-top: 0;
@@ -98,8 +98,8 @@ class Assets {
 			 * box-shadow) would run down the heading too. Redraw it as a
 			 * background sized to the item's own line plus its bottom padding.
 			 */
-			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .wp-submenu a:has(.pfa-menu-group):hover,
-			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .wp-submenu a:has(.pfa-menu-group):focus {
+			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .wp-submenu a:has(.cutover-audit-menu-group):hover,
+			#toplevel_page_<?php echo sanitize_html_class( $slug ); ?> .wp-submenu a:has(.cutover-audit-menu-group):focus {
 				box-shadow: none;
 				background: linear-gradient(currentColor, currentColor) left bottom / 4px calc(1.4em + 5px) no-repeat;
 			}
@@ -170,70 +170,70 @@ class Assets {
 		}
 
 		// Enqueue custom style.
-		if ( file_exists( PREFLIGHT_AUDIT_DIR . '/assets/css/admin.css' ) ) {
+		if ( file_exists( CUTOVER_AUDIT_DIR . '/assets/css/admin.css' ) ) {
 			wp_register_style(
-				'preflight-audit-admin-styles',
-				PREFLIGHT_AUDIT_URL . 'assets/css/admin.css',
+				'cutover-audit-admin-styles',
+				CUTOVER_AUDIT_URL . 'assets/css/admin.css',
 				array(),
-				filemtime( PREFLIGHT_AUDIT_DIR . '/assets/css/admin.css' )
+				filemtime( CUTOVER_AUDIT_DIR . '/assets/css/admin.css' )
 			);
-			wp_enqueue_style( 'preflight-audit-admin-styles' );
+			wp_enqueue_style( 'cutover-audit-admin-styles' );
 		}
 
 		// Enqueue custom script. The overview used to also load a 200 KB charting
 		// library to draw five doughnuts of three numbers each; those numbers are
 		// rendered server-side now, as proportion bars, so nothing is fetched.
-		if ( file_exists( PREFLIGHT_AUDIT_DIR . '/assets/js/admin.js' ) ) {
+		if ( file_exists( CUTOVER_AUDIT_DIR . '/assets/js/admin.js' ) ) {
 			wp_register_script(
-				'preflight-audit-admin-script',
-				PREFLIGHT_AUDIT_URL . 'assets/js/admin.js',
+				'cutover-audit-admin-script',
+				CUTOVER_AUDIT_URL . 'assets/js/admin.js',
 				array( 'jquery' ),
-				filemtime( PREFLIGHT_AUDIT_DIR . '/assets/js/admin.js' ),
+				filemtime( CUTOVER_AUDIT_DIR . '/assets/js/admin.js' ),
 				true
 			);
-			wp_enqueue_script( 'preflight-audit-admin-script' );
+			wp_enqueue_script( 'cutover-audit-admin-script' );
 
 			wp_localize_script(
-				'preflight-audit-admin-script',
-				'_PREFLIGHT_AUDIT_',
+				'cutover-audit-admin-script',
+				'_CUTOVER_AUDIT_',
 				array(
 					'ajax_url' => admin_url( 'admin-ajax.php' ),
-					'nonce'    => wp_create_nonce( 'preflight_audit_ajax_nonce' ),
+					'nonce'    => wp_create_nonce( 'cutover_audit_ajax_nonce' ),
 					'i18n'     => array(
-						'checking'        => esc_html__( 'Scanning…', 'preflight-audit' ),
-						'error'           => esc_html__( 'Scan failed', 'preflight-audit' ),
+						'checking'        => esc_html__( 'Scanning…', 'cutover-audit' ),
+						'error'           => esc_html__( 'Scan failed', 'cutover-audit' ),
 
 						/* translators: 1: Number of completed checks. 2: Total number of checks. */
-						'scanning'        => esc_html__( 'Scanning %1$s of %2$s…', 'preflight-audit' ),
+						'scanning'        => esc_html__( 'Scanning %1$s of %2$s…', 'cutover-audit' ),
 						/* translators: %s: Number of findings. */
-						'findingCount'    => esc_html__( '%s findings', 'preflight-audit' ),
+						'findingCount'    => esc_html__( '%s findings', 'cutover-audit' ),
 
 						/* translators: 1: Number of visible rows. 2: Total number of rows. */
-						'showingFiltered' => esc_html__( 'Showing %1$s of %2$s', 'preflight-audit' ),
+						'showingFiltered' => esc_html__( 'Showing %1$s of %2$s', 'cutover-audit' ),
 						/* translators: %s: Total number of rows. */
-						'showingAll'      => esc_html__( 'Showing all %s', 'preflight-audit' ),
-						'noResults'       => esc_html__( 'No matching results', 'preflight-audit' ),
-						'noResultsHint'   => esc_html__( 'Try a different search term, or widen the filters above.', 'preflight-audit' ),
+						'showingAll'      => esc_html__( 'Showing all %s', 'cutover-audit' ),
+						'noResults'       => esc_html__( 'No matching results', 'cutover-audit' ),
+						'noResultsHint'   => esc_html__( 'Try a different search term, or widen the filters above.', 'cutover-audit' ),
 
-						'confirmTitle'    => esc_html__( 'Rescan everything?', 'preflight-audit' ),
-						'confirmBody'     => esc_html__( 'This re-reads every plugin, theme and must-use plugin, and rechecks the database and wp-content. It can take a while on a large site, and the current results are replaced when it finishes.', 'preflight-audit' ),
-						'confirmAction'   => esc_html__( 'Rescan everything', 'preflight-audit' ),
-						'cancel'          => esc_html__( 'Cancel', 'preflight-audit' ),
+						'confirmTitle'    => esc_html__( 'Rescan everything?', 'cutover-audit' ),
+						'confirmBody'     => esc_html__( 'This re-reads every plugin, theme and must-use plugin, and rechecks the database and wp-content. It can take a while on a large site, and the current results are replaced when it finishes.', 'cutover-audit' ),
+						'confirmAction'   => esc_html__( 'Rescan everything', 'cutover-audit' ),
+						'cancel'          => esc_html__( 'Cancel', 'cutover-audit' ),
 
-						'pager'           => esc_html__( 'Table pages', 'preflight-audit' ),
-						'previous'        => esc_html__( 'Previous', 'preflight-audit' ),
-						'next'            => esc_html__( 'Next', 'preflight-audit' ),
+						'pager'           => esc_html__( 'Table pages', 'cutover-audit' ),
+						'previous'        => esc_html__( 'Previous', 'cutover-audit' ),
+						'next'            => esc_html__( 'Next', 'cutover-audit' ),
 						/* translators: 1: First row shown. 2: Last row shown. 3: Number of matching rows. */
-						'pageRange'       => esc_html__( '%1$s–%2$s of %3$s', 'preflight-audit' ),
+						'pageRange'       => esc_html__( '%1$s–%2$s of %3$s', 'cutover-audit' ),
 						/* translators: 1: Current page. 2: Number of pages. */
-						'pageOf'          => esc_html__( 'Page %1$s of %2$s', 'preflight-audit' ),
+						'pageOf'          => esc_html__( 'Page %1$s of %2$s', 'cutover-audit' ),
 
-						'copy'            => esc_html__( 'Copy to clipboard', 'preflight-audit' ),
-						'copied'          => esc_html__( 'Copied', 'preflight-audit' ),
-						'copyFailed'      => esc_html__( 'Press Ctrl+C to copy', 'preflight-audit' ),
+						'copy'            => esc_html__( 'Copy to clipboard', 'cutover-audit' ),
+						'copied'          => esc_html__( 'Copied', 'cutover-audit' ),
+						'copyFailed'      => esc_html__( 'Press Ctrl+C to copy', 'cutover-audit' ),
 
-						'expandAll'       => esc_html__( 'Expand all', 'preflight-audit' ),
-						'collapseAll'     => esc_html__( 'Collapse all', 'preflight-audit' ),
+						'expandAll'       => esc_html__( 'Expand all', 'cutover-audit' ),
+						'collapseAll'     => esc_html__( 'Collapse all', 'cutover-audit' ),
 					),
 				)
 			);

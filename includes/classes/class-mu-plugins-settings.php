@@ -11,13 +11,13 @@
  * auto-loads files at the root of mu-plugins — a directory sitting there is
  * usually loaded by one of those files, or not loaded at all.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Includes\Classes;
+namespace CUTOVER_AUDIT\Includes\Classes;
 
-use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
-use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
+use CUTOVER_AUDIT\Includes\Traits\Singleton;
+use CUTOVER_AUDIT\Includes\Scanner\Targets;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -43,7 +43,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 	 * @return string The label.
 	 */
 	protected function get_search_label() {
-		return __( 'Search must-use plugins', 'preflight-audit' );
+		return __( 'Search must-use plugins', 'cutover-audit' );
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 	 * @return string The title.
 	 */
 	protected function get_table_title() {
-		return __( 'Everything in wp-content/mu-plugins', 'preflight-audit' );
+		return __( 'Everything in wp-content/mu-plugins', 'cutover-audit' );
 	}
 
 	/**
@@ -62,8 +62,8 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 	 */
 	protected function get_empty_state() {
 		return array(
-			__( 'No must-use plugins', 'preflight-audit' ),
-			__( 'wp-content/mu-plugins is empty, which is exactly what the WordPress VIP Platform expects.', 'preflight-audit' ),
+			__( 'No must-use plugins', 'cutover-audit' ),
+			__( 'wp-content/mu-plugins is empty, which is exactly what the WordPress VIP Platform expects.', 'cutover-audit' ),
 		);
 	}
 
@@ -81,12 +81,12 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 			wp_kses_post(
 				sprintf(
 					/* translators: %s: Link to the WordPress VIP documentation. */
-					__( 'On the WordPress VIP Platform, <code>wp-content/mu-plugins</code> holds platform code and is overwritten on every deploy. Everything listed here belongs in <code>client-mu-plugins/</code> instead — except the plugins WordPress VIP preinstalls, which should simply be dropped. %s', 'preflight-audit' ),
-					'<a href="https://docs.wpvip.com/vip-go-mu-plugins/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'How WordPress VIP loads must-use code', 'preflight-audit' ) . '</a>'
+					__( 'On the WordPress VIP Platform, <code>wp-content/mu-plugins</code> holds platform code and is overwritten on every deploy. Everything listed here belongs in <code>client-mu-plugins/</code> instead — except the plugins WordPress VIP preinstalls, which should simply be dropped. %s', 'cutover-audit' ),
+					'<a href="https://docs.wpvip.com/vip-go-mu-plugins/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'How WordPress VIP loads must-use code', 'cutover-audit' ) . '</a>'
 				)
 			),
 			'warning',
-			esc_html__( 'None of this ships as-is', 'preflight-audit' )
+			esc_html__( 'None of this ships as-is', 'cutover-audit' )
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
@@ -98,9 +98,9 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 	 */
 	protected function get_guidance_notes() {
 		return array(
-			__( '<strong>Files and directories are listed separately.</strong> WordPress only auto-loads PHP files sitting at the root of mu-plugins. A directory here is either loaded by one of those files or not loaded at all — worth confirming before you move it.', 'preflight-audit' ),
-			__( '<strong>"Do not ship" is not a code verdict.</strong> It marks entries WordPress VIP already provides, or that a previous host installed. Copying them into client-mu-plugins/ duplicates platform behaviour rather than preserving it.', 'preflight-audit' ),
-			__( '<strong>Load order changes.</strong> Files in client-mu-plugins/ load alphabetically after the platform\'s own must-use plugins, so code that assumed it ran first may need an explicit hook priority.', 'preflight-audit' ),
+			__( '<strong>Files and directories are listed separately.</strong> WordPress only auto-loads PHP files sitting at the root of mu-plugins. A directory here is either loaded by one of those files or not loaded at all — worth confirming before you move it.', 'cutover-audit' ),
+			__( '<strong>"Do not ship" is not a code verdict.</strong> It marks entries WordPress VIP already provides, or that a previous host installed. Copying them into client-mu-plugins/ duplicates platform behaviour rather than preserving it.', 'cutover-audit' ),
+			__( '<strong>Load order changes.</strong> Files in client-mu-plugins/ load alphabetically after the platform\'s own must-use plugins, so code that assumed it ran first may need an explicit hook priority.', 'cutover-audit' ),
 		);
 	}
 
@@ -112,32 +112,32 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 	protected function get_columns() {
 		return array(
 			array(
-				'label'    => __( 'Entry', 'preflight-audit' ),
-				'class'    => 'pfa-col-name',
+				'label'    => __( 'Entry', 'cutover-audit' ),
+				'class'    => 'cutover-audit-col-name',
 				'sortable' => true,
 			),
 			array(
-				'label'    => __( 'Kind', 'preflight-audit' ),
-				'class'    => 'pfa-col-state',
+				'label'    => __( 'Kind', 'cutover-audit' ),
+				'class'    => 'cutover-audit-col-state',
 				'sortable' => true,
 			),
 			array(
-				'label' => __( 'Version', 'preflight-audit' ),
-				'class' => 'pfa-col-version',
+				'label' => __( 'Version', 'cutover-audit' ),
+				'class' => 'cutover-audit-col-version',
 			),
 			array(
-				'label'    => __( 'Verdict', 'preflight-audit' ),
-				'class'    => 'pfa-col-status',
+				'label'    => __( 'Verdict', 'cutover-audit' ),
+				'class'    => 'cutover-audit-col-status',
 				'sortable' => true,
 			),
 			array(
-				'label' => __( 'Findings', 'preflight-audit' ),
-				'class' => 'pfa-col-findings',
-				'hint'  => __( 'Findings grouped by what to do about them: must fix, should fix, worth checking, FYI.', 'preflight-audit' ),
+				'label' => __( 'Findings', 'cutover-audit' ),
+				'class' => 'cutover-audit-col-findings',
+				'hint'  => __( 'Findings grouped by what to do about them: must fix, should fix, worth checking, FYI.', 'cutover-audit' ),
 			),
 			array(
-				'label' => __( 'What to do', 'preflight-audit' ),
-				'class' => 'pfa-col-notes',
+				'label' => __( 'What to do', 'cutover-audit' ),
+				'class' => 'cutover-audit-col-notes',
 			),
 		);
 	}
@@ -157,20 +157,20 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 		return array(
 			array(
 				'name'    => 'kind',
-				'label'   => __( 'Filter by kind', 'preflight-audit' ),
+				'label'   => __( 'Filter by kind', 'cutover-audit' ),
 				'active'  => in_array( $kind, array( 'file', 'directory' ), true ) ? $kind : 'all',
 				'options' => array(
 					array(
 						'value' => 'all',
-						'label' => __( 'Everything', 'preflight-audit' ),
+						'label' => __( 'Everything', 'cutover-audit' ),
 					),
 					array(
 						'value' => 'file',
-						'label' => __( 'Loaded files', 'preflight-audit' ),
+						'label' => __( 'Loaded files', 'cutover-audit' ),
 					),
 					array(
 						'value' => 'directory',
-						'label' => __( 'Directories', 'preflight-audit' ),
+						'label' => __( 'Directories', 'cutover-audit' ),
 					),
 				),
 			),
@@ -203,14 +203,14 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 
 		$this->render_name_cell( $target, array(), 'wp-content/mu-plugins/' . $target['file'] );
 
-		echo '<td class="pfa-col-state" data-label="' . esc_attr__( 'Kind', 'preflight-audit' ) . '">';
+		echo '<td class="cutover-audit-col-state" data-label="' . esc_attr__( 'Kind', 'cutover-audit' ) . '">';
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		echo UI::get_badge(
-			$is_file ? __( 'File', 'preflight-audit' ) : __( 'Directory', 'preflight-audit' ),
+			$is_file ? __( 'File', 'cutover-audit' ) : __( 'Directory', 'cutover-audit' ),
 			$is_file ? 'accent' : 'neutral',
 			$is_file
-				? __( 'WordPress auto-loads this file on every request.', 'preflight-audit' )
-				: __( 'Not auto-loaded. Something else has to require it, or nothing does.', 'preflight-audit' )
+				? __( 'WordPress auto-loads this file on every request.', 'cutover-audit' )
+				: __( 'Not auto-loaded. Something else has to require it, or nothing does.', 'cutover-audit' )
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</td>';
@@ -240,7 +240,7 @@ class Mu_Plugins_Settings extends Inventory_Screen {
 		$parts = array(
 			is_array( $known )
 				? $this->get_known_note( $known['note'] ?? '', $known['doc'] ?? '' )
-				: esc_html__( 'Move it into client-mu-plugins/ in the WordPress VIP repository.', 'preflight-audit' ),
+				: esc_html__( 'Move it into client-mu-plugins/ in the WordPress VIP repository.', 'cutover-audit' ),
 			UI::get_findings_link( $target['key'], $verdict ),
 		);
 

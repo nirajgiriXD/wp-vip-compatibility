@@ -2,18 +2,18 @@
 /**
  * Tests for result persistence.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Scanner;
+namespace CUTOVER_AUDIT\Tests\Scanner;
 
-use PREFLIGHT_AUDIT\Includes\Scanner\Results_Store;
-use PREFLIGHT_AUDIT\Includes\Scanner\Rules;
-use PREFLIGHT_AUDIT\Tests\Support\WP;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
+use CUTOVER_AUDIT\Includes\Scanner\Rules;
+use CUTOVER_AUDIT\Tests\Support\WP;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
- * @covers \PREFLIGHT_AUDIT\Includes\Scanner\Results_Store
+ * @covers \CUTOVER_AUDIT\Includes\Scanner\Results_Store
  */
 class ResultsStoreTest extends TestCase {
 

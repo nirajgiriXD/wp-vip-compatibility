@@ -2,24 +2,24 @@
 /**
  * Tests for aggregation, verdicts and exports.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Scanner;
+namespace CUTOVER_AUDIT\Tests\Scanner;
 
-use PREFLIGHT_AUDIT\Includes\Scanner\Database_Audit;
-use PREFLIGHT_AUDIT\Includes\Scanner\Report;
-use PREFLIGHT_AUDIT\Includes\Scanner\Results_Store;
-use PREFLIGHT_AUDIT\Includes\Scanner\Rules;
-use PREFLIGHT_AUDIT\Includes\Scanner\Scanner;
-use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
-use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
-use PREFLIGHT_AUDIT\Tests\Support\Sandbox;
-use PREFLIGHT_AUDIT\Tests\Support\WP;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Scanner\Database_Audit;
+use CUTOVER_AUDIT\Includes\Scanner\Report;
+use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
+use CUTOVER_AUDIT\Includes\Scanner\Rules;
+use CUTOVER_AUDIT\Includes\Scanner\Scanner;
+use CUTOVER_AUDIT\Includes\Scanner\Targets;
+use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
+use CUTOVER_AUDIT\Tests\Support\Sandbox;
+use CUTOVER_AUDIT\Tests\Support\WP;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
- * @covers \PREFLIGHT_AUDIT\Includes\Scanner\Report
+ * @covers \CUTOVER_AUDIT\Includes\Scanner\Report
  */
 class ReportTest extends TestCase {
 
@@ -589,8 +589,8 @@ class ReportTest extends TestCase {
 		$payload = Report::to_array();
 
 		$this->assertSame( Report::SCHEMA_VERSION, $payload['schema'] );
-		$this->assertSame( 'preflight-audit', $payload['generator'] );
-		$this->assertSame( PREFLIGHT_AUDIT_VERSION, $payload['plugin_version'] );
+		$this->assertSame( 'cutover-audit', $payload['generator'] );
+		$this->assertSame( CUTOVER_AUDIT_VERSION, $payload['plugin_version'] );
 		$this->assertSame( Rules::VERSION, $payload['rules_version'] );
 		$this->assertSame( 'https://example.test', $payload['site']['url'] );
 		$this->assertFalse( $payload['site']['multisite'] );

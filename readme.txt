@@ -1,4 +1,4 @@
-=== Preflight Audit ===
+=== Cutover Audit ===
 Contributors: nirajgirixd, mi5t4n
 Tags: coding standards, compatibility, code analysis, code review, phpcs
 Requires at least: 6.0
@@ -34,7 +34,7 @@ That is the scanner's reasoning: it drives the ranking and is in every export. W
 
 = What every finding tells you =
 
-The issue title, what was detected, why it matters on the WordPress VIP Platform specifically, the file, line and function, the line of code as evidence, the recommended fix, an alternative approach where one exists, a link to the WordPress VIP documentation the rule came from, and the rule id for a `pfa:ignore` annotation. Exports also carry the severity, confidence and matching WordPress-VIP-Go PHPCS sniff.
+The issue title, what was detected, why it matters on the WordPress VIP Platform specifically, the file, line and function, the line of code as evidence, the recommended fix, an alternative approach where one exists, a link to the WordPress VIP documentation the rule came from, and the rule id for a `cutover-audit:ignore` annotation. Exports also carry the severity, confidence and matching WordPress-VIP-Go PHPCS sniff.
 
 = What gets checked =
 
@@ -55,7 +55,7 @@ The admin menu carries a count of what must be fixed, so the work is visible fro
 
 = Accuracy =
 
-Results are only as good as their false-positive rate, so the scanner resolves local variable assignments before judging a path, reads `fopen()` modes before calling a read a write, checks whether a query is cached before calling it uncached, and recognises that an admin-only response is not part of the edge cache. Where it still cannot be sure, it lowers the confidence and says why. Findings can be acknowledged in the source with a `// pfa:ignore <rule-id> -- reason` annotation.
+Results are only as good as their false-positive rate, so the scanner resolves local variable assignments before judging a path, reads `fopen()` modes before calling a read a write, checks whether a query is cached before calling it uncached, and recognises that an admin-only response is not part of the edge cache. Where it still cannot be sure, it lowers the confidence and says why. Findings can be acknowledged in the source with a `// cutover-audit:ignore <rule-id> -- reason` annotation.
 
 The plugin holds itself to the same standard: its own source passes `phpcs --standard=WordPress-VIP-Go`.
 
@@ -73,7 +73,7 @@ Not affiliated with or endorsed by Automattic, WordPress VIP, or the WordPress F
 
 == Usage ==
 
-Open **Preflight Audit** in the admin menu and run a scan from the header. Results are stored, so screens load without re-analysing the codebase. A plugin or theme updated through WordPress, and everything after a rule-set update, is scanned again the next time its screen opens. Code changed any other way, such as a deploy or an edit over SFTP, needs a **Rescan**.
+Open **Cutover Audit** in the admin menu and run a scan from the header. Results are stored, so screens load without re-analysing the codebase. A plugin or theme updated through WordPress, and everything after a rule-set update, is scanned again the next time its screen opens. Code changed any other way, such as a deploy or an edit over SFTP, needs a **Rescan**.
 
 **Rescan** re-reads everything. The caret beside it narrows the rescan to one area — plugins, themes, must-use plugins, the database schema or wp-content — which is what you want after updating a single plugin or converting a few tables, and avoids re-tokenising a codebase that has not changed.
 
@@ -81,7 +81,7 @@ Choosing an area takes you straight to that screen and reads its rows one at a t
 
 **Overview** answers how the site measures up and what to do first. **Findings** is one ranked list of fixes, worst first, with the recommended change visible on every card. **Plugins**, **Themes** and **Must-use** give a per-target verdict, with each row expanding to the evidence behind it. **Database** and **wp-content** check the schema and the application structure against what WordPress VIP requires.
 
-Scan results are stored in the options table and are only readable by users who can `manage_options`, or on multisite by network administrators, since the code and the database are shared by every site. The `preflight_audit_capability` filter changes this. Results are removed when the plugin is uninstalled.
+Scan results are stored in the options table and are only readable by users who can `manage_options`, or on multisite by network administrators, since the code and the database are shared by every site. The `cutover_audit_capability` filter changes this. Results are removed when the plugin is uninstalled.
 
 == Frequently Asked Questions ==
 
@@ -99,11 +99,11 @@ Because it is not. `/wp-content/uploads/` is the one path under `wp-content` tha
 
 = Can I suppress a finding I have reviewed? =
 
-Yes. Add `// pfa:ignore <rule-id> -- your reason` to the line, or `// pfa:ignore-next-line <rule-id> -- your reason` above it. A reason is required. Security findings cannot be suppressed, so a plugin cannot hide its own shell calls or unescaped output.
+Yes. Add `// cutover-audit:ignore <rule-id> -- your reason` to the line, or `// cutover-audit:ignore-next-line <rule-id> -- your reason` above it. A reason is required. Security findings cannot be suppressed, so a plugin cannot hide its own shell calls or unescaped output.
 
 = Can I add or change rules? =
 
-Yes. Filter `preflight_audit_scanner_rules` to add, modify or remove rules, and `preflight_audit_scanner_excluded_directories` to change which directories are skipped.
+Yes. Filter `cutover_audit_scanner_rules` to add, modify or remove rules, and `cutover_audit_scanner_excluded_directories` to change which directories are skipped.
 
 = Does this replace WordPress VIP code review? =
 
@@ -119,7 +119,7 @@ No. It reads code without running it, so it cannot see behaviour that only appea
 * Ranks every finding as must fix, should fix, worth checking or FYI, and gives each plugin, theme, table and path a verdict.
 * An overview with a score, where to start and scan history; a findings list with filters and search; export to JSON, CSV or Markdown.
 * Rescans can be narrowed to one area: plugins, themes, must-use plugins, the database or wp-content.
-* Findings can be acknowledged in the source with a `pfa:ignore` annotation.
+* Findings can be acknowledged in the source with a `cutover-audit:ignore` annotation.
 
 == Screenshots ==
 

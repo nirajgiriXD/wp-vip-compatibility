@@ -16,10 +16,10 @@
  * them into a single "incompatible" flag is what produced the false positives
  * in the original implementation.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Includes\Scanner;
+namespace CUTOVER_AUDIT\Includes\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -95,43 +95,43 @@ class Taxonomy {
 	public static function get_types() {
 		return array(
 			self::TYPE_INCOMPATIBLE             => array(
-				'label'       => __( 'Incompatible', 'preflight-audit' ),
-				'description' => __( 'Likely to fail or behave unexpectedly on the WordPress VIP platform.', 'preflight-audit' ),
+				'label'       => __( 'Incompatible', 'cutover-audit' ),
+				'description' => __( 'Likely to fail or behave unexpectedly on the WordPress VIP platform.', 'cutover-audit' ),
 				'blocking'    => true,
 			),
 			self::TYPE_POTENTIALLY_INCOMPATIBLE => array(
-				'label'       => __( 'Potentially incompatible', 'preflight-audit' ),
-				'description' => __( 'Depends on runtime conditions static analysis cannot resolve. Needs a human check.', 'preflight-audit' ),
+				'label'       => __( 'Potentially incompatible', 'cutover-audit' ),
+				'description' => __( 'Depends on runtime conditions static analysis cannot resolve. Needs a human check.', 'cutover-audit' ),
 				'blocking'    => true,
 			),
 			self::TYPE_PERFORMANCE              => array(
-				'label'       => __( 'Performance concern', 'preflight-audit' ),
-				'description' => __( 'Works on WordPress VIP, but can create unacceptable performance characteristics at scale.', 'preflight-audit' ),
+				'label'       => __( 'Performance concern', 'cutover-audit' ),
+				'description' => __( 'Works on WordPress VIP, but can create unacceptable performance characteristics at scale.', 'cutover-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_SECURITY                 => array(
-				'label'       => __( 'Security concern', 'preflight-audit' ),
-				'description' => __( 'Flagged by the WordPress VIP code review process as a security risk.', 'preflight-audit' ),
+				'label'       => __( 'Security concern', 'cutover-audit' ),
+				'description' => __( 'Flagged by the WordPress VIP code review process as a security risk.', 'cutover-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_REDUNDANT                => array(
-				'label'       => __( 'Redundant on WordPress VIP', 'preflight-audit' ),
-				'description' => __( 'The platform already provides this capability; the local implementation can conflict with it.', 'preflight-audit' ),
+				'label'       => __( 'Redundant on WordPress VIP', 'cutover-audit' ),
+				'description' => __( 'The platform already provides this capability; the local implementation can conflict with it.', 'cutover-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_STANDARDS                => array(
-				'label'       => __( 'Coding-standard violation', 'preflight-audit' ),
-				'description' => __( 'Reported by the WordPress-VIP-Go PHPCS standard used in WordPress VIP code review.', 'preflight-audit' ),
+				'label'       => __( 'Coding-standard violation', 'cutover-audit' ),
+				'description' => __( 'Reported by the WordPress-VIP-Go PHPCS standard used in WordPress VIP code review.', 'cutover-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_RECOMMENDATION           => array(
-				'label'       => __( 'Recommendation', 'preflight-audit' ),
-				'description' => __( 'A small improvement worth considering.', 'preflight-audit' ),
+				'label'       => __( 'Recommendation', 'cutover-audit' ),
+				'description' => __( 'A small improvement worth considering.', 'cutover-audit' ),
 				'blocking'    => false,
 			),
 			self::TYPE_INFORMATIONAL            => array(
-				'label'       => __( 'Informational', 'preflight-audit' ),
-				'description' => __( 'Useful context. No action necessarily required.', 'preflight-audit' ),
+				'label'       => __( 'Informational', 'cutover-audit' ),
+				'description' => __( 'Useful context. No action necessarily required.', 'cutover-audit' ),
 				'blocking'    => false,
 			),
 		);
@@ -145,23 +145,23 @@ class Taxonomy {
 	public static function get_severities() {
 		return array(
 			self::SEVERITY_CRITICAL => array(
-				'label'  => __( 'Critical', 'preflight-audit' ),
+				'label'  => __( 'Critical', 'cutover-audit' ),
 				'weight' => 5,
 			),
 			self::SEVERITY_HIGH     => array(
-				'label'  => __( 'High', 'preflight-audit' ),
+				'label'  => __( 'High', 'cutover-audit' ),
 				'weight' => 4,
 			),
 			self::SEVERITY_MEDIUM   => array(
-				'label'  => __( 'Medium', 'preflight-audit' ),
+				'label'  => __( 'Medium', 'cutover-audit' ),
 				'weight' => 3,
 			),
 			self::SEVERITY_LOW      => array(
-				'label'  => __( 'Low', 'preflight-audit' ),
+				'label'  => __( 'Low', 'cutover-audit' ),
 				'weight' => 2,
 			),
 			self::SEVERITY_INFO     => array(
-				'label'  => __( 'Info', 'preflight-audit' ),
+				'label'  => __( 'Info', 'cutover-audit' ),
 				'weight' => 1,
 			),
 		);
@@ -175,23 +175,23 @@ class Taxonomy {
 	public static function get_tiers() {
 		return array(
 			self::TIER_BLOCKING  => array(
-				'label'      => __( 'Must fix', 'preflight-audit' ),
-				'summary'    => __( 'Likely to cause problems on the WordPress VIP platform. Best fixed first.', 'preflight-audit' ),
+				'label'      => __( 'Must fix', 'cutover-audit' ),
+				'summary'    => __( 'Likely to cause problems on the WordPress VIP platform. Best fixed first.', 'cutover-audit' ),
 				'severities' => array( self::SEVERITY_CRITICAL ),
 			),
 			self::TIER_IMPORTANT => array(
-				'label'      => __( 'Should fix', 'preflight-audit' ),
-				'summary'    => __( 'Unlikely to break anything, but worth fixing soon.', 'preflight-audit' ),
+				'label'      => __( 'Should fix', 'cutover-audit' ),
+				'summary'    => __( 'Unlikely to break anything, but worth fixing soon.', 'cutover-audit' ),
 				'severities' => array( self::SEVERITY_HIGH ),
 			),
 			self::TIER_WARNING   => array(
-				'label'      => __( 'Worth checking', 'preflight-audit' ),
-				'summary'    => __( 'A possible concern. Read it, decide, and move on.', 'preflight-audit' ),
+				'label'      => __( 'Worth checking', 'cutover-audit' ),
+				'summary'    => __( 'A possible concern. Read it, decide, and move on.', 'cutover-audit' ),
 				'severities' => array( self::SEVERITY_MEDIUM ),
 			),
 			self::TIER_INFO      => array(
-				'label'      => __( 'FYI', 'preflight-audit' ),
-				'summary'    => __( 'For context. No action needed.', 'preflight-audit' ),
+				'label'      => __( 'FYI', 'cutover-audit' ),
+				'summary'    => __( 'For context. No action needed.', 'cutover-audit' ),
 				'severities' => array( self::SEVERITY_LOW, self::SEVERITY_INFO ),
 			),
 		);
@@ -233,20 +233,20 @@ class Taxonomy {
 	public static function get_confidences() {
 		return array(
 			self::CONFIDENCE_DEFINITIVE => array(
-				'label'       => __( 'Definitive', 'preflight-audit' ),
-				'description' => __( 'The pattern itself is the problem; no further context can make it acceptable.', 'preflight-audit' ),
+				'label'       => __( 'Definitive', 'cutover-audit' ),
+				'description' => __( 'The pattern itself is the problem; no further context can make it acceptable.', 'cutover-audit' ),
 			),
 			self::CONFIDENCE_HIGH       => array(
-				'label'       => __( 'High', 'preflight-audit' ),
-				'description' => __( 'Surrounding code was analysed and supports the finding.', 'preflight-audit' ),
+				'label'       => __( 'High', 'cutover-audit' ),
+				'description' => __( 'Surrounding code was analysed and supports the finding.', 'cutover-audit' ),
 			),
 			self::CONFIDENCE_MEDIUM     => array(
-				'label'       => __( 'Medium', 'preflight-audit' ),
-				'description' => __( 'Heuristic match. Review the code before acting on it.', 'preflight-audit' ),
+				'label'       => __( 'Medium', 'cutover-audit' ),
+				'description' => __( 'Heuristic match. Review the code before acting on it.', 'cutover-audit' ),
 			),
 			self::CONFIDENCE_LOW        => array(
-				'label'       => __( 'Low', 'preflight-audit' ),
-				'description' => __( 'Weak signal, reported for completeness. Expect false positives.', 'preflight-audit' ),
+				'label'       => __( 'Low', 'cutover-audit' ),
+				'description' => __( 'Weak signal, reported for completeness. Expect false positives.', 'cutover-audit' ),
 			),
 		);
 	}
@@ -259,24 +259,24 @@ class Taxonomy {
 	public static function get_fixabilities() {
 		return array(
 			self::FIX_AUTOMATIC     => array(
-				'label'       => __( 'Automatically fixable', 'preflight-audit' ),
-				'short'       => __( 'Quick fix', 'preflight-audit' ),
-				'description' => __( 'A mechanical substitution resolves it.', 'preflight-audit' ),
+				'label'       => __( 'Automatically fixable', 'cutover-audit' ),
+				'short'       => __( 'Quick fix', 'cutover-audit' ),
+				'description' => __( 'A mechanical substitution resolves it.', 'cutover-audit' ),
 			),
 			self::FIX_MANUAL        => array(
-				'label'       => __( 'Manually fixable', 'preflight-audit' ),
-				'short'       => __( 'Code change', 'preflight-audit' ),
-				'description' => __( 'A developer must rewrite the affected code.', 'preflight-audit' ),
+				'label'       => __( 'Manually fixable', 'cutover-audit' ),
+				'short'       => __( 'Code change', 'cutover-audit' ),
+				'description' => __( 'A developer must rewrite the affected code.', 'cutover-audit' ),
 			),
 			self::FIX_CONFIGURATION => array(
-				'label'       => __( 'Configurable', 'preflight-audit' ),
-				'short'       => __( 'Config change', 'preflight-audit' ),
-				'description' => __( 'Resolved through configuration, a constant, or a filter rather than a code change.', 'preflight-audit' ),
+				'label'       => __( 'Configurable', 'cutover-audit' ),
+				'short'       => __( 'Config change', 'cutover-audit' ),
+				'description' => __( 'Resolved through configuration, a constant, or a filter rather than a code change.', 'cutover-audit' ),
 			),
 			self::FIX_ARCHITECTURAL => array(
-				'label'       => __( 'Requires architectural change', 'preflight-audit' ),
-				'short'       => __( 'Redesign', 'preflight-audit' ),
-				'description' => __( 'The feature has to be redesigned around the platform.', 'preflight-audit' ),
+				'label'       => __( 'Requires architectural change', 'cutover-audit' ),
+				'short'       => __( 'Redesign', 'cutover-audit' ),
+				'description' => __( 'The feature has to be redesigned around the platform.', 'cutover-audit' ),
 			),
 		);
 	}
@@ -304,16 +304,16 @@ class Taxonomy {
 	 */
 	public static function get_categories() {
 		return array(
-			'filesystem'  => __( 'Filesystem and media', 'preflight-audit' ),
-			'database'    => __( 'Database', 'preflight-audit' ),
-			'caching'     => __( 'Caching', 'preflight-audit' ),
-			'performance' => __( 'Performance', 'preflight-audit' ),
-			'security'    => __( 'Security', 'preflight-audit' ),
-			'cron'        => __( 'Cron and scheduling', 'preflight-audit' ),
-			'http'        => __( 'External requests', 'preflight-audit' ),
-			'environment' => __( 'Environment and configuration', 'preflight-audit' ),
-			'platform'    => __( 'Platform overlap', 'preflight-audit' ),
-			'standards'   => __( 'Coding standards', 'preflight-audit' ),
+			'filesystem'  => __( 'Filesystem and media', 'cutover-audit' ),
+			'database'    => __( 'Database', 'cutover-audit' ),
+			'caching'     => __( 'Caching', 'cutover-audit' ),
+			'performance' => __( 'Performance', 'cutover-audit' ),
+			'security'    => __( 'Security', 'cutover-audit' ),
+			'cron'        => __( 'Cron and scheduling', 'cutover-audit' ),
+			'http'        => __( 'External requests', 'cutover-audit' ),
+			'environment' => __( 'Environment and configuration', 'cutover-audit' ),
+			'platform'    => __( 'Platform overlap', 'cutover-audit' ),
+			'standards'   => __( 'Coding standards', 'cutover-audit' ),
 		);
 	}
 

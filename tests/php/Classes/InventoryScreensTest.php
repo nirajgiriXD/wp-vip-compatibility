@@ -2,23 +2,23 @@
 /**
  * Tests for the plugin, theme and must-use plugin screens.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Classes;
+namespace CUTOVER_AUDIT\Tests\Classes;
 
-use PREFLIGHT_AUDIT\Includes\Classes\Mu_Plugins_Settings;
-use PREFLIGHT_AUDIT\Includes\Classes\Plugins_Settings;
-use PREFLIGHT_AUDIT\Includes\Classes\Themes_Settings;
-use PREFLIGHT_AUDIT\Tests\Support\Sandbox;
-use PREFLIGHT_AUDIT\Tests\Support\WP;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Classes\Mu_Plugins_Settings;
+use CUTOVER_AUDIT\Includes\Classes\Plugins_Settings;
+use CUTOVER_AUDIT\Includes\Classes\Themes_Settings;
+use CUTOVER_AUDIT\Tests\Support\Sandbox;
+use CUTOVER_AUDIT\Tests\Support\WP;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
- * @covers \PREFLIGHT_AUDIT\Includes\Classes\Inventory_Screen
- * @covers \PREFLIGHT_AUDIT\Includes\Classes\Plugins_Settings
- * @covers \PREFLIGHT_AUDIT\Includes\Classes\Themes_Settings
- * @covers \PREFLIGHT_AUDIT\Includes\Classes\Mu_Plugins_Settings
+ * @covers \CUTOVER_AUDIT\Includes\Classes\Inventory_Screen
+ * @covers \CUTOVER_AUDIT\Includes\Classes\Plugins_Settings
+ * @covers \CUTOVER_AUDIT\Includes\Classes\Themes_Settings
+ * @covers \CUTOVER_AUDIT\Includes\Classes\Mu_Plugins_Settings
  */
 class InventoryScreensTest extends TestCase {
 
@@ -50,8 +50,8 @@ class InventoryScreensTest extends TestCase {
 
 		$this->assertNotFalse( $start, "No row for {$key}" );
 
-		$open  = strrpos( substr( $output, 0, $start ), '<tr class="pfa-row"' );
-		$close = strpos( $output, '</tr>', strpos( $output, 'pfa-row-detail', $start ) );
+		$open  = strrpos( substr( $output, 0, $start ), '<tr class="cutover-audit-row"' );
+		$close = strpos( $output, '</tr>', strpos( $output, 'cutover-audit-row-detail', $start ) );
 
 		return substr( $output, $open, $close - $open );
 	}
@@ -73,9 +73,9 @@ class InventoryScreensTest extends TestCase {
 
 	public function empty_screens() {
 		return array(
-			'plugins'  => array( Plugins_Settings::class, 'pfa-empty' ),
-			'themes'   => array( Themes_Settings::class, 'pfa-empty' ),
-			'must-use' => array( Mu_Plugins_Settings::class, 'pfa-empty' ),
+			'plugins'  => array( Plugins_Settings::class, 'cutover-audit-empty' ),
+			'themes'   => array( Themes_Settings::class, 'cutover-audit-empty' ),
+			'must-use' => array( Mu_Plugins_Settings::class, 'cutover-audit-empty' ),
 		);
 	}
 
@@ -121,17 +121,17 @@ class InventoryScreensTest extends TestCase {
 		$output = $this->screen( Plugins_Settings::class );
 		$busy   = $this->row( $output, 'plugin:busy' );
 
-		$this->assertStringContainsString( 'class="pfa-detail__card"', $busy );
-		$this->assertStringContainsString( 'class="pfa-topics__link"', $busy );
+		$this->assertStringContainsString( 'class="cutover-audit-detail__card"', $busy );
+		$this->assertStringContainsString( 'class="cutover-audit-topics__link"', $busy );
 		$this->assertStringContainsString( 'target=plugin:busy&amp;category=security', $busy );
 		$this->assertStringContainsString( 'No findings. Nothing to do here.', $this->row( $output, 'plugin:clean' ) );
-		$this->assertStringContainsString( 'pfa-detail__empty">Not scanned yet.', $this->row( $output, 'plugin:fresh' ) );
+		$this->assertStringContainsString( 'cutover-audit-detail__empty">Not scanned yet.', $this->row( $output, 'plugin:fresh' ) );
 	}
 
 	public function test_a_clean_scanned_row_says_none() {
 		$this->store_result( $this->add_plugin( 'clean' ), array() );
 
-		$this->assertStringContainsString( '<span class="pfa-clear">None</span>', $this->row( $this->screen( Plugins_Settings::class ), 'plugin:clean' ) );
+		$this->assertStringContainsString( '<span class="cutover-audit-clear">None</span>', $this->row( $this->screen( Plugins_Settings::class ), 'plugin:clean' ) );
 	}
 
 	public function test_the_verdict_filter_reads_the_query_string() {
@@ -212,7 +212,7 @@ class InventoryScreensTest extends TestCase {
 		$this->assertStringContainsString( 'data-status="not-compatible"', $row );
 		$this->assertStringContainsString( 'Listed incompatible by WordPress VIP', $row );
 		$this->assertStringContainsString( 'href="https://docs.wpvip.com/plugins/incompatibilities/"', $row );
-		$this->assertStringContainsString( 'pfa-def--bad', $row );
+		$this->assertStringContainsString( 'cutover-audit-def--bad', $row );
 	}
 
 	public function test_a_redundant_plugin_does_not_repeat_its_label() {
@@ -250,7 +250,7 @@ class InventoryScreensTest extends TestCase {
 		$this->assertStringContainsString( '>Active</span>', $this->row( $output, 'theme:child' ) );
 		$this->assertStringContainsString( '>Parent</span>', $this->row( $output, 'theme:parent' ) );
 		$this->assertStringContainsString( 'data-role="inactive"', $this->row( $output, 'theme:spare' ) );
-		$this->assertStringNotContainsString( 'pfa-badge', $this->row( $output, 'theme:spare' ) );
+		$this->assertStringNotContainsString( 'cutover-audit-badge', $this->row( $output, 'theme:spare' ) );
 	}
 
 	public function test_a_theme_update_is_shown() {
@@ -280,7 +280,7 @@ class InventoryScreensTest extends TestCase {
 	public function test_must_use_files_and_directories_are_told_apart() {
 		$this->add_mu_plugin( 'loader.php' );
 		Sandbox::write( 'mu-plugins/platform/platform.php', '<?php' );
-		\PREFLIGHT_AUDIT\Includes\Scanner\Targets::reset();
+		\CUTOVER_AUDIT\Includes\Scanner\Targets::reset();
 
 		$output = $this->screen( Mu_Plugins_Settings::class );
 

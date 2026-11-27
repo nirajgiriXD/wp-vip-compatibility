@@ -4,15 +4,15 @@
  *
  * These wrap the scanner classes so that the signatures the plugin has always
  * exposed keep working. New code should use the classes in
- * `PREFLIGHT_AUDIT\Includes\Scanner` directly.
+ * `CUTOVER_AUDIT\Includes\Scanner` directly.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-use PREFLIGHT_AUDIT\Includes\Classes\Plugin;
-use PREFLIGHT_AUDIT\Includes\Scanner\Report;
-use PREFLIGHT_AUDIT\Includes\Scanner\Scanner;
-use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
+use CUTOVER_AUDIT\Includes\Classes\Plugin;
+use CUTOVER_AUDIT\Includes\Scanner\Report;
+use CUTOVER_AUDIT\Includes\Scanner\Scanner;
+use CUTOVER_AUDIT\Includes\Scanner\Targets;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -29,22 +29,22 @@ defined( 'ABSPATH' ) || exit;
  * @param string $target The target key, or a legacy filesystem path.
  * @return string One of `Compatible`, `Needs review`, `Incompatible`, or an error message.
  */
-function preflight_audit_check_compatibility( $target ) {
-	$resolved = preflight_audit_resolve_target( $target );
+function cutover_audit_check_compatibility( $target ) {
+	$resolved = cutover_audit_resolve_target( $target );
 
 	if ( null === $resolved ) {
-		return esc_html__( 'Error: Unknown scan target', 'preflight-audit' );
+		return esc_html__( 'Error: Unknown scan target', 'cutover-audit' );
 	}
 
 	$result = ( new Scanner() )->get_result( $resolved );
 
 	switch ( $result['status'] ) {
 		case Scanner::STATUS_BLOCKED:
-			return esc_html__( 'Incompatible', 'preflight-audit' );
+			return esc_html__( 'Incompatible', 'cutover-audit' );
 		case Scanner::STATUS_REVIEW:
-			return esc_html__( 'Needs review', 'preflight-audit' );
+			return esc_html__( 'Needs review', 'cutover-audit' );
 		default:
-			return esc_html__( 'Compatible', 'preflight-audit' );
+			return esc_html__( 'Compatible', 'cutover-audit' );
 	}
 }
 
@@ -58,7 +58,7 @@ function preflight_audit_check_compatibility( $target ) {
  * @param string $target The target key or filesystem path.
  * @return array<string, mixed>|null The target, or null when it cannot be resolved.
  */
-function preflight_audit_resolve_target( $target ) {
+function cutover_audit_resolve_target( $target ) {
 	$target = (string) $target;
 
 	if ( '' === $target ) {
@@ -88,7 +88,7 @@ function preflight_audit_resolve_target( $target ) {
  *
  * @return array<string, mixed> The reference data.
  */
-function preflight_audit_get_json_data() {
+function cutover_audit_get_json_data() {
 	return Plugin::get_instance()->get_json_data();
 }
 
@@ -104,7 +104,7 @@ function preflight_audit_get_json_data() {
  * @param string $type One of `plugin`, `theme`, `mu-plugin`, `database`, `directories`.
  * @return array<string, int> Counts keyed `compatible`, `needs_review`, `not_compatible`.
  */
-function preflight_audit_get_target_chart_data( $type ) {
+function cutover_audit_get_target_chart_data( $type ) {
 	$counts = Report::area_counts( $type );
 
 	return array(
@@ -121,8 +121,8 @@ function preflight_audit_get_target_chart_data( $type ) {
  *
  * @return array<string, int> The chart data.
  */
-function preflight_audit_get_plugins_chart_data() {
-	return preflight_audit_get_target_chart_data( 'plugin' );
+function cutover_audit_get_plugins_chart_data() {
+	return cutover_audit_get_target_chart_data( 'plugin' );
 }
 
 /**
@@ -130,8 +130,8 @@ function preflight_audit_get_plugins_chart_data() {
  *
  * @return array<string, int> The chart data.
  */
-function preflight_audit_get_mu_plugins_chart_data() {
-	return preflight_audit_get_target_chart_data( 'mu-plugin' );
+function cutover_audit_get_mu_plugins_chart_data() {
+	return cutover_audit_get_target_chart_data( 'mu-plugin' );
 }
 
 /**
@@ -139,8 +139,8 @@ function preflight_audit_get_mu_plugins_chart_data() {
  *
  * @return array<string, int> The chart data.
  */
-function preflight_audit_get_themes_chart_data() {
-	return preflight_audit_get_target_chart_data( 'theme' );
+function cutover_audit_get_themes_chart_data() {
+	return cutover_audit_get_target_chart_data( 'theme' );
 }
 
 /**
@@ -148,8 +148,8 @@ function preflight_audit_get_themes_chart_data() {
  *
  * @return array<string, int> The chart data.
  */
-function preflight_audit_get_database_chart_data() {
-	return preflight_audit_get_target_chart_data( 'database' );
+function cutover_audit_get_database_chart_data() {
+	return cutover_audit_get_target_chart_data( 'database' );
 }
 
 /**
@@ -157,6 +157,6 @@ function preflight_audit_get_database_chart_data() {
  *
  * @return array<string, int> The chart data.
  */
-function preflight_audit_get_directories_chart_data() {
-	return preflight_audit_get_target_chart_data( 'directories' );
+function cutover_audit_get_directories_chart_data() {
+	return cutover_audit_get_target_chart_data( 'directories' );
 }

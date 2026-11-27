@@ -2,23 +2,23 @@
 /**
  * Base test case.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests;
+namespace CUTOVER_AUDIT\Tests;
 
 use Brain\Monkey;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use PREFLIGHT_AUDIT\Includes\Scanner\Code_Scanner;
-use PREFLIGHT_AUDIT\Includes\Scanner\Directory_Audit;
-use PREFLIGHT_AUDIT\Includes\Scanner\Results_Store;
-use PREFLIGHT_AUDIT\Includes\Scanner\Rules;
-use PREFLIGHT_AUDIT\Includes\Scanner\Scanner;
-use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
-use PREFLIGHT_AUDIT\Tests\Support\Fake_Theme;
-use PREFLIGHT_AUDIT\Tests\Support\Fake_Wpdb;
-use PREFLIGHT_AUDIT\Tests\Support\Sandbox;
-use PREFLIGHT_AUDIT\Tests\Support\WP;
+use CUTOVER_AUDIT\Includes\Scanner\Code_Scanner;
+use CUTOVER_AUDIT\Includes\Scanner\Directory_Audit;
+use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
+use CUTOVER_AUDIT\Includes\Scanner\Rules;
+use CUTOVER_AUDIT\Includes\Scanner\Scanner;
+use CUTOVER_AUDIT\Includes\Scanner\Targets;
+use CUTOVER_AUDIT\Tests\Support\Fake_Theme;
+use CUTOVER_AUDIT\Tests\Support\Fake_Wpdb;
+use CUTOVER_AUDIT\Tests\Support\Sandbox;
+use CUTOVER_AUDIT\Tests\Support\WP;
 
 /**
  * Resets WordPress, the sandbox and the plugin's memoised state around each test.

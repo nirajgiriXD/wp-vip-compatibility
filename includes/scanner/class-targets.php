@@ -12,10 +12,10 @@
  * that WordPress itself reports. A key that does not resolve is simply rejected,
  * so no caller-supplied path ever reaches the filesystem layer.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Includes\Scanner;
+namespace CUTOVER_AUDIT\Includes\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 

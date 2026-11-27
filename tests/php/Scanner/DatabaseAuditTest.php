@@ -2,18 +2,18 @@
 /**
  * Tests for the database schema audit.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Scanner;
+namespace CUTOVER_AUDIT\Tests\Scanner;
 
-use PREFLIGHT_AUDIT\Includes\Scanner\Database_Audit;
-use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
-use PREFLIGHT_AUDIT\Tests\Support\WP;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Scanner\Database_Audit;
+use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
+use CUTOVER_AUDIT\Tests\Support\WP;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
- * @covers \PREFLIGHT_AUDIT\Includes\Scanner\Database_Audit
+ * @covers \CUTOVER_AUDIT\Includes\Scanner\Database_Audit
  */
 class DatabaseAuditTest extends TestCase {
 

@@ -2,17 +2,17 @@
 /**
  * Tests for the curated plugin lists.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Scanner;
+namespace CUTOVER_AUDIT\Tests\Scanner;
 
-use PREFLIGHT_AUDIT\Includes\Scanner\Known_Plugins;
-use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Scanner\Known_Plugins;
+use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
- * @covers \PREFLIGHT_AUDIT\Includes\Scanner\Known_Plugins
+ * @covers \CUTOVER_AUDIT\Includes\Scanner\Known_Plugins
  */
 class KnownPluginsTest extends TestCase {
 

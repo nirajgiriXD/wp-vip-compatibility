@@ -2,20 +2,20 @@
 /**
  * Tests for the AJAX endpoints.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Classes;
+namespace CUTOVER_AUDIT\Tests\Classes;
 
-use PREFLIGHT_AUDIT\Includes\Classes\Ajax;
-use PREFLIGHT_AUDIT\Includes\Scanner\Results_Store;
-use PREFLIGHT_AUDIT\Tests\Support\Json_Response;
-use PREFLIGHT_AUDIT\Tests\Support\WP;
-use PREFLIGHT_AUDIT\Tests\Support\Wp_Die;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Classes\Ajax;
+use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
+use CUTOVER_AUDIT\Tests\Support\Json_Response;
+use CUTOVER_AUDIT\Tests\Support\WP;
+use CUTOVER_AUDIT\Tests\Support\Wp_Die;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
- * @covers \PREFLIGHT_AUDIT\Includes\Classes\Ajax
+ * @covers \CUTOVER_AUDIT\Includes\Classes\Ajax
  */
 class AjaxTest extends TestCase {
 
@@ -40,9 +40,9 @@ class AjaxTest extends TestCase {
 	public function test_endpoints_are_registered_for_logged_in_users_only() {
 		$ajax = new Ajax();
 
-		$this->assertSame( 10, has_action( 'wp_ajax_preflight_audit_scan_target', array( $ajax, 'scan_target' ) ) );
-		$this->assertSame( 10, has_action( 'wp_ajax_preflight_audit_scan_complete', array( $ajax, 'scan_complete' ) ) );
-		$this->assertFalse( has_action( 'wp_ajax_nopriv_preflight_audit_scan_target' ) );
+		$this->assertSame( 10, has_action( 'wp_ajax_cutover_audit_scan_target', array( $ajax, 'scan_target' ) ) );
+		$this->assertSame( 10, has_action( 'wp_ajax_cutover_audit_scan_complete', array( $ajax, 'scan_complete' ) ) );
+		$this->assertFalse( has_action( 'wp_ajax_nopriv_cutover_audit_scan_target' ) );
 	}
 
 	/**
@@ -80,7 +80,7 @@ class AjaxTest extends TestCase {
 			( new Ajax() )->$method();
 			$this->fail( 'Expected the nonce check to stop the request' );
 		} catch ( Wp_Die $die ) {
-			$this->assertSame( array( 'preflight_audit_ajax_nonce' ), WP::$checked_nonces );
+			$this->assertSame( array( 'cutover_audit_ajax_nonce' ), WP::$checked_nonces );
 		}
 	}
 
@@ -132,7 +132,7 @@ class AjaxTest extends TestCase {
 		$this->assertSame( 1, $data['blocking'] );
 		$this->assertSame( 'critical', $data['severity'] );
 		$this->assertSame( 1, $data['files'] );
-		$this->assertSame( 'https://example.test/wp-admin/admin.php?page=pfa-findings&target=plugin:writer', $data['url'] );
+		$this->assertSame( 'https://example.test/wp-admin/admin.php?page=cutover-audit-findings&target=plugin:writer', $data['url'] );
 		$this->assertNotNull( Results_Store::get( 'plugin:writer' ) );
 	}
 
@@ -189,7 +189,7 @@ class AjaxTest extends TestCase {
 
 	public function test_force_bypasses_the_stored_result() {
 		$target = $this->add_plugin( 'p', array( 'p.php' => self::GUARD ) );
-		$this->store_result( $target, array( $this->finding( 'security.extract' ) ), array( 'fingerprint' => ( new \PREFLIGHT_AUDIT\Includes\Scanner\Scanner() )->fingerprint( $target['path'] ) ) );
+		$this->store_result( $target, array( $this->finding( 'security.extract' ) ), array( 'fingerprint' => ( new \CUTOVER_AUDIT\Includes\Scanner\Scanner() )->fingerprint( $target['path'] ) ) );
 		$_POST['target'] = 'plugin:p';
 
 		$this->assertSame( 1, $this->call( 'scan_target' )->data['total'], 'served from the store' );

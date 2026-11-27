@@ -35,7 +35,7 @@
 		<include>
 			<directory suffix=".php">includes</directory>
 			<file>functions.php</file>
-			<file>preflight-audit.php</file>
+			<file>cutover-audit.php</file>
 			<file>uninstall.php</file>
 		</include>
 	</coverage>

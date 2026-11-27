@@ -2,19 +2,19 @@
 /**
  * Tests for the database and wp-content screens.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Classes;
+namespace CUTOVER_AUDIT\Tests\Classes;
 
-use PREFLIGHT_AUDIT\Includes\Classes\Database_Settings;
-use PREFLIGHT_AUDIT\Includes\Classes\Directories_Settings;
-use PREFLIGHT_AUDIT\Tests\Support\Sandbox;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Classes\Database_Settings;
+use CUTOVER_AUDIT\Includes\Classes\Directories_Settings;
+use CUTOVER_AUDIT\Tests\Support\Sandbox;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
- * @covers \PREFLIGHT_AUDIT\Includes\Classes\Database_Settings
- * @covers \PREFLIGHT_AUDIT\Includes\Classes\Directories_Settings
+ * @covers \CUTOVER_AUDIT\Includes\Classes\Database_Settings
+ * @covers \CUTOVER_AUDIT\Includes\Classes\Directories_Settings
  */
 class SiteScreensTest extends TestCase {
 

@@ -8,20 +8,20 @@
  * into the screen that owns the detail. What the report is and how to read it
  * lives in the Help panel rather than on the page.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Includes\Classes;
+namespace CUTOVER_AUDIT\Includes\Classes;
 
-use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
-use PREFLIGHT_AUDIT\Includes\Scanner\Database_Audit;
-use PREFLIGHT_AUDIT\Includes\Scanner\Directory_Audit;
-use PREFLIGHT_AUDIT\Includes\Scanner\Report;
-use PREFLIGHT_AUDIT\Includes\Scanner\Results_Store;
-use PREFLIGHT_AUDIT\Includes\Scanner\Rules;
-use PREFLIGHT_AUDIT\Includes\Scanner\Scanner;
-use PREFLIGHT_AUDIT\Includes\Scanner\Targets;
-use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
+use CUTOVER_AUDIT\Includes\Traits\Singleton;
+use CUTOVER_AUDIT\Includes\Scanner\Database_Audit;
+use CUTOVER_AUDIT\Includes\Scanner\Directory_Audit;
+use CUTOVER_AUDIT\Includes\Scanner\Report;
+use CUTOVER_AUDIT\Includes\Scanner\Results_Store;
+use CUTOVER_AUDIT\Includes\Scanner\Rules;
+use CUTOVER_AUDIT\Includes\Scanner\Scanner;
+use CUTOVER_AUDIT\Includes\Scanner\Targets;
+use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -51,7 +51,7 @@ class Overview_Settings {
 		$aggregate = Report::aggregate();
 		$scanned   = $aggregate['targets'] > 0;
 
-		echo '<div class="pfa-overview">';
+		echo '<div class="cutover-audit-overview">';
 
 		$this->render_verdict( $aggregate, $scanned );
 
@@ -63,7 +63,7 @@ class Overview_Settings {
 		}
 
 		// Reference rather than work, so the two sit side by side below it.
-		echo '<div class="pfa-overview__pair">';
+		echo '<div class="cutover-audit-overview__pair">';
 		$this->render_environment( $aggregate, $scanned );
 
 		if ( $scanned ) {
@@ -81,13 +81,13 @@ class Overview_Settings {
 	 */
 	public function get_page_guidance() {
 		return array(
-			__( '<strong>The score</strong> comes from the verdict on every scanned plugin, theme and must-use plugin: a passing item counts in full, one that needs review counts for a little over half, and one that needs work does not count yet.', 'preflight-audit' ),
-			__( '<strong>Where the work is</strong> has one square for every plugin, theme, table and path on the site, worst first. Hover a square to see which one it is.', 'preflight-audit' ),
-			__( '<strong>Environment</strong> is what this site runs on today, compared with the WordPress VIP platform, plus how much the last scan read.', 'preflight-audit' ),
-			__( '<strong>A starting point, not a certificate.</strong> The scan reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Where it cannot resolve a value, a finding records its confidence rather than asserting an incompatibility it cannot prove.', 'preflight-audit' ),
+			__( '<strong>The score</strong> comes from the verdict on every scanned plugin, theme and must-use plugin: a passing item counts in full, one that needs review counts for a little over half, and one that needs work does not count yet.', 'cutover-audit' ),
+			__( '<strong>Where the work is</strong> has one square for every plugin, theme, table and path on the site, worst first. Hover a square to see which one it is.', 'cutover-audit' ),
+			__( '<strong>Environment</strong> is what this site runs on today, compared with the WordPress VIP platform, plus how much the last scan read.', 'cutover-audit' ),
+			__( '<strong>A starting point, not a certificate.</strong> The scan reads code without running it, so it cannot see behaviour that only appears under real traffic or real data. Where it cannot resolve a value, a finding records its confidence rather than asserting an incompatibility it cannot prove.', 'cutover-audit' ),
 			sprintf(
 				/* translators: 1: Rule set version. 2: Number of rules. */
-				__( '<strong>What gets checked.</strong> The filesystem and media, the database, caching, cron and outbound requests, security and the environment, and plugins that overlap with what the platform provides. Rule set %1$s has %2$d rules, each mapped to the WordPress VIP guideline it comes from.', 'preflight-audit' ),
+				__( '<strong>What gets checked.</strong> The filesystem and media, the database, caching, cron and outbound requests, security and the environment, and plugins that overlap with what the platform provides. Rule set %1$s has %2$d rules, each mapped to the WordPress VIP guideline it comes from.', 'cutover-audit' ),
 				Rules::VERSION,
 				count( Rules::all() )
 			),
@@ -102,24 +102,24 @@ class Overview_Settings {
 	private function render_getting_started() {
 		UI::render_card_open(
 			array(
-				'title' => __( 'How this works', 'preflight-audit' ),
-				'aside' => '<span class="pfa-card__note">' . esc_html__( 'Three steps, repeated until the list is empty.', 'preflight-audit' ) . '</span>',
+				'title' => __( 'How this works', 'cutover-audit' ),
+				'aside' => '<span class="cutover-audit-card__note">' . esc_html__( 'Three steps, repeated until the list is empty.', 'cutover-audit' ) . '</span>',
 			)
 		);
 
 		UI::render_steps(
 			array(
 				array(
-					'title' => __( 'Scan', 'preflight-audit' ),
-					'body'  => __( 'Every plugin, theme and must-use plugin is read against the WordPress VIP platform guidelines, along with the database schema and the wp-content layout. The code is read, never run, so this is safe on a live site.', 'preflight-audit' ),
+					'title' => __( 'Scan', 'cutover-audit' ),
+					'body'  => __( 'Every plugin, theme and must-use plugin is read against the WordPress VIP platform guidelines, along with the database schema and the wp-content layout. The code is read, never run, so this is safe on a live site.', 'cutover-audit' ),
 				),
 				array(
-					'title' => __( 'Work through the findings', 'preflight-audit' ),
-					'body'  => __( 'Findings are ranked, must-fix first. Each one names the file and line, says why it matters on WordPress VIP specifically, and gives you the change to make.', 'preflight-audit' ),
+					'title' => __( 'Work through the findings', 'cutover-audit' ),
+					'body'  => __( 'Findings are ranked, must-fix first. Each one names the file and line, says why it matters on WordPress VIP specifically, and gives you the change to make.', 'cutover-audit' ),
 				),
 				array(
-					'title' => __( 'Rescan', 'preflight-audit' ),
-					'body'  => __( 'Run it again to see the list shrink and the score climb. Export it as JSON, CSV or Markdown whenever the work needs to move into a ticket or a pull request.', 'preflight-audit' ),
+					'title' => __( 'Rescan', 'cutover-audit' ),
+					'body'  => __( 'Run it again to see the list shrink and the score climb. Export it as JSON, CSV or Markdown whenever the work needs to move into a ticket or a pull request.', 'cutover-audit' ),
 				),
 			)
 		);
@@ -196,8 +196,8 @@ class Overview_Settings {
 	 */
 	private function resolve_verdict( array $aggregate, $scanned ) {
 		$rescan = array(
-			'label'   => __( 'Rescan everything', 'preflight-audit' ),
-			'submit'  => 'preflight_audit_rescan',
+			'label'   => __( 'Rescan everything', 'cutover-audit' ),
+			'submit'  => 'cutover_audit_rescan',
 			'nonce'   => Findings_Settings::RESCAN_ACTION,
 			'icon'    => 'refresh',
 			'primary' => false,
@@ -207,13 +207,13 @@ class Overview_Settings {
 		if ( ! $scanned ) {
 			return array(
 				'tier'     => 'ready',
-				'headline' => __( 'Nothing has been scanned yet', 'preflight-audit' ),
-				'summary'  => __( 'Run a scan to check every plugin, theme and must-use plugin against the WordPress VIP platform guidelines. It reads code without running it, so it is safe to run on a live site.', 'preflight-audit' ),
+				'headline' => __( 'Nothing has been scanned yet', 'cutover-audit' ),
+				'summary'  => __( 'Run a scan to check every plugin, theme and must-use plugin against the WordPress VIP platform guidelines. It reads code without running it, so it is safe to run on a live site.', 'cutover-audit' ),
 				'actions'  => array(
 					array_merge(
 						$rescan,
 						array(
-							'label'   => __( 'Run the first scan', 'preflight-audit' ),
+							'label'   => __( 'Run the first scan', 'cutover-audit' ),
 							'primary' => true,
 							'confirm' => false,
 						)
@@ -229,21 +229,21 @@ class Overview_Settings {
 		if ( $blocked > 0 ) {
 			return array(
 				'tier'     => Taxonomy::TIER_BLOCKING,
-				'headline' => __( 'A few things need attention first', 'preflight-audit' ),
+				'headline' => __( 'A few things need attention first', 'cutover-audit' ),
 				'summary'  => sprintf(
 					/* translators: 1: Number of blocked targets. 2: Total number of targets. */
 					_n(
 						'%1$d of %2$d scanned items has issues likely to cause problems on the WordPress VIP platform. They are worth fixing first.',
 						'%1$d of %2$d scanned items have issues likely to cause problems on the WordPress VIP platform. They are worth fixing first.',
 						$blocked,
-						'preflight-audit'
+						'cutover-audit'
 					),
 					$blocked,
 					$total
 				),
 				'actions'  => array(
 					array(
-						'label'   => __( 'Start with the must-fix items', 'preflight-audit' ),
+						'label'   => __( 'Start with the must-fix items', 'cutover-audit' ),
 						'url'     => UI::get_findings_url( '', Taxonomy::TIER_BLOCKING ),
 						'icon'    => 'arrow-right',
 						'primary' => true,
@@ -256,20 +256,20 @@ class Overview_Settings {
 		if ( $review > 0 ) {
 			return array(
 				'tier'     => Taxonomy::TIER_WARNING,
-				'headline' => __( 'In good shape, with a few things to review', 'preflight-audit' ),
+				'headline' => __( 'In good shape, with a few things to review', 'cutover-audit' ),
 				'summary'  => sprintf(
 					/* translators: %d: Number of targets needing review. */
 					_n(
 						'%d scanned item has findings worth a look. None of them is likely to cause problems on the platform.',
 						'%d scanned items have findings worth a look. None of them is likely to cause problems on the platform.',
 						$review,
-						'preflight-audit'
+						'cutover-audit'
 					),
 					$review
 				),
 				'actions'  => array(
 					array(
-						'label'   => __( 'Review the findings', 'preflight-audit' ),
+						'label'   => __( 'Review the findings', 'cutover-audit' ),
 						'url'     => UI::get_findings_url(),
 						'icon'    => 'arrow-right',
 						'primary' => true,
@@ -281,11 +281,11 @@ class Overview_Settings {
 
 		return array(
 			'tier'     => 'ready',
-			'headline' => __( 'Everything looks good', 'preflight-audit' ),
-			'summary'  => __( 'Every scanned plugin, theme and must-use plugin passed. The database and wp-content checks are worth a look too.', 'preflight-audit' ),
+			'headline' => __( 'Everything looks good', 'cutover-audit' ),
+			'summary'  => __( 'Every scanned plugin, theme and must-use plugin passed. The database and wp-content checks are worth a look too.', 'cutover-audit' ),
 			'actions'  => array(
 				array(
-					'label'   => __( 'Check the database', 'preflight-audit' ),
+					'label'   => __( 'Check the database', 'cutover-audit' ),
 					'url'     => UI::get_screen_url( 'database' ),
 					'icon'    => 'database',
 					'primary' => true,
@@ -308,11 +308,11 @@ class Overview_Settings {
 		}
 
 		return array(
-			'label' => __( 'Scanned', 'preflight-audit' ),
+			'label' => __( 'Scanned', 'cutover-audit' ),
 			'value' => $this->scanned_kinds( $aggregate ),
 			'hint'  => sprintf(
 				/* translators: %s: Number of PHP files. */
-				_n( '%s PHP file read.', '%s PHP files read.', (int) $aggregate['totals']['files'], 'preflight-audit' ),
+				_n( '%s PHP file read.', '%s PHP files read.', (int) $aggregate['totals']['files'], 'cutover-audit' ),
 				number_format_i18n( (int) $aggregate['totals']['files'] )
 			),
 		);
@@ -339,17 +339,17 @@ class Overview_Settings {
 			switch ( $kind ) {
 				case 'theme':
 					/* translators: %s: Number of themes. */
-					$items[] = sprintf( _n( '%s theme', '%s themes', $count, 'preflight-audit' ), $number );
+					$items[] = sprintf( _n( '%s theme', '%s themes', $count, 'cutover-audit' ), $number );
 					break;
 
 				case 'mu-plugin':
 					/* translators: %s: Number of must-use plugins. */
-					$items[] = sprintf( _n( '%s must-use plugin', '%s must-use plugins', $count, 'preflight-audit' ), $number );
+					$items[] = sprintf( _n( '%s must-use plugin', '%s must-use plugins', $count, 'cutover-audit' ), $number );
 					break;
 
 				default:
 					/* translators: %s: Number of plugins. */
-					$items[] = sprintf( _n( '%s plugin', '%s plugins', $count, 'preflight-audit' ), $number );
+					$items[] = sprintf( _n( '%s plugin', '%s plugins', $count, 'cutover-audit' ), $number );
 			}
 		}
 
@@ -397,7 +397,7 @@ class Overview_Settings {
 						'where' => $fix['target_label'] . ' · ' . ( ( 1 === $count )
 							? $fix['occurrences'][0]['file'] . ':' . $fix['occurrences'][0]['line']
 							/* translators: %d: Number of places in the code. */
-							: sprintf( _n( '%d place', '%d places', $count, 'preflight-audit' ), $count ) ),
+							: sprintf( _n( '%d place', '%d places', $count, 'cutover-audit' ), $count ) ),
 						'url'   => UI::get_findings_url( $fix['target_key'], $tier ),
 					);
 				}
@@ -413,34 +413,34 @@ class Overview_Settings {
 
 		UI::render_card_open(
 			array(
-				'title' => __( 'Start here', 'preflight-audit' ),
+				'title' => __( 'Start here', 'cutover-audit' ),
 				'aside' => UI::get_arrow_link(
 					UI::get_findings_url(),
 					$total > self::NEXT_LIMIT
 						? sprintf(
 							/* translators: %s: Number of further items. */
-							_n( '%s more in Findings', '%s more in Findings', $total - self::NEXT_LIMIT, 'preflight-audit' ),
+							_n( '%s more in Findings', '%s more in Findings', $total - self::NEXT_LIMIT, 'cutover-audit' ),
 							number_format_i18n( $total - self::NEXT_LIMIT )
 						)
-						: __( 'Open Findings', 'preflight-audit' )
+						: __( 'Open Findings', 'cutover-audit' )
 				),
 				'flush' => true,
 			)
 		);
 		?>
-		<ol class="pfa-next">
+		<ol class="cutover-audit-next">
 			<?php foreach ( $queue as $position => $item ) : ?>
-				<li class="pfa-next__item pfa-next__item--<?php echo esc_attr( $item['tier'] ); ?>">
-					<a class="pfa-next__link" href="<?php echo esc_url( $item['url'] ); ?>">
-						<span class="pfa-next__rank" aria-hidden="true"><?php echo esc_html( sprintf( '%02d', $position + 1 ) ); ?></span>
-						<span class="pfa-next__tier"><?php echo UI::get_tier_pill( $item['tier'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?></span>
-						<span class="pfa-next__text">
-							<span class="pfa-next__title"><?php echo esc_html( $item['title'] ); ?></span>
+				<li class="cutover-audit-next__item cutover-audit-next__item--<?php echo esc_attr( $item['tier'] ); ?>">
+					<a class="cutover-audit-next__link" href="<?php echo esc_url( $item['url'] ); ?>">
+						<span class="cutover-audit-next__rank" aria-hidden="true"><?php echo esc_html( sprintf( '%02d', $position + 1 ) ); ?></span>
+						<span class="cutover-audit-next__tier"><?php echo UI::get_tier_pill( $item['tier'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?></span>
+						<span class="cutover-audit-next__text">
+							<span class="cutover-audit-next__title"><?php echo esc_html( $item['title'] ); ?></span>
 							<?php if ( '' !== $item['where'] ) : ?>
-								<span class="pfa-next__where"><?php echo esc_html( $item['where'] ); ?></span>
+								<span class="cutover-audit-next__where"><?php echo esc_html( $item['where'] ); ?></span>
 							<?php endif; ?>
 						</span>
-						<?php echo UI::get_icon( 'arrow-right', array( 'class' => 'pfa-icon pfa-icon--sm pfa-next__arrow' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
+						<?php echo UI::get_icon( 'arrow-right', array( 'class' => 'cutover-audit-icon cutover-audit-icon--sm cutover-audit-next__arrow' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 					</a>
 				</li>
 			<?php endforeach; ?>
@@ -469,7 +469,7 @@ class Overview_Settings {
 
 		UI::render_card_open(
 			array(
-				'title' => __( 'Where the work is', 'preflight-audit' ),
+				'title' => __( 'Where the work is', 'cutover-audit' ),
 				'aside' => UI::get_manifest_legend(),
 				'flush' => true,
 			)
@@ -568,12 +568,12 @@ class Overview_Settings {
 
 		UI::render_card_open(
 			array(
-				'title' => __( 'Environment', 'preflight-audit' ),
+				'title' => __( 'Environment', 'cutover-audit' ),
 				'flush' => true,
 			)
 		);
 
-		echo UI::get_defs( $rows, 'pfa-defs--spec' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		echo UI::get_defs( $rows, 'cutover-audit-defs--spec' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 
 		UI::render_card_close();
 	}
@@ -603,13 +603,13 @@ class Overview_Settings {
 
 		UI::render_card_open(
 			array(
-				'title' => __( 'Recent scans', 'preflight-audit' ),
+				'title' => __( 'Recent scans', 'cutover-audit' ),
 				'flush' => true,
 			)
 		);
 		?>
-		<div class="pfa-trend">
-			<div class="pfa-trend__chart">
+		<div class="cutover-audit-trend">
+			<div class="cutover-audit-trend__chart">
 				<?php
 				// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 				echo UI::get_sparkline(
@@ -617,7 +617,7 @@ class Overview_Settings {
 					100,
 					sprintf(
 						/* translators: 1: Number of scans. 2: First score. 3: Latest score. */
-						__( 'Score over the last %1$d scans, from %2$d%% to %3$d%%.', 'preflight-audit' ),
+						__( 'Score over the last %1$d scans, from %2$d%% to %3$d%%.', 'cutover-audit' ),
 						count( $scores ),
 						(int) $first['score'],
 						(int) $last['score']
@@ -626,16 +626,16 @@ class Overview_Settings {
 				// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 				?>
 			</div>
-			<p class="pfa-trend__text">
-				<span class="pfa-trend__value"><?php echo esc_html( sprintf( '%d%%', (int) $last['score'] ) ); ?></span>
-				<span class="pfa-trend__delta pfa-trend__delta--<?php echo esc_attr( $shift > 0 ? 'up' : ( $shift < 0 ? 'down' : 'flat' ) ); ?>">
+			<p class="cutover-audit-trend__text">
+				<span class="cutover-audit-trend__value"><?php echo esc_html( sprintf( '%d%%', (int) $last['score'] ) ); ?></span>
+				<span class="cutover-audit-trend__delta cutover-audit-trend__delta--<?php echo esc_attr( $shift > 0 ? 'up' : ( $shift < 0 ? 'down' : 'flat' ) ); ?>">
 					<?php
 					if ( 0 === $shift ) {
-						esc_html_e( 'No change in score', 'preflight-audit' );
+						esc_html_e( 'No change in score', 'cutover-audit' );
 					} else {
 						printf(
 							/* translators: 1: Signed change in points, e.g. "+12". 2: Number of scans. */
-							esc_html__( '%1$s points over %2$d scans', 'preflight-audit' ),
+							esc_html__( '%1$s points over %2$d scans', 'cutover-audit' ),
 							esc_html( sprintf( '%+d', $shift ) ),
 							count( $recent )
 						);
@@ -647,29 +647,29 @@ class Overview_Settings {
 		<?php
 		$rows = array_reverse( array_slice( $history, -5 ) );
 
-		echo '<div class="pfa-table-wrap">';
-		echo '<table class="pfa-table pfa-table--compact">';
+		echo '<div class="cutover-audit-table-wrap">';
+		echo '<table class="cutover-audit-table cutover-audit-table--compact">';
 
 		UI::render_table_head(
 			array(
 				array(
-					'label' => __( 'When', 'preflight-audit' ),
-					'class' => 'pfa-col-name',
+					'label' => __( 'When', 'cutover-audit' ),
+					'class' => 'cutover-audit-col-name',
 				),
 				array(
-					'label' => __( 'Scanned', 'preflight-audit' ),
+					'label' => __( 'Scanned', 'cutover-audit' ),
 				),
 				array(
-					'label' => __( 'Score', 'preflight-audit' ),
-					'class' => 'pfa-col-number',
+					'label' => __( 'Score', 'cutover-audit' ),
+					'class' => 'cutover-audit-col-number',
 				),
 				array(
-					'label' => __( 'Findings', 'preflight-audit' ),
-					'class' => 'pfa-col-number',
+					'label' => __( 'Findings', 'cutover-audit' ),
+					'class' => 'cutover-audit-col-number',
 				),
 				array(
-					'label' => __( 'Change', 'preflight-audit' ),
-					'class' => 'pfa-col-number',
+					'label' => __( 'Change', 'cutover-audit' ),
+					'class' => 'cutover-audit-col-number',
 				),
 			)
 		);
@@ -680,41 +680,41 @@ class Overview_Settings {
 			$previous = $rows[ $position + 1 ] ?? null;
 			$delta    = ( null === $previous ) ? null : (int) $snapshot['total'] - (int) $previous['total'];
 
-			echo '<tr class="pfa-row">';
+			echo '<tr class="cutover-audit-row">';
 
-			echo '<td class="pfa-col-name" data-label="' . esc_attr__( 'When', 'preflight-audit' ) . '">'
+			echo '<td class="cutover-audit-col-name" data-label="' . esc_attr__( 'When', 'cutover-audit' ) . '">'
 				. esc_html(
 					sprintf(
 						/* translators: %s: Human-readable time difference. */
-						__( '%s ago', 'preflight-audit' ),
+						__( '%s ago', 'cutover-audit' ),
 						human_time_diff( (int) $snapshot['recorded_at'] )
 					)
 				)
 				. '</td>';
 
 			// Entries saved before the scope was recorded show a dash, not a guess.
-			echo '<td data-label="' . esc_attr__( 'Scanned', 'preflight-audit' ) . '">'
+			echo '<td data-label="' . esc_attr__( 'Scanned', 'cutover-audit' ) . '">'
 				. ( isset( $snapshot['scope'] )
 					? esc_html( Report::get_scope( (string) $snapshot['scope'] )['label'] )
-					: '<span class="pfa-dash" aria-hidden="true">—</span>' )
+					: '<span class="cutover-audit-dash" aria-hidden="true">—</span>' )
 				. '</td>';
 
-			echo '<td class="pfa-col-number" data-label="' . esc_attr__( 'Score', 'preflight-audit' ) . '">'
+			echo '<td class="cutover-audit-col-number" data-label="' . esc_attr__( 'Score', 'cutover-audit' ) . '">'
 				. esc_html( sprintf( '%d%%', (int) $snapshot['score'] ) )
 				. '</td>';
 
-			echo '<td class="pfa-col-number" data-label="' . esc_attr__( 'Findings', 'preflight-audit' ) . '">'
+			echo '<td class="cutover-audit-col-number" data-label="' . esc_attr__( 'Findings', 'cutover-audit' ) . '">'
 				. esc_html( number_format_i18n( (int) $snapshot['total'] ) )
 				. '</td>';
 
-			echo '<td class="pfa-col-number" data-label="' . esc_attr__( 'Change', 'preflight-audit' ) . '">';
+			echo '<td class="cutover-audit-col-number" data-label="' . esc_attr__( 'Change', 'cutover-audit' ) . '">';
 
 			if ( null === $delta || 0 === $delta ) {
-				echo '<span class="pfa-dash" aria-hidden="true">—</span>';
+				echo '<span class="cutover-audit-dash" aria-hidden="true">—</span>';
 			} else {
 				// Fewer findings is the good direction, so a negative delta is "down" and green.
 				printf(
-					'<span class="pfa-delta pfa-delta--%1$s">%2$s</span>',
+					'<span class="cutover-audit-delta cutover-audit-delta--%1$s">%2$s</span>',
 					esc_attr( $delta < 0 ? 'down' : 'up' ),
 					esc_html( sprintf( '%+d', $delta ) )
 				);

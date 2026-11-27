@@ -2,43 +2,43 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Preflight Audit 1.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/preflight-audit\n"
+"Project-Id-Version: Cutover Audit 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/cutover-audit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-27T10:12:05+00:00\n"
+"POT-Creation-Date: 2026-11-27T10:27:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
-"X-Domain: preflight-audit\n"
+"X-Domain: cutover-audit\n"
 
 #. Plugin Name of the plugin
-#: preflight-audit.php
+#: cutover-audit.php
 #: includes/classes/class-settings.php:182
 #: includes/classes/class-settings.php:183
 #: includes/classes/class-ui.php:416
-msgid "Preflight Audit"
+msgid "Cutover Audit"
 msgstr ""
 
 #. Plugin URI of the plugin
-#: preflight-audit.php
+#: cutover-audit.php
 msgid "https://github.com/nirajgiriXD/preflight-audit"
 msgstr ""
 
 #. Description of the plugin
-#: preflight-audit.php
+#: cutover-audit.php
 msgid "Check a site's code against the WordPress VIP platform guidelines and coding standard, with an actionable fix for every issue found."
 msgstr ""
 
 #. Author of the plugin
-#: preflight-audit.php
+#: cutover-audit.php
 msgid "Niraj Giri"
 msgstr ""
 
 #. Author URI of the plugin
-#: preflight-audit.php
+#: cutover-audit.php
 msgid "https://github.com/nirajgiriXD/"
 msgstr ""
 
@@ -414,7 +414,7 @@ msgid "<strong>Filters and sharing.</strong> The column of links narrows the lis
 msgstr ""
 
 #: includes/classes/class-findings-settings.php:64
-msgid "<strong>Unsure, or already reviewed?</strong> The scan reads code without running it, so when it cannot be sure, it says so under the code instead of guessing. To accept a finding, add <code>// pfa:ignore &lt;rule-id&gt; -- reason</code> to the line, or <code>pfa:ignore-next-line</code> above it, and rescan. Security findings cannot be silenced."
+msgid "<strong>Unsure, or already reviewed?</strong> The scan reads code without running it, so when it cannot be sure, it says so under the code instead of guessing. To accept a finding, add <code>// cutover-audit:ignore &lt;rule-id&gt; -- reason</code> to the line, or <code>cutover-audit:ignore-next-line</code> above it, and rescan. Security findings cannot be silenced."
 msgstr ""
 
 #: includes/classes/class-findings-settings.php:228
@@ -985,7 +985,7 @@ msgstr ""
 #. translators: %s: Submenu title
 #: includes/classes/class-settings.php:212
 #, php-format
-msgid "Preflight Audit — %s"
+msgid "Cutover Audit — %s"
 msgstr ""
 
 #: includes/classes/class-settings.php:256
@@ -999,7 +999,7 @@ msgstr ""
 #. translators: %s: Link to the WordPress VIP documentation.
 #: includes/classes/class-settings.php:267
 #, php-format
-msgid "Preflight Audit is an independent tool, not affiliated with or endorsed by Automattic or WordPress VIP. Its rules are written from the public %s."
+msgid "Cutover Audit is an independent tool, not affiliated with or endorsed by Automattic or WordPress VIP. Its rules are written from the public %s."
 msgstr ""
 
 #: includes/classes/class-settings.php:268

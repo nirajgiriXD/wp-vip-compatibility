@@ -2,18 +2,18 @@
 /**
  * Tests for the rule registry.
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
-namespace PREFLIGHT_AUDIT\Tests\Scanner;
+namespace CUTOVER_AUDIT\Tests\Scanner;
 
 use Brain\Monkey\Filters;
-use PREFLIGHT_AUDIT\Includes\Scanner\Rules;
-use PREFLIGHT_AUDIT\Includes\Scanner\Taxonomy;
-use PREFLIGHT_AUDIT\Tests\TestCase;
+use CUTOVER_AUDIT\Includes\Scanner\Rules;
+use CUTOVER_AUDIT\Includes\Scanner\Taxonomy;
+use CUTOVER_AUDIT\Tests\TestCase;
 
 /**
- * @covers \PREFLIGHT_AUDIT\Includes\Scanner\Rules
+ * @covers \CUTOVER_AUDIT\Includes\Scanner\Rules
  */
 class RulesTest extends TestCase {
 
@@ -62,13 +62,13 @@ class RulesTest extends TestCase {
 	public function test_rules_are_memoised_until_reset() {
 		$first = Rules::all();
 
-		Filters\expectApplied( 'preflight_audit_scanner_rules' )->never();
+		Filters\expectApplied( 'cutover_audit_scanner_rules' )->never();
 
 		$this->assertSame( $first, Rules::all() );
 	}
 
 	public function test_filter_can_add_change_and_remove_rules() {
-		Filters\expectApplied( 'preflight_audit_scanner_rules' )
+		Filters\expectApplied( 'cutover_audit_scanner_rules' )
 			->once()
 			->andReturnUsing(
 				static function ( array $rules ) {
@@ -90,7 +90,7 @@ class RulesTest extends TestCase {
 	}
 
 	public function test_a_filtered_rule_gets_defaults_for_missing_keys() {
-		Filters\expectApplied( 'preflight_audit_scanner_rules' )
+		Filters\expectApplied( 'cutover_audit_scanner_rules' )
 			->andReturnUsing(
 				static function ( array $rules ) {
 					$rules['custom.no-sleep'] = array(
@@ -113,7 +113,7 @@ class RulesTest extends TestCase {
 	}
 
 	public function test_a_filtered_rule_is_used_by_the_scanner() {
-		Filters\expectApplied( 'preflight_audit_scanner_rules' )
+		Filters\expectApplied( 'cutover_audit_scanner_rules' )
 			->andReturnUsing(
 				static function ( array $rules ) {
 					$rules['custom.no-sleep'] = array(

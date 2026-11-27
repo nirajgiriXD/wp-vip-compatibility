@@ -1,19 +1,19 @@
 <?php
 /**
- * Plugin Name:       Preflight Audit
+ * Plugin Name:       Cutover Audit
  * Description:       Check a site's code against the WordPress VIP platform guidelines and coding standard, with an actionable fix for every issue found.
  * Plugin URI:        https://github.com/nirajgiriXD/preflight-audit
  * Version:           1.0.0
  * Author:            Niraj Giri
  * Author URI:        https://github.com/nirajgiriXD/
- * Text Domain:       preflight-audit
+ * Text Domain:       cutover-audit
  * Domain Path:       /languages/
  * License:           GPLv3 or later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.en.html
  * Requires at least: 6.0
  * Requires PHP:      7.4
  *
- * @package preflight-audit
+ * @package cutover-audit
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -21,33 +21,33 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Define plugin constants.
  */
-if ( ! defined( 'PREFLIGHT_AUDIT_FILE' ) ) {
-	define( 'PREFLIGHT_AUDIT_FILE', __FILE__ );
+if ( ! defined( 'CUTOVER_AUDIT_FILE' ) ) {
+	define( 'CUTOVER_AUDIT_FILE', __FILE__ );
 }
 
-if ( ! defined( 'PREFLIGHT_AUDIT_DIR' ) ) {
-	define( 'PREFLIGHT_AUDIT_DIR', __DIR__ );
+if ( ! defined( 'CUTOVER_AUDIT_DIR' ) ) {
+	define( 'CUTOVER_AUDIT_DIR', __DIR__ );
 }
 
-if ( ! defined( 'PREFLIGHT_AUDIT_URL' ) ) {
-	define( 'PREFLIGHT_AUDIT_URL', plugin_dir_url( __FILE__ ) );
+if ( ! defined( 'CUTOVER_AUDIT_URL' ) ) {
+	define( 'CUTOVER_AUDIT_URL', plugin_dir_url( __FILE__ ) );
 }
 
-if ( ! defined( 'PREFLIGHT_AUDIT_VERSION' ) ) {
-	define( 'PREFLIGHT_AUDIT_VERSION', '1.0.0' );
+if ( ! defined( 'CUTOVER_AUDIT_VERSION' ) ) {
+	define( 'CUTOVER_AUDIT_VERSION', '1.0.0' );
 }
 
 // Require necessary files.
-require_once PREFLIGHT_AUDIT_DIR . '/includes/helpers/class-autoloader.php';
-require_once PREFLIGHT_AUDIT_DIR . '/functions.php';
+require_once CUTOVER_AUDIT_DIR . '/includes/helpers/class-autoloader.php';
+require_once CUTOVER_AUDIT_DIR . '/functions.php';
 
-use PREFLIGHT_AUDIT\Includes\Traits\Singleton;
-use PREFLIGHT_AUDIT\Includes\Classes\Plugin;
+use CUTOVER_AUDIT\Includes\Traits\Singleton;
+use CUTOVER_AUDIT\Includes\Classes\Plugin;
 
 /**
- * Main class for Preflight Audit.
+ * Main class for Cutover Audit.
  */
-class Preflight_Audit {
+class Cutover_Audit {
 
 	use Singleton;
 
@@ -75,4 +75,4 @@ class Preflight_Audit {
 }
 
 // Initialize the main plugin class.
-Preflight_Audit::get_instance();
+Cutover_Audit::get_instance();

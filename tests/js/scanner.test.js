@@ -55,10 +55,10 @@ test("pending rows are scanned one at a time with the nonce and target", () => {
 	expect(requests).toHaveLength(1);
 	expect(requests[0].options.type).toBe("POST");
 	expect(requests[0].options.url).toBe("https://example.test/wp-admin/admin-ajax.php");
-	expect(requests[0].options.data).toEqual({ _ajax_nonce: "abc123", action: "preflight_audit_scan_target", target: "plugin:p0" });
+	expect(requests[0].options.data).toEqual({ _ajax_nonce: "abc123", action: "cutover_audit_scan_target", target: "plugin:p0" });
 	expect($("[data-role='scan']").prop("hidden")).toBe(false);
 	expect($("[data-role='scan-label']").text()).toBe("Scanning 0 of 3…");
-	expect($("td.pfa-col-status").first().text()).toContain("Scanning…");
+	expect($("td.cutover-audit-col-status").first().text()).toContain("Scanning…");
 
 	requests[0].deferred.resolve(verdict("compatible"));
 
@@ -73,14 +73,14 @@ test("a resolved row takes its verdict, and links to its findings", () => {
 
 	requests[0].deferred.resolve(verdict("not-compatible", 4));
 
-	const $cell = $("td.pfa-col-status");
+	const $cell = $("td.cutover-audit-col-status");
 
 	expect($cell.hasClass("is-pending")).toBe(false);
 	expect($cell.hasClass("is-not-compatible")).toBe(true);
 	expect($cell.closest("tr").attr("data-status")).toBe("not-compatible");
-	expect($cell.find(".pfa-status--bad").length).toBe(1);
-	expect($cell.find("a.pfa-status__link").attr("href")).toBe("https://example.test/findings");
-	expect($cell.find("a.pfa-status__link").text()).toBe("4 findings");
+	expect($cell.find(".cutover-audit-status--bad").length).toBe(1);
+	expect($cell.find("a.cutover-audit-status__link").attr("href")).toBe("https://example.test/findings");
+	expect($cell.find("a.cutover-audit-status__link").text()).toBe("4 findings");
 });
 
 test("the findings link uses the count the server pluralised", () => {
@@ -90,7 +90,7 @@ test("the findings link uses the count the server pluralised", () => {
 	response.data.count = "1 finding";
 	requests[0].deferred.resolve(response);
 
-	expect($("a.pfa-status__link").text()).toBe("1 finding");
+	expect($("a.cutover-audit-status__link").text()).toBe("1 finding");
 });
 
 test("a clean row gets no findings link", () => {
@@ -98,8 +98,8 @@ test("a clean row gets no findings link", () => {
 
 	requests[0].deferred.resolve(verdict("compatible"));
 
-	expect($("a.pfa-status__link").length).toBe(0);
-	expect($(".pfa-status--ok").length).toBe(1);
+	expect($("a.cutover-audit-status__link").length).toBe(0);
+	expect($(".cutover-audit-status--ok").length).toBe(1);
 });
 
 test("a failed request marks the row for review with the error", () => {
@@ -108,7 +108,7 @@ test("a failed request marks the row for review with the error", () => {
 	requests[0].deferred.reject();
 	requests[1].deferred.resolve({ success: false, data: { message: "Unknown scan target." } });
 
-	const $cells = $("td.pfa-col-status");
+	const $cells = $("td.cutover-audit-col-status");
 
 	expect($cells.eq(0).text()).toContain("Scan failed");
 	expect($cells.eq(1).text()).toContain("Unknown scan target.");
@@ -120,14 +120,14 @@ test("filters are held during the scan and released with real counts after", () 
 	const $buttons = $("[data-filter-group] button");
 
 	expect($buttons.filter(":disabled").length).toBe($buttons.length);
-	expect($("[data-filter-value='review'] .pfa-segmented__count").text()).toBe("");
-	expect($("[data-filter-value='all'] .pfa-segmented__count").text()).toBe("2");
+	expect($("[data-filter-value='review'] .cutover-audit-segmented__count").text()).toBe("");
+	expect($("[data-filter-value='all'] .cutover-audit-segmented__count").text()).toBe("2");
 
 	requests[0].deferred.resolve(verdict("review"));
 	requests[1].deferred.resolve(verdict("compatible"));
 
 	expect($buttons.filter(":disabled").length).toBe(0);
-	expect($("[data-filter-value='review'] .pfa-segmented__count").text()).toBe("1");
+	expect($("[data-filter-value='review'] .cutover-audit-segmented__count").text()).toBe("1");
 	expect($("[data-role='scan']").attr("hidden")).toBe("hidden");
 	expect($("[data-role='scan-bar']")[0].style.width).toBe("100%");
 });
@@ -142,14 +142,14 @@ describe("a rescan started from the menu", () => {
 	const report = '<div data-role="scan-report" data-scope="plugin"></div>';
 
 	test("reports completion and reloads onto the confirmation", () => {
-		window.history.replaceState(null, "", "/wp-admin/admin.php?page=pfa-plugins&pfa-scanning=plugin");
+		window.history.replaceState(null, "", "/wp-admin/admin.php?page=cutover-audit-plugins&cutover-audit-scanning=plugin");
 		const errors = jest.spyOn(console, "error").mockImplementation(() => {});
 
 		load(report + table(pending(1)));
 		requests[0].deferred.resolve(verdict("compatible"));
 
 		expect(requests).toHaveLength(2);
-		expect(requests[1].options.data).toEqual({ _ajax_nonce: "abc123", action: "preflight_audit_scan_complete", scope: "plugin" });
+		expect(requests[1].options.data).toEqual({ _ajax_nonce: "abc123", action: "cutover_audit_scan_complete", scope: "plugin" });
 
 		requests[1].deferred.resolve({ success: true });
 
@@ -163,6 +163,6 @@ describe("a rescan started from the menu", () => {
 		load(report + table([]));
 
 		expect(requests).toHaveLength(1);
-		expect(requests[0].options.data.action).toBe("preflight_audit_scan_complete");
+		expect(requests[0].options.data.action).toBe("cutover_audit_scan_complete");
 	});
 });
