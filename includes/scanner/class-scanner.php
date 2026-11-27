@@ -49,6 +49,24 @@ class Scanner {
 	private $code_scanner = null;
 
 	/**
+	 * Gives the current request room to tokenise a large codebase.
+	 *
+	 * The default 30-second limit turns a long scan into a blank page with half
+	 * the results written, which then looks like a scan that found nothing.
+	 * Both raises are best effort: a host that forbids them simply ignores them.
+	 *
+	 * @return void
+	 */
+	public static function prepare_long_request() {
+		if ( function_exists( 'set_time_limit' ) && false === strpos( (string) ini_get( 'disable_functions' ), 'set_time_limit' ) ) {
+			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.PHP.NoSilencedErrors.Discouraged -- Best effort; ignored where the host forbids it.
+			@set_time_limit( 300 );
+		}
+
+		wp_raise_memory_limit( 'admin' );
+	}
+
+	/**
 	 * Returns the result for a target, scanning only when the cache is stale.
 	 *
 	 * @param array<string, mixed> $target The target, from Targets.

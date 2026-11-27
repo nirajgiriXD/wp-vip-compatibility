@@ -93,7 +93,11 @@ class Ajax {
 			wp_send_json_error( array( 'message' => __( 'Unknown scan target.', 'preflight-audit' ) ), 404 );
 		}
 
-		$force  = ! empty( $_POST['force'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce and capability are verified by authorize() at the top of this handler.
+		$force = ! empty( $_POST['force'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce and capability are verified by authorize() at the top of this handler.
+
+		// One very large plugin is minutes of tokenising in this one request.
+		Scanner::prepare_long_request();
+
 		$result = ( new Scanner() )->get_result( $target, $force );
 		$total  = (int) $result['summary']['total'];
 		$files  = (int) $result['files_scanned'];
