@@ -227,11 +227,6 @@ body.pfa-screen,
 	align-items: center;
 	gap: 12px;
 	color: var(--pfa-ink);
-	text-decoration: none;
-}
-
-.pfa .pfa-brand {
-	color: var(--pfa-ink);
 }
 
 .pfa-brand__seal {
@@ -242,11 +237,6 @@ body.pfa-screen,
 	border-radius: 9px;
 	background: var(--pfa-ink);
 	color: var(--pfa-paper);
-	transition: transform 0.25s var(--pfa-ease);
-}
-
-.pfa-brand:hover .pfa-brand__seal {
-	transform: rotate(-4deg);
 }
 
 .pfa-brand__seal .pfa-logo {

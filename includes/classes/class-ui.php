@@ -406,7 +406,7 @@ class UI {
 		$scanned   = $aggregate['targets'] > 0 && $aggregate['scanned_at'] > 0;
 		?>
 		<div class="pfa-bar">
-			<a class="pfa-brand" href="<?php echo esc_url( self::get_screen_url( 'overview' ) ); ?>">
+			<div class="pfa-brand">
 				<span class="pfa-brand__seal" aria-hidden="true">
 					<?php echo self::get_logo(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 				</span>
@@ -423,7 +423,7 @@ class UI {
 						?>
 					</span>
 				</span>
-			</a>
+			</div>
 
 			<div class="pfa-bar__actions">
 				<span class="pfa-scanstate<?php echo $scanned ? '' : ' is-empty'; ?>">
