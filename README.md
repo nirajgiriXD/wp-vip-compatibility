@@ -26,7 +26,7 @@ Four independent axes, because collapsing them is what makes a deprecated functi
 | **Confidence** | Definitive · High · Medium · Low |
 | **Fixability** | Automatic · Manual · Configuration · Architectural |
 
-Those four are the scanner's reasoning, and they stay behind a disclosure on each finding. The interface itself uses one vocabulary and one only, derived from severity and phrased as an instruction — **must fix**, **should fix**, **worth checking**, **FYI** — so nobody has to learn that "critical", "incompatible" and "needs work" are three different scales.
+Those four are the scanner's reasoning. They drive the ranking and are in every export, but stay off the screen. The interface itself uses one vocabulary and one only, derived from severity and phrased as an instruction — **must fix**, **should fix**, **worth checking**, **FYI** — so nobody has to learn that "critical", "incompatible" and "needs work" are three different scales.
 
 A target ends up in one of three states: **passing**, **needs review** (findings worth a look that are unlikely to break anything), or **needs work** (something is likely to cause problems on the platform).
 
@@ -36,8 +36,10 @@ A target ends up in one of three states: **passing**, **needs review** (findings
 - Why it matters **on WordPress VIP specifically**, not as generic WordPress advice
 - File, line and enclosing function, with the line of code as evidence
 - The recommended fix, and an alternative approach where one exists
-- The matching `WordPress-VIP-Go` PHPCS sniff, where there is one
 - A link to the WordPress VIP documentation page the rule was derived from
+- The rule id, copyable, for silencing it with `pfa:ignore` once reviewed
+
+The JSON, CSV and Markdown exports also carry the severity, confidence, fixability and matching `WordPress-VIP-Go` PHPCS sniff of every finding.
 
 ## Coverage
 

@@ -30,11 +30,11 @@ It scans every plugin, theme and must-use plugin with a PHP tokeniser rather tha
 
 Each is scored independently for severity, detection confidence, and the kind of work the fix needs (automatic, manual, configuration, or architectural).
 
-That is the scanner's reasoning, and it stays one click away on each finding. What the interface leads with is a single instruction derived from it — **must fix**, **should fix**, **worth checking** or **FYI** — used on every screen, so there is no vocabulary to learn before the report can be read.
+That is the scanner's reasoning: it drives the ranking and is in every export. What the interface leads with is a single instruction derived from it — **must fix**, **should fix**, **worth checking** or **FYI** — used on every screen, so there is no vocabulary to learn before the report can be read.
 
 = What every finding tells you =
 
-The issue title, what was detected, why it matters on the WordPress VIP Platform specifically, the file, line and function, the line of code as evidence, the recommended fix, an alternative approach where one exists, the matching WordPress-VIP-Go PHPCS sniff, and a link to the WordPress VIP documentation the rule came from.
+The issue title, what was detected, why it matters on the WordPress VIP Platform specifically, the file, line and function, the line of code as evidence, the recommended fix, an alternative approach where one exists, a link to the WordPress VIP documentation the rule came from, and the rule id for a `pfa:ignore` annotation. Exports also carry the severity, confidence and matching WordPress-VIP-Go PHPCS sniff.
 
 = What gets checked =
 
