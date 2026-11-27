@@ -111,10 +111,25 @@ class UITest extends TestCase {
 	}
 
 	public function test_icon_attributes_are_escaped_and_unknown_icons_are_empty() {
-		$icon = UI::get_icon( 'logo', array( 'class' => '"><script>' ) );
+		$icon = UI::get_icon( 'check', array( 'class' => '"><script>' ) );
 
 		$this->assertStringNotContainsString( '<script>', $icon );
 		$this->assertSame( '', UI::get_icon( 'nope' ) );
+	}
+
+	public function test_the_logo_is_the_full_colour_directory_artwork() {
+		$logo = UI::get_logo();
+
+		$this->assertNotFalse( simplexml_load_string( $logo ) );
+		$this->assertStringNotContainsString( 'currentColor', $logo );
+
+		// The same plane and checklist as assets/icon.svg, minus its tile.
+		$source = file_get_contents( PREFLIGHT_AUDIT_DIR . '/assets/icon.svg' );
+
+		foreach ( array( 'M214 42 110 84l40 16z', 'M214 42 150 100l16 40z', 'M46 160l12 12 24-26', 'M40 118Q86 124 122 98' ) as $path ) {
+			$this->assertStringContainsString( $path, $source );
+			$this->assertStringContainsString( $path, $logo );
+		}
 	}
 
 	/*

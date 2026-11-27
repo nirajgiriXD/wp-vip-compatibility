@@ -249,9 +249,10 @@ body.pfa-screen,
 	transform: rotate(-4deg);
 }
 
-.pfa-brand__seal .pfa-icon {
-	width: 24px;
-	height: 24px;
+.pfa-brand__seal .pfa-logo {
+	display: block;
+	width: 100%;
+	height: 100%;
 }
 
 .pfa-brand__text {
