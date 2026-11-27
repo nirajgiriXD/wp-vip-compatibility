@@ -434,6 +434,13 @@ class Code_Scanner {
 		// Method call: pick up the receiver so `wpdb->query` can be targeted.
 		if ( T_OBJECT_OPERATOR === $prev_id || ( defined( 'T_NULLSAFE_OBJECT_OPERATOR' ) && T_NULLSAFE_OBJECT_OPERATOR === $prev_id ) ) {
 			$receiver = $texts[ $i - 2 ] ?? '';
+
+			// Before PHP 8 there is no nullsafe token: `$wpdb?->` arrives as `?`
+			// then `->`, so the receiver sits one token further back.
+			if ( '?' === $receiver ) {
+				$receiver = $texts[ $i - 3 ] ?? '';
+			}
+
 			$receiver = ltrim( $receiver, '$' );
 
 			return $this->make_occurrence( 'method', $receiver . '->' . $texts[ $i ], $lines[ $i ], $args, $scope );
