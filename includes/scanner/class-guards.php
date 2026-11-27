@@ -494,9 +494,15 @@ class Guards {
 			return false;
 		}
 
-		// A delimited pattern such as `#...#i` or `/.../`.
-		if ( preg_match( '{^([#~/%!]).*\1[imsuxADSUXJn]*$}', $value ) ) {
-			return false;
+		// A delimited pattern such as `#...#i` or `/.../`. A slash-delimited
+		// pattern cannot contain an unescaped slash, so `/wp-content/uploads/`
+		// is a path that happens to start and end with one.
+		if ( preg_match( '{^([#~/%!])(.*)\1[imsuxADSUXJn]*$}s', $value, $delimited ) ) {
+			$is_path = ( '/' === $delimited[1] && preg_match( '{(?<!\\\\)/}', $delimited[2] ) );
+
+			if ( ! $is_path ) {
+				return false;
+			}
 		}
 
 		// Prose. A sentence that happens to mention a path is documentation,

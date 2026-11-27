@@ -424,13 +424,13 @@ class GuardsTest extends TestCase {
 			'character class'            => array( 'wp-[a-z]+', false ),
 			'prose mentioning a path'    => array( 'Files live in wp-content/uploads on the server', false ),
 			'short phrase with a path'   => array( 'see wp-content/uploads', true ),
+			'slash-delimited regex'      => array( '/uploads/i', false ),
+			'regex with escaped slashes' => array( '/wp-content\/uploads/', false ),
 		);
 	}
 
 	/**
 	 * A path that starts and ends with a slash is a path, not a `/.../` regex.
-	 *
-	 * @group known-bug
 	 */
 	public function test_a_path_wrapped_in_slashes_is_a_literal_value() {
 		$this->assertTrue(
