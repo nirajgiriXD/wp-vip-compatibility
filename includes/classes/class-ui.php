@@ -1475,7 +1475,7 @@ class UI {
 			'<td class="pfa-col-status is-%1$s"%2$s data-label="%3$s">%4$s</td>',
 			esc_attr( $state ),
 			$attr_string,
-			esc_attr__( 'WordPress VIP verdict', 'preflight-audit' ),
+			esc_attr__( 'Verdict', 'preflight-audit' ),
 			self::get_status_pill( $state, $label )
 		);
 	}

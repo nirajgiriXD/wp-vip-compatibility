@@ -102,7 +102,7 @@ class Plugins_Settings extends Inventory_Screen {
 				'sortable' => true,
 			),
 			array(
-				'label'    => __( 'WordPress VIP verdict', 'preflight-audit' ),
+				'label'    => __( 'Verdict', 'preflight-audit' ),
 				'class'    => 'pfa-col-status',
 				'sortable' => true,
 			),
