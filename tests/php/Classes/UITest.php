@@ -217,14 +217,12 @@ class UITest extends TestCase {
 		$this->assertStringContainsString( '&lt;script&gt;', $link );
 	}
 
-	public function test_badges_and_chips_escape_their_text() {
+	public function test_badges_escape_their_text() {
 		$badge = UI::get_badge( self::XSS, 'bad', '"title"' );
-		$chip  = UI::get_meta_chip( 'Rule', self::XSS, 'tip' );
 
 		$this->assertStringContainsString( 'pfa-badge--bad', $badge );
 		$this->assertStringContainsString( 'title="&quot;title&quot;"', $badge );
-		$this->assertStringNotContainsString( '<script>', $badge . $chip );
-		$this->assertStringContainsString( 'title="tip"', $chip );
+		$this->assertStringNotContainsString( '<script>', $badge );
 		$this->assertStringNotContainsString( 'title=', UI::get_badge( 'x' ) );
 	}
 
@@ -721,7 +719,9 @@ class UITest extends TestCase {
 		$this->assertStringContainsString( '<code>inc/db.php:10</code>', $output );
 		$this->assertStringContainsString( 'in run_query()', $output );
 		$this->assertStringContainsString( 'A note', $output );
-		$this->assertStringContainsString( Rules::get( 'database.unprepared-query' )['phpcs'], $output );
+		$this->assertStringNotContainsString( 'How this was detected', $output );
+		$this->assertStringContainsString( '<code>database.unprepared-query</code>', $output, 'the rule id stays, for pfa:ignore' );
+		$this->assertStringContainsString( 'class="pfa-code__copy" data-role="copy"', $output );
 		$this->assertStringContainsString( 'href="https://docs.wpvip.com/', $output );
 		$this->assertStringContainsString( '>Code change</span>', $output );
 		$this->assertStringNotContainsString( '<script>', $output, 'target names and evidence come from scanned code' );
@@ -753,7 +753,7 @@ class UITest extends TestCase {
 			}
 		);
 
-		$this->assertStringContainsString( 'Also matched on these lines: database.direct-query', $output );
+		$this->assertStringContainsString( 'Also matched: database.direct-query', $output );
 		$this->assertStringNotContainsString( 'Another way to do it', $output );
 		$this->assertStringNotContainsString( 'WordPress VIP documentation', $output );
 		$this->assertStringNotContainsString( 'PHPCS', $output );

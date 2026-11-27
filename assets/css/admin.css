@@ -900,38 +900,6 @@ body.pfa-screen,
 	color: var(--pfa-block-ink);
 }
 
-.pfa-chips {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
-}
-
-.pfa-chip {
-	display: inline-flex;
-	align-items: baseline;
-	gap: 7px;
-	padding: 4px 9px;
-	border: 1px solid var(--pfa-rule);
-	border-radius: 4px;
-	background: var(--pfa-sheet);
-	font-size: 12px;
-	line-height: 1.35;
-}
-
-.pfa-chip__label {
-	color: var(--pfa-ink-3);
-	font-family: var(--pfa-mono);
-	font-size: 10px;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-}
-
-.pfa-chip__value {
-	color: var(--pfa-ink);
-	font-weight: 500;
-	overflow-wrap: anywhere;
-}
-
 /* -------------------------------------------------------------------------
  * 6. Sections and tallies
  * ---------------------------------------------------------------------- */
@@ -2723,7 +2691,7 @@ code.pfa-item__name {
 .pfa-fix__foot {
 	display: flex;
 	flex-wrap: wrap;
-	align-items: flex-start;
+	align-items: center;
 	justify-content: space-between;
 	gap: 12px 24px;
 	padding-top: 14px;
@@ -2734,49 +2702,25 @@ code.pfa-item__name {
 	font-size: 12.5px;
 }
 
-.pfa-subdetails {
-	flex: 1 1 320px;
-}
-
-.pfa-subdetails__summary {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	color: var(--pfa-ink-2);
-	font-size: 12.5px;
-	font-weight: 600;
-	list-style: none;
-	cursor: pointer;
-}
-
-.pfa-subdetails__summary::-webkit-details-marker {
-	display: none;
-}
-
-.pfa-subdetails__summary:hover {
-	color: var(--pfa-ink);
-}
-
-.pfa-subdetails__caret {
-	transition: transform 0.2s var(--pfa-ease);
-}
-
-.pfa-subdetails[open] .pfa-subdetails__caret {
-	transform: rotate(90deg);
-}
-
-.pfa-subdetails__body {
+/* The rule id, copyable, for a `pfa:ignore` annotation. */
+.pfa .pfa-fix__rule {
 	display: flex;
-	flex-direction: column;
-	gap: 12px;
-	padding: 12px 0 0 19px;
-	animation: pfa-rise 0.2s var(--pfa-ease);
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 10px;
+	margin: 0;
 }
 
-.pfa-fix__detected,
-.pfa-fix__also {
-	color: var(--pfa-ink-2);
-	font-size: 13px;
+.pfa-fix__rule-label {
+	color: var(--pfa-ink-3);
+	font-family: var(--pfa-mono);
+	font-size: 10.5px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.pfa-fix__rule .pfa-snippet {
+	margin-top: 0;
 }
 
 .pfa-fix__also {
@@ -2805,6 +2749,47 @@ code.pfa-item__name {
 .pfa .pfa-code code {
 	color: inherit;
 	font-size: inherit;
+}
+
+/* A copy button in the code block's top-right corner, light on dark. */
+.pfa-codewrap {
+	position: relative;
+}
+
+.pfa-codewrap .pfa-code {
+	padding-right: 48px;
+}
+
+.pfa .pfa-code__copy {
+	position: absolute;
+	top: 50%;
+	right: 8px;
+	display: grid;
+	place-items: center;
+	width: 28px;
+	height: 28px;
+	margin: 0;
+	padding: 0;
+	border: 1px solid var(--pfa-code-rule);
+	border-radius: var(--pfa-radius);
+	background: var(--pfa-code-bg);
+	color: var(--pfa-code-dim);
+	cursor: pointer;
+	transform: translateY(-50%);
+}
+
+.pfa .pfa-code__copy:hover {
+	border-color: var(--pfa-code-dim);
+	color: var(--pfa-code-ink);
+}
+
+.pfa .pfa-code__copy:focus-visible {
+	box-shadow: var(--pfa-focus);
+	outline: 0;
+}
+
+.pfa .pfa-code__copy.is-copied {
+	color: var(--pfa-ok-quiet) !important;
 }
 
 .pfa-code__gutter {
@@ -3541,7 +3526,8 @@ body.pfa-screen #screen-meta .help-tab-content {
 	.pfa-pager,
 	.pfa-rowtoggle,
 	.pfa-verdict__actions,
-	.pfa-snippet__copy {
+	.pfa-snippet__copy,
+	.pfa-code__copy {
 		display: none !important;
 	}
 

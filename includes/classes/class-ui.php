@@ -1611,23 +1611,6 @@ class UI {
 	}
 
 	/**
-	 * Builds a small labelled metadata chip.
-	 *
-	 * @param string $label The chip label.
-	 * @param string $value The chip value.
-	 * @param string $title Optional tooltip.
-	 * @return string The chip markup.
-	 */
-	public static function get_meta_chip( $label, $value, $title = '' ) {
-		return sprintf(
-			'<span class="pfa-chip"%3$s><span class="pfa-chip__label">%1$s</span><span class="pfa-chip__value">%2$s</span></span>',
-			esc_html( $label ),
-			esc_html( $value ),
-			'' === $title ? '' : ' title="' . esc_attr( $title ) . '"'
-		);
-	}
-
-	/**
 	 * Builds a plain badge.
 	 *
 	 * @param string $label The label.
@@ -1721,7 +1704,6 @@ class UI {
 	 * @return void
 	 */
 	public static function render_fix_card( array $group ) {
-		$confidences = Taxonomy::get_confidences();
 		$fixes       = Taxonomy::get_fixabilities();
 		$tier        = self::get_tier( $group['severity'] );
 		$occurrences = $group['occurrences'];
@@ -1829,7 +1811,10 @@ class UI {
 								</p>
 
 								<?php if ( '' !== $occurrence['evidence'] ) : ?>
-									<pre class="pfa-code"><span class="pfa-code__gutter" aria-hidden="true"><?php echo esc_html( (string) (int) $occurrence['line'] ); ?></span><code><?php echo esc_html( $occurrence['evidence'] ); ?></code></pre>
+									<div class="pfa-codewrap">
+										<pre class="pfa-code"><span class="pfa-code__gutter" aria-hidden="true"><?php echo esc_html( (string) (int) $occurrence['line'] ); ?></span><code><?php echo esc_html( $occurrence['evidence'] ); ?></code></pre>
+										<button type="button" class="pfa-code__copy" data-role="copy" data-clipboard="<?php echo esc_attr( $occurrence['evidence'] ); ?>" aria-label="<?php esc_attr_e( 'Copy to clipboard', 'preflight-audit' ); ?>" title="<?php esc_attr_e( 'Copy to clipboard', 'preflight-audit' ); ?>"><?php echo self::get_icon( 'copy', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?></button>
+									</div>
 								<?php endif; ?>
 
 								<?php if ( '' !== $occurrence['note'] ) : ?>
@@ -1840,71 +1825,23 @@ class UI {
 					</ol>
 				</div>
 
+				<?php // The rule id stays: it is what a `pfa:ignore` annotation needs. ?>
 				<div class="pfa-fix__foot">
-					<details class="pfa-subdetails">
-						<summary class="pfa-subdetails__summary">
-							<?php echo self::get_icon( 'chevron', array( 'class' => 'pfa-icon pfa-icon--xs pfa-subdetails__caret' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
-							<span><?php esc_html_e( 'How this was detected', 'preflight-audit' ); ?></span>
-						</summary>
-
-						<div class="pfa-subdetails__body">
-							<p class="pfa-fix__detected"><?php echo esc_html( $group['detected'] ); ?></p>
-
-							<div class="pfa-chips">
+					<p class="pfa-fix__rule">
+						<span class="pfa-fix__rule-label"><?php esc_html_e( 'Rule', 'preflight-audit' ); ?></span>
+						<?php echo self::get_code_snippet( $group['rule'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper. ?>
+						<?php if ( ! empty( $group['also_matched'] ) ) : ?>
+							<span class="pfa-fix__also">
 								<?php
-								$chips = array(
-									self::get_meta_chip(
-										__( 'Severity', 'preflight-audit' ),
-										Taxonomy::get_label( 'severity', $group['severity'] )
-									),
-									self::get_meta_chip(
-										__( 'Confidence', 'preflight-audit' ),
-										Taxonomy::get_label( 'confidence', $group['confidence'] ),
-										$confidences[ $group['confidence'] ]['description'] ?? ''
-									),
-									self::get_meta_chip(
-										__( 'Fix', 'preflight-audit' ),
-										Taxonomy::get_label( 'fixability', $group['fixability'] ),
-										$fixes[ $group['fixability'] ]['description'] ?? ''
-									),
-									self::get_meta_chip(
-										__( 'Type', 'preflight-audit' ),
-										Taxonomy::get_label( 'type', $group['type'] )
-									),
-									self::get_meta_chip(
-										__( 'Category', 'preflight-audit' ),
-										Taxonomy::get_label( 'category', $group['category'] )
-									),
-									self::get_meta_chip( __( 'Rule', 'preflight-audit' ), $group['rule'] ),
+								printf(
+									/* translators: %s: Comma-separated list of rule identifiers. */
+									esc_html__( 'Also matched: %s', 'preflight-audit' ),
+									esc_html( implode( ', ', $group['also_matched'] ) )
 								);
-
-								if ( '' !== $group['phpcs'] ) {
-									$chips[] = self::get_meta_chip(
-										__( 'PHPCS', 'preflight-audit' ),
-										$group['phpcs'],
-										__( 'The WordPress-VIP-Go sniff that reports the same pattern.', 'preflight-audit' )
-									);
-								}
-
-								foreach ( $chips as $chip ) {
-									echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Every value is escaped inside get_meta_chip().
-								}
 								?>
-							</div>
-
-							<?php if ( ! empty( $group['also_matched'] ) ) : ?>
-								<p class="pfa-fix__also">
-									<?php
-									printf(
-										/* translators: %s: Comma-separated list of rule identifiers. */
-										esc_html__( 'Also matched on these lines: %s', 'preflight-audit' ),
-										esc_html( implode( ', ', $group['also_matched'] ) )
-									);
-									?>
-								</p>
-							<?php endif; ?>
-						</div>
-					</details>
+							</span>
+						<?php endif; ?>
+					</p>
 
 					<?php if ( '' !== $group['doc'] ) : ?>
 						<a class="pfa-link pfa-fix__doc" href="<?php echo esc_url( $group['doc'] ); ?>" target="_blank" rel="noopener noreferrer">
