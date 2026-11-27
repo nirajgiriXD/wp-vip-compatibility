@@ -7,7 +7,9 @@
     "php": ">=7.4"
   },
   "require-dev": {
+    "automattic/vipwpcs": "^3.0",
     "brain/monkey": "^2.6",
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
     "phpunit/phpunit": "^9.6"
   },
   "autoload-dev": {
@@ -16,9 +18,16 @@
     }
   },
   "scripts": {
-    "test": "phpunit"
+    "test": "phpunit",
+    "lint": "phpcs"
   },
   "config": {
-    "sort-packages": true
+    "sort-packages": true,
+    "platform": {
+      "php": "7.4.33"
+    },
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
   }
 }

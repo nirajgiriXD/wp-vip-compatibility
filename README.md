@@ -132,8 +132,7 @@ composer install && composer test   # PHP: PHPUnit with Brain Monkey
 npm install && npm test             # admin.js: Jest with jsdom
 
 # Coding standards. The plugin's own source passes with no violations.
-composer require --dev automattic/vipwpcs phpcompatibility/phpcompatibility-wp
-phpcs --standard=phpcs.xml .
+composer lint
 
 # Translations.
 wp i18n make-pot . languages/preflight-audit.pot
