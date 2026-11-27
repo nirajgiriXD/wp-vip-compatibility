@@ -1162,22 +1162,10 @@ class UI {
 					</ul>
 
 					<div class="pfa-manifest__action">
-						<?php if ( $attention > 0 ) : ?>
-							<?php
-							// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-							echo self::get_arrow_link(
-								$url,
-								sprintf(
-									/* translators: %s: Number of items. */
-									_n( 'Work through %s', 'Work through %s', $attention, 'preflight-audit' ),
-									number_format_i18n( $attention )
-								)
-							);
-							// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-							?>
-						<?php elseif ( (int) $counts['total'] > 0 && (int) $counts['pending'] === (int) $counts['total'] ) : ?>
+						<?php // Nothing when there is work: the area name and the counts already open the screen. ?>
+						<?php if ( 0 === $attention && (int) $counts['total'] > 0 && (int) $counts['pending'] === (int) $counts['total'] ) : ?>
 							<span class="pfa-manifest__clear is-pending"><?php esc_html_e( 'Awaiting a scan', 'preflight-audit' ); ?></span>
-						<?php else : ?>
+						<?php elseif ( 0 === $attention ) : ?>
 							<span class="pfa-manifest__clear">
 								<?php echo self::get_icon( 'check', array( 'class' => 'pfa-icon pfa-icon--xs' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup. ?>
 								<?php esc_html_e( 'Clear', 'preflight-audit' ); ?>

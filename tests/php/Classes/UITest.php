@@ -565,7 +565,7 @@ class UITest extends TestCase {
 		);
 
 		$this->assertStringContainsString( '1 needs work, 1 review, 1 passing', $output );
-		$this->assertStringContainsString( 'Work through 2', $output );
+		$this->assertStringNotContainsString( 'Work through', $output );
 		$this->assertStringContainsString( 'page=pfa-plugins&amp;status=not-compatible', $output );
 		$this->assertStringContainsString( 'Awaiting a scan', $output );
 		$this->assertStringContainsString( 'Clear', $output );
