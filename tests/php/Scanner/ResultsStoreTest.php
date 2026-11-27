@@ -83,6 +83,21 @@ class ResultsStoreTest extends TestCase {
 		$this->assertNull( Results_Store::get( 'plugin:a' ) );
 	}
 
+	public function test_the_index_leaves_out_entries_from_an_older_rule_set() {
+		Results_Store::save( 'plugin:a', $this->result( 'plugin:a' ) );
+		Results_Store::save( 'plugin:old', $this->result( 'plugin:old', array( 'rules_version' => '0.1.0' ) ) );
+
+		$this->assertSame( array( 'plugin:a' ), array_keys( Results_Store::get_index() ) );
+		$this->assertSame( Rules::VERSION, Results_Store::get_index()['plugin:a']['rules_version'] );
+	}
+
+	public function test_forgetting_reaches_an_entry_from_an_older_rule_set() {
+		Results_Store::save( 'plugin:old', $this->result( 'plugin:old', array( 'rules_version' => '0.1.0' ) ) );
+
+		$this->assertSame( 1, Results_Store::forget( array( 'plugin:old' ) ) );
+		$this->assertSame( array(), get_option( Results_Store::INDEX_OPTION ) );
+	}
+
 	public function test_a_corrupt_or_unfingerprinted_result_is_ignored() {
 		update_option( Results_Store::RESULT_PREFIX . md5( 'plugin:a' ), 'not an array' );
 		$this->assertNull( Results_Store::get( 'plugin:a' ) );
