@@ -341,7 +341,11 @@ class FindingsSettingsTest extends TestCase {
 		$this->assertStringNotContainsString( '<script>alert', $output );
 	}
 
-	public function test_the_screen_has_no_help_tab_of_its_own() {
-		$this->assertFalse( method_exists( Findings_Settings::class, 'get_page_guidance' ) );
+	public function test_the_screen_has_help_notes() {
+		$notes = Findings_Settings::get_instance()->get_page_guidance();
+
+		$this->assertCount( 4, $notes );
+		$this->assertStringContainsString( '<code>/</code>', $notes[2] );
+		$this->assertStringContainsString( 'pfa:ignore', $notes[3] );
 	}
 }
