@@ -123,10 +123,10 @@ class UITest extends TestCase {
 		$this->assertNotFalse( simplexml_load_string( $logo ) );
 		$this->assertStringNotContainsString( 'currentColor', $logo );
 
-		// The same plane and checklist as assets/icon.svg, minus its tile.
+		// The same switch of track and checklist as assets/icon.svg, minus its tile.
 		$source = file_get_contents( CUTOVER_AUDIT_DIR . '/assets/icon.svg' );
 
-		foreach ( array( 'M214 42 110 84l40 16z', 'M214 42 150 100l16 40z', 'M46 160l12 12 24-26', 'M40 118Q86 124 122 98' ) as $path ) {
+		foreach ( array( 'M90 112C126 112 134 64 170 64H184', 'M220 64 184 40v24z', 'M46 160l12 12 24-26', 'M40 112H90' ) as $path ) {
 			$this->assertStringContainsString( $path, $source );
 			$this->assertStringContainsString( $path, $logo );
 		}

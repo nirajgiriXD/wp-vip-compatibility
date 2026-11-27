@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="20" height="20">
-	<!-- The admin menu icon: assets/icon.svg with heavier strokes so the checklist and flight path survive at 20px. -->
+	<!-- The admin menu icon: assets/icon.svg with heavier strokes so the checklist and the switch of track survive at 20px. -->
 	<rect width="256" height="256" rx="56" fill="#17191e"/>
 	<g fill="none" stroke-linecap="round" stroke-linejoin="round">
 		<path d="M42 158l14 14 28-30" stroke="#34d399" stroke-width="22"/>
@@ -7,7 +7,8 @@
 		<path d="M114 160h90" stroke="#fffefb" stroke-width="20" opacity="0.85"/>
 		<path d="M114 212h60" stroke="#fffefb" stroke-width="20" opacity="0.85"/>
 	</g>
-	<path d="M38 116Q86 124 122 96" fill="none" stroke="#34d399" stroke-width="14" stroke-linecap="round" stroke-dasharray="0.5 24"/>
-	<path d="M222 34 104 82l46 18z" fill="#fffefb"/>
-	<path d="M222 34 150 100l18 46z" fill="#b9c6c9"/>
+	<path d="M38 114H82" fill="none" stroke="#34d399" stroke-width="14" stroke-linecap="round" stroke-dasharray="0.5 24"/>
+	<path d="M82 114C124 114 130 60 168 60H178" fill="none" stroke="#fffefb" stroke-width="22" stroke-linecap="round"/>
+	<path d="M228 60 176 28v32z" fill="#fffefb"/>
+	<path d="M228 60 176 92V60z" fill="#b9c6c9"/>
 </svg>

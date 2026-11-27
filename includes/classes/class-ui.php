@@ -288,9 +288,10 @@ class UI {
 			. '<path d="M110 160h86" stroke="#fffefb" stroke-width="12" opacity="0.85"/>'
 			. '<path d="M110 210h58" stroke="#fffefb" stroke-width="12" opacity="0.85"/>'
 			. '</g>'
-			. '<path d="M40 118Q86 124 122 98" fill="none" stroke="#34d399" stroke-width="7" stroke-linecap="round" stroke-dasharray="0.5 15"/>'
-			. '<path d="M214 42 110 84l40 16z" fill="#fffefb"/>'
-			. '<path d="M214 42 150 100l16 40z" fill="#b9c6c9"/>'
+			. '<path d="M40 112H90" fill="none" stroke="#34d399" stroke-width="7" stroke-linecap="round" stroke-dasharray="0.5 15"/>'
+			. '<path d="M90 112C126 112 134 64 170 64H184" fill="none" stroke="#fffefb" stroke-width="12" stroke-linecap="round"/>'
+			. '<path d="M220 64 184 40v24z" fill="#fffefb"/>'
+			. '<path d="M220 64 184 88V64z" fill="#b9c6c9"/>'
 			. '</svg>';
 	}
 
