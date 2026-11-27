@@ -139,9 +139,13 @@ class Report {
 	 * browser: the last row to resolve has no idea it was the last, so the page
 	 * reports completion once and this is what it calls.
 	 *
+	 * The counts are always the whole site's; `scope` only records which area
+	 * was rescanned to produce them, for the "Recent scans" table.
+	 *
+	 * @param string $scope The scope that was rescanned, one of the keys from get_scopes().
 	 * @return array<string, mixed> The aggregate the snapshot was taken from.
 	 */
-	public static function record_snapshot() {
+	public static function record_snapshot( $scope = self::SCOPE_ALL ) {
 		$aggregate = self::aggregate();
 
 		Results_Store::record_history(
@@ -152,6 +156,7 @@ class Report {
 				'review'   => $aggregate['statuses'][ Scanner::STATUS_REVIEW ],
 				'pass'     => $aggregate['statuses'][ Scanner::STATUS_PASS ],
 				'score'    => $aggregate['score'],
+				'scope'    => self::resolve_scope( $scope ),
 			)
 		);
 
@@ -208,7 +213,7 @@ class Report {
 			Directory_Audit::flush();
 		}
 
-		return self::record_snapshot();
+		return self::record_snapshot( $scope );
 	}
 
 	/**

@@ -657,6 +657,9 @@ class Overview_Settings {
 					'class' => 'pfa-col-name',
 				),
 				array(
+					'label' => __( 'Scanned', 'preflight-audit' ),
+				),
+				array(
 					'label' => __( 'Score', 'preflight-audit' ),
 					'class' => 'pfa-col-number',
 				),
@@ -687,6 +690,13 @@ class Overview_Settings {
 						human_time_diff( (int) $snapshot['recorded_at'] )
 					)
 				)
+				. '</td>';
+
+			// Entries saved before the scope was recorded show a dash, not a guess.
+			echo '<td data-label="' . esc_attr__( 'Scanned', 'preflight-audit' ) . '">'
+				. ( isset( $snapshot['scope'] )
+					? esc_html( Report::get_scope( (string) $snapshot['scope'] )['label'] )
+					: '<span class="pfa-dash" aria-hidden="true">—</span>' )
 				. '</td>';
 
 			echo '<td class="pfa-col-number" data-label="' . esc_attr__( 'Score', 'preflight-audit' ) . '">'

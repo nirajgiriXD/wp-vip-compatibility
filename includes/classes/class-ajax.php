@@ -132,9 +132,11 @@ class Ajax {
 
 		$scope = isset( $_POST['scope'] ) ? sanitize_key( wp_unslash( $_POST['scope'] ) ) : Report::SCOPE_ALL; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce and capability are verified by authorize() at the top of this handler.
 
-		Report::record_snapshot();
+		$scope = Report::resolve_scope( $scope );
 
-		wp_send_json_success( array( 'scope' => Report::resolve_scope( $scope ) ) );
+		Report::record_snapshot( $scope );
+
+		wp_send_json_success( array( 'scope' => $scope ) );
 	}
 
 	/**

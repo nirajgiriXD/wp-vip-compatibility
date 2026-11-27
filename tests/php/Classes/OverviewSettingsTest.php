@@ -140,13 +140,28 @@ class OverviewSettingsTest extends TestCase {
 		Report::record_snapshot();
 
 		$this->store_result( $this->add_plugin( 'b' ), array( $this->finding( 'security.extract' ) ) );
-		Report::record_snapshot();
+		Report::record_snapshot( 'theme' );
 
 		$this->assertCount( 2, Results_Store::get_history() );
 
 		$output = $this->screen();
 
 		$this->assertStringContainsString( 'pfa-spark', $output );
+		$this->assertStringContainsString( 'data-label="Scanned">Themes</td>', $output );
+		$this->assertStringContainsString( 'data-label="Scanned">Everything</td>', $output );
+	}
+
+	public function test_history_saved_before_scopes_shows_a_dash() {
+		update_option(
+			Results_Store::HISTORY_OPTION,
+			array(
+				array( 'total' => 2, 'score' => 50, 'recorded_at' => time() - 60 ),
+				array( 'total' => 1, 'score' => 75, 'recorded_at' => time() ),
+			)
+		);
+		$this->store_result( $this->add_plugin( 'a' ), array() );
+
+		$this->assertStringContainsString( 'data-label="Scanned"><span class="pfa-dash" aria-hidden="true">—</span></td>', $this->screen() );
 	}
 
 	public function test_names_from_scanned_code_are_escaped() {

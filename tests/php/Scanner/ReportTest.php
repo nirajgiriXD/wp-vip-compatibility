@@ -103,6 +103,9 @@ class ReportTest extends TestCase {
 		$this->assertArrayHasKey( 'theme:t', $index );
 		$this->assertArrayNotHasKey( 'plugin:p', $index, 'plugins were not in scope' );
 		$this->assertArrayNotHasKey( 'plugin:uninstalled', $index, 'pruned although out of scope' );
+
+		$history = Results_Store::get_history();
+		$this->assertSame( 'theme', end( $history )['scope'], 'the history remembers what was rescanned' );
 	}
 
 	public function test_a_database_scope_refreshes_the_database_audit() {
