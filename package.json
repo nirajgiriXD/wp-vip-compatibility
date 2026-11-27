@@ -5,7 +5,8 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "test": "jest",
-    "bump": "node scripts/bump-version.js"
+    "bump": "node scripts/bump-version.js",
+    "zip": "node scripts/build-zip.js"
   },
   "jest": {
     "testEnvironment": "jsdom",
