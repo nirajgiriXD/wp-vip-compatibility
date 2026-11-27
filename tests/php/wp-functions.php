@@ -504,12 +504,6 @@ function wp_using_ext_object_cache( $using = null ) {
 	return WP::$ext_object_cache;
 }
 
-function load_plugin_textdomain( $domain, $deprecated = false, $path = false ) {
-	WP::$textdomains[] = array( $domain, $path );
-
-	return true;
-}
-
 function register_activation_hook( $file, $callback ) {
 	WP::$lifecycle['activation'][] = array( $file, $callback );
 }

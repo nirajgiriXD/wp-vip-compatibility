@@ -194,13 +194,6 @@ final class WP {
 	);
 
 	/**
-	 * Text domains loaded.
-	 *
-	 * @var array<int, array<int, mixed>>
-	 */
-	public static $textdomains = array();
-
-	/**
 	 * Activation and deactivation hooks registered.
 	 *
 	 * @var array<string, array<int, mixed>>
@@ -263,7 +256,6 @@ final class WP {
 			'enqueued_scripts'   => array(),
 			'localized'          => array(),
 		);
-		self::$textdomains      = array();
 		self::$lifecycle        = array(
 			'activation'   => array(),
 			'deactivation' => array(),

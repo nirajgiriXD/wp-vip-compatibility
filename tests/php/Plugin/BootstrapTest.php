@@ -48,7 +48,6 @@ class BootstrapTest extends TestCase {
 		$this->assertInstanceOf( \Preflight_Audit::class, \Preflight_Audit::get_instance() );
 
 		// The services are hooked up.
-		$this->assertNotFalse( has_action( 'init' ) );
 		$this->assertNotFalse( has_action( 'admin_menu' ) );
 		$this->assertNotFalse( has_action( 'wp_ajax_preflight_audit_scan_target' ) );
 		$this->assertNotFalse( has_action( 'admin_post_preflight_audit_export' ) );

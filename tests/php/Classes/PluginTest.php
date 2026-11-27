@@ -9,7 +9,6 @@ namespace PREFLIGHT_AUDIT\Tests\Classes;
 
 use PREFLIGHT_AUDIT\Includes\Classes\Plugin;
 use PREFLIGHT_AUDIT\Tests\Support\Sandbox;
-use PREFLIGHT_AUDIT\Tests\Support\WP;
 use PREFLIGHT_AUDIT\Tests\TestCase;
 
 /**
@@ -30,7 +29,6 @@ class PluginTest extends TestCase {
 
 		new Plugin();
 
-		$this->assertNotFalse( has_action( 'init' ) );
 		$this->assertNotFalse( has_action( 'admin_enqueue_scripts' ) );
 		$this->assertNotFalse( has_action( 'admin_menu' ) );
 		$this->assertNotFalse( has_action( 'wp_ajax_preflight_audit_scan_target' ) );
@@ -40,13 +38,6 @@ class PluginTest extends TestCase {
 
 	public function test_get_instance_is_a_singleton() {
 		$this->assertSame( Plugin::get_instance(), Plugin::get_instance() );
-	}
-
-	public function test_the_text_domain_is_loaded_from_the_languages_directory() {
-		( new Plugin() )->load_textdomain();
-
-		$this->assertSame( 'preflight-audit', WP::$textdomains[0][0] );
-		$this->assertStringEndsWith( '/languages', WP::$textdomains[0][1] );
 	}
 
 	public function test_reference_lists() {

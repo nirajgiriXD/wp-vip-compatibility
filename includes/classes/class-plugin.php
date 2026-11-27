@@ -70,8 +70,6 @@ class Plugin {
 	 * @return void
 	 */
 	public function setup_hooks() {
-		add_action( 'init', array( $this, 'load_textdomain' ) );
-
 		// Updates run in wp-admin, but also over WP-CLI and auto-updates on cron,
 		// so this cannot wait for one of the plugin's own screens to load.
 		add_action( 'upgrader_process_complete', array( Report::class, 'forget_upgraded' ), 10, 2 );
@@ -96,15 +94,6 @@ class Plugin {
 		 * @param string $capability `manage_network_options` on multisite, `manage_options` otherwise.
 		 */
 		return (string) apply_filters( 'preflight_audit_capability', $capability );
-	}
-
-	/**
-	 * Loads the plugin text domain.
-	 *
-	 * @return void
-	 */
-	public function load_textdomain() {
-		load_plugin_textdomain( 'preflight-audit', false, dirname( plugin_basename( PREFLIGHT_AUDIT_FILE ) ) . '/languages' );
 	}
 
 	/**
